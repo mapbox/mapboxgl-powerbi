@@ -1,0 +1,17 @@
+{
+    "version": <%= JSON.stringify(visualData.version) %>,
+    "author": <%= JSON.stringify(authorData) %>,
+    "resources": [
+        {
+            "resourceId": "rId0",
+            "sourceType": 5,
+            "file": "resources/<%= guid %>.pbiviz.json"
+        }
+    ],
+    "visual": <%= JSON.stringify(visualData) %>,
+    "metadata": {
+        "pbivizjson": {
+            "resourceId": "rId0"
+        }
+    }  
+}

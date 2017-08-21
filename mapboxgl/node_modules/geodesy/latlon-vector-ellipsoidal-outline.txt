@@ -1,0 +1,72 @@
+
+function LatLon(lat, lon, datum) { } // constructor
+
+LatLon.ellipsoid = { }
+
+LatLon.datum = { }
+
+LatLon.prototype.convertDatum = function(toDatum) { = latlon-ellipsoidal }; // convert point to different datum
+
+LatLon.prototype.toNvector = function() {  } // convert point to n-vector
+
+LatLon.prototype.toCartesian = function() { = latlon-ellipsoidal } // convert point to cartesian coordinates
+
+LatLon.prototype.distanceTo = function(point) { }
+
+LatLon.prototype.bearingTo = function(point) { }
+
+LatLon.prototype.destinationPoint = function(distance, bearing, radius) { }
+
+LatLon.prototype.crossTrackDistanceTo = function(pathStart, pathBrngEnd, radius) { }
+
+LatLon.meanOf = function(points) { }
+
+
+
+function Nvector(x, y, z) { Vector3d.call(x, y, z); } // constructor (extending Vector3d)
+Nvector.prototype = Object.create(Vector3d.prototype);
+Nvector.prototype.constructor = Nvector;
+
+Nvector.prototype.toLatLon() { }
+
+Nvector.prototype.toCartesian() { }
+
+Nvector.prototype.toVector() { return new Vector3d(this.x, this.y, this.z); }
+
+
+
+class Nvector extends Vector3d {
+
+    constructor(x, y, z) {
+        super(x, y, z);
+    }
+
+    toLatLon() { }
+
+    toCartesian() { }
+
+}
+
+
+
+function Cartesian(x, y, z) { } // constructor
+
+Cartesian.prototype.toLatLon() { }
+
+Cartesian.prototype.toNvector() { }
+
+Cartesian.prototype.toVector() { return new Vector3d(this.x, this.y, this.z); }
+
+
+
+function Vector3d(x, y, z) { } // constructor
+
+Vector3d.prototype.toCartesian = function() { return new Cartesian(this.x, this.y, this.z); }
+
+Vector3d.prototype.toNvector = function() { return new Nvector(this.x, this.y, this.z); }
+
+
+
+1-f = b/a
+
+

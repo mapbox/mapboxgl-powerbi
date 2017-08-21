@@ -1,0 +1,2 @@
+require('./valid');
+require('./fastest');

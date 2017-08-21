@@ -1,0 +1,9 @@
+.DS_Store
+.nyc_output/
+circle.yml
+coverage/
+docs/
+node_modules/
+npm-debug.log
+test/
+RELEASE.md

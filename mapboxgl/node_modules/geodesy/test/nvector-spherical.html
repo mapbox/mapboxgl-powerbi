@@ -1,0 +1,9 @@
+<!doctype html><title>n-vector spherical browser test</title><meta charset="utf-8">
+<script src="../../../js/geodesy/vector3d.js"></script>
+<script src="../../../js/geodesy/latlon-spherical.js"></script>
+<script src="../../../js/geodesy/latlon-nvector-spherical.js"></script>
+<script src="../../../js/geodesy/dms.js"></script>
+<script>
+    var p1 = new Nvector(0.707, 0.707, 0.707, 1);
+    console.log(p1.toLatLon().toString('d')); // => 35.2644°N, 045.0000°E
+</script>

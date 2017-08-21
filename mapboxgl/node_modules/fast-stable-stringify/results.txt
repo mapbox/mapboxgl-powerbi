@@ -1,0 +1,149 @@
+- testing: internet explorer @ Windows 2008: 9
+- testing: internet explorer @ Windows 2012: 10
+- testing: internet explorer @ Windows 2012 R2: 11
+- testing: chrome @ Windows 2003: 26
+- testing: chrome @ Mac 10.6: 43
+- testing: firefox @ Windows 2008: 20
+- testing: firefox @ Mac 10.10: 39
+- testing: safari @ Mac 10.6: 5
+- testing: safari @ Mac 10.10: 8
+- testing: opera @ Windows 2003: 11 12
+- testing: ipad @ Mac 10.6: 4.3
+- testing: ipad @ Mac 10.10: 8.2
+- testing: iphone @ Mac 10.6: 4.3
+- testing: iphone @ Mac 10.10: 8.2
+- testing: android @ Linux: 4.0 5.1
+- queuing: <internet explorer 9 on Windows 2008>
+- queuing: <internet explorer 10 on Windows 2012>
+- queuing: <chrome 43 on Mac 10.6>
+- queuing: <internet explorer 11 on Windows 2012 R2>
+- queuing: <chrome 26 on Windows 2003>
+- starting: <chrome 26 on Windows 2003>
+- starting: <internet explorer 11 on Windows 2012 R2>
+- starting: <internet explorer 10 on Windows 2012>
+- starting: <internet explorer 9 on Windows 2008>
+- starting: <chrome 43 on Mac 10.6>
+<chrome 26 on Windows 2003> console
+Finished benchmarking: nickyout/fast-stable-stringify x 4,867 ops/sec ±5.72% (64 runs sampled) (cumulative string length: 76051236)
+<chrome 43 on Mac 10.6> console
+Finished benchmarking: nickyout/fast-stable-stringify x 6,070 ops/sec ±3.40% (90 runs sampled) (cumulative string length: 85878244)
+<internet explorer 11 on Windows 2012 R2> console
+Finished benchmarking: nickyout/fast-stable-stringify x 4,891 ops/sec ±4.42% (78 runs sampled) (cumulative string length: 70009524)
+<internet explorer 10 on Windows 2012> console
+Finished benchmarking: nickyout/fast-stable-stringify x 4,112 ops/sec ±6.07% (71 runs sampled) (cumulative string length: 58255600)
+<internet explorer 10 on Windows 2012> console
+Finished benchmarking: substack/json-stable-stringify x 2,251 ops/sec ±6.75% (69 runs sampled) (cumulative string length: 32146020)
+<internet explorer 11 on Windows 2012 R2> console
+Finished benchmarking: substack/json-stable-stringify x 3,739 ops/sec ±3.33% (81 runs sampled) (cumulative string length: 52495940)
+<chrome 26 on Windows 2003> console
+Finished benchmarking: substack/json-stable-stringify x 3,300 ops/sec ±5.69% (53 runs sampled) (cumulative string length: 47838128)
+- passed: <internet explorer 10 on Windows 2012>
+- passed: <internet explorer 11 on Windows 2012 R2>
+- queuing: <firefox 20 on Windows 2008>
+- queuing: <firefox 39 on Mac 10.10>
+- passed: <chrome 26 on Windows 2003>
+- queuing: <safari 5 on Mac 10.6>
+<chrome 43 on Mac 10.6> console
+Finished benchmarking: substack/json-stable-stringify x 4,317 ops/sec ±1.09% (97 runs sampled) (cumulative string length: 61392440)
+- passed: <chrome 43 on Mac 10.6>
+- queuing: <safari 8 on Mac 10.10>
+- starting: <safari 5 on Mac 10.6>
+- starting: <firefox 20 on Windows 2008>
+- starting: <firefox 39 on Mac 10.10>
+<internet explorer 9 on Windows 2008> console
+Finished benchmarking: nickyout/fast-stable-stringify x 5,258 ops/sec ±3.34% (31 runs sampled) (cumulative string length: 79841804)
+<internet explorer 9 on Windows 2008> console
+Finished benchmarking: substack/json-stable-stringify x 2,648 ops/sec ±4.01% (18 runs sampled) (cumulative string length: 46361968)
+- starting: <safari 8 on Mac 10.10>
+- passed: <internet explorer 9 on Windows 2008>
+- queuing: <opera 11 on Windows 2003>
+<safari 5 on Mac 10.6> console
+Finished benchmarking: nickyout/fast-stable-stringify x 7,222 ops/sec ±3.00% (42 runs sampled) (cumulative string length: 108170896)
+- starting: <opera 11 on Windows 2003>
+<firefox 20 on Windows 2008> console
+Finished benchmarking: nickyout/fast-stable-stringify x 4,346 ops/sec ±6.16% (83 runs sampled) (cumulative string length: 60780888)
+<safari 5 on Mac 10.6> console
+Finished benchmarking: substack/json-stable-stringify x 2,955 ops/sec ±3.02% (61 runs sampled) (cumulative string length: 42932532)
+- passed: <safari 5 on Mac 10.6>
+- queuing: <opera 12 on Windows 2003>
+<firefox 20 on Windows 2008> console
+Finished benchmarking: substack/json-stable-stringify x 1,957 ops/sec ±8.58% (72 runs sampled) (cumulative string length: 28136664)
+<firefox 39 on Mac 10.10> console
+Finished benchmarking: nickyout/fast-stable-stringify x 4,876 ops/sec ±5.45% (80 runs sampled) (cumulative string length: 68206500)
+<safari 8 on Mac 10.10> console
+Finished benchmarking: nickyout/fast-stable-stringify x 10,228 ops/sec ±9.21% (87 runs sampled) (cumulative string length: 154535500)
+- passed: <firefox 20 on Windows 2008>
+- queuing: <ipad 4.3 on Mac 10.6>
+<firefox 39 on Mac 10.10> console
+Finished benchmarking: substack/json-stable-stringify x 3,147 ops/sec ±3.90% (83 runs sampled) (cumulative string length: 43905216)
+- starting: <opera 12 on Windows 2003>
+- passed: <firefox 39 on Mac 10.10>
+- queuing: <ipad 8.2 on Mac 10.10>
+<safari 8 on Mac 10.10> console
+Finished benchmarking: substack/json-stable-stringify x 3,828 ops/sec ±4.72% (82 runs sampled) (cumulative string length: 54704908)
+<opera 11 on Windows 2003> console
+Finished benchmarking: nickyout/fast-stable-stringify x 634 ops/sec ±4.08% (38 runs sampled) (cumulative string length: 9526504)
+- passed: <safari 8 on Mac 10.10>
+- queuing: <iphone 4.3 on Mac 10.6>
+- starting: <ipad 4.3 on Mac 10.6>
+<opera 11 on Windows 2003> console
+Finished benchmarking: substack/json-stable-stringify x 497 ops/sec ±4.62% (44 runs sampled) (cumulative string length: 7125108)
+- passed: <opera 11 on Windows 2003>
+- queuing: <iphone 8.2 on Mac 10.10>
+<opera 12 on Windows 2003> console
+Finished benchmarking: nickyout/fast-stable-stringify x 2,797 ops/sec ±3.54% (19 runs sampled) (cumulative string length: 48937340)
+- starting: <iphone 4.3 on Mac 10.6>
+<opera 12 on Windows 2003> console
+Finished benchmarking: substack/json-stable-stringify x 1,744 ops/sec ±2.14% (55 runs sampled) (cumulative string length: 24904928)
+<ipad 4.3 on Mac 10.6> console
+Finished benchmarking: nickyout/fast-stable-stringify x 3,396 ops/sec ±0.75% (22 runs sampled) (cumulative string length: 56663456)
+- passed: <opera 12 on Windows 2003>
+- queuing: <android 4.0 on Linux>
+<iphone 4.3 on Mac 10.6> console
+Finished benchmarking: nickyout/fast-stable-stringify x 3,327 ops/sec ±2.99% (21 runs sampled) (cumulative string length: 54088084)
+<ipad 4.3 on Mac 10.6> console
+Finished benchmarking: substack/json-stable-stringify x 2,094 ops/sec ±1.01% (15 runs sampled) (cumulative string length: 38635852)
+- passed: <ipad 4.3 on Mac 10.6>
+- queuing: <android 5.1 on Linux>
+<iphone 4.3 on Mac 10.6> console
+Finished benchmarking: substack/json-stable-stringify x 2,001 ops/sec ±7.63% (14 runs sampled) (cumulative string length: 36060480)
+- passed: <iphone 4.3 on Mac 10.6>
+- starting: <android 4.0 on Linux>
+<android 4.0 on Linux> console
+Finished benchmarking: nickyout/fast-stable-stringify x 4,418 ops/sec ±2.66% (60 runs sampled) (cumulative string length: 66598540)
+<android 4.0 on Linux> console
+Finished benchmarking: substack/json-stable-stringify x 4,528 ops/sec ±0.78% (28 runs sampled) (cumulative string length: 72115688)
+
+<android 4.0 on Linux> Benchmark :: fastest
+Error: "substack/json-stable-stringify" == "nickyout/fast-stable-stringify"
+    Context.<anonymous> test/fastest.js:34
+    Test.run https://qrolfjtdor.localtunnel.me/__zuul/framework.js:4321
+    Runner.runTest https://qrolfjtdor.localtunnel.me/__zuul/framework.js:4713
+    {anonymous}() https://qrolfjtdor.localtunnel.me/__zuul/framework.js:4791
+    next https://qrolfjtdor.localtunnel.me/__zuul/framework.js:4638
+    {anonymous}() https://qrolfjtdor.localtunnel.me/__zuul/framework.js:4648
+    next https://qrolfjtdor.localtunnel.me/__zuul/framework.js:4586
+    {anonymous}() https://qrolfjtdor.localtunnel.me/__zuul/framework.js:4610
+    done https://qrolfjtdor.localtunnel.me/__zuul/framework.js:4295
+    {anonymous}() https://qrolfjtdor.localtunnel.me/__zuul/framework.js:4307
+
+- failed: <android 4.0 on Linux> (1 failed, 2 passed)
+- starting: <android 5.1 on Linux>
+<android 5.1 on Linux> console
+Finished benchmarking: nickyout/fast-stable-stringify x 5,010 ops/sec ±7.22% (84 runs sampled) (cumulative string length: 70834592)
+<android 5.1 on Linux> console
+Finished benchmarking: substack/json-stable-stringify x 3,576 ops/sec ±2.46% (83 runs sampled) (cumulative string length: 49171944)
+- starting: <iphone 8.2 on Mac 10.10>
+- passed: <android 5.1 on Linux>
+- starting: <ipad 8.2 on Mac 10.10>
+<ipad 8.2 on Mac 10.10> console
+Finished benchmarking: nickyout/fast-stable-stringify x 4,630 ops/sec ±8.66% (32 runs sampled) (cumulative string length: 78613428)
+<iphone 8.2 on Mac 10.10> console
+Finished benchmarking: nickyout/fast-stable-stringify x 10,100 ops/sec ±6.05% (48 runs sampled) (cumulative string length: 151061252)
+<iphone 8.2 on Mac 10.10> console
+Finished benchmarking: substack/json-stable-stringify x 3,899 ops/sec ±4.80% (44 runs sampled) (cumulative string length: 60912688)
+- passed: <iphone 8.2 on Mac 10.10>
+<ipad 8.2 on Mac 10.10> console
+Finished benchmarking: substack/json-stable-stringify x 4,029 ops/sec ±4.36% (36 runs sampled) (cumulative string length: 63095296)
+- passed: <ipad 8.2 on Mac 10.10>
+1 browser(s) failed

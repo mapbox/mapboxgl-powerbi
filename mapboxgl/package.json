@@ -1,0 +1,27 @@
+{
+  "name": "powerBI-mapboxgl",
+  "version": "0.0.1",
+  "description": "PowerBI visualization with mapboxgl",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "pbi": "pbiviz",
+    "pbicerti": "pbiviz --install-cert",
+    "package": "pbiviz package",
+    "start": "pbiviz start"
+  },
+  "author": "Ryan Baumann",
+  "license": "MIT",
+  "dependencies": {
+    "@turf/turf": "^4.6.1",
+    "@types/chroma-js": "^1.3.0",
+    "@types/mapbox-gl": "^0.39.4",
+    "@types/turf": "^3.5.32",
+    "chroma-js": "^1.3.4",
+    "mapbox-gl": "^0.39.1",
+    "powerbi-client": "^2.3.4",
+    "powerbi-visuals-tools": "^1.7.2",
+    "powerbi-visuals-utils-dataviewutils": "1.2.0",
+    "typescript": "^2.4.2"
+  }
+}

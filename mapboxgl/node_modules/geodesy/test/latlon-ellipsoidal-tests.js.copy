@@ -1,0 +1,37 @@
+/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  */
+/*  Geodesy Test Harness - latlon-ellipsoidal                         (c) Chris Veness 2014-2016  */
+/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  */
+
+'use strict';
+
+var chai = require('chai'); // BDD/TDD assertion library
+
+var LatLon = require('../npm.js').LatLonEllipsoidal; // ≡ import LatLon From 'latlon-ellipsoidal.js';
+
+chai.should();
+var test = it; // just an alias
+
+describe('latlon-ellipsoidal', function() {
+
+    describe('geodetic-cartesian round-trip', function() {
+        var greenwich1 = new LatLon(51.4778, -0.0016, 1); // default WGS84
+        var greenwichC = greenwich1.toCartesian();
+        var greenwich2 = greenwichC.toLatLon();
+        // check distance using equirectangular
+        var x = (greenwich2.lon-greenwich1.lon).toRadians()*6371e3*Math.cos(51.4778.toRadians());
+        var y = (greenwich2.lat-greenwich1.lat).toRadians()*6371e3;
+        var d = Math.sqrt(x*x + y*y); // in metres
+        test('round-trip position error below 1 μm', function() { d.should.be.below(1e-6)});
+        test('round-trip height error below 1 nm',   function() { Math.abs(greenwich2.height-greenwich1.height).should.be.below(1e-9)});
+    });
+
+    describe('WGS84 <-> OSGB36', function() {
+        var greenwichWGS84 = new LatLon(51.4778, -0.0016); // default WGS84
+        var greenwichOSGB36 = greenwichWGS84.convertDatum(LatLon.datum.OSGB36);
+        var greenwichWGS84roundtrip = greenwichOSGB36.convertDatum(LatLon.datum.WGS84);
+        test('convert WGS84 -> OSGB36',      function() { greenwichOSGB36.toString('d').should.equal('51.4773°N, 000.0000°E'); });
+        test('convert OSGB36 -> WGS84',        function() { greenwichWGS84roundtrip.toString('d').should.equal('51.4778°N, 000.0016°W'); });
+        test('round-trip position within 4mm', function() { greenwichWGS84.distanceTo(greenwichWGS84roundtrip).should.be.at.most(0.004); });
+    });
+
+});
