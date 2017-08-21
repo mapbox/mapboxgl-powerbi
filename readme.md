@@ -4,7 +4,6 @@ Current version of the extension is in `mapboxgl` module folder.
 
 ## Developing
 
-- `cd mapboxgl`
 - `npm install -g powerbi-visuals-tools`
 - Follow Steps on https://github.com/Microsoft/PowerBI-visuals/blob/master/tools/CertificateSetup.md to setup your PowerBI live visual
 - `npm install`
