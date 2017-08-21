@@ -1,7 +1,5 @@
 # Mapbox GL Extension for PowerBI
 
-Current version of the extension is in `mapboxgl` module folder.
-
 ## Developing
 
 - `npm install -g powerbi-visuals-tools`
@@ -14,8 +12,9 @@ Current version of the extension is in `mapboxgl` module folder.
 ![](https://cl.ly/2Q0n0w0z2O3A/download/Image%202017-08-21%20at%209.58.29%20AM.png)
 
 
-### Reference
+### Issues
 
-Here is a working Leaflet extension for PowerBI
-https://github.com/woodbuffalo/powerbi-leaflet
+1. **Nested Window object** - see https://github.com/ryanbaumann/mapboxgl-powerBI/blob/master/src/js/mapboxglAdaptor.js
+2. **30,000 Row limit** - see https://github.com/ryanbaumann/mapboxgl-powerBI/blob/master/capabilities.json#L31
+
 
