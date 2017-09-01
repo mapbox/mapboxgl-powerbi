@@ -4,7 +4,7 @@ High performance, endlessly customizable, open-source tool based Mapbox GL locat
 
 [Example Dashboard](https://app.powerbi.com/view?r=eyJrIjoiMThkYTY1MmItYzMwOC00NjUyLWJhOGMtODZiZWRkNzcxMzY2IiwidCI6IjYyOWE3MGIyLTMyYjktNDEyNi05NTFlLTE3NjA0Y2Y0NTZlYyIsImMiOjF9)
 
-![](https://cl.ly/2L423a1Y243c/download/Screen%20Recording%202017-08-31%20at%2006.14%20PM.gif)
+![](https://dl.dropbox.com/s/gtsfojr60a3pbep/powerbi-readme-170901.gif)
 
 ## Status
 
