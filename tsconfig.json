@@ -12,8 +12,6 @@
     "node_modules/@types/geojson/index.d.ts",
     "node_modules/@types/mapbox-gl/index.d.ts",
     "src/types/chroma-js/index.d.ts",
-    "src/ts/colorPalette.ts",
-    "src/ts/settings.ts",
     "src/ts/mapboxMap.ts"
   ]
 }

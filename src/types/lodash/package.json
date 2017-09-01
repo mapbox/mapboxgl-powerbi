@@ -1,0 +1,68 @@
+{
+  "_from": "@types/lodash",
+  "_id": "@types/lodash@4.14.74",
+  "_inBundle": false,
+  "_integrity": "sha512-BZknw3E/z3JmCLqQVANcR17okqVTPZdlxvcIz0fJiJVLUCbSH1hK3zs9r634PVSmrzAxN+n/fxlVRiYoArdOIQ==",
+  "_location": "/@types/lodash",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "tag",
+    "registry": true,
+    "raw": "@types/lodash",
+    "name": "@types/lodash",
+    "escapedName": "@types%2flodash",
+    "scope": "@types",
+    "rawSpec": "",
+    "saveSpec": null,
+    "fetchSpec": "latest"
+  },
+  "_requiredBy": [
+    "#USER",
+    "/"
+  ],
+  "_resolved": "https://registry.npmjs.org/@types/lodash/-/lodash-4.14.74.tgz",
+  "_shasum": "ac3bd8db988e7f7038e5d22bd76a7ba13f876168",
+  "_spec": "@types/lodash",
+  "_where": "/Users/ryanbaumann/projects/mapboxgl-powerBI",
+  "bundleDependencies": false,
+  "contributors": [
+    {
+      "name": "Brian Zengel",
+      "url": "https://github.com/bczengel"
+    },
+    {
+      "name": "Ilya Mochalov",
+      "url": "https://github.com/chrootsu"
+    },
+    {
+      "name": "Stepan Mikhaylyuk",
+      "url": "https://github.com/stepancar"
+    },
+    {
+      "name": "Eric L Anderson",
+      "url": "https://github.com/ericanderson"
+    },
+    {
+      "name": "AJ Richardson",
+      "url": "https://github.com/aj-r"
+    },
+    {
+      "name": "Junyoung Clare Jang",
+      "url": "https://github.com/ailrun"
+    }
+  ],
+  "dependencies": {},
+  "deprecated": false,
+  "description": "TypeScript definitions for Lo-Dash",
+  "license": "MIT",
+  "main": "",
+  "name": "@types/lodash",
+  "repository": {
+    "type": "git",
+    "url": "https://www.github.com/DefinitelyTyped/DefinitelyTyped.git"
+  },
+  "scripts": {},
+  "typeScriptVersion": "2.2",
+  "typesPublisherContentHash": "12af578ffaf8d86d2df37e591857906a86b983fa9258414326544a0fe6af0de8",
+  "version": "4.14.74"
+}

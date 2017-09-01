@@ -1,6 +1,5 @@
 module powerbi.extensibility.visual {
     "use strict";
-
     export function logExceptions(): MethodDecorator {
         return function (target: Object, propertyKey: string, descriptor: TypedPropertyDescriptor<Function>)
         : TypedPropertyDescriptor<Function> {
@@ -22,7 +21,6 @@ module powerbi.extensibility.visual {
         private map: mapboxgl.Map;
         private mapOptions: mapboxgl.MapboxOptions;
         private mapDiv: HTMLDivElement;
-        private settings: VisualSettings;
         private dataView: DataView;
         private popup: mapboxgl.Popup;
         private host: IVisualHost;
@@ -44,9 +42,9 @@ module powerbi.extensibility.visual {
 
             this.mapOptions = {
                 container: this.mapDiv,
-                style: 'mapbox://styles/mapbox/light-v9', //stylesheet location
-                center: [-74.50, 40], // starting position
-                zoom: 2 // starting zoom
+                style: 'mapbox://styles/mapbox/dark-v9?optimize=true',
+                center: [-74.50, 40],
+                zoom: 0
             }
 
             mapboxgl.accessToken = this.MAPBOX_ACCESS_TOKEN
@@ -76,13 +74,7 @@ module powerbi.extensibility.visual {
                 return data;
             });
 
-            // Names of data values
-            //let categoryName = dataView.metadata.columns[3].displayName;
-            //let measureName = dataView.metadata.columns[2].displayName;
-
-            //Color palette selected by user
-
-            let limits = chroma.limits(domain, 'k', 8);
+            let limits = chroma.limits(domain, 'q', 5);
             let scale = chroma.scale('YlGnBu').domain(limits).mode('lab')
 
             var geojson_data : GeoJSON.FeatureCollection<GeoJSON.GeometryObject> = {
@@ -112,8 +104,6 @@ module powerbi.extensibility.visual {
         @logExceptions()
         public update(options: VisualUpdateOptions) {
 
-            console.log('update');
-
             if (!options.dataViews || !options.dataViews[0]) return;
 
             var _this = this
@@ -134,58 +124,154 @@ module powerbi.extensibility.visual {
                 }
 
                 else {
-                    _this.map.addSource('data', {type: "geojson", data: geojson_data})
+                    _this.map.addSource('data', {
+                        type: "geojson", 
+                        data: geojson_data, 
+                        buffer: 0, 
+                        maxzoom: 12,
+                        cluster: true,
+                        clusterMaxZoom: 8,
+                        clusterRadius: 40
+                    })
                 }
 
-                if (!_this.map.getLayer('circle')) {
+                if (!_this.map.getLayer('circle-cluster')) {
                     _this.map.addLayer({
-                        id: "circle",
+                        id: "circle-cluster",
                         source: "data",
                         type: "circle",
+                        maxzoom: 9,
+                        paint: {
+                            "circle-color": {
+                                "property": "point_count",
+                                "type": "exponential",
+                                "stops": [
+                                    [0, chroma.brewer.YlGnBu[0]],
+                                    [1000, chroma.brewer.YlGnBu[1]],
+                                    [5000, chroma.brewer.YlGnBu[2]],
+                                    [10000, chroma.brewer.YlGnBu[3]]
+                                ]
+                            },
+                            "circle-radius": {
+                                "property": "point_count",
+                                "type": "exponential",
+                                "stops": [
+                                    [0,10],
+                                    [1000,20],
+                                    [5000,25],
+                                    [10000,30]
+                                ]
+                            }
+                        },
+                        filter: ["has", "point_count"],
+                    }, 'waterway-label')
+                }
+
+                if (!_this.map.getLayer('cluster-label')) {
+                    _this.map.addLayer({
+                        id: "cluster-label",
+                        maxzoom: 9,
+                        type: "symbol",
+                        source: "data",
+                        filter: ["has", "point_count"],
+                        layout: {
+                            "text-field": "{point_count_abbreviated}",
+                            "text-font": ["DIN Offc Pro Medium", "Arial Unicode MS Bold"],
+                            "text-size": 12
+                        }
+                    });
+                }
+
+                if (!_this.map.getLayer('3d-buildings')) {
+                        _this.map.addLayer({
+                            'id': '3d-buildings',
+                            'source': 'composite',
+                            'source-layer': 'building',
+                            'filter': ['==', 'extrude', 'true'],
+                            'type': 'fill-extrusion',
+                            'minzoom': 15,
+                            'paint': {
+                                'fill-extrusion-color': '#aaa',
+                                'fill-extrusion-height': {
+                                    'type': 'identity',
+                                    'property': 'height'
+                                },
+                                'fill-extrusion-base': {
+                                    'type': 'identity',
+                                    'property': 'min_height'
+                                },
+                                'fill-extrusion-opacity': .5
+                            }
+                        }, 'waterway-label');
+                }
+
+
+                if (!_this.map.getLayer('circle-raw')) {
+                    _this.map.addLayer({
+                        id: "circle-raw",
+                        source: "data",
+                        type: "circle",
+                        minzoom: 9,
                         paint: {
                             "circle-color": {
                                 "property": "color",
                                 "type": "identity"
                             },
                             "circle-radius": {
-                                "stops": [[0,0.1],[16,15]]
-                            },
-                            "circle-stroke-width": {
-                                "stops": [[0,0.1],[20,1]]
-                            },
-                            "circle-stroke-color": "grey"
-                        }
+                                "stops": [
+                                [0,0.1],[12,3],[20,12]]
+                            }
+                        },
+                        filter: ["!has", "point_count"],
                     }, 'waterway-label')
-                }
+                };
             }
+        
 
             function addPopup() {
                 _this.map.off('mousemove');
                 _this.map.off('mouseleave');
 
-            	_this.map.on('mousemove', 'circle', function(e) {
-
-			        _this.map.getCanvas().style.cursor = 'pointer';
+                function onMouseMove(e) {
+                    _this.map.getCanvas().style.cursor = 'pointer';
 
                     let feat = e.features[0]
                     let tooltip = feat.properties.tooltip
 
-			        _this.popup.setLngLat(e.features[0].geometry.coordinates)
-			            .setHTML("<div><h3>Tooltip</h3>"+
-			            	"<li>Value: " + tooltip + "<li></div>")
-			            .addTo(_this.map);
-		    	});
+                    _this.popup.setLngLat(e.features[0].geometry.coordinates)
+                        .setHTML("<div><h3>Tooltip</h3>"+
+                            "<li>Value: " + tooltip + "<li></div>")
+                        .addTo(_this.map);
+                };
+               
+            	_this.map.on('mousemove', 'circle-raw', onMouseMove);
 
-			    _this.map.on('mouseleave', 'circle', function() {
+			    _this.map.on('mouseleave', 'circle-raw', function() {
 			        _this.map.getCanvas().style.cursor = '';
 			        _this.popup.remove();
 			    });
-
 	        }
 
-	        this.map.on('load', function() {
+            function addClick() {
+                _this.map.off('click');
+
+                function onClick(e) {
+                    let feat = e.features[0]
+
+                    _this.map.easeTo({
+                        center: feat.geometry.coordinates,
+                        zoom: 15
+                    });
+
+                };
+               
+                _this.map.on('click', 'circle-raw', onClick);
+            }
+
+	        this.map.once('load', function() {
             	onUpdate();
             	addPopup();
+                addClick();
                 let bounds : any = turf.bbox(geojson_data)
                 _this.map.fitBounds(bounds, {padding: 25})
             })
@@ -193,14 +279,16 @@ module powerbi.extensibility.visual {
             if (this.map.loaded) {
                 onUpdate();
                 addPopup();
+                addClick();
                 let bounds : any = turf.bbox(geojson_data)
+                _this.map.setPitch(0);
+                _this.map.setBearing(0);
                 _this.map.fitBounds(bounds, {
                     padding: 25,
                     maxZoom: 15,
                     linear: true
                 })
             }
-
         }
 
         @logExceptions()
