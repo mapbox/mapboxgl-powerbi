@@ -7,7 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "pbi": "pbiviz",
     "pbicerti": "pbiviz --install-cert",
-    "package": "pbiviz package",
+    "package": "pbiviz package --resources --no-minify",
     "start": "pbiviz start"
   },
   "author": "Ryan Baumann",

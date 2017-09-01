@@ -18,6 +18,7 @@ module powerbi.extensibility.visual {
     }
 
     export class MapboxMap implements IVisual {
+        debugger;
         private map: mapboxgl.Map;
         private mapOptions: mapboxgl.MapboxOptions;
         private mapDiv: HTMLDivElement;
@@ -29,7 +30,6 @@ module powerbi.extensibility.visual {
         private MAPBOX_ACCESS_TOKEN: string = "pk.eyJ1IjoicnNiYXVtYW5uIiwiYSI6ImNqNmFibmgyYjExeDgycXJ5emltZmR4dWgifQ.a1eP4yuu6UsxhZ1wEWDQgA"
 
         constructor(options: VisualConstructorOptions) {
-
             this.host = options.host;
             //Map initialization    
             this.mapDiv = document.createElement('div');
@@ -47,14 +47,12 @@ module powerbi.extensibility.visual {
                 zoom: 0
             }
 
-            mapboxgl.accessToken = this.MAPBOX_ACCESS_TOKEN
+            mapboxgl.accessToken = this.MAPBOX_ACCESS_TOKEN;
 
-            this.map = new mapboxgl.Map(this.mapOptions);
-            this.map.addControl(new mapboxgl.NavigationControl());
-            this.map.addControl(new mapboxgl.ScaleControl({
-                maxWidth: 80,
-                unit: 'imperial'
-            }));
+            this.popup = new mapboxgl.Popup({
+                closeButton: false,
+                closeOnClick: false
+            });
         }
 
         @logExceptions()
@@ -100,21 +98,34 @@ module powerbi.extensibility.visual {
             return geojson_data
         }
 
+        public static debounce(func, wait, immediate) {
+            var timeout;
+            var returnFunction : any = function() {
+                var context = this, args = arguments;
+                var later = function() {
+                    timeout = null;
+                    if (!immediate) func.apply(context, args);
+                };
+                var callNow = immediate && !timeout;
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+                if (callNow) func.apply(context, args);
+            };
+
+            return returnFunction
+        };
+
 
         @logExceptions()
         public update(options: VisualUpdateOptions) {
 
+            //Only run this step if there are lat/long values to parse
             if (!options.dataViews || !options.dataViews[0]) return;
 
             var _this = this
             
             this.dataView = options.dataViews[0];
             const geojson_data = MapboxMap.converter(this.dataView, this.host);
-
-            this.popup = new mapboxgl.Popup({
-		        closeButton: false,
-		        closeOnClick: false
-		    });
 
             function onUpdate() {
 
@@ -232,9 +243,8 @@ module powerbi.extensibility.visual {
                 _this.map.off('mousemove');
                 _this.map.off('mouseleave');
 
-                function onMouseMove(e) {
+                var onMouseMove : Function = MapboxMap.debounce(function(e) {
                     _this.map.getCanvas().style.cursor = 'pointer';
-
                     let feat = e.features[0]
                     let tooltip = feat.properties.tooltip
 
@@ -242,41 +252,51 @@ module powerbi.extensibility.visual {
                         .setHTML("<div><h3>Tooltip</h3>"+
                             "<li>Value: " + tooltip + "<li></div>")
                         .addTo(_this.map);
-                };
+                }, 8, false);
+
+                var onMouseLeave : Function = MapboxMap.debounce(function(e) {
+                    _this.map.getCanvas().style.cursor = '';
+                    _this.popup.remove();
+                }, 8, false);
                
             	_this.map.on('mousemove', 'circle-raw', onMouseMove);
-
-			    _this.map.on('mouseleave', 'circle-raw', function() {
-			        _this.map.getCanvas().style.cursor = '';
-			        _this.popup.remove();
-			    });
+			    _this.map.on('mouseleave', 'circle-raw', onMouseLeave);
 	        }
 
             function addClick() {
                 _this.map.off('click');
 
-                function onClick(e) {
+                var onClick : Function = MapboxMap.debounce(function(e) {
                     let feat = e.features[0]
-
                     _this.map.easeTo({
                         center: feat.geometry.coordinates,
                         zoom: 15
                     });
-
-                };
+                }, 8, false);
                
                 _this.map.on('click', 'circle-raw', onClick);
             }
 
-	        this.map.once('load', function() {
-            	onUpdate();
-            	addPopup();
-                addClick();
-                let bounds : any = turf.bbox(geojson_data)
-                _this.map.fitBounds(bounds, {padding: 25})
-            })
+            //Load the map
 
-            if (this.map.loaded) {
+            //If the map container doesnt exist yet, create it
+            if (this.map === undefined ) {
+                this.map = new mapboxgl.Map(this.mapOptions);
+                this.map.addControl(new mapboxgl.NavigationControl());
+                this.map.addControl(new mapboxgl.ScaleControl({
+                    maxWidth: 80,
+                    unit: 'imperial'
+                }));
+                this.map.once('load', function() {
+                    onUpdate();
+                    addPopup();
+                    addClick();
+                    let bounds : any = turf.bbox(geojson_data)
+                    _this.map.fitBounds(bounds, {padding: 25})
+                });
+            }
+            //If the map already exists, update it
+            else if (this.map.loaded) {
                 onUpdate();
                 addPopup();
                 addClick();
