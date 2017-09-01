@@ -1,5 +1,26 @@
 # Mapbox GL Extension for PowerBI
 
+High performance, endlessly customizable, open-source tool based Mapbox GL location visuals for your PowerBI reports and dashboards.
+
+[Example Dashboard](https://app.powerbi.com/view?r=eyJrIjoiMThkYTY1MmItYzMwOC00NjUyLWJhOGMtODZiZWRkNzcxMzY2IiwidCI6IjYyOWE3MGIyLTMyYjktNDEyNi05NTFlLTE3NjA0Y2Y0NTZlYyIsImMiOjF9)
+
+![](https://cl.ly/2L423a1Y243c/download/Screen%20Recording%202017-08-31%20at%2006.14%20PM.gif)
+
+## Status
+
+In active development!  
+
+- Only point geometry sources are currently supported
+- Only a dark map style is currently supported
+- Only one color ramp is currently supported
+
+### Adding MapboxGL Viz to a PowerBI Report
+
+On PowerBI Online, add the `dist/mapboxGLMap.pbiviz` file in this repository as a custom visual in your report.
+
+![](https://cl.ly/3303070u081q/download/Image%202017-09-01%20at%203.47.52%20PM.png)
+
+
 ## Developing
 
 - `npm install -g powerbi-visuals-tools`
@@ -9,12 +30,17 @@
 - `pbiviz start`
 - Add a custom visual using the PowerBI custom viz options, using a latitude and longitude variable.
 
-![](https://cl.ly/2Q0n0w0z2O3A/download/Image%202017-08-21%20at%209.58.29%20AM.png)
+### Building
 
+`npm run package`
+
+The package command uses the flags --no-minify and --resources to prevent ES6 errors from magnification in `uglifyjs`.
 
 ### Issues
 
 1. **Nested Window object** - see https://github.com/ryanbaumann/mapboxgl-powerBI/blob/master/src/js/mapboxglAdaptor.js
-2. **30,000 Row limit** - see https://github.com/ryanbaumann/mapboxgl-powerBI/blob/master/capabilities.json#L31
+    * Workaround - altered the Mapbox GL js library to use the function `window.window.devicePixelRatio` in place of `window.devicePixelRatio`.
+    * The custom version of the Mapbox GL js library is packaged with this repository and will need to be manually checked and validated for new mapboxgl JS version upgrades.
+    
 
 
