@@ -194,7 +194,7 @@
     -ms-transform: rotate(360deg);
   }
 }
-@-keyframes mapboxgl-spin {
+@keyframes mapboxgl-spin {
   0% {
     transform: rotate(0deg);
   }

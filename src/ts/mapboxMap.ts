@@ -266,7 +266,7 @@ module powerbi.extensibility.visual {
                     _this.map.easeTo({
                         center: features[0].geometry.coordinates,
                         zoom: 15,
-                        duration: 0
+                        duration: 250
                     });
                 }, 12, false);
                
@@ -280,7 +280,7 @@ module powerbi.extensibility.visual {
             addClick();
             let bounds : any = turf.bbox(turf.featureCollection(features));
             _this.map.easeTo( {
-                duration: 0,
+                duration: 250,
                 pitch: 0,
                 bearing: 0
             });
