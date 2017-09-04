@@ -18,7 +18,6 @@ module powerbi.extensibility.visual {
     }
 
     export class MapboxMap implements IVisual {
-        debugger;
         private map: mapboxgl.Map;
         private mapOptions: mapboxgl.MapboxOptions;
         private mapDiv: HTMLDivElement;
@@ -77,14 +76,16 @@ module powerbi.extensibility.visual {
                     const role = Object.keys(columns[i].roles)[0]
                     d[role] = v;
                     if (role == 'category') {
-                        domain.push(v)
+                        if (typeof v === "number") {
+                            domain.push(v)
+                        }
                     }
                     return d;
                 }, {});
                 return data;
             });
 
-            let limits = chroma.limits(domain, 'q', 5);
+            let limits = chroma.limits(domain, 'q', 8);
             let scale = chroma.scale('YlGnBu').domain(limits).mode('lab')
             var features = [];
 
@@ -97,8 +98,8 @@ module powerbi.extensibility.visual {
                         "coordinates": [d.longitude, d.latitude]
                     },
                     "properties": {
-                        "color": scale(d.category).toString(),
-                        "tooltip": d.tooltip
+                        "color": (d.category) ? scale(d.category).toString() : null,
+                        "tooltip": (d.category) ? d.category.toString() : null
                     }
                 }
                 features.push(feat)
@@ -124,20 +125,26 @@ module powerbi.extensibility.visual {
             return returnFunction
         };
 
+        public static create_fc(features : Array<GeoJSON.Feature<any>>) {
+            var empty_fc : any = {"type": "FeatureCollection", "features": []};
+            return empty_fc.features.push(features);
+        }
 
         @logExceptions()
         public update(options: VisualUpdateOptions) {
-
-            //Only run this step if there are lat/long values to parse
-            if (!options.dataViews || !options.dataViews[0]) return;
-
             var _this = this
+            //Only run this step if there are lat/long values to parse
+            if (options.dataViews[0].metadata.columns.length < 2) { 
+                _this.firstRun = false;
+                return 
+            };
+
+            
             
             this.dataView = options.dataViews[0];
             var features = MapboxMap.converter(this.dataView, this.host);
 
             function onUpdate() {
-
                 if (_this.map.getSource('data1')) {
                     let source1 : any = _this.map.getSource('data1');
                     let source2 : any = _this.map.getSource('data2');
@@ -191,7 +198,7 @@ module powerbi.extensibility.visual {
                             },
                             "circle-radius": {
                                 "stops": [
-                                [0,0.1],[12,4],[20,16]]
+                                [0,0.1],[3,3],[12,4],[20,16]]
                             },
                             "circle-stroke-width": {
                                 "stops": [[0,0.1], [12,0.2], [22,1]]
@@ -210,7 +217,7 @@ module powerbi.extensibility.visual {
                             },
                             "circle-radius": {
                                 "stops": [
-                                [0,0.1],[12,4],[20,16]]
+                                [0,0.1],[3,3],[12,4],[20,16]]
                             },
                             "circle-stroke-width": {
                                 "stops": [[0,0.1], [12,0.2], [22,1]]
@@ -246,7 +253,7 @@ module powerbi.extensibility.visual {
                             "<li>Value: " + tooltip + "<li></div>")
                         .addTo(_this.map);
 
-                }, 12, false);
+                }, 16, false);
                
             	_this.map.on('mousemove', onMouseMove);
 	        }
@@ -266,9 +273,9 @@ module powerbi.extensibility.visual {
                     _this.map.easeTo({
                         center: features[0].geometry.coordinates,
                         zoom: 15,
-                        duration: 250
+                        duration: 1000
                     });
-                }, 12, false);
+                }, 16, false);
                
                 _this.map.on('click', onClick);
             };
@@ -278,21 +285,33 @@ module powerbi.extensibility.visual {
             onUpdate();
             addPopup();
             addClick();
+
             let bounds : any = turf.bbox(turf.featureCollection(features));
+
             _this.map.easeTo( {
-                duration: 250,
+                duration: 1000,
                 pitch: 0,
                 bearing: 0
             });
-            _this.map.fitBounds(bounds, {padding: 25} );
+            _this.map.fitBounds(bounds, {
+                padding: 25
+            });
             _this.firstRun = false;
         }
 
+        // If running update for the first time, wait for the load event
         if (_this.firstRun) {
             _this.map.once('load', runload);
         }
         else {
-            runload();
+            //If refreshing the map, update the map if it's already fully rendered
+            if (_this.map.loaded) {
+                runload();
+            }
+            else {
+                //If refreshing the map and existing data is still loading, update when finished loading
+                _this.map.on('sourcedata', runload);
+            }  
         }
         
     }

@@ -1139,13 +1139,15 @@ var powerbi;
                                 const role = Object.keys(columns[i].roles)[0];
                                 d[role] = v;
                                 if (role == 'category') {
-                                    domain.push(v);
+                                    if (typeof v === "number") {
+                                        domain.push(v);
+                                    }
                                 }
                                 return d;
                             }, {});
                             return data;
                         });
-                        let limits = chroma.limits(domain, 'q', 5);
+                        let limits = chroma.limits(domain, 'q', 8);
                         let scale = chroma.scale('YlGnBu').domain(limits).mode('lab');
                         var features = [];
                         datas.map(function (d) {
@@ -1156,8 +1158,8 @@ var powerbi;
                                     "coordinates": [d.longitude, d.latitude]
                                 },
                                 "properties": {
-                                    "color": scale(d.category).toString(),
-                                    "tooltip": d.tooltip
+                                    "color": (d.category) ? scale(d.category).toString() : null,
+                                    "tooltip": (d.category) ? d.category.toString() : null
                                 }
                             };
                             features.push(feat);
@@ -1182,11 +1184,18 @@ var powerbi;
                         return returnFunction;
                     }
                     ;
+                    static create_fc(features) {
+                        var empty_fc = { "type": "FeatureCollection", "features": [] };
+                        return empty_fc.features.push(features);
+                    }
                     update(options) {
-                        //Only run this step if there are lat/long values to parse
-                        if (!options.dataViews || !options.dataViews[0])
-                            return;
                         var _this = this;
+                        //Only run this step if there are lat/long values to parse
+                        if (options.dataViews[0].metadata.columns.length < 2) {
+                            _this.firstRun = false;
+                            return;
+                        }
+                        ;
                         this.dataView = options.dataViews[0];
                         var features = MapboxMap.converter(this.dataView, this.host);
                         function onUpdate() {
@@ -1240,7 +1249,7 @@ var powerbi;
                                         },
                                         "circle-radius": {
                                             "stops": [
-                                                [0, 0.1], [12, 4], [20, 16]
+                                                [0, 0.1], [3, 3], [12, 4], [20, 16]
                                             ]
                                         },
                                         "circle-stroke-width": {
@@ -1259,7 +1268,7 @@ var powerbi;
                                         },
                                         "circle-radius": {
                                             "stops": [
-                                                [0, 0.1], [12, 4], [20, 16]
+                                                [0, 0.1], [3, 3], [12, 4], [20, 16]
                                             ]
                                         },
                                         "circle-stroke-width": {
@@ -1289,7 +1298,7 @@ var powerbi;
                                     .setHTML("<div><h3>Tooltip</h3>" +
                                     "<li>Value: " + tooltip + "<li></div>")
                                     .addTo(_this.map);
-                            }, 12, false);
+                            }, 16, false);
                             _this.map.on('mousemove', onMouseMove);
                         }
                         function addClick() {
@@ -1306,9 +1315,9 @@ var powerbi;
                                 _this.map.easeTo({
                                     center: features[0].geometry.coordinates,
                                     zoom: 15,
-                                    duration: 250
+                                    duration: 1000
                                 });
-                            }, 12, false);
+                            }, 16, false);
                             _this.map.on('click', onClick);
                         }
                         ;
@@ -1318,18 +1327,28 @@ var powerbi;
                             addClick();
                             let bounds = turf.bbox(turf.featureCollection(features));
                             _this.map.easeTo({
-                                duration: 250,
+                                duration: 1000,
                                 pitch: 0,
                                 bearing: 0
                             });
-                            _this.map.fitBounds(bounds, { padding: 25 });
+                            _this.map.fitBounds(bounds, {
+                                padding: 25
+                            });
                             _this.firstRun = false;
                         }
+                        // If running update for the first time, wait for the load event
                         if (_this.firstRun) {
                             _this.map.once('load', runload);
                         }
                         else {
-                            runload();
+                            //If refreshing the map, update the map if it's already fully rendered
+                            if (_this.map.loaded) {
+                                runload();
+                            }
+                            else {
+                                //If refreshing the map and existing data is still loading, update when finished loading
+                                _this.map.on('sourcedata', runload);
+                            }
                         }
                     }
                     destroy() {
