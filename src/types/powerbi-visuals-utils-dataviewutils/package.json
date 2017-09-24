@@ -1,0 +1,76 @@
+{
+  "_args": [
+    [
+      "powerbi-visuals-utils-dataviewutils@1.2.0",
+      "C:\\Projects\\mapbox\\mapboxgl-powerBI"
+    ]
+  ],
+  "_from": "powerbi-visuals-utils-dataviewutils@1.2.0",
+  "_id": "powerbi-visuals-utils-dataviewutils@1.2.0",
+  "_inBundle": false,
+  "_integrity": "sha1-WaHJgzVclYoj2ZAYlPZfFXUZMhM=",
+  "_location": "/powerbi-visuals-utils-dataviewutils",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "version",
+    "registry": true,
+    "raw": "powerbi-visuals-utils-dataviewutils@1.2.0",
+    "name": "powerbi-visuals-utils-dataviewutils",
+    "escapedName": "powerbi-visuals-utils-dataviewutils",
+    "rawSpec": "1.2.0",
+    "saveSpec": null,
+    "fetchSpec": "1.2.0"
+  },
+  "_requiredBy": [
+    "/",
+    "/powerbi-visuals-tools"
+  ],
+  "_resolved": "https://registry.npmjs.org/powerbi-visuals-utils-dataviewutils/-/powerbi-visuals-utils-dataviewutils-1.2.0.tgz",
+  "_spec": "1.2.0",
+  "_where": "C:\\Projects\\mapbox\\mapboxgl-powerBI",
+  "author": {
+    "name": "Microsoft"
+  },
+  "bugs": {
+    "url": "https://github.com/Microsoft/powerbi-visuals-utils-dataviewutils/issues"
+  },
+  "description": "dataviewutils",
+  "devDependencies": {
+    "@types/jasmine": "2.5.51",
+    "coveralls": "2.13.1",
+    "jasmine": "2.6.0",
+    "karma": "1.7.0",
+    "karma-chrome-launcher": "2.1.1",
+    "karma-coverage": "1.1.1",
+    "karma-jasmine": "1.1.0",
+    "karma-remap-istanbul": "0.6.0",
+    "karma-sourcemap-loader": "0.3.7",
+    "karma-typescript-preprocessor": "0.3.0",
+    "powerbi-visuals-tools": "1.2.0",
+    "tslint": "5.4.3",
+    "tslint-microsoft-contrib": "^5.0.0",
+    "typescript": "2.1.4"
+  },
+  "files": [
+    "lib"
+  ],
+  "homepage": "https://github.com/Microsoft/powerbi-visuals-utils-dataviewutils#readme",
+  "keywords": [
+    "powerbi-visuals-utils"
+  ],
+  "license": "MIT",
+  "main": "lib/index.js",
+  "name": "powerbi-visuals-utils-dataviewutils",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Microsoft/powerbi-visuals-utils-dataviewutils.git"
+  },
+  "scripts": {
+    "build": "tsc",
+    "build:map": "tsc --sourceMap",
+    "lint": "tslint -r \"node_modules/tslint-microsoft-contrib\"  \"+(src|test)/**/*.ts\"",
+    "pretest": "npm run build:map",
+    "test": "karma start"
+  },
+  "version": "1.2.0"
+}

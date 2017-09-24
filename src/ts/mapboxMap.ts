@@ -58,10 +58,6 @@ module powerbi.extensibility.visual {
             if (this.map === undefined ) {
                 this.map = new mapboxgl.Map(this.mapOptions);
                 this.map.addControl(new mapboxgl.NavigationControl());
-                this.map.addControl(new mapboxgl.ScaleControl({
-                    maxWidth: 80,
-                    unit: 'imperial'
-                }));
             }
         }
 
@@ -294,7 +290,8 @@ module powerbi.extensibility.visual {
                 bearing: 0
             });
             _this.map.fitBounds(bounds, {
-                padding: 25
+                padding: 25,
+                duration: 200
             });
             _this.firstRun = false;
         }

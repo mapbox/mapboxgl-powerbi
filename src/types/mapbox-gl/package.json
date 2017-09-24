@@ -1,0 +1,53 @@
+{
+  "_from": "@types/mapbox-gl@^0.39.6",
+  "_id": "@types/mapbox-gl@0.39.6",
+  "_inBundle": false,
+  "_integrity": "sha512-9Fu7YrX7KVgFFBIqxUxos+0WteB8Cv6vn/2NPg6pEICmRAkXtWHDKB7kAO0jmj01On3i0+k2V0UuSwT47DGEBA==",
+  "_location": "/@types/mapbox-gl",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "range",
+    "registry": true,
+    "raw": "@types/mapbox-gl@^0.39.6",
+    "name": "@types/mapbox-gl",
+    "escapedName": "@types%2fmapbox-gl",
+    "scope": "@types",
+    "rawSpec": "^0.39.6",
+    "saveSpec": null,
+    "fetchSpec": "^0.39.6"
+  },
+  "_requiredBy": [
+    "/"
+  ],
+  "_resolved": "https://registry.npmjs.org/@types/mapbox-gl/-/mapbox-gl-0.39.6.tgz",
+  "_shasum": "7ea4c7f7be8b09eff0a41fcfbda5efe43a568a74",
+  "_spec": "@types/mapbox-gl@^0.39.6",
+  "_where": "C:\\Projects\\mapbox\\mapboxgl-powerBI",
+  "bundleDependencies": false,
+  "contributors": [
+    {
+      "name": "Dominik Bruderer",
+      "url": "https://github.com/dobrud"
+    },
+    {
+      "name": "Patrick Reames",
+      "url": "https://github.com/patrickr"
+    }
+  ],
+  "dependencies": {
+    "@types/geojson": "*"
+  },
+  "deprecated": false,
+  "description": "TypeScript definitions for Mapbox GL JS",
+  "license": "MIT",
+  "main": "",
+  "name": "@types/mapbox-gl",
+  "repository": {
+    "type": "git",
+    "url": "https://www.github.com/DefinitelyTyped/DefinitelyTyped.git"
+  },
+  "scripts": {},
+  "typeScriptVersion": "2.0",
+  "typesPublisherContentHash": "c321fb2bc73218df28f4c3731b95c0afd91a9874e36373a0128060b4707501ae",
+  "version": "0.39.6"
+}
