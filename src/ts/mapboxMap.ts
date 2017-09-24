@@ -109,26 +109,18 @@ module powerbi.extensibility.visual {
 
 			function calcCircleColorLegend(colorStops, valueStops, title) {
 			    //Calculate a legend element on a Mapbox GL Style Spec property function stops array
+			    var legend = document.getElementById('legend');
+			    legend.innerHTML = ''
+
 			    var mytitle = document.createElement('div');
 			    mytitle.textContent = title;
 			    mytitle.id = 'legend-title';
 			    mytitle.className = 'legend-title';
 
-			    var legend = document.getElementById('legend');
-
-			    if (document.getElementById('legend-title')) {
-			    	document.getElementById('legend-title').textContent = title;
-			    }
-			    else {
-			    	legend.appendChild(mytitle);
-				}
+			    legend.appendChild(mytitle);
 
 			    for (var p = 0; p < colorStops.length; p++) {
-			        if (!!document.getElementById('legend-points-value-' + p)) {
-			            //update the legend if it already exists
-			            document.getElementById('legend-points-value-' + p).textContent = valueStops[p];
-			            document.getElementById('legend-points-id-' + p).style.backgroundColor = colorStops[p];
-			        } else {
+
 			            //create the legend if it doesn't yet exist
 			            var item = document.createElement('div');
 			            var key = document.createElement('span');
@@ -143,7 +135,6 @@ module powerbi.extensibility.visual {
 			            
 			            let data = document.getElementById('legend-points-value-' + p)
 			            data.textContent = valueStops[p];
-			        }
 			    }
 			}
 
@@ -155,7 +146,7 @@ module powerbi.extensibility.visual {
                         if (typeof v === "number") {
                             numerical_domain.push(v)
                         }
-                        else if (typeof v === "string") {
+                        else if ( (typeof v === "string") || (typeof v === "boolean") ) {
                         	pushIfNotExist(categorical_domain, v, function(e) {
                         		return e === v
                         	})
@@ -211,8 +202,9 @@ module powerbi.extensibility.visual {
 		                features.push(feat)
 	                }
             	});
-
-            	calcCircleColorLegend(scale.colors(8), categorical_domain.slice(0,8), "Measure");
+        	    let length = categorical_domain.length
+        	    let legnend_length = length < 8 ? length : 8
+            	calcCircleColorLegend(scale.colors(legnend_length), categorical_domain.slice(0,legnend_length), "Measure");
 	        }
 
             return features;
