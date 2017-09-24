@@ -179,6 +179,7 @@ module powerbi.extensibility.visual {
 		                features.push(feat)
 	            }
             	});
+
             	calcCircleColorLegend(scale.colors(8), limits, "Measure");
 	        }
 	        else if (categorical_domain.length > 0) {
@@ -255,13 +256,13 @@ module powerbi.extensibility.visual {
                     _this.map.addSource('data1', {
                         type: "geojson", 
                         data: turf.featureCollection(features.slice(0,Math.floor(features.length/2))),
-                        buffer: 0
+                        buffer: 10
                     });
 
                     _this.map.addSource('data2', {
                         type: "geojson", 
                         data: turf.featureCollection(features.slice(Math.floor(features.length/2), features.length)),
-                        buffer: 0
+                        buffer: 10
                     });
 
                     _this.map.addLayer({
@@ -297,11 +298,7 @@ module powerbi.extensibility.visual {
                             "circle-radius": {
                                 "stops": [
                                 [0,0.1],[3,3],[12,4],[15,8],[20,26]]
-                            },
-                            "circle-stroke-width": {
-                                "stops": [[0,0.1], [12,0.2], [22,2]]
-                            },
-                            "circle-stroke-color": "grey"
+                            }
                         }
                     }, 'waterway-label');
 
@@ -317,11 +314,7 @@ module powerbi.extensibility.visual {
                             "circle-radius": {
                                 "stops": [
                                 [0,0.1],[3,3],[12,4],[15,8],[20,26]]
-                            },
-                            "circle-stroke-width": {
-                                "stops": [[0,0.1], [12,0.2], [22,2]]
-                            },
-                            "circle-stroke-color": "grey"
+                            }
                         }
                     }, 'waterway-label');
             }
