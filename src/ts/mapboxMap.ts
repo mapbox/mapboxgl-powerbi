@@ -22,6 +22,7 @@ module powerbi.extensibility.visual {
         private mapOptions: mapboxgl.MapboxOptions;
         private mapDiv: HTMLDivElement;
         private mapOptionsDiv: HTMLElement;
+        private mapLegend: HTMLElement;
         private dataView: DataView;
         private popup: mapboxgl.Popup;
         private host: IVisualHost;
@@ -42,6 +43,11 @@ module powerbi.extensibility.visual {
             this.mapDiv.style.width = "100%";
             this.mapDiv.style.overflow = 'visible';
             options.element.appendChild(this.mapDiv);
+            
+            this.mapLegend = document.createElement('legend');
+            this.mapLegend.className = 'legend';
+            this.mapLegend.id = 'legend';
+            this.mapDiv.appendChild(this.mapLegend);
 
             /* TBD - Map options element to select color, map style, and viz type
             this.mapOptionsDiv = document.createElement('div');
@@ -101,6 +107,46 @@ module powerbi.extensibility.visual {
 			    }
 			}; 
 
+			function calcCircleColorLegend(colorStops, valueStops, title) {
+			    //Calculate a legend element on a Mapbox GL Style Spec property function stops array
+			    var mytitle = document.createElement('div');
+			    mytitle.textContent = title;
+			    mytitle.id = 'legend-title';
+			    mytitle.className = 'legend-title';
+
+			    var legend = document.getElementById('legend');
+
+			    if (document.getElementById('legend-title')) {
+			    	document.getElementById('legend-title').textContent = title;
+			    }
+			    else {
+			    	legend.appendChild(mytitle);
+				}
+
+			    for (var p = 0; p < colorStops.length; p++) {
+			        if (!!document.getElementById('legend-points-value-' + p)) {
+			            //update the legend if it already exists
+			            document.getElementById('legend-points-value-' + p).textContent = valueStops[p];
+			            document.getElementById('legend-points-id-' + p).style.backgroundColor = colorStops[p];
+			        } else {
+			            //create the legend if it doesn't yet exist
+			            var item = document.createElement('div');
+			            var key = document.createElement('span');
+			            key.className = 'legend-key';
+			            var value = document.createElement('span');
+			            key.id = 'legend-points-id-' + p;
+			            key.style.backgroundColor = colorStops[p];
+			            value.id = 'legend-points-value-' + p;
+			            item.appendChild(key);
+			            item.appendChild(value);
+			            legend.appendChild(item);
+			            
+			            let data = document.getElementById('legend-points-value-' + p)
+			            data.textContent = valueStops[p];
+			        }
+			    }
+			}
+
             const datas = rows.map(function (row, idx) {
                 let data = row.reduce(function (d : any, v, i) {
                     const role = Object.keys(columns[i].roles)[0]
@@ -124,7 +170,7 @@ module powerbi.extensibility.visual {
 
             if (numerical_domain.length > 0) {
             	var limits = chroma.limits(numerical_domain, 'q', 8);
-            	var scale = chroma.scale('YlGnBu').domain(limits).mode('lab');
+            	var scale = chroma.scale('YlGnBu').domain(limits);
 
             	datas.map(function (d) {
 	                let feat: GeoJSON.Feature<any> = {
@@ -140,9 +186,10 @@ module powerbi.extensibility.visual {
 	                }
 	                features.push(feat)
             	});
+            	calcCircleColorLegend(scale.colors(8), limits, "Measure");
 	        }
 	        else if (categorical_domain.length > 0) {
-	        	var scale = chroma.scale('Set2').domain([0, categorical_domain.length]).mode('lab');
+	        	var scale = chroma.scale('Set2').domain([0, categorical_domain.length]);
 
         	    datas.map(function (d) {
         	    	let position : any = positionInArray(categorical_domain, d.category);
@@ -159,6 +206,7 @@ module powerbi.extensibility.visual {
 	                }
 	                features.push(feat)
             	});
+            	calcCircleColorLegend(scale.colors(8), categorical_domain.slice(0,8), "Measure");
 	        }
 
             return features;
@@ -250,11 +298,12 @@ module powerbi.extensibility.visual {
                             },
                             "circle-radius": {
                                 "stops": [
-                                [0,0.1],[3,3],[12,4],[20,16]]
+                                [0,0.1],[3,3],[12,4],[20,26]]
                             },
                             "circle-stroke-width": {
-                                "stops": [[0,0.1], [12,0.2], [22,1]]
-                            }
+                                "stops": [[0,0.1], [12,0.2], [22,2]]
+                            },
+                            "circle-stroke-color": "grey"
                         }
                     }, 'waterway-label');
 
@@ -269,18 +318,19 @@ module powerbi.extensibility.visual {
                             },
                             "circle-radius": {
                                 "stops": [
-                                [0,0.1],[3,3],[12,4],[20,16]]
+                                [0,0.1],[3,3],[12,4],[20,26]]
                             },
                             "circle-stroke-width": {
-                                "stops": [[0,0.1], [12,0.2], [22,1]]
-                            }
+                                "stops": [[0,0.1], [12,0.2], [22,2]]
+                            },
+                            "circle-stroke-color": "grey"
                         }
                     }, 'waterway-label');
             }
         }
 
             function addPopup() {
-                _this.map.off('mousemove');
+                _this.map.off('mousemove', onMouseMove);
 
                 var onMouseMove : Function = MapboxMap.debounce(function(e) {
                     let minpoint = new Array(e.point['x'] - 5, e.point['y'] - 5)
