@@ -3,22 +3,20 @@
     {
         "name": "latitude",
         "kind": "GroupingOrMeasure",
-        "displayName": "Latitude"
+        "displayName": "Latitude",
+        "description": "Latitude geographic point from data"
     },
     {
         "name": "longitude",
         "kind": "GroupingOrMeasure",
-        "displayName": "Longitude"
+        "displayName": "Longitude",
+        "description": "Longitude geographic point from data"
     },
     {
         "name": "category",
         "kind": "GroupingOrMeasure",
-        "displayName": "Color"
-    },
-    {
-        "name": "tooltip",
-        "kind": "GroupingOrMeasure",
-        "displayName": "Tooltip"
+        "displayName": "Color",
+        "description": "Categorical or numerical measure value to color map long/lat points by"
     }],
     "dataViewMappings": [
     {
@@ -30,7 +28,7 @@
                 {
                     "top":
                     {
-                        "count": 30000
+                        "count": 300000
                     }
                 },
                 "select": [
@@ -50,12 +48,6 @@
                     "for":
                     {
                         "in": "longitude"
-                    }
-                },
-                {
-                    "for":
-                    {
-                        "in": "tooltip"
                     }
                 }]
             }

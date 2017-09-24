@@ -155,7 +155,7 @@ module powerbi.extensibility.visual {
                         if (typeof v === "number") {
                             numerical_domain.push(v)
                         }
-                        else {
+                        else if (typeof v === "string") {
                         	pushIfNotExist(categorical_domain, v, function(e) {
                         		return e === v
                         	})
@@ -173,18 +173,20 @@ module powerbi.extensibility.visual {
             	var scale = chroma.scale('YlGnBu').domain(limits);
 
             	datas.map(function (d) {
-	                let feat: GeoJSON.Feature<any> = {
-	                    "type": "Feature",
-	                    "geometry": {
-	                        "type": "Point",
-	                        "coordinates": [d.longitude, d.latitude]
-	                    },
-	                    "properties": {
-	                        "color": (d.category) ? scale(d.category).toString() : null,
-	                        "tooltip": (d.category) ? d.category.toString() : null
-	                    }
-	                }
-	                features.push(feat)
+            		if ( (d.latitude >= -90) && (d.latitude <= 90) && (d.longitude >= -180) && (d.longitude <= 180) ) {
+		                let feat: GeoJSON.Feature<any> = {
+		                    "type": "Feature",
+		                    "geometry": {
+		                        "type": "Point",
+		                        "coordinates": [d.longitude, d.latitude]
+		                    },
+		                    "properties": {
+		                        "color": (d.category) ? scale(d.category).toString() : null,
+		                        "tooltip": (d.category) ? d.category.toString() : null
+		                    }
+		                }
+		                features.push(feat)
+	            }
             	});
             	calcCircleColorLegend(scale.colors(8), limits, "Measure");
 	        }
@@ -192,20 +194,24 @@ module powerbi.extensibility.visual {
 	        	var scale = chroma.scale('Set2').domain([0, categorical_domain.length]);
 
         	    datas.map(function (d) {
-        	    	let position : any = positionInArray(categorical_domain, d.category);
-	                let feat: GeoJSON.Feature<any> = {
-	                    "type": "Feature",
-	                    "geometry": {
-	                        "type": "Point",
-	                        "coordinates": [d.longitude, d.latitude]
-	                    },
-	                    "properties": {
-	                        "color": (d.category) ? scale(position).toString() : null,
-	                        "tooltip": (d.category) ? d.category.toString() : null
-	                    }
+        	    	if ( (d.latitude >= -90) && (d.latitude <= 90) && (d.longitude >= -180) && (d.longitude <= 180) ) {
+
+	        	    	let position : any = positionInArray(categorical_domain, d.category);
+		                let feat: GeoJSON.Feature<any> = {
+		                    "type": "Feature",
+		                    "geometry": {
+		                        "type": "Point",
+		                        "coordinates": [d.longitude, d.latitude]
+		                    },
+		                    "properties": {
+		                        "color": (d.category) ? scale(position).toString() : null,
+		                        "tooltip": (d.category) ? d.category.toString() : null
+		                    }
+		                }
+		                features.push(feat)
 	                }
-	                features.push(feat)
             	});
+
             	calcCircleColorLegend(scale.colors(8), categorical_domain.slice(0,8), "Measure");
 	        }
 
@@ -251,7 +257,7 @@ module powerbi.extensibility.visual {
                     let source1 : any = _this.map.getSource('data1');
                     let source2 : any = _this.map.getSource('data2');
                     source1.setData( turf.featureCollection(features.slice(0,Math.floor(features.length/2))) );
-                    source2.setData( turf.featureCollection(features.slice(Math.floor(features.length/2),features.length)) );
+                    source2.setData( turf.featureCollection(features.slice(Math.floor(features.length/2), features.length)) );
                 }
                 else {
                     _this.map.addSource('data1', {
@@ -262,7 +268,7 @@ module powerbi.extensibility.visual {
 
                     _this.map.addSource('data2', {
                         type: "geojson", 
-                        data: turf.featureCollection(features.slice(Math.floor(features.length/2),features.length)),
+                        data: turf.featureCollection(features.slice(Math.floor(features.length/2), features.length)),
                         buffer: 0
                     });
 
@@ -298,7 +304,7 @@ module powerbi.extensibility.visual {
                             },
                             "circle-radius": {
                                 "stops": [
-                                [0,0.1],[3,3],[12,4],[20,26]]
+                                [0,0.1],[3,3],[12,4],[15,8],[20,26]]
                             },
                             "circle-stroke-width": {
                                 "stops": [[0,0.1], [12,0.2], [22,2]]
@@ -318,7 +324,7 @@ module powerbi.extensibility.visual {
                             },
                             "circle-radius": {
                                 "stops": [
-                                [0,0.1],[3,3],[12,4],[20,26]]
+                                [0,0.1],[3,3],[12,4],[15,8],[20,26]]
                             },
                             "circle-stroke-width": {
                                 "stops": [[0,0.1], [12,0.2], [22,2]]
@@ -330,7 +336,8 @@ module powerbi.extensibility.visual {
         }
 
             function addPopup() {
-                _this.map.off('mousemove', onMouseMove);
+            	// Don't add the popup if it already exists
+                if (_this.map.listens('mousemove')) { return }
 
                 var onMouseMove : Function = MapboxMap.debounce(function(e) {
                     let minpoint = new Array(e.point['x'] - 5, e.point['y'] - 5)
@@ -377,7 +384,7 @@ module powerbi.extensibility.visual {
                         zoom: 15,
                         duration: 500
                     });
-                }, 16, false);
+                }, 16, true);
                
                 _this.map.on('click', onClick);
             };
