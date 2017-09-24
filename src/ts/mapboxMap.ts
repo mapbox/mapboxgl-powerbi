@@ -21,6 +21,7 @@ module powerbi.extensibility.visual {
         private map: mapboxgl.Map;
         private mapOptions: mapboxgl.MapboxOptions;
         private mapDiv: HTMLDivElement;
+        private mapOptionsDiv: HTMLElement;
         private dataView: DataView;
         private popup: mapboxgl.Popup;
         private host: IVisualHost;
@@ -34,11 +35,21 @@ module powerbi.extensibility.visual {
             //Map initialization    
             this.mapDiv = document.createElement('div');
             this.mapDiv.className = 'map';
-            this.mapDiv.style.position = "absolute"
-            this.mapDiv.style.top = "0"
-            this.mapDiv.style.bottom ="0"
+            this.mapDiv.style.position = "absolute";
+            this.mapDiv.style.top = "0";
+            this.mapDiv.style.bottom ="0";
+            this.mapDiv.style.left ="0";
             this.mapDiv.style.width = "100%";
+            this.mapDiv.style.overflow = 'visible';
             options.element.appendChild(this.mapDiv);
+
+            /* TBD - Map options element to select color, map style, and viz type
+            this.mapOptionsDiv = document.createElement('div');
+            this.mapOptionsDiv.className = 'options mapboxgl-ctrl-top-left';
+            this.mapOptionsDiv.id = 'mapOptions';
+            this.mapOptionsDiv.innerHTML = 'Options'
+            this.mapDiv.appendChild(this.mapOptionsDiv);
+            */
 
             this.mapOptions = {
                 container: this.mapDiv,
@@ -65,7 +76,30 @@ module powerbi.extensibility.visual {
         public static converter(dataView: DataView, host: IVisualHost) {
 
             const {columns, rows} = dataView.table;
-            var domain : any = []
+            var numerical_domain : any = [];
+            var categorical_domain : any = [];
+
+            function inArray(array, comparer) { 
+			    for(var i=0; i < array.length; i++) { 
+			        if(comparer(array[i])) return true; 
+			    }
+			    return false; 
+			}; 
+
+			function pushIfNotExist(array, element, comparer) { 
+			    if (!inArray(array, comparer)) {
+			        array.push(element);
+			    }
+			}; 
+
+			function positionInArray(array, element) { 
+			    for (var i=0; i < array.length; i++) { 
+			        if (element === array[i]) {
+			        	var returnValue : number = i;
+			        	return returnValue;
+			        }
+			    }
+			}; 
 
             const datas = rows.map(function (row, idx) {
                 let data = row.reduce(function (d : any, v, i) {
@@ -73,7 +107,12 @@ module powerbi.extensibility.visual {
                     d[role] = v;
                     if (role == 'category') {
                         if (typeof v === "number") {
-                            domain.push(v)
+                            numerical_domain.push(v)
+                        }
+                        else {
+                        	pushIfNotExist(categorical_domain, v, function(e) {
+                        		return e === v
+                        	})
                         }
                     }
                     return d;
@@ -81,25 +120,46 @@ module powerbi.extensibility.visual {
                 return data;
             });
 
-            let limits = chroma.limits(domain, 'q', 8);
-            let scale = chroma.scale('YlGnBu').domain(limits).mode('lab')
             var features = [];
 
-            datas.map(function (d) {
+            if (numerical_domain.length > 0) {
+            	var limits = chroma.limits(numerical_domain, 'q', 8);
+            	var scale = chroma.scale('YlGnBu').domain(limits).mode('lab');
 
-                let feat: GeoJSON.Feature<any> = {
-                    "type": "Feature",
-                    "geometry": {
-                        "type": "Point",
-                        "coordinates": [d.longitude, d.latitude]
-                    },
-                    "properties": {
-                        "color": (d.category) ? scale(d.category).toString() : null,
-                        "tooltip": (d.category) ? d.category.toString() : null
-                    }
-                }
-                features.push(feat)
-            });
+            	datas.map(function (d) {
+	                let feat: GeoJSON.Feature<any> = {
+	                    "type": "Feature",
+	                    "geometry": {
+	                        "type": "Point",
+	                        "coordinates": [d.longitude, d.latitude]
+	                    },
+	                    "properties": {
+	                        "color": (d.category) ? scale(d.category).toString() : null,
+	                        "tooltip": (d.category) ? d.category.toString() : null
+	                    }
+	                }
+	                features.push(feat)
+            	});
+	        }
+	        else if (categorical_domain.length > 0) {
+	        	var scale = chroma.scale('Set2').domain([0, categorical_domain.length]).mode('lab');
+
+        	    datas.map(function (d) {
+        	    	let position : any = positionInArray(categorical_domain, d.category);
+	                let feat: GeoJSON.Feature<any> = {
+	                    "type": "Feature",
+	                    "geometry": {
+	                        "type": "Point",
+	                        "coordinates": [d.longitude, d.latitude]
+	                    },
+	                    "properties": {
+	                        "color": (d.category) ? scale(position).toString() : null,
+	                        "tooltip": (d.category) ? d.category.toString() : null
+	                    }
+	                }
+	                features.push(feat)
+            	});
+	        }
 
             return features;
         }
@@ -135,8 +195,6 @@ module powerbi.extensibility.visual {
                 return 
             };
 
-            
-            
             this.dataView = options.dataViews[0];
             var features = MapboxMap.converter(this.dataView, this.host);
 
@@ -151,15 +209,13 @@ module powerbi.extensibility.visual {
                     _this.map.addSource('data1', {
                         type: "geojson", 
                         data: turf.featureCollection(features.slice(0,Math.floor(features.length/2))),
-                        buffer: 0, 
-                        maxzoom: 12
+                        buffer: 0
                     });
 
                     _this.map.addSource('data2', {
                         type: "geojson", 
                         data: turf.featureCollection(features.slice(Math.floor(features.length/2),features.length)),
-                        buffer: 0, 
-                        maxzoom: 12
+                        buffer: 0
                     });
 
                     _this.map.addLayer({
@@ -269,7 +325,7 @@ module powerbi.extensibility.visual {
                     _this.map.easeTo({
                         center: features[0].geometry.coordinates,
                         zoom: 15,
-                        duration: 1000
+                        duration: 500
                     });
                 }, 16, false);
                
@@ -285,13 +341,13 @@ module powerbi.extensibility.visual {
             let bounds : any = turf.bbox(turf.featureCollection(features));
 
             _this.map.easeTo( {
-                duration: 1000,
+                duration: 500,
                 pitch: 0,
                 bearing: 0
             });
             _this.map.fitBounds(bounds, {
                 padding: 25,
-                duration: 200
+                duration: 500
             });
             _this.firstRun = false;
         }
