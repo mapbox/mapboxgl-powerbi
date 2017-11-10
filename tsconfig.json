@@ -4,7 +4,8 @@
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "target": "es5",
-    "sourceMap": true
+    "sourceMap": true,
+    "typeRoots": ["src/types"]
   },
   "exclude": [
       "node_modules",
@@ -12,7 +13,7 @@
     ]
   ,
   "files": [
-    "src/types/powerbi-visuals-utils-dataviewutils/lib/index.d.ts",
+    "src/types/powerbi-visuals-utils-dataviewutils/index.d.ts",
     ".api/v1.7.0/PowerBI-visuals.d.ts",
     "src/types/geojson/index.d.ts",
     "src/types/mapbox-gl/index.d.ts",

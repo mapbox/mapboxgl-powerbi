@@ -57,3 +57,11 @@ typings/
 # dotenv environment variables file
 .env
 .DS_Store
+
+# Compiled files
+src/ts/mapboxMap.js*
+.tmp
+dist/
+
+# Editor files
+*.swp
