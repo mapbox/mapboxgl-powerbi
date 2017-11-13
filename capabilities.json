@@ -125,6 +125,24 @@
                   },
               "displayName": "Map Style",
               "displayNameKey": "map_style"
+              },
+            "layerType": {
+                  "type": {
+                      "enumeration": [
+                          {
+                            "value": "circle",
+                            "displayName": "Circle",
+                            "displayNameKey": "circle"
+                          },
+                          {
+                            "value": "heatmap",
+                            "displayName": "Heatmap",
+                            "displayNameKey": "heatmap"
+                          }
+                      ]
+                  },
+              "displayName": "Layer type",
+              "displayNameKey": "layer_type"
               }
           }
       }

@@ -1,3 +1,20 @@
+function decorateLayer(layer) {
+    if (layer.type == 'circle') {
+        layer.paint = {
+            "circle-color": {
+                "property": "color",
+                "type": "identity"
+            },
+            "circle-radius": {
+                "stops": [
+                [0,0.1],[3,3],[12,4],[15,8],[20,26]]
+            }
+        }
+    }
+    return layer;
+}
+
+
 module powerbi.extensibility.visual {
     "use strict";
     export function logExceptions(): MethodDecorator {
@@ -30,6 +47,8 @@ module powerbi.extensibility.visual {
         private measureName: string = "";
         private firstRun: boolean = true;
         private mapboxData: MapboxData;
+        private firstLayer: mapboxgl.Layer;
+        private secondLayer: mapboxgl.Layer;
 
         private get settings(): MapboxSettings {
             return this.mapboxData && this.mapboxData.settings;
@@ -282,6 +301,20 @@ module powerbi.extensibility.visual {
                 this.map = new mapboxgl.Map(mapOptions);
                 this.map.addControl(new mapboxgl.NavigationControl());
             }
+            const layerType = this.mapboxData.settings.api.layerType;
+
+            this.firstLayer = decorateLayer({
+                id: 'first',
+                source: 'data1',
+                type: layerType
+            })
+
+            this.secondLayer = decorateLayer({
+                id: 'second',
+                source: 'data2',
+                type: layerType
+            })
+
 
             this.map.setStyle(this.mapboxData.settings.api.style);
             this.map.on('style.load', runload);
@@ -293,6 +326,10 @@ module powerbi.extensibility.visual {
                     let source2 : any = _this.map.getSource('data2');
                     source1.setData( turf.featureCollection(_this.mapboxData.features.slice(0,Math.floor(_this.mapboxData.features.length/2))) );
                     source2.setData( turf.featureCollection(_this.mapboxData.features.slice(Math.floor(_this.mapboxData.features.length/2), _this.mapboxData.features.length)) );
+                    _this.map.removeLayer('first');
+                    _this.map.removeLayer('second');
+                    _this.map.addLayer(_this.firstLayer);
+                    _this.map.addLayer(_this.secondLayer);
                 }
                 else {
                     _this.map.addSource('data1', {
@@ -328,37 +365,8 @@ module powerbi.extensibility.visual {
                         }
                     }, 'waterway-label');
 
-                    _this.map.addLayer({
-                        id: "circle-1",
-                        source: 'data1',
-                        type: "circle",
-                        paint: {
-                            "circle-color": {
-                                "property": "color",
-                                "type": "identity"
-                            },
-                            "circle-radius": {
-                                "stops": [
-                                [0,0.1],[3,3],[12,4],[15,8],[20,26]]
-                            }
-                        }
-                    }, 'waterway-label');
-
-                    _this.map.addLayer({
-                        id: "circle-2",
-                        source: 'data2',
-                        type: "circle",
-                        paint: {
-                            "circle-color": {
-                                "property": "color",
-                                "type": "identity"
-                            },
-                            "circle-radius": {
-                                "stops": [
-                                [0,0.1],[3,3],[12,4],[15,8],[20,26]]
-                            }
-                        }
-                    }, 'waterway-label');
+                    _this.map.addLayer(_this.firstLayer, 'waterway-label');
+                    _this.map.addLayer(_this.secondLayer, 'waterway-label');
             }
         }
 
@@ -369,26 +377,23 @@ module powerbi.extensibility.visual {
                 var onMouseMove : Function = MapboxMap.debounce(function(e) {
                     let minpoint = new Array(e.point['x'] - 5, e.point['y'] - 5)
                     let maxpoint = new Array(e.point['x'] + 5, e.point['y'] + 5)
-                    let features : any = _this.map.queryRenderedFeatures([minpoint, maxpoint], {
-                        layers: ['circle-1', 'circle-2']
-                    });
+                    try {
+                        let features : any = _this.map.queryRenderedFeatures([minpoint, maxpoint], {
+                            layers: ['first', 'second']
+                        });
+                        _this.map.getCanvas().style.cursor = 'pointer';
+                        let feat = features[0];
+                        let tooltip = feat.properties.tooltip;
 
-                    if (!features.length) {
+                        _this.popup.setLngLat(_this.map.unproject(e.point))
+                            .setHTML("<div><h3>Tooltip</h3>"+
+                                "<li>Value: " + tooltip + "<li></div>")
+                            .addTo(_this.map);
+                    } catch (err) {
                         _this.map.getCanvas().style.cursor = '';
                         _this.popup.remove();
                         return
                     }
-
-                    _this.map.getCanvas().style.cursor = 'pointer';
-
-                    let feat = features[0];
-                    let tooltip = feat.properties.tooltip;
-
-                    _this.popup.setLngLat(_this.map.unproject(e.point))
-                        .setHTML("<div><h3>Tooltip</h3>"+
-                            "<li>Value: " + tooltip + "<li></div>")
-                        .addTo(_this.map);
-
                 }, 16, false);
                
             	_this.map.on('mousemove', onMouseMove);
@@ -401,7 +406,7 @@ module powerbi.extensibility.visual {
                     let minpoint = new Array(e.point['x'] - 5, e.point['y'] - 5)
                     let maxpoint = new Array(e.point['x'] + 5, e.point['y'] + 5)
                     let features : any = _this.map.queryRenderedFeatures([minpoint, maxpoint], {
-                        layers: ['circle-1', 'circle-2']
+                        layers: ['first', 'second']
                     });
 
                     if (!features.length) {return}
@@ -423,6 +428,15 @@ module powerbi.extensibility.visual {
             addClick();
 
             let bounds : any = turf.bbox(turf.featureCollection(_this.mapboxData.features));
+            bounds = bounds.map( bound => {
+                if (bound < -90) {
+                    return -90;
+                }
+                if (bound > 90) {
+                    return 90;
+                }
+                return bound;
+            });
 
             _this.map.easeTo( {
                 duration: 500,
@@ -430,8 +444,7 @@ module powerbi.extensibility.visual {
                 bearing: 0
             });
             _this.map.fitBounds(bounds, {
-                padding: 25,
-                duration: 500
+                padding: 25
             });
             _this.firstRun = false;
         }
