@@ -76,10 +76,8 @@ module powerbi.extensibility.visual {
             this.mapDiv.appendChild(this.mapOptionsDiv);
                 style: 'mapbox://styles/mapbox/dark-v9?optimize=true',
             */
-
             this.mapOptions = {
                 container: this.mapDiv,
-                style: 'mapbox://styles/szilardhuber/cj9socbb727nf2rocuzcsxocn',
                 center: [-74.50, 40],
                 zoom: 0
             }
@@ -254,7 +252,6 @@ module powerbi.extensibility.visual {
 
         @logExceptions()
         public update(options: VisualUpdateOptions) {
-            console.log("Bitch please");
             var _this = this
             //Only run this step if there are lat/long values to parse
             if (options.dataViews[0].metadata.columns.length < 2) { 
@@ -265,7 +262,6 @@ module powerbi.extensibility.visual {
             this.mapboxData  = MapboxMap.converter(this.dataView, this.host);
 
             if (!this.mapboxData.settings.api.accessToken) {
-                console.log("Don't have an access token");
                 return;
             }
             mapboxgl.accessToken = this.mapboxData.settings.api.accessToken;
@@ -275,11 +271,20 @@ module powerbi.extensibility.visual {
                 closeOnClick: false
             });
 
+            const mapOptions = {
+                container: this.mapDiv,
+                center: [-74.50, 40],
+                zoom: 0
+            }
+
             //If the map container doesnt exist yet, create it
-            //if (this.map === undefined ) {
-                this.map = new mapboxgl.Map(this.mapOptions);
+            if (this.map === undefined ) {
+                this.map = new mapboxgl.Map(mapOptions);
                 this.map.addControl(new mapboxgl.NavigationControl());
-            //}
+            }
+
+            this.map.setStyle(this.mapboxData.settings.api.style);
+            this.map.on('style.load', runload);
 
 
             function onUpdate() {
@@ -438,7 +443,7 @@ module powerbi.extensibility.visual {
         else {
             //If refreshing the map, update the map if it's already fully rendered
             if (_this.map.loaded) {
-                runload();
+                // runload();
             }
             else {
                 //If refreshing the map and existing data is still loading, update when finished loading
@@ -450,7 +455,6 @@ module powerbi.extensibility.visual {
 
         @logExceptions()
         public destroy(): void {
-            console.log("removing map with destroy")
             this.map.remove();
         }
     }
