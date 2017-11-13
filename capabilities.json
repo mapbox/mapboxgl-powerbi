@@ -53,85 +53,20 @@
             }
         }
     }],
-    "objects":
-    {
-        "colorSelector": {
-    "displayName": "Data Colors",
-    "properties": {
-        "fill": {
-            "displayName": "Color",
-            "type": {
-                "fill": {
-                    "solid": {
-                        "color": true
-                    }
-                }
-            }
-        }
-    }
-},
-        "general":
-        {
-            "displayName": "Map Options",
-            "properties":
-            {
-                "pointFill":
-                {
-                    "type":
-                    {
-                        "fill":
-                        {
-                            "solid":
-                            {
-                                "color": true
-                            }
-                        }
+    "objects": {
+        "api": {
+          "displayName": "MapBox API",
+          "displayNameKey": "mapbox_api",
+            "description": "Display MapBox API Settings",
+            "properties": {
+                "accessToken": {
+                  "displayName": "Access Token",
+                  "displayNameKey": "access_token",
+                    "description": "Public Access Token from https://www.mapbox.com/studio/account/tokens/",
+                    "type": {
+                        "text": true
                     },
-                    "displayName": "Point color"
-                },
-                "pointRadius":
-                {
-                    "type":
-                    {
-                        "numeric": true
-                    },
-                    "displayName": "Point radius"
-                },
-                "lineFill":
-                {
-                    "type":
-                    {
-                        "fill":
-                        {
-                            "solid":
-                            {
-                                "color": true
-                            }
-                        }
-                    },
-                    "displayName": "Line color"
-                },
-                "lineWidth":
-                {
-                    "type":
-                    {
-                        "numeric": true
-                    },
-                    "displayName": "Line width"
-                },
-                "polygonFill":
-                {
-                    "type":
-                    {
-                        "fill":
-                        {
-                            "solid":
-                            {
-                                "color": true
-                            }
-                        }
-                    },
-                    "displayName": "Polygon color"
+                    "suppressFormatPainterCopy": true
                 }
             }
         }

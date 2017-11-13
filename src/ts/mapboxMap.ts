@@ -29,7 +29,26 @@ module powerbi.extensibility.visual {
         private categoryName: string = "";
         private measureName: string = "";
         private firstRun: boolean = true;
-        private MAPBOX_ACCESS_TOKEN: string = "pk.eyJ1IjoicnNiYXVtYW5uIiwiYSI6ImNqNmFibmgyYjExeDgycXJ5emltZmR4dWgifQ.a1eP4yuu6UsxhZ1wEWDQgA"
+        private mapboxData: MapboxData;
+
+        private get settings(): MapboxSettings {
+            return this.mapboxData && this.mapboxData.settings;
+        }
+
+         /**
+         * This function returns the values to be displayed in the property pane for each object.
+         * Usually it is a bind pass of what the property pane gave you, but sometimes you may want to do
+         * validation and return other values/defaults
+         */
+        public enumerateObjectInstances(options: EnumerateVisualObjectInstancesOptions): VisualObjectInstanceEnumeration {
+            let instances: VisualObjectInstanceEnumeration = null;
+            switch (options.objectName) {
+                   default:
+                        return MapboxSettings.enumerateObjectInstances(
+                            this.settings || MapboxSettings.getDefault(),
+                            options);
+                }
+        }
 
         constructor(options: VisualConstructorOptions) {
             this.host = options.host;
@@ -55,28 +74,23 @@ module powerbi.extensibility.visual {
             this.mapOptionsDiv.id = 'mapOptions';
             this.mapOptionsDiv.innerHTML = 'Options'
             this.mapDiv.appendChild(this.mapOptionsDiv);
+                style: 'mapbox://styles/mapbox/dark-v9?optimize=true',
             */
 
             this.mapOptions = {
                 container: this.mapDiv,
-                style: 'mapbox://styles/mapbox/dark-v9?optimize=true',
+                style: 'mapbox://styles/szilardhuber/cj9socbb727nf2rocuzcsxocn',
                 center: [-74.50, 40],
                 zoom: 0
             }
 
-            mapboxgl.accessToken = this.MAPBOX_ACCESS_TOKEN;
-
-            this.popup = new mapboxgl.Popup({
-                closeButton: false,
-                closeOnClick: false
-            });
-
-            //If the map container doesnt exist yet, create it
-            if (this.map === undefined ) {
-                this.map = new mapboxgl.Map(this.mapOptions);
-                this.map.addControl(new mapboxgl.NavigationControl());
-            }
         }
+
+        public static parseSettings(dataView: DataView): MapboxSettings {
+            let settings: MapboxSettings = MapboxSettings.parse<MapboxSettings>(dataView);
+            return settings;
+        }
+
 
         @logExceptions()
         public static converter(dataView: DataView, host: IVisualHost) {
@@ -84,6 +98,8 @@ module powerbi.extensibility.visual {
             const {columns, rows} = dataView.table;
             var numerical_domain : any = [];
             var categorical_domain : any = [];
+
+            const settings: MapboxSettings = this.parseSettings(dataView);
 
             function inArray(array, comparer) { 
 			    for(var i=0; i < array.length; i++) { 
@@ -208,7 +224,10 @@ module powerbi.extensibility.visual {
             	calcCircleColorLegend(scale.colors(legnend_length), categorical_domain.slice(0,legnend_length), "Measure");
 	        }
 
-            return features;
+            return {
+                settings: settings,
+                features: features
+            };
         }
 
         public static debounce(func, wait, immediate) {
@@ -235,33 +254,51 @@ module powerbi.extensibility.visual {
 
         @logExceptions()
         public update(options: VisualUpdateOptions) {
+            console.log("Bitch please");
             var _this = this
             //Only run this step if there are lat/long values to parse
             if (options.dataViews[0].metadata.columns.length < 2) { 
                 _this.firstRun = false;
                 return 
             };
-
             this.dataView = options.dataViews[0];
-            var features = MapboxMap.converter(this.dataView, this.host);
+            this.mapboxData  = MapboxMap.converter(this.dataView, this.host);
+
+            if (!this.mapboxData.settings.api.accessToken) {
+                console.log("Don't have an access token");
+                return;
+            }
+            mapboxgl.accessToken = this.mapboxData.settings.api.accessToken;
+
+            this.popup = new mapboxgl.Popup({
+                closeButton: false,
+                closeOnClick: false
+            });
+
+            //If the map container doesnt exist yet, create it
+            //if (this.map === undefined ) {
+                this.map = new mapboxgl.Map(this.mapOptions);
+                this.map.addControl(new mapboxgl.NavigationControl());
+            //}
+
 
             function onUpdate() {
                 if (_this.map.getSource('data1')) {
                     let source1 : any = _this.map.getSource('data1');
                     let source2 : any = _this.map.getSource('data2');
-                    source1.setData( turf.featureCollection(features.slice(0,Math.floor(features.length/2))) );
-                    source2.setData( turf.featureCollection(features.slice(Math.floor(features.length/2), features.length)) );
+                    source1.setData( turf.featureCollection(_this.mapboxData.features.slice(0,Math.floor(_this.mapboxData.features.length/2))) );
+                    source2.setData( turf.featureCollection(_this.mapboxData.features.slice(Math.floor(_this.mapboxData.features.length/2), _this.mapboxData.features.length)) );
                 }
                 else {
                     _this.map.addSource('data1', {
                         type: "geojson", 
-                        data: turf.featureCollection(features.slice(0,Math.floor(features.length/2))),
+                        data: turf.featureCollection(_this.mapboxData.features.slice(0,Math.floor(_this.mapboxData.features.length/2))),
                         buffer: 10
                     });
 
                     _this.map.addSource('data2', {
                         type: "geojson", 
-                        data: turf.featureCollection(features.slice(Math.floor(features.length/2), features.length)),
+                        data: turf.featureCollection(_this.mapboxData.features.slice(Math.floor(_this.mapboxData.features.length/2), _this.mapboxData.features.length)),
                         buffer: 10
                     });
 
@@ -380,7 +417,7 @@ module powerbi.extensibility.visual {
             addPopup();
             addClick();
 
-            let bounds : any = turf.bbox(turf.featureCollection(features));
+            let bounds : any = turf.bbox(turf.featureCollection(_this.mapboxData.features));
 
             _this.map.easeTo( {
                 duration: 500,

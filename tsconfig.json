@@ -19,6 +19,7 @@
     "src/types/mapbox-gl/index.d.ts",
     "src/types/chroma-js/index.d.ts",
     "src/types/turf/index.d.ts",
+    "src/settings.ts",
     "src/ts/mapboxMap.ts"
   ]
 }
