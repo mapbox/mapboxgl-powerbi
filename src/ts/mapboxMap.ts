@@ -1,20 +1,39 @@
-function decorateLayer(layer) {
+function decorateLayer(layer, columns, maxSize) {
     if (layer.type == 'circle') {
-        layer.paint = {
-            "circle-color": {
+        layer.paint = {};
+
+        const color = columns.find( column => column.roles.category);
+        if (color) {
+            layer.paint["circle-color"] = {
                 "property": "color",
                 "type": "identity"
-            },
-            "circle-radius": {
-                "stops": [
-                [0,0.1],[3,3],[12,4],[15,8],[20,26]]
+            }
+        }
+        const size = columns.find( column => column.roles.size);
+        if (size && maxSize) {
+            layer.paint["circle-radius"] = {
+                "property": "size",
+                stops: [
+                  [1, 2],
+                  [maxSize, 20]
+                ]
             }
         }
     }
     return layer;
 }
 
+function getLegendColumn(columns) {
+    return columns.find( column => {
+        return column.roles.category || column.roles.size;
+    });
+}
 
+
+//"circle-radius": {
+//"stops": [
+//[0,0.1],[3,3],[12,4],[15,8],[20,26]]
+//}
 module powerbi.extensibility.visual {
     "use strict";
     export function logExceptions(): MethodDecorator {
@@ -171,11 +190,14 @@ module powerbi.extensibility.visual {
 			    }
 			}
 
+            const legend_field = getLegendColumn(columns);
+
+            // Convert each row from value array to a JS object like { latitude: "", longitude: "" ... }
             const datas = rows.map(function (row, idx) {
-                let data = row.reduce(function (d : any, v, i) {
+                return row.reduce(function (d : any, v, i) {
                     const role = Object.keys(columns[i].roles)[0]
                     d[role] = v;
-                    if (role == 'category') {
+                    if (columns[i] == legend_field) {
                         if (typeof v === "number") {
                             numerical_domain.push(v)
                         }
@@ -187,16 +209,19 @@ module powerbi.extensibility.visual {
                     }
                     return d;
                 }, {});
-                return data;
             });
 
             var features = [];
+            let maxSize = 0;
 
             if (numerical_domain.length > 0) {
             	var limits = chroma.limits(numerical_domain, 'q', 8);
             	var scale = chroma.scale('YlGnBu').domain(limits);
 
-            	datas.map(function (d) {
+            	features = datas.map(function (d) {
+                    if (d.size > maxSize) {
+                        maxSize = d.size;
+                    }
             		if ( (d.latitude >= -90) && (d.latitude <= 90) && (d.longitude >= -180) && (d.longitude <= 180) ) {
 		                let feat: GeoJSON.Feature<any> = {
 		                    "type": "Feature",
@@ -206,10 +231,11 @@ module powerbi.extensibility.visual {
 		                    },
 		                    "properties": {
 		                        "color": (d.category) ? scale(d.category).toString() : null,
-		                        "tooltip": (d.category) ? d.category.toString() : null
+		                        "tooltip": (d.category) ? d.category.toString() : null,
+                                "size": d.size
 		                    }
 		                }
-		                features.push(feat)
+                        return feat;
 	            }
             	});
 
@@ -218,7 +244,10 @@ module powerbi.extensibility.visual {
 	        else if (categorical_domain.length > 0) {
 	        	var scale = chroma.scale('Set2').domain([0, categorical_domain.length]);
 
-        	    datas.map(function (d) {
+        	    features = datas.map(function (d) {
+                    if (d.size > maxSize) {
+                        maxSize = d.size;
+                    }
         	    	if ( (d.latitude >= -90) && (d.latitude <= 90) && (d.longitude >= -180) && (d.longitude <= 180) ) {
 
 	        	    	let position : any = positionInArray(categorical_domain, d.category);
@@ -230,10 +259,11 @@ module powerbi.extensibility.visual {
 		                    },
 		                    "properties": {
 		                        "color": (d.category) ? scale(position).toString() : null,
-		                        "tooltip": (d.category) ? d.category.toString() : null
+		                        "tooltip": (d.category) ? d.category.toString() : null,
+		                        "size": d.size
 		                    }
 		                }
-		                features.push(feat)
+                        return feat;
 	                }
             	});
         	    let length = categorical_domain.length
@@ -243,7 +273,8 @@ module powerbi.extensibility.visual {
 
             return {
                 settings: settings,
-                features: features
+                features: features,
+                maxSize
             };
         }
 
@@ -307,13 +338,13 @@ module powerbi.extensibility.visual {
                 id: 'first',
                 source: 'data1',
                 type: layerType
-            })
+            }, this.dataView.table.columns, this.mapboxData.maxSize)
 
             this.secondLayer = decorateLayer({
                 id: 'second',
                 source: 'data2',
                 type: layerType
-            })
+            }, this.dataView.table.columns, this.mapboxData.maxSize)
 
 
             this.map.setStyle(this.mapboxData.settings.api.style);

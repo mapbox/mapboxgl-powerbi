@@ -17,6 +17,12 @@
         "kind": "GroupingOrMeasure",
         "displayName": "Color",
         "description": "Categorical or numerical measure value to color map long/lat points by"
+    },
+    {
+        "name": "size",
+        "kind": "GroupingOrMeasure",
+        "displayName": "Size",
+        "description": "Categorical or numerical measure value to size map long/lat points by"
     }],
     "dataViewMappings": [
     {
@@ -32,6 +38,12 @@
                     }
                 },
                 "select": [
+                {
+                    "for":
+                    {
+                        "in": "size"
+                    }
+                },
                 {
                     "for":
                     {

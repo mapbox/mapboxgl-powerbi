@@ -4,6 +4,7 @@
     export interface MapboxData {
         features: any[];
         settings: MapboxSettings;
+        maxSize: number;
     }
 
     export class MapboxSettings extends DataViewObjectsParser {
