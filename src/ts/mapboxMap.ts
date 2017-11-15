@@ -24,16 +24,16 @@ function decorateLayer(layer, columns, maxSize) {
 }
 
 function getLegendColumn(columns) {
-    return columns.find( column => {
-        return column.roles.category || column.roles.size;
+    const category = columns.find( column => {
+        return column.roles.category;
     });
+    const size = columns.find( column => {
+        return column.roles.size;
+    });
+    return category || size;
 }
 
 
-//"circle-radius": {
-//"stops": [
-//[0,0.1],[3,3],[12,4],[15,8],[20,26]]
-//}
 module powerbi.extensibility.visual {
     "use strict";
     export function logExceptions(): MethodDecorator {
@@ -66,12 +66,13 @@ module powerbi.extensibility.visual {
         private measureName: string = "";
         private firstRun: boolean = true;
         private mapboxData: MapboxData;
+        private settings: MapboxSettings;
         private firstLayer: mapboxgl.Layer;
         private secondLayer: mapboxgl.Layer;
 
-        private get settings(): MapboxSettings {
-            return this.mapboxData && this.mapboxData.settings;
-        }
+        // private get settings(): MapboxSettings {
+        // return this.mapboxData && this.mapboxData.settings;
+        // }
 
          /**
          * This function returns the values to be displayed in the property pane for each object.
@@ -106,14 +107,6 @@ module powerbi.extensibility.visual {
             this.mapLegend.id = 'legend';
             this.mapDiv.appendChild(this.mapLegend);
 
-            /* TBD - Map options element to select color, map style, and viz type
-            this.mapOptionsDiv = document.createElement('div');
-            this.mapOptionsDiv.className = 'options mapboxgl-ctrl-top-left';
-            this.mapOptionsDiv.id = 'mapOptions';
-            this.mapOptionsDiv.innerHTML = 'Options'
-            this.mapDiv.appendChild(this.mapOptionsDiv);
-                style: 'mapbox://styles/mapbox/dark-v9?optimize=true',
-            */
             this.mapOptions = {
                 container: this.mapDiv,
                 center: [-74.50, 40],
@@ -125,157 +118,6 @@ module powerbi.extensibility.visual {
         public static parseSettings(dataView: DataView): MapboxSettings {
             let settings: MapboxSettings = MapboxSettings.parse<MapboxSettings>(dataView);
             return settings;
-        }
-
-
-        @logExceptions()
-        public static converter(dataView: DataView, host: IVisualHost) {
-
-            const {columns, rows} = dataView.table;
-            var numerical_domain : any = [];
-            var categorical_domain : any = [];
-
-            const settings: MapboxSettings = this.parseSettings(dataView);
-
-            function inArray(array, comparer) { 
-			    for(var i=0; i < array.length; i++) { 
-			        if(comparer(array[i])) return true; 
-			    }
-			    return false; 
-			}; 
-
-			function pushIfNotExist(array, element, comparer) { 
-			    if (!inArray(array, comparer)) {
-			        array.push(element);
-			    }
-			}; 
-
-			function positionInArray(array, element) { 
-			    for (var i=0; i < array.length; i++) { 
-			        if (element === array[i]) {
-			        	var returnValue : number = i;
-			        	return returnValue;
-			        }
-			    }
-			}; 
-
-			function calcCircleColorLegend(colorStops, valueStops, title) {
-			    //Calculate a legend element on a Mapbox GL Style Spec property function stops array
-			    var legend = document.getElementById('legend');
-			    legend.innerHTML = ''
-
-			    var mytitle = document.createElement('div');
-			    mytitle.textContent = title;
-			    mytitle.id = 'legend-title';
-			    mytitle.className = 'legend-title';
-
-			    legend.appendChild(mytitle);
-
-			    for (var p = 0; p < colorStops.length; p++) {
-
-			            //create the legend if it doesn't yet exist
-			            var item = document.createElement('div');
-			            var key = document.createElement('span');
-			            key.className = 'legend-key';
-			            var value = document.createElement('span');
-			            key.id = 'legend-points-id-' + p;
-			            key.style.backgroundColor = colorStops[p];
-			            value.id = 'legend-points-value-' + p;
-			            item.appendChild(key);
-			            item.appendChild(value);
-			            legend.appendChild(item);
-			            
-			            let data = document.getElementById('legend-points-value-' + p)
-			            data.textContent = valueStops[p];
-			    }
-			}
-
-            const legend_field = getLegendColumn(columns);
-
-            // Convert each row from value array to a JS object like { latitude: "", longitude: "" ... }
-            const datas = rows.map(function (row, idx) {
-                return row.reduce(function (d : any, v, i) {
-                    const role = Object.keys(columns[i].roles)[0]
-                    d[role] = v;
-                    if (columns[i] == legend_field) {
-                        if (typeof v === "number") {
-                            numerical_domain.push(v)
-                        }
-                        else if ( (typeof v === "string") || (typeof v === "boolean") ) {
-                        	pushIfNotExist(categorical_domain, v, function(e) {
-                        		return e === v
-                        	})
-                        }
-                    }
-                    return d;
-                }, {});
-            });
-
-            var features = [];
-            let maxSize = 0;
-
-            if (numerical_domain.length > 0) {
-            	var limits = chroma.limits(numerical_domain, 'q', 8);
-            	var scale = chroma.scale('YlGnBu').domain(limits);
-
-            	features = datas.map(function (d) {
-                    if (d.size > maxSize) {
-                        maxSize = d.size;
-                    }
-            		if ( (d.latitude >= -90) && (d.latitude <= 90) && (d.longitude >= -180) && (d.longitude <= 180) ) {
-		                let feat: GeoJSON.Feature<any> = {
-		                    "type": "Feature",
-		                    "geometry": {
-		                        "type": "Point",
-		                        "coordinates": [d.longitude, d.latitude]
-		                    },
-		                    "properties": {
-		                        "color": (d.category) ? scale(d.category).toString() : null,
-		                        "tooltip": (d.category) ? d.category.toString() : null,
-                                "size": d.size
-		                    }
-		                }
-                        return feat;
-	            }
-            	});
-
-            	calcCircleColorLegend(scale.colors(8), limits, "Measure");
-	        }
-	        else if (categorical_domain.length > 0) {
-	        	var scale = chroma.scale('Set2').domain([0, categorical_domain.length]);
-
-        	    features = datas.map(function (d) {
-                    if (d.size > maxSize) {
-                        maxSize = d.size;
-                    }
-        	    	if ( (d.latitude >= -90) && (d.latitude <= 90) && (d.longitude >= -180) && (d.longitude <= 180) ) {
-
-	        	    	let position : any = positionInArray(categorical_domain, d.category);
-		                let feat: GeoJSON.Feature<any> = {
-		                    "type": "Feature",
-		                    "geometry": {
-		                        "type": "Point",
-		                        "coordinates": [d.longitude, d.latitude]
-		                    },
-		                    "properties": {
-		                        "color": (d.category) ? scale(position).toString() : null,
-		                        "tooltip": (d.category) ? d.category.toString() : null,
-		                        "size": d.size
-		                    }
-		                }
-                        return feat;
-	                }
-            	});
-        	    let length = categorical_domain.length
-        	    let legnend_length = length < 8 ? length : 8
-            	calcCircleColorLegend(scale.colors(legnend_length), categorical_domain.slice(0,legnend_length), "Measure");
-	        }
-
-            return {
-                settings: settings,
-                features: features,
-                maxSize
-            };
         }
 
         public static debounce(func, wait, immediate) {
@@ -309,12 +151,14 @@ module powerbi.extensibility.visual {
                 return 
             };
             this.dataView = options.dataViews[0];
-            this.mapboxData  = MapboxMap.converter(this.dataView, this.host);
+            this.mapboxData  = mapboxConverter.convert(this.dataView, this.host);
+            this.settings = MapboxMap.parseSettings(this.dataView);
 
-            if (!this.mapboxData.settings.api.accessToken) {
+
+            if (!this.settings.api.accessToken) {
                 return;
             }
-            mapboxgl.accessToken = this.mapboxData.settings.api.accessToken;
+            mapboxgl.accessToken = this.settings.api.accessToken;
 
             this.popup = new mapboxgl.Popup({
                 closeButton: false,
@@ -332,7 +176,7 @@ module powerbi.extensibility.visual {
                 this.map = new mapboxgl.Map(mapOptions);
                 this.map.addControl(new mapboxgl.NavigationControl());
             }
-            const layerType = this.mapboxData.settings.api.layerType;
+            const layerType = this.settings.api.layerType;
 
             this.firstLayer = decorateLayer({
                 id: 'first',
@@ -347,7 +191,7 @@ module powerbi.extensibility.visual {
             }, this.dataView.table.columns, this.mapboxData.maxSize)
 
 
-            this.map.setStyle(this.mapboxData.settings.api.style);
+            this.map.setStyle(this.settings.api.style);
             this.map.on('style.load', runload);
 
 

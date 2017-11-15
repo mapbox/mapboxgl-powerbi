@@ -3,7 +3,6 @@
 
     export interface MapboxData {
         features: any[];
-        settings: MapboxSettings;
         maxSize: number;
     }
 

@@ -20,6 +20,7 @@
     "src/types/chroma-js/index.d.ts",
     "src/types/turf/index.d.ts",
     "src/settings.ts",
+    "src/ts/mapboxConverter.ts",
     "src/ts/mapboxMap.ts"
   ]
 }
