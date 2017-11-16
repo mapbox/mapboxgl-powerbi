@@ -116,7 +116,7 @@ module powerbi.extensibility.visual {
 		                    },
 		                    "properties": {
 		                        "color": (d.color) ? scale(d.color).toString() : null,
-		                        "tooltip": (d.category) ? d.color.toString() + d.category.toString() : null,
+		                        "tooltip": (d.category || d.size).toString(),
                                 "size": d.size
 		                    }
 		                }
@@ -137,7 +137,7 @@ module powerbi.extensibility.visual {
 
             const {columns, rows} = dataView.table;
 
-            const legend_field = getLegendColumn(columns);
+            const legend_field = mapboxUtils.getLegendColumn(columns);
 
             // Convert each row from value array to a JS object like { latitude: "", longitude: "" ... }
             const { datas, domain }  = transformToObjectArray(rows, columns, legend_field);
