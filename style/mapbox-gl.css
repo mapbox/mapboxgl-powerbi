@@ -1,7 +1,6 @@
 .mapboxgl-map {
     font: 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
     overflow: hidden;
-    position: relative;
     -webkit-tap-highlight-color: rgba(0,0,0,0);
 }
 
@@ -425,4 +424,13 @@ a.mapboxgl-ctrl-logo {
         display:none;
     }
 /* stylelint-enable */
+}
+
+.map {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    overflow: visible;
 }
