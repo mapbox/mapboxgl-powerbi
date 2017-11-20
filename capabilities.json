@@ -150,6 +150,11 @@
                             "value": "heatmap",
                             "displayName": "Heatmap",
                             "displayNameKey": "heatmap"
+                          },
+                          {
+                            "value": "cluster",
+                            "displayName": "Cluster",
+                            "displayNameKey": "cluster"
                           }
                       ]
                   },

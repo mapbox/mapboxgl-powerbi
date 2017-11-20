@@ -53,25 +53,33 @@ module powerbi.extensibility.visual {
                 };
                         
         export function decorateLayer(layer, columns, maxSize) {
-            if (layer.type == 'circle') {
-                layer.paint = {};
+            switch (layer.type) {
+                case 'circle': {
+                    layer.paint = {};
 
-                const color = columns.find( column => column.roles.category);
-                if (color) {
-                    layer.paint["circle-color"] = {
-                        "property": "color",
-                        "type": "identity"
+                    const color = columns.find( column => column.roles.category);
+                    if (color) {
+                        layer.paint["circle-color"] = {
+                            "property": "color",
+                            "type": "identity"
+                        }
                     }
+                    const size = columns.find( column => column.roles.size);
+                    if (size && maxSize) {
+                        layer.paint["circle-radius"] = {
+                            "property": "size",
+                            stops: [
+                              [1, 2],
+                              [maxSize, 20]
+                            ]
+                        }
+                    }
+                    break;
                 }
-                const size = columns.find( column => column.roles.size);
-                if (size && maxSize) {
-                    layer.paint["circle-radius"] = {
-                        "property": "size",
-                        stops: [
-                          [1, 2],
-                          [maxSize, 20]
-                        ]
-                    }
+                case 'cluster': {
+                    layer.type = 'circle';
+                    layer.filter = ["has", "point_count"];
+                    break;
                 }
             }
             return layer;

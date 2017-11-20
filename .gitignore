@@ -59,7 +59,7 @@ typings/
 .DS_Store
 
 # Compiled files
-src/ts/mapboxMap.js*
+src/ts/*.js*
 .tmp
 dist/
 
