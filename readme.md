@@ -42,5 +42,6 @@ The package command uses the flags --no-minify and --resources to prevent ES6 er
     * Workaround - altered the Mapbox GL js library to use the function `window.window.devicePixelRatio` in place of `window.devicePixelRatio`.
     * The custom version of the Mapbox GL js library is packaged with this repository and will need to be manually checked and validated for new mapboxgl JS version upgrades.
     
+### Updating Mapbox GL JS to latest version
 
-
+Due to an open PowerBI [issue](https://github.com/Microsoft/PowerBI-visuals/issues/165) mapbox-gl.js needs to be copied from under `node_modules` to `src/modules` and patched. During the patch all `window.devicePixelRatio` needs to be replaced to `window.window.devicePixelRatio`.

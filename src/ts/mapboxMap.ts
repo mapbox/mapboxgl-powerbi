@@ -1,4 +1,5 @@
 module powerbi.extensibility.visual {
+    declare var debug : any;
     declare var turf : any;
     declare var supercluster : any;
     "use strict";
@@ -60,7 +61,7 @@ module powerbi.extensibility.visual {
         switch (settings.api.layerType) {
             case 'cluster': {
                 map.setLayoutProperty('circle', 'visibility', 'none');
-                // map.setLayoutProperty('heatmap-powerbi', 'visibility', 'none');
+                map.setLayoutProperty('heatmap-powerbi', 'visibility', 'none');
                 map.setLayoutProperty('cluster', 'visibility', 'visible');
                 const currentZoom = map.getZoom();
                 const color = 'YlOrRd';
@@ -87,7 +88,7 @@ module powerbi.extensibility.visual {
             }
             case 'circle': {
                 map.setLayoutProperty('circle', 'visibility', 'visible');
-                // map.setLayoutProperty('heatmap-powerbi', 'visibility', 'none');
+                map.setLayoutProperty('heatmap-powerbi', 'visibility', 'none');
                 map.setLayoutProperty('cluster', 'visibility', 'none');
                 if (repaint) {
                     map.setPaintProperty('circle', 'circle-color', {
@@ -131,7 +132,7 @@ module powerbi.extensibility.visual {
             }
             case 'heatmap': {
                 map.setLayoutProperty('circle', 'visibility', 'none');
-                // map.setLayoutProperty('heatmap-powerbi', 'visibility', 'visible');
+                map.setLayoutProperty('heatmap-powerbi', 'visibility', 'visible');
                 map.setLayoutProperty('cluster', 'visibility', 'none');
             }
 
@@ -197,8 +198,6 @@ module powerbi.extensibility.visual {
 
             const mapOptions = {
                 container: this.mapDiv,
-                center: [-74.50, 40],
-                zoom: 0 
             }
 
             //If the map container doesnt exist yet, create it
@@ -262,7 +261,7 @@ module powerbi.extensibility.visual {
                     source: 'data',
                     type: 'heatmap'
                 });
-                //this.map.addLayer(heatmapLayer);
+                this.map.addLayer(heatmapLayer);
 
                 onUpdate(this.map, this.getFeatures(this.useClustering), this.settings, false)
                 mapboxUtils.addPopup(this.map, this.popup);

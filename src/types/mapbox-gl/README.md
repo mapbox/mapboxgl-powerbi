@@ -8,7 +8,7 @@ This package contains type definitions for Mapbox GL JS (https://github.com/mapb
 Files were exported from https://www.github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/mapbox-gl
 
 Additional Details
- * Last updated: Wed, 25 Oct 2017 18:38:02 GMT
+ * Last updated: Tue, 21 Nov 2017 18:05:58 GMT
  * Dependencies: geojson
  * Global values: mapboxgl
 

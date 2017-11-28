@@ -1,6 +1,6 @@
 {
     "name": "@types/mapbox-gl",
-    "version": "0.40.1",
+    "version": "0.41.0",
     "description": "TypeScript definitions for Mapbox GL JS",
     "license": "MIT",
     "contributors": [
@@ -24,6 +24,6 @@
     "dependencies": {
         "@types/geojson": "*"
     },
-    "typesPublisherContentHash": "edf141a8c8a2b83c8b3d9aa218f11b79e8a3c5daad5be753a432ca58b413959d",
+    "typesPublisherContentHash": "fbb37d11ae597b27dccc4de94123e37ac7e0827f9838bccdceacd96a3427a6ff",
     "typeScriptVersion": "2.3"
 }
