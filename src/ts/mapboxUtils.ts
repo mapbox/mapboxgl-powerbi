@@ -4,12 +4,13 @@ module powerbi.extensibility.visual {
             // Don't add the popup if it already exists
                     if (map.listens('mousemove')) { return }
 
+            console.log("Adding popup");
                     var onMouseMove : Function = debounce(function(e) {
                         let minpoint = new Array(e.point['x'] - 5, e.point['y'] - 5)
                         let maxpoint = new Array(e.point['x'] + 5, e.point['y'] + 5)
                         try {
                             let features : any = map.queryRenderedFeatures([minpoint, maxpoint], {
-                                layers: ['data']
+                                layers: ['cluster']
                             });
                             map.getCanvas().style.cursor = 'pointer';
                             let feat = features[0];
@@ -37,7 +38,7 @@ module powerbi.extensibility.visual {
                         let minpoint = new Array(e.point['x'] - 5, e.point['y'] - 5)
                         let maxpoint = new Array(e.point['x'] + 5, e.point['y'] + 5)
                         let features : any = map.queryRenderedFeatures([minpoint, maxpoint], {
-                            layers: ['data']
+                            layers: ['cluster']
                         });
 
                         if (!features.length) {return}
@@ -52,33 +53,37 @@ module powerbi.extensibility.visual {
                     map.on('click', onClick);
                 };
                         
-        export function decorateLayer(layer, columns, maxSize) {
+        export function decorateLayer(layer) {
             switch (layer.type) {
                 case 'circle': {
                     layer.paint = {};
 
-                    const color = columns.find( column => column.roles.category);
-                    if (color) {
-                        layer.paint["circle-color"] = {
-                            "property": "color",
-                            "type": "identity"
-                        }
-                    }
-                    const size = columns.find( column => column.roles.size);
-                    if (size && maxSize) {
-                        layer.paint["circle-radius"] = {
-                            "property": "size",
-                            stops: [
-                              [1, 2],
-                              [maxSize, 20]
-                            ]
-                        }
-                    }
+                    //const color = columns.find( column => column.roles.category);
+                    //if (color) {
+                    //layer.paint["circle-color"] = {
+                    //"property": "color",
+                    //"type": "identity"
+                    //}
+                    //}
+                    //const size = columns.find( column => column.roles.size);
+                    //if (size && maxSize) {
+                    //layer.paint["circle-radius"] = {
+                    //"property": "size",
+                    //stops: [
+                    //[1, 2],
+                    //[maxSize, 20]
+                    //]
+                    //}
+                    //}
                     break;
                 }
                 case 'cluster': {
                     layer.type = 'circle';
                     layer.filter = ["has", "point_count"];
+                    break;
+                }
+                case 'heatmap': {
+                    layer.paint = {};
                     break;
                 }
             }

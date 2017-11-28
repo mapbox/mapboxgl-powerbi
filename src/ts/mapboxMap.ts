@@ -46,72 +46,95 @@ module powerbi.extensibility.visual {
             return stops
         }
 
-    function onUpdate(map, features, dataLayer, settings, zoomChanged) {
+    function onUpdate(map, features, settings, zoomChanged) {
+        const repaint = true;
         if (map.getSource('data')) {
             let source : any = map.getSource('data');
             source.setData( turf.featureCollection(features));
-            if (!zoomChanged) {
-                map.removeLayer('data');
-                map.addLayer(dataLayer);
-            }
         }
         else {
-            map.addSource('data', {
-                type: "geojson", 
-                data: turf.featureCollection(features),
-                buffer: 10
-            });
-
             mapboxUtils.addBuildings(map);
-
-            map.addLayer(dataLayer);
+            return;
         }
 
-        if (settings.api.layerType == 'cluster') {
-            const currentZoom = map.getZoom();
-            const color = 'YlOrRd';
-            const featureDomains = getFeatureDomain(features, 'sum');
-            const length = featureDomains.length > 8 ? 8 : featureDomains.length;
-            if (length > 0) {
-                let stops_domain = chroma.limits(featureDomains, 'e', length)
-                var scale = chroma.scale(color).domain(stops_domain).mode('lab')
-                const colorStops = createColorStops(stops_domain, scale)
-                const radiusStops = createRadiusStops(stops_domain, 10, 25);
-                const repaint = true;
-                if (repaint) {
-                    map.setPaintProperty('data', 'circle-color', {
-                        property: 'sum',
-                        stops: colorStops
-                    });
+        switch (settings.api.layerType) {
+            case 'cluster': {
+                map.setLayoutProperty('circle', 'visibility', 'none');
+                // map.setLayoutProperty('heatmap-powerbi', 'visibility', 'none');
+                map.setLayoutProperty('cluster', 'visibility', 'visible');
+                const currentZoom = map.getZoom();
+                const color = 'YlOrRd';
+                const featureDomains = getFeatureDomain(features, 'sum');
+                const length = featureDomains.length > 8 ? 8 : featureDomains.length;
+                if (length > 0) {
+                    let stops_domain = chroma.limits(featureDomains, 'e', length)
+                    var scale = chroma.scale(color).domain(stops_domain).mode('lab')
+                    const colorStops = createColorStops(stops_domain, scale)
+                    const radiusStops = createRadiusStops(stops_domain, 10, 25);
+                    if (repaint) {
+                        map.setPaintProperty('cluster', 'circle-color', {
+                            property: 'sum',
+                            stops: colorStops
+                        });
 
-                    map.setPaintProperty('data', 'circle-radius', {
-                        property: 'sum',
-                        stops: radiusStops
-                    });
+                        map.setPaintProperty('cluster', 'circle-radius', {
+                            property: 'sum',
+                            stops: radiusStops
+                        });
+                    }
                 }
+                break;
             }
-        } else {
-
-
-            let bounds : any = turf.bbox(turf.featureCollection(features));
-            bounds = bounds.map( bound => {
-                if (bound < -90) {
-                    return -90;
+            case 'circle': {
+                map.setLayoutProperty('circle', 'visibility', 'visible');
+                // map.setLayoutProperty('heatmap-powerbi', 'visibility', 'none');
+                map.setLayoutProperty('cluster', 'visibility', 'none');
+                if (repaint) {
+                    map.setPaintProperty('circle', 'circle-color', {
+                        property: 'color',
+                        type: 'identity',
+                    });
+                    const featureDomains = getFeatureDomain(features, 'size');
+                    const length = featureDomains.length > 8 ? 8 : featureDomains.length;
+                    if (length > 0) {
+                        let stops_domain = chroma.limits(featureDomains, 'e', length)
+                        const radiusStops = createRadiusStops(stops_domain, 1, 20);
+                        map.setPaintProperty('circle', 'circle-radius', {
+                            property: 'size',
+                            stops: radiusStops
+                        });
+                    }
                 }
-                if (bound > 90) {
-                    return 90;
-                }
-                return bound;
-            });
 
-            map.easeTo( {
-                duration: 500,
-                pitch: 0,
-                bearing: 0
-            });
-            map.fitBounds(bounds, {
-                padding: 25
-            });
+
+                let bounds : any = turf.bbox(turf.featureCollection(features));
+                bounds = bounds.map( bound => {
+                    if (bound < -90) {
+                        return -90;
+                    }
+                    if (bound > 90) {
+                        return 90;
+                    }
+                    return bound;
+                });
+
+                map.easeTo( {
+                    duration: 500,
+                    pitch: 0,
+                    bearing: 0
+                });
+                map.fitBounds(bounds, {
+                    padding: 25
+                });
+
+                break;
+            }
+            case 'heatmap': {
+                map.setLayoutProperty('circle', 'visibility', 'none');
+                // map.setLayoutProperty('heatmap-powerbi', 'visibility', 'visible');
+                map.setLayoutProperty('cluster', 'visibility', 'none');
+            }
+
         }
         return true;
     }
@@ -123,7 +146,6 @@ module powerbi.extensibility.visual {
         private host: IVisualHost;
         private mapboxData: MapboxData;
         private settings: MapboxSettings;
-        private dataLayer: mapboxgl.Layer;
         private popup: mapboxgl.Popup;
         private mapStyle: string = "";
         private useClustering : boolean = false;
@@ -213,11 +235,40 @@ module powerbi.extensibility.visual {
                 }
             })
 
-            this.map.on('style.load', () => onUpdate(this.map, this.getFeatures(this.useClustering), this.dataLayer, this.settings, false));
-            this.map.on('load', () => onUpdate(this.map, this.getFeatures(this.useClustering), this.dataLayer, this.settings, false));
-            this.map.on('zoom', () => { if (this.useClustering) { onUpdate(this.map, this.getFeatures(this.useClustering), this.dataLayer, this.settings, true) }});
-            mapboxUtils.addPopup(this.map, this.popup);
-            mapboxUtils.addClick(this.map);
+            this.map.on('style.load', () => onUpdate(this.map, this.getFeatures(this.useClustering), this.settings, false));
+            this.map.on('load', () => {
+                this.map.addSource('data', {
+                    type: "geojson", 
+                    data: turf.featureCollection([]),
+                    buffer: 10
+                })
+                
+                const clusterLayer = mapboxUtils.decorateLayer({
+                    id: 'cluster',
+                    source: 'data',
+                    type: 'cluster'
+                });
+                this.map.addLayer(clusterLayer);
+
+                const circleLayer = mapboxUtils.decorateLayer({
+                    id: 'circle',
+                    source: 'data',
+                    type: 'circle'
+                })
+                this.map.addLayer(circleLayer);
+
+                const heatmapLayer = mapboxUtils.decorateLayer({
+                    id: 'heatmap-powerbi',
+                    source: 'data',
+                    type: 'heatmap'
+                });
+                //this.map.addLayer(heatmapLayer);
+
+                onUpdate(this.map, this.getFeatures(this.useClustering), this.settings, false)
+                mapboxUtils.addPopup(this.map, this.popup);
+                mapboxUtils.addClick(this.map);
+            });
+            this.map.on('zoom', () => { if (this.useClustering) { onUpdate(this.map, this.getFeatures(this.useClustering), this.settings, true) }});
         }
 
         @logExceptions()
@@ -239,15 +290,12 @@ module powerbi.extensibility.visual {
                 mapboxgl.accessToken = this.settings.api.accessToken;
             }
 
-            const layer = mapboxUtils.decorateLayer({
-                id: 'data',
-                source: 'data',
-                type: this.settings.api.layerType,
-            }, dataView.table.columns, this.mapboxData.maxSize)
-
-            if (this.dataLayer != layer) {
-                this.dataLayer = layer;
-            }
+            //const layer = mapboxUtils.decorateLayer({
+            //id:'cluster',
+            //source: 'data',
+            //type: this.settings.api.layerType,
+            //});
+            // }, dataView.table.columns, this.mapboxData.maxSize)
 
             let styleChanged = false;
             if (this.mapStyle != this.settings.api.style) {
@@ -258,8 +306,8 @@ module powerbi.extensibility.visual {
 
             // If the map is loaded and style has not changed in this update
             // then we should update right now.
-            if (this.map.loaded && !styleChanged) {
-                onUpdate(this.map, this.getFeatures(this.useClustering), this.dataLayer, this.settings, false);
+            if (this.map.loaded() && !styleChanged) {
+                onUpdate(this.map, this.getFeatures(this.useClustering), this.settings, false);
             }
         }
 
