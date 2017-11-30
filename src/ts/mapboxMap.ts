@@ -21,68 +21,50 @@ module powerbi.extensibility.visual {
     }
 
         function getFeatureDomain(geojson_data, myproperty) {
-            let data_domain = []
+            let min = null;
+            let max = null;
             turf.propEach(turf.featureCollection(geojson_data), function(currentProperties, featureIndex) {
                 if (currentProperties[myproperty]) {
-                    data_domain.push(Math.round(Number(currentProperties[myproperty]) * 100 / 100))
+                    const value = Math.round(Number(currentProperties[myproperty]) * 100 / 100);
+                    if (!min || value < min) { min = value }
+                    if (!max || value > max) { max = value }
                 }
             })
-            return data_domain
-        }
-        function createColorStops(stops_domain, scale) {
-            let stops = []
-            stops_domain.forEach(function(d) {
-                stops.push([d, scale(d).hex()])
-            });
-            return stops
-        }
-        function createRadiusStops(stops_domain, min_radius, max_radius) {
-            let stops = []
-            let stops_len = stops_domain.length
-            let count = 1
-            stops_domain.forEach(function(d) {
-                stops.push([d, min_radius + (count / stops_len * (max_radius - min_radius))])
-                count += 1
-            });
-            return stops
+            // Min and max must not be equal becuse of the interpolation. 
+            // let's make sure with the substraction
+            return {
+                min: min - 1,
+                max,
+            }
         }
 
     function onUpdate(map, features, settings, zoomChanged) {
-        const repaint = true;
-        if (map.getSource('data')) {
-            let source : any = map.getSource('data');
-            source.setData( turf.featureCollection(features));
-        }
-        else {
-            mapboxUtils.addBuildings(map);
+        if (!map.getSource('data')) {
             return;
         }
+
+        let source : any = map.getSource('data');
+        source.setData( turf.featureCollection(features));
 
         switch (settings.api.layerType) {
             case 'cluster': {
                 map.setLayoutProperty('circle', 'visibility', 'none');
                 map.setLayoutProperty('heatmap-powerbi', 'visibility', 'none');
                 map.setLayoutProperty('cluster', 'visibility', 'visible');
-                const currentZoom = map.getZoom();
-                const color = 'YlOrRd';
-                const featureDomains = getFeatureDomain(features, 'sum');
-                const length = featureDomains.length > 8 ? 8 : featureDomains.length;
-                if (length > 0) {
-                    let stops_domain = chroma.limits(featureDomains, 'e', length)
-                    var scale = chroma.scale(color).domain(stops_domain).mode('lab')
-                    const colorStops = createColorStops(stops_domain, scale)
-                    const radiusStops = createRadiusStops(stops_domain, 10, 25);
-                    if (repaint) {
-                        map.setPaintProperty('cluster', 'circle-color', {
-                            property: 'sum',
-                            stops: colorStops
-                        });
+                const limits = getFeatureDomain(features, 'sum');
+                if (limits.min && limits.max) {
+                    map.setPaintProperty('cluster', 'circle-color', [
+                        "rgb",
+                            ['interpolate', ['linear'], ['get', 'sum'], limits.min, 20, limits.max, 235],
+                            ['-', 255, ['interpolate', ['linear'], ['get', 'sum'], limits.min, 20, limits.max, 235]],
+                            50, 
+                    ]);
 
-                        map.setPaintProperty('cluster', 'circle-radius', {
-                            property: 'sum',
-                            stops: radiusStops
-                        });
-                    }
+                    map.setPaintProperty('cluster', 'circle-radius', [
+                        'interpolate', ['linear'], ['get', 'sum'],
+                        limits.min, 10,
+                        limits.max, 25,
+                    ]);
                 }
                 break;
             }
@@ -90,23 +72,18 @@ module powerbi.extensibility.visual {
                 map.setLayoutProperty('circle', 'visibility', 'visible');
                 map.setLayoutProperty('heatmap-powerbi', 'visibility', 'none');
                 map.setLayoutProperty('cluster', 'visibility', 'none');
-                if (repaint) {
-                    map.setPaintProperty('circle', 'circle-color', {
-                        property: 'color',
-                        type: 'identity',
-                    });
-                    const featureDomains = getFeatureDomain(features, 'size');
-                    const length = featureDomains.length > 8 ? 8 : featureDomains.length;
-                    if (length > 0) {
-                        let stops_domain = chroma.limits(featureDomains, 'e', length)
-                        const radiusStops = createRadiusStops(stops_domain, 1, 20);
-                        map.setPaintProperty('circle', 'circle-radius', {
-                            property: 'size',
-                            stops: radiusStops
-                        });
-                    }
+                map.setPaintProperty('circle', 'circle-color', {
+                    property: 'color',
+                    type: 'identity',
+                });
+                const limits = getFeatureDomain(features, 'size');
+                if (limits.min && limits.max) {
+                    map.setPaintProperty('circle', 'circle-radius', [
+                        'interpolate', ['linear'], ['get', 'size'],
+                        limits.min, 1,
+                        limits.max, 20,
+                    ])
                 }
-
 
                 let bounds : any = turf.bbox(turf.featureCollection(features));
                 bounds = bounds.map( bound => {
@@ -234,13 +211,14 @@ module powerbi.extensibility.visual {
                 }
             })
 
-            this.map.on('style.load', () => onUpdate(this.map, this.getFeatures(this.useClustering), this.settings, false));
-            this.map.on('load', () => {
+            this.map.on('style.load', (e) => {
+                let style = e.target;
                 this.map.addSource('data', {
                     type: "geojson", 
                     data: turf.featureCollection([]),
                     buffer: 10
                 })
+                mapboxUtils.addBuildings(this.map);
                 
                 const clusterLayer = mapboxUtils.decorateLayer({
                     id: 'cluster',
@@ -262,6 +240,10 @@ module powerbi.extensibility.visual {
                     type: 'heatmap'
                 });
                 this.map.addLayer(heatmapLayer);
+                onUpdate(this.map, this.getFeatures(this.useClustering), this.settings, false) 
+            });
+
+            this.map.on('load', () => {
 
                 onUpdate(this.map, this.getFeatures(this.useClustering), this.settings, false)
                 mapboxUtils.addPopup(this.map, this.popup);
@@ -288,13 +270,6 @@ module powerbi.extensibility.visual {
             if (mapboxgl.accessToken != this.settings.api.accessToken) {
                 mapboxgl.accessToken = this.settings.api.accessToken;
             }
-
-            //const layer = mapboxUtils.decorateLayer({
-            //id:'cluster',
-            //source: 'data',
-            //type: this.settings.api.layerType,
-            //});
-            // }, dataView.table.columns, this.mapboxData.maxSize)
 
             let styleChanged = false;
             if (this.mapStyle != this.settings.api.style) {
