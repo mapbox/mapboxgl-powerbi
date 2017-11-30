@@ -135,13 +135,22 @@ module powerbi.extensibility.visual {
          * validation and return other values/defaults
          */
         public enumerateObjectInstances(options: EnumerateVisualObjectInstancesOptions): VisualObjectInstanceEnumeration {
-            let instances: VisualObjectInstanceEnumeration = null;
             switch (options.objectName) {
-                   default:
-                        return MapboxSettings.enumerateObjectInstances(
-                            this.settings || MapboxSettings.getDefault(),
-                            options);
+                case 'api': {
+                    let instances = MapboxSettings.enumerateObjectInstances(
+                        this.settings || MapboxSettings.getDefault(),
+                        options
+                    )['instances'];
+                    let properties = instances[0].properties;
+                    if (properties.style != 'custom') {
+                        properties.style_url = "";
+                        delete properties.style_url
+                    } else if (!properties.style_url) {
+                        properties.style_url = "";
+                    }
+                    return { instances }
                 }
+            }
         }
 
         private getFeatures(useClustering) {
@@ -272,8 +281,9 @@ module powerbi.extensibility.visual {
             }
 
             let styleChanged = false;
-            if (this.mapStyle != this.settings.api.style) {
-                this.mapStyle = this.settings.api.style;
+            let style = this.settings.api.style == 'custom' ? this.settings.api.style_url : this.settings.api.style;
+            if (this.mapStyle != style) {
+                this.mapStyle = style;
                 styleChanged = true;
                 this.map.setStyle(this.mapStyle);
             }

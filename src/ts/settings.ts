@@ -13,6 +13,7 @@
     export class APISettings {
         public accessToken: string = "";
         public style: string = "";
+        public style_url: string = "";
         public layerType: string = "circle";
     }
 }
