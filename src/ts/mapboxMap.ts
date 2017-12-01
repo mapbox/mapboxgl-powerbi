@@ -38,7 +38,7 @@ module powerbi.extensibility.visual {
             }
         }
 
-    function onUpdate(map, features, settings, zoomChanged) {
+    function onUpdate(map, features, settings, zoomChanged, category) {
         if (!map.getSource('data')) {
             return;
         }
@@ -72,18 +72,29 @@ module powerbi.extensibility.visual {
                 map.setLayoutProperty('circle', 'visibility', 'visible');
                 map.setLayoutProperty('heatmap', 'visibility', 'none');
                 map.setLayoutProperty('cluster', 'visibility', 'none');
-                map.setPaintProperty('circle', 'circle-color', {
-                    property: 'color',
-                    type: 'identity',
-                });
+                if (category != null) {
+                    map.setPaintProperty('circle', 'circle-color', {
+                        property: 'color',
+                        type: 'identity',
+                    });
+                } else {
+                    map.setPaintProperty('circle', 'circle-color', settings.circle.color);
+                }
                 const limits = getFeatureDomain(features, 'size');
-                if (limits.min && limits.max) {
+                if (limits.min !== null && limits.max !== null) {
                     map.setPaintProperty('circle', 'circle-radius', [
                         'interpolate', ['linear'], ['get', 'size'],
                         limits.min, 1,
-                        limits.max, 20,
+                        limits.max, 4 * settings.circle.radius,
                     ])
+                } else {
+                    map.setPaintProperty('circle', 'circle-radius', settings.circle.radius);
                 }
+                map.setPaintProperty('circle', 'circle-blur', settings.circle.blur / 100);
+                map.setPaintProperty('circle', 'circle-opacity', settings.circle.opacity / 100);
+                map.setPaintProperty('circle', 'circle-stroke-width', settings.circle.strokeWidth);
+                map.setPaintProperty('circle', 'circle-stroke-opacity', settings.circle.strokeOpacity / 100);
+                map.setPaintProperty('circle', 'circle-stroke-color', settings.circle.strokeColor);
 
                 let bounds : any = turf.bbox(turf.featureCollection(features));
                 bounds = bounds.map( bound => {
@@ -140,6 +151,7 @@ module powerbi.extensibility.visual {
         private mapStyle: string = "";
         private useClustering : boolean = false;
         private cluster: any;
+        private category: any;
 
          /**
          * This function returns the values to be displayed in the property pane for each object.
@@ -172,7 +184,9 @@ module powerbi.extensibility.visual {
                     }
                     return { instances }
                 }
-                case 'heatmap': {
+                case 'heatmap':
+                case 'circle':
+                {
                     return { instances }
                 }
             }
@@ -274,16 +288,16 @@ module powerbi.extensibility.visual {
                     type: 'heatmap'
                 });
                 this.map.addLayer(heatmapLayer);
-                onUpdate(this.map, this.getFeatures(this.useClustering), this.settings, false) 
+                onUpdate(this.map, this.getFeatures(this.useClustering), this.settings, false, this.category) 
             });
 
             this.map.on('load', () => {
 
-                onUpdate(this.map, this.getFeatures(this.useClustering), this.settings, false)
+                onUpdate(this.map, this.getFeatures(this.useClustering), this.settings, false, this.category)
                 mapboxUtils.addPopup(this.map, this.popup);
                 mapboxUtils.addClick(this.map);
             });
-            this.map.on('zoom', () => { if (this.useClustering) { onUpdate(this.map, this.getFeatures(this.useClustering), this.settings, true) }});
+            this.map.on('zoom', () => { if (this.useClustering) { onUpdate(this.map, this.getFeatures(this.useClustering), this.settings, true, this.category) }});
         }
 
         @logExceptions()
@@ -313,10 +327,17 @@ module powerbi.extensibility.visual {
                 this.map.setStyle(this.mapStyle);
             }
 
+
+            // Check is category field is set
+            const columns : any = dataView.table.columns;
+            this.category = columns.find( column => {
+                return column.roles.category;
+            });
+
             // If the map is loaded and style has not changed in this update
             // then we should update right now.
             if (this.map.loaded() && !styleChanged) {
-                onUpdate(this.map, this.getFeatures(this.useClustering), this.settings, false);
+                onUpdate(this.map, this.getFeatures(this.useClustering), this.settings, false, this.category);
             }
         }
 

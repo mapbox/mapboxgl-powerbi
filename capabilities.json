@@ -255,6 +255,78 @@
           }
         }
       }
+    },
+    "circle": {
+      "displayName": "Circle",
+      "displayNameKey": "circle",
+      "description": "Circle display settings",
+      "properties": {
+        "radius": {
+          "displayName": "Radius",
+          "displayNameKey": "radius",
+          "description": "Optional number greater than or equal to 0. Units in pixels. ",
+          "type": {
+            "numeric": true
+          }
+        },
+        "blur": {
+          "displayName": "Blur",
+          "displayNameKey": "blur",
+          "description": "Amount to blur the circle. 1 blurs the circle such that only the centerpoint is full opacity.",
+          "type": {
+            "numeric": true
+          }
+        },
+        "opacity": {
+          "displayName": "Opacity",
+          "displayNameKey": "opacity",
+          "description": "The global opacity in percentage at which the heatmap layer will be drawn.",
+          "type": {
+            "numeric": true
+          }
+        },
+        "strokeWidth": {
+          "displayName": "Stroke Width",
+          "displayNameKey": "strokeWidth",
+          "description": "The width of the circle's stroke. Strokes are placed outside of the Circle Radius.",
+          "type": {
+            "numeric": true
+          }
+        },
+        "strokeOpacity": {
+          "displayName": "Stroke Opacity",
+          "displayNameKey": "strokeOpacity",
+          "description": "The opacity of the circle's stroke.",
+          "type": {
+            "numeric": true
+          }
+        },
+        "strokeColor": {
+          "displayName": "Stroke Color",
+          "displayNameKey": "strokeColor",
+          "description": "The stroke color of the circle.",
+          "type": {
+            "fill": {
+              "solid": {
+                "color": true
+              }
+            }
+          }
+        },
+        "color": {
+          "displayName": "Color",
+          "displayNameKey": "color",
+          "description": "Defines the color of each pixel based on its density value in a heatmap. ",
+          "type": {
+            "fill": {
+              "solid": {
+                "color": true
+              }
+            }
+          }
+        }
+      }
     }
+
   }
 }

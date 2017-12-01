@@ -9,6 +9,7 @@
     export class MapboxSettings extends DataViewObjectsParser {
         public api: APISettings = new APISettings();
         public heatmap: HeatmapSettings = new HeatmapSettings();
+        public circle: CircleSettings = new CircleSettings();
     }
 
     export class APISettings {
@@ -25,5 +26,15 @@
         public intensity: number = 1;
         public opacity: number = 100;
         public color: string = "red";
+    }
+
+    export class CircleSettings {
+        public radius: number = 5;
+        public color: string = "black";
+        public blur: number = 0;
+        public opacity: number = 100;
+        public strokeWidth: number = 0;
+        public strokeColor: string = "black";
+        public strokeOpacity: number = 100;
     }
 }
