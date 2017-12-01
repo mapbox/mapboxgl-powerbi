@@ -49,7 +49,7 @@ module powerbi.extensibility.visual {
         switch (settings.api.layerType) {
             case 'cluster': {
                 map.setLayoutProperty('circle', 'visibility', 'none');
-                map.setLayoutProperty('heatmap-powerbi', 'visibility', 'none');
+                map.setLayoutProperty('heatmap', 'visibility', 'none');
                 map.setLayoutProperty('cluster', 'visibility', 'visible');
                 const limits = getFeatureDomain(features, settings.api.aggregation);
                 if (limits.min && limits.max) {
@@ -70,7 +70,7 @@ module powerbi.extensibility.visual {
             }
             case 'circle': {
                 map.setLayoutProperty('circle', 'visibility', 'visible');
-                map.setLayoutProperty('heatmap-powerbi', 'visibility', 'none');
+                map.setLayoutProperty('heatmap', 'visibility', 'none');
                 map.setLayoutProperty('cluster', 'visibility', 'none');
                 map.setPaintProperty('circle', 'circle-color', {
                     property: 'color',
@@ -109,8 +109,20 @@ module powerbi.extensibility.visual {
             }
             case 'heatmap': {
                 map.setLayoutProperty('circle', 'visibility', 'none');
-                map.setLayoutProperty('heatmap-powerbi', 'visibility', 'visible');
+                map.setLayoutProperty('heatmap', 'visibility', 'visible');
                 map.setLayoutProperty('cluster', 'visibility', 'none');
+
+                map.setPaintProperty('heatmap', 'heatmap-radius', settings.heatmap.radius);
+                map.setPaintProperty('heatmap', 'heatmap-weight', settings.heatmap.weight);
+                map.setPaintProperty('heatmap', 'heatmap-intensity', settings.heatmap.intensity);
+                map.setPaintProperty('heatmap', 'heatmap-opacity', settings.heatmap.opacity / 100);
+                map.setPaintProperty('heatmap', 'heatmap-color', [ "interpolate", ["linear"], ["heatmap-density"],
+                    0, "rgba(0, 0, 255, 0)",
+                    0.1, "royalblue",
+                    0.3, "cyan",
+                    0.5, "lime",
+                    0.7, "yellow",
+                    1, settings.heatmap.color]);
             }
 
         }
@@ -135,13 +147,13 @@ module powerbi.extensibility.visual {
          * validation and return other values/defaults
          */
         public enumerateObjectInstances(options: EnumerateVisualObjectInstancesOptions): VisualObjectInstanceEnumeration {
+            const settings : any = this.settings || MapboxSettings.getDefault();
+            let instances = MapboxSettings.enumerateObjectInstances(
+                settings,
+                options
+            )['instances'];
             switch (options.objectName) {
                 case 'api': {
-                    const settings : any = this.settings || MapboxSettings.getDefault();
-                    let instances = MapboxSettings.enumerateObjectInstances(
-                        settings,
-                        options
-                    )['instances'];
                     let properties = instances[0].properties;
 
                     // Hide / show custom map style URL control
@@ -158,6 +170,9 @@ module powerbi.extensibility.visual {
                     } else {
                         delete properties.aggregation;
                     }
+                    return { instances }
+                }
+                case 'heatmap': {
                     return { instances }
                 }
             }
@@ -254,7 +269,7 @@ module powerbi.extensibility.visual {
                 this.map.addLayer(circleLayer);
 
                 const heatmapLayer = mapboxUtils.decorateLayer({
-                    id: 'heatmap-powerbi',
+                    id: 'heatmap',
                     source: 'data',
                     type: 'heatmap'
                 });

@@ -8,6 +8,7 @@
 
     export class MapboxSettings extends DataViewObjectsParser {
         public api: APISettings = new APISettings();
+        public heatmap: HeatmapSettings = new HeatmapSettings();
     }
 
     export class APISettings {
@@ -16,5 +17,13 @@
         public style_url: string = "";
         public layerType: string = "circle";
         public aggregation: string = "count";
+    }
+
+    export class HeatmapSettings {
+        public radius: number = 30;
+        public weight: number = 1;
+        public intensity: number = 1;
+        public opacity: number = 100;
+        public color: string = "red";
     }
 }
