@@ -173,6 +173,39 @@
                   },
               "displayName": "Layer type",
               "displayNameKey": "layer_type"
+              },
+            "aggregation": {
+                  "type": {
+                      "enumeration": [
+                          {
+                            "value": "count",
+                            "displayName": "Count",
+                            "displayNameKey": "count"
+                          },
+                          {
+                            "value": "sum",
+                            "displayName": "Sum",
+                            "displayNameKey": "sum"
+                          },
+                          {
+                            "value": "avg",
+                            "displayName": "Average",
+                            "displayNameKey": "avg"
+                          },
+                          {
+                            "value": "min",
+                            "displayName": "Minimum",
+                            "displayNameKey": "min"
+                          },
+                          {
+                            "value": "max",
+                            "displayName": "Maximum",
+                            "displayNameKey": "max"
+                          }
+                      ]
+                  },
+              "displayName": "Aggregation function",
+              "displayNameKey": "aggregation"
               }
           }
       }

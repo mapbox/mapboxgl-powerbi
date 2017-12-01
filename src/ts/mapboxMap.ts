@@ -51,17 +51,17 @@ module powerbi.extensibility.visual {
                 map.setLayoutProperty('circle', 'visibility', 'none');
                 map.setLayoutProperty('heatmap-powerbi', 'visibility', 'none');
                 map.setLayoutProperty('cluster', 'visibility', 'visible');
-                const limits = getFeatureDomain(features, 'sum');
+                const limits = getFeatureDomain(features, settings.api.aggregation);
                 if (limits.min && limits.max) {
                     map.setPaintProperty('cluster', 'circle-color', [
                         "rgb",
-                            ['interpolate', ['linear'], ['get', 'sum'], limits.min, 20, limits.max, 235],
-                            ['-', 255, ['interpolate', ['linear'], ['get', 'sum'], limits.min, 20, limits.max, 235]],
+                            ['interpolate', ['linear'], ['get', settings.api.aggregation], limits.min, 20, limits.max, 235],
+                            ['-', 255, ['interpolate', ['linear'], ['get', settings.api.aggregation], limits.min, 20, limits.max, 235]],
                             50, 
                     ]);
 
                     map.setPaintProperty('cluster', 'circle-radius', [
-                        'interpolate', ['linear'], ['get', 'sum'],
+                        'interpolate', ['linear'], ['get', settings.api.aggregation],
                         limits.min, 10,
                         limits.max, 25,
                     ]);
@@ -137,16 +137,26 @@ module powerbi.extensibility.visual {
         public enumerateObjectInstances(options: EnumerateVisualObjectInstancesOptions): VisualObjectInstanceEnumeration {
             switch (options.objectName) {
                 case 'api': {
+                    const settings : any = this.settings || MapboxSettings.getDefault();
                     let instances = MapboxSettings.enumerateObjectInstances(
-                        this.settings || MapboxSettings.getDefault(),
+                        settings,
                         options
                     )['instances'];
                     let properties = instances[0].properties;
+
+                    // Hide / show custom map style URL control
                     if (properties.style != 'custom') {
                         properties.style_url = "";
                         delete properties.style_url
                     } else if (!properties.style_url) {
                         properties.style_url = "";
+                    }
+
+                    // Hide / show cluster aggregation selector
+                    if (properties.layerType == 'cluster') {
+                        properties.aggregation = settings.api.aggregation;
+                    } else {
+                        delete properties.aggregation;
                     }
                     return { instances }
                 }

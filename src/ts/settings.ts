@@ -15,5 +15,6 @@
         public style: string = "";
         public style_url: string = "";
         public layerType: string = "circle";
+        public aggregation: string = "count";
     }
 }
