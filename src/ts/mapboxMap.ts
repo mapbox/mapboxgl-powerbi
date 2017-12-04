@@ -239,15 +239,21 @@ module powerbi.extensibility.visual {
                         count: 0,
                         sum: 0,
                         min: Infinity,
-                        max: -Infinity
+                        max: -Infinity,
+                        tooltip: '',
                     };
                 },
                 map: function(properties) {
+                    const count = 1;
+                    const sum = Number(properties["size"]);
+                    const min = Number(properties["size"]);
+                    const max = Number(properties["size"]);
                     return {
-                        count: 1,
-                        sum: Number(properties["size"]),
-                        min: Number(properties["size"]),
-                        max: Number(properties["size"])
+                        count,
+                        sum,
+                        min, 
+                        max,
+                        tooltip: `Count: ${count},Sum: ${sum}, Min: ${sum}, Max: ${max}`
                     };
                 },
                 reduce: function(accumulated, properties) {
@@ -256,6 +262,7 @@ module powerbi.extensibility.visual {
                     accumulated.min = Math.round(Math.min(accumulated.min, properties.min) * 100) / 100;
                     accumulated.max = Math.round(Math.max(accumulated.max, properties.max) * 100) / 100;
                     accumulated.avg = Math.round(100 * accumulated.sum / accumulated.count) / 100;
+                    accumulated.tooltip = `Count: ${accumulated.count},Sum: ${accumulated.sum},Min: ${accumulated.min},Max: ${accumulated.max}`;
                 }
             })
 

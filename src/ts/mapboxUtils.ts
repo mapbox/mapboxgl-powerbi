@@ -4,28 +4,32 @@ module powerbi.extensibility.visual {
             // Don't add the popup if it already exists
                     if (map.listens('mousemove')) { return }
 
-            console.log("Adding popup");
                     var onMouseMove : Function = debounce(function(e) {
                         let minpoint = new Array(e.point['x'] - 5, e.point['y'] - 5)
                         let maxpoint = new Array(e.point['x'] + 5, e.point['y'] + 5)
                         try {
+                            console.log("Getting feawtures on mousemove", minpoint, maxpoint);
                             let features : any = map.queryRenderedFeatures([minpoint, maxpoint], {
-                                layers: ['cluster']
+                                layers: ['cluster', 'circle', 'heatmap']
                             });
+                            console.log("Got 'em", features);
                             map.getCanvas().style.cursor = 'pointer';
                             let feat = features[0];
-                            let tooltip = feat.properties.tooltip;
 
+                            let tooltip = "<div><h3>Tooltip</h3>"
+                            feat.properties.tooltip.split(',').map( tooltipItem => {
+                                tooltip += `<li>${tooltipItem}</li>`
+                            })
+                            tooltip += "</div>"
                             popup.setLngLat(map.unproject(e.point))
-                                .setHTML("<div><h3>Tooltip</h3>"+
-                                    "<li>Value: " + tooltip + "<li></div>")
+                                .setHTML(tooltip)
                                 .addTo(map);
                         } catch (err) {
                             map.getCanvas().style.cursor = '';
                             popup.remove();
                             return
                         }
-                    }, 16, false);
+                    }, 300, false);
                    
                     map.on('mousemove', onMouseMove);
                 }

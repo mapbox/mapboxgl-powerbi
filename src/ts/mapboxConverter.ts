@@ -116,7 +116,7 @@ module powerbi.extensibility.visual {
 		                    },
 		                    "properties": {
 		                        "color": (d.color) ? scale(d.color).toString() : null,
-		                        "tooltip": (d.category || d.size).toString(),
+                                "tooltip": `Value: ${(d.category || d.size).toString()}`,
                                 "size": d.size
 		                    }
 		                }
