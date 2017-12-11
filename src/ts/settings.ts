@@ -78,6 +78,7 @@
     export class ChoroplethSettings {
         public show: boolean = false;
         public vectorProperty: string = 'NAME';
-        public vectorLayer: string = null;
+        public sourceLayer: string = null;
+        public vectorTileUrl: string = 'mapbox://mapbox.us_census_states_2015'
     }
 }

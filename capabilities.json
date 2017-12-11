@@ -351,13 +351,21 @@
           "displayNameKey": "vectorProperty",
           "description": "The property name in the vector layer to use for data join"
         },
-        "vectorLayer": {
+        "sourceLayer": {
           "type": {
             "text": true
           },
-          "displayName": "Vector Layer ID",
-          "displayNameKey": "vectorLayer",
+          "displayName": "Source Layer Name",
+          "displayNameKey": "sourceLayer",
           "description": "The id of the vector layer to use for data join"
+        },
+        "vectorTileUrl": {
+          "type": {
+            "text": true
+          },
+          "displayName": "Vector Tile Url",
+          "displayNameKey": "vectorTileUrl",
+          "description": "The URL of the vector tile"
         }
       }
     }

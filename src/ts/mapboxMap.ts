@@ -20,86 +20,102 @@ module powerbi.extensibility.visual {
         }
 
         if (settings.choropleth.show) {
-                let choropleth = map.getSource('choropleth-source');
+            let choropleth = map.getSource('choropleth-source');
+            if (this.vectorTileUrl != settings.choropleth.vectorTileUrl) {
+                if (choropleth) {
+                    map.removeSource('choropleth-source');
+                }
+
+                map.addSource('choropleth-source', {
+                    type: 'vector',
+                    url: `mapbox://${settings.choropleth.vectorTileUrl}`,
+                })
+                this.vectorTileUrl = settings.choropleth.vectorTileUrl;
+            }
+
+            choropleth = map.getSource('choropleth-source');
+
+            if (map.getLayer('choropleth-layer')) {
                 map.removeLayer('choropleth-layer');
-                const choroplethLayer = mapboxUtils.decorateLayer({
-                    id: 'choropleth-layer',
-                    type: "fill",
-                    source: 'choropleth-source',
-                    "source-layer": settings.choropleth.vectorLayer
+            }
+            const choroplethLayer = mapboxUtils.decorateLayer({
+                id: 'choropleth-layer',
+                type: "fill",
+                source: 'choropleth-source',
+                "source-layer": settings.choropleth.sourceLayer
+            });
+            map.addLayer(choroplethLayer);
+            const limits = mapboxUtils.getLimits(features, 'colorValue');
+            let stops = [];
+            if (limits.min && limits.max) {
+                features.forEach( row => {
+                    const green = ((row.properties.colorValue / limits.max) * 255);
+                    const color = "rgba(" + 50 + ", " + green + ", " + 10 + ", 0.7)";
+                    stops.push([row.properties.location, color]);
                 });
-                map.addLayer(choroplethLayer);
-                const limits = mapboxUtils.getLimits(features, 'colorValue');
-                let stops = [];
-                if (limits.min && limits.max) {
-                    features.forEach( row => {
-                        const green = ((row.properties.colorValue / limits.max) * 255);
-                        const color = "rgba(" + 50 + ", " + green + ", " + 10 + ", 0.7)";
-                        stops.push([row.properties.location, color]);
-                    });
-                    map.setPaintProperty('choropleth-layer', 'fill-color', {
-                        "property": settings.choropleth.vectorProperty,
-                        "type": "categorical",
-                        "stops": stops
-                    });
-                }
+                map.setPaintProperty('choropleth-layer', 'fill-color', {
+                    "property": settings.choropleth.vectorProperty,
+                    "type": "categorical",
+                    "stops": stops
+                });
             }
+        }
         if (settings.cluster.show) {
-                const limits = mapboxUtils.getLimits(features, settings.cluster.aggregation);
-                if (limits.min && limits.max) {
-                    map.setPaintProperty('cluster', 'circle-color', [
-                        "rgb",
-                            ['interpolate', ['linear'], ['get', settings.cluster.aggregation], limits.min, 20, limits.max, 235],
-                            ['-', 255, ['interpolate', ['linear'], ['get', settings.cluster.aggregation], limits.min, 20, limits.max, 235]],
-                            50, 
-                    ]);
+            const limits = mapboxUtils.getLimits(features, settings.cluster.aggregation);
+            if (limits.min && limits.max) {
+                map.setPaintProperty('cluster', 'circle-color', [
+                    "rgb",
+                        ['interpolate', ['linear'], ['get', settings.cluster.aggregation], limits.min, 20, limits.max, 235],
+                        ['-', 255, ['interpolate', ['linear'], ['get', settings.cluster.aggregation], limits.min, 20, limits.max, 235]],
+                        50, 
+                ]);
 
-                    map.setPaintProperty('cluster', 'circle-radius', [
-                        'interpolate', ['linear'], ['get', settings.cluster.aggregation],
-                        limits.min, 10,
-                        limits.max, 25,
-                    ]);
-                }
+                map.setPaintProperty('cluster', 'circle-radius', [
+                    'interpolate', ['linear'], ['get', settings.cluster.aggregation],
+                    limits.min, 10,
+                    limits.max, 25,
+                ]);
             }
+        }
         if (settings.circle.show) {
-                if (category != null) {
-                    map.setPaintProperty('circle', 'circle-color', {
-                        property: 'color',
-                        type: 'identity',
-                    });
-                } else {
-                    map.setPaintProperty('circle', 'circle-color', settings.circle.color);
-                }
-                const limits = mapboxUtils.getLimits(features, 'size');
-                if (limits.min !== null && limits.max !== null) {
-                    map.setPaintProperty('circle', 'circle-radius', [
-                        'interpolate', ['linear'], ['get', 'size'],
-                        limits.min, 1,
-                        limits.max, 4 * settings.circle.radius,
-                    ])
-                } else {
-                    map.setPaintProperty('circle', 'circle-radius', settings.circle.radius);
-                }
-                map.setPaintProperty('circle', 'circle-blur', settings.circle.blur / 100);
-                map.setPaintProperty('circle', 'circle-opacity', settings.circle.opacity / 100);
-                map.setPaintProperty('circle', 'circle-stroke-width', settings.circle.strokeWidth);
-                map.setPaintProperty('circle', 'circle-stroke-opacity', settings.circle.strokeOpacity / 100);
-                map.setPaintProperty('circle', 'circle-stroke-color', settings.circle.strokeColor);
+            if (category != null) {
+                map.setPaintProperty('circle', 'circle-color', {
+                    property: 'color',
+                    type: 'identity',
+                });
+            } else {
+                map.setPaintProperty('circle', 'circle-color', settings.circle.color);
+            }
+            const limits = mapboxUtils.getLimits(features, 'size');
+            if (limits.min !== null && limits.max !== null) {
+                map.setPaintProperty('circle', 'circle-radius', [
+                    'interpolate', ['linear'], ['get', 'size'],
+                    limits.min, 1,
+                    limits.max, 4 * settings.circle.radius,
+                ])
+            } else {
+                map.setPaintProperty('circle', 'circle-radius', settings.circle.radius);
+            }
+            map.setPaintProperty('circle', 'circle-blur', settings.circle.blur / 100);
+            map.setPaintProperty('circle', 'circle-opacity', settings.circle.opacity / 100);
+            map.setPaintProperty('circle', 'circle-stroke-width', settings.circle.strokeWidth);
+            map.setPaintProperty('circle', 'circle-stroke-opacity', settings.circle.strokeOpacity / 100);
+            map.setPaintProperty('circle', 'circle-stroke-color', settings.circle.strokeColor);
 
-            }
-            if (settings.heatmap.show) {
-                map.setPaintProperty('heatmap', 'heatmap-radius', settings.heatmap.radius);
-                map.setPaintProperty('heatmap', 'heatmap-weight', settings.heatmap.weight);
-                map.setPaintProperty('heatmap', 'heatmap-intensity', settings.heatmap.intensity);
-                map.setPaintProperty('heatmap', 'heatmap-opacity', settings.heatmap.opacity / 100);
-                map.setPaintProperty('heatmap', 'heatmap-color', [ "interpolate", ["linear"], ["heatmap-density"],
-                    0, "rgba(0, 0, 255, 0)",
-                    0.1, "royalblue",
-                    0.3, "cyan",
-                    0.5, "lime",
-                    0.7, "yellow",
-                    1, settings.heatmap.color]);
-            }
+        }
+        if (settings.heatmap.show) {
+            map.setPaintProperty('heatmap', 'heatmap-radius', settings.heatmap.radius);
+            map.setPaintProperty('heatmap', 'heatmap-weight', settings.heatmap.weight);
+            map.setPaintProperty('heatmap', 'heatmap-intensity', settings.heatmap.intensity);
+            map.setPaintProperty('heatmap', 'heatmap-opacity', settings.heatmap.opacity / 100);
+            map.setPaintProperty('heatmap', 'heatmap-color', [ "interpolate", ["linear"], ["heatmap-density"],
+                0, "rgba(0, 0, 255, 0)",
+                0.1, "royalblue",
+                0.3, "cyan",
+                0.5, "lime",
+                0.7, "yellow",
+                1, settings.heatmap.color]);
+        }
 
         return true;
     }
@@ -114,6 +130,7 @@ module powerbi.extensibility.visual {
         private settings: MapboxSettings;
         private popup: mapboxgl.Popup;
         private mapStyle: string = "";
+        private vectorTileUrl: string = "";
         private useClustering : boolean = false;
         private cluster: any;
         private category: any;
@@ -213,8 +230,8 @@ module powerbi.extensibility.visual {
                         const source : any =  this.map.getSource('choropleth-source');
                         const vectorLayers : any[] = source.vectorLayers;
                         if (vectorLayers && vectorLayers.length > 0) {
-                            if (this.settings.choropleth.vectorLayer == '') {
-                                this.settings.choropleth.vectorLayer = vectorLayers[0].id;
+                            if (this.settings.choropleth.sourceLayer == '') {
+                                this.settings.choropleth.sourceLayer = vectorLayers[0].id;
                             }
                         }
                     }
@@ -227,10 +244,6 @@ module powerbi.extensibility.visual {
                     type: 'geojson',
                     data: turf.featureCollection([]),
                     buffer: 10
-                })
-                this.map.addSource('choropleth-source', {
-                    type: 'vector',
-                    url: 'mapbox://mapbox.us_census_states_2015',
                 })
 
                 mapboxUtils.addBuildings(this.map);
@@ -271,6 +284,7 @@ module powerbi.extensibility.visual {
                 this.map.remove();
                 this.map = null;
                 this.mapStyle = "";
+                this.vectorTileUrl = "";
             }
         }
 
