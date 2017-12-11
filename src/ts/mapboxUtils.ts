@@ -1,4 +1,5 @@
 module powerbi.extensibility.visual {
+    declare var turf : any;
     export module mapboxUtils {
         export function addPopup(map: mapboxgl.Map, popup: mapboxgl.Popup ) {
             // Don't add the popup if it already exists
@@ -105,6 +106,41 @@ module powerbi.extensibility.visual {
                     'fill-extrusion-opacity': .5
                 }
             }, 'waterway-label');
+        }
+
+        export function getLimits(geojson_data, myproperty) {
+            let min = null;
+            let max = null;
+            turf.propEach(turf.featureCollection(geojson_data), function(currentProperties, featureIndex) {
+                if (currentProperties[myproperty]) {
+                    const value = Math.round(Number(currentProperties[myproperty]) * 100 / 100);
+                    if (!min || value < min) { min = value }
+                    if (!max || value > max) { max = value }
+                }
+            })
+            // Min and max must not be equal becuse of the interpolation. 
+            // let's make sure with the substraction
+            return {
+                min: min - 1,
+                max,
+            }
+        }
+
+        "use strict";
+        export function logExceptions(): MethodDecorator {
+            return function (target: Object, propertyKey: string, descriptor: TypedPropertyDescriptor<Function>)
+            : TypedPropertyDescriptor<Function> {
+                return {
+                    value: function () {
+                        try {
+                            return descriptor.value.apply(this, arguments);
+                        } catch (e) {
+                            console.error(e);
+                            throw e;
+                        }
+                    }
+                }
+            }
         }
 
         const debounce = (func, wait, immediate) => {

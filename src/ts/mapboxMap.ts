@@ -2,41 +2,7 @@ module powerbi.extensibility.visual {
     declare var debug : any;
     declare var turf : any;
     declare var supercluster : any;
-    "use strict";
-    export function logExceptions(): MethodDecorator {
-        return function (target: Object, propertyKey: string, descriptor: TypedPropertyDescriptor<Function>)
-        : TypedPropertyDescriptor<Function> {
-            
-            return {
-                value: function () {
-                    try {
-                        return descriptor.value.apply(this, arguments);
-                    } catch (e) {
-                        console.error(e);
-                        throw e;
-                    }
-                }
-            }
-        }
-    }
 
-        function getLimits(geojson_data, myproperty) {
-            let min = null;
-            let max = null;
-            turf.propEach(turf.featureCollection(geojson_data), function(currentProperties, featureIndex) {
-                if (currentProperties[myproperty]) {
-                    const value = Math.round(Number(currentProperties[myproperty]) * 100 / 100);
-                    if (!min || value < min) { min = value }
-                    if (!max || value > max) { max = value }
-                }
-            })
-            // Min and max must not be equal becuse of the interpolation. 
-            // let's make sure with the substraction
-            return {
-                min: min - 1,
-                max,
-            }
-        }
 
     function onUpdate(map, features, settings, zoomChanged, category) {
         if (!map.getSource('data')) {
@@ -63,7 +29,7 @@ module powerbi.extensibility.visual {
                     "source-layer": settings.choropleth.vectorLayer
                 });
                 map.addLayer(choroplethLayer);
-                const limits = getLimits(features, 'colorValue');
+                const limits = mapboxUtils.getLimits(features, 'colorValue');
                 let stops = [];
                 if (limits.min && limits.max) {
                     features.forEach( row => {
@@ -79,7 +45,7 @@ module powerbi.extensibility.visual {
                 }
             }
         if (settings.cluster.show) {
-                const limits = getLimits(features, settings.cluster.aggregation);
+                const limits = mapboxUtils.getLimits(features, settings.cluster.aggregation);
                 if (limits.min && limits.max) {
                     map.setPaintProperty('cluster', 'circle-color', [
                         "rgb",
@@ -104,7 +70,7 @@ module powerbi.extensibility.visual {
                 } else {
                     map.setPaintProperty('circle', 'circle-color', settings.circle.color);
                 }
-                const limits = getLimits(features, 'size');
+                const limits = mapboxUtils.getLimits(features, 'size');
                 if (limits.min !== null && limits.max !== null) {
                     map.setPaintProperty('circle', 'circle-radius', [
                         'interpolate', ['linear'], ['get', 'size'],
@@ -142,6 +108,7 @@ module powerbi.extensibility.visual {
     export class MapboxMap implements IVisual {
         private map: mapboxgl.Map;
         private mapDiv: HTMLDivElement;
+        private errorDiv: HTMLDivElement;
         private host: IVisualHost;
         private features: any[];
         private settings: MapboxSettings;
@@ -177,25 +144,15 @@ module powerbi.extensibility.visual {
             this.mapDiv = document.createElement('div');
             this.mapDiv.className = 'map';
             options.element.appendChild(this.mapDiv);
-            
-            let mapLegend: HTMLElement;
-            mapLegend = document.createElement('legend');
-            mapLegend.className = 'legend';
-            mapLegend.id = 'legend';
-            this.mapDiv.appendChild(mapLegend);
 
+            this.errorDiv = document.createElement('div');
+            this.errorDiv.className = 'error';
+            options.element.appendChild(this.errorDiv);
+            
             this.popup = new mapboxgl.Popup({
                 closeButton: false,
                 closeOnClick: false
             });
-
-            const mapOptions = {
-                container: this.mapDiv,
-            }
-
-            //If the map container doesnt exist yet, create it
-            this.map = new mapboxgl.Map(mapOptions);
-            this.map.addControl(new mapboxgl.NavigationControl());
 
             const clusterRadius = 10;
             const clusterMaxZoom = 20;
@@ -233,6 +190,21 @@ module powerbi.extensibility.visual {
                     accumulated.tooltip = `Count: ${accumulated.count},Sum: ${accumulated.sum},Min: ${accumulated.min},Max: ${accumulated.max}`;
                 }
             })
+
+        }
+
+        private addMap() {
+            if (this.map) {
+                return
+            }
+
+            const mapOptions = {
+                container: this.mapDiv,
+            }
+
+            //If the map container doesnt exist yet, create it
+            this.map = new mapboxgl.Map(mapOptions);
+            this.map.addControl(new mapboxgl.NavigationControl());
 
             this.map.on('data', (data) => {
                 if (data.dataType == 'source' && data.sourceId == 'choropleth-source') {
@@ -287,26 +259,64 @@ module powerbi.extensibility.visual {
             });
 
             this.map.on('load', () => {
-
                 onUpdate(this.map, this.getFeatures(this.useClustering), this.settings, false, this.category)
                 mapboxUtils.addPopup(this.map, this.popup);
                 mapboxUtils.addClick(this.map);
             });
             this.map.on('zoom', () => { if (this.useClustering) { onUpdate(this.map, this.getFeatures(this.useClustering), this.settings, true, this.category) }});
-
         }
 
-        @logExceptions()
+        private removeMap() {
+            if (this.map) {
+                this.map.remove();
+                this.map = null;
+                this.mapStyle = "";
+            }
+        }
+
+        private validateOptions(options: VisualUpdateOptions) {
+            this.errorDiv.style.display = 'none';
+            this.errorDiv.innerText = '';
+
+            // Check for Access Token
+            if (!this.settings.api.accessToken) {
+                this.errorDiv.innerText = 'Access Token is not set. Please set it on the options pane.';
+                return false;
+            }
+
+            // Check for Location properties
+            const roles : any = options.dataViews[0].metadata.columns.map( column => {
+                return Object.keys(column.roles);
+            }).reduce( (acc, curr) => {
+                curr.map( role => {
+                    acc[role] = true;
+                });
+                return acc;
+            }, {});
+
+            if (!(roles.latitude && roles.longitude) && !roles.location) {
+                this.errorDiv.innerText = 'No GEO data fields are added. Please set either location or latitude and longitude.';
+                return false;
+            }
+
+            return true;
+        }
+
+        @mapboxUtils.logExceptions()
         public update(options: VisualUpdateOptions) {
             const dataView: DataView = options.dataViews[0];
             this.settings = MapboxSettings.parse<MapboxSettings>(dataView);
             this.useClustering = this.settings.cluster.show;
             
-            // Only run this step if there are lat/long values to parse
-            // and accessToken is set in options
-            if (options.dataViews[0].metadata.columns.length < 2 || !this.settings.api.accessToken) { 
-                return 
-            };
+            if (!this.validateOptions(options)) {
+                this.errorDiv.style.display = 'block';
+                this.removeMap();
+                return false;
+            }
+
+            if (!this.map) {
+                this.addMap();
+            }
 
             this.features  = mapboxConverter.convert(dataView, this.host);
             if (this.useClustering) {
@@ -339,10 +349,9 @@ module powerbi.extensibility.visual {
             }
         }
 
-        @logExceptions()
+        @mapboxUtils.logExceptions()
         public destroy(): void {
-            this.map.remove();
-            this.map = null;
+            this.removeMap();
         }
     }
 }
