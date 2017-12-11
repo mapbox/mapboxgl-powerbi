@@ -100,13 +100,17 @@ module powerbi.extensibility.visual {
 
         const getFeatures = (datas, domain) => {
             let features = []
-            let maxSize = 0
             const { legend_length, limits, scale } = getScale(domain);
             if (scale) {
             	features = datas.map(function (d) {
-                    if (d.size > maxSize) {
-                        maxSize = d.size;
+                    let properties = {
+                        "colorValue": d.color,
+                        "color": (d.color) ? scale(d.color).toString() : null,
+                        "tooltip": `Value: ${(d.category || d.size).toString()}`,
+                        "size": d.size,
+                        "location": d.location
                     }
+
             		if ( (d.latitude >= -90) && (d.latitude <= 90) && (d.longitude >= -180) && (d.longitude <= 180) ) {
 		                let feat: GeoJSON.Feature<any> = {
 		                    "type": "Feature",
@@ -114,23 +118,19 @@ module powerbi.extensibility.visual {
 		                        "type": "Point",
 		                        "coordinates": [d.longitude, d.latitude]
 		                    },
-		                    "properties": {
-		                        "color": (d.color) ? scale(d.color).toString() : null,
-                                "tooltip": `Value: ${(d.category || d.size).toString()}`,
-                                "size": d.size
-		                    }
+                            properties
 		                }
                         return feat;
-	            }
+                    } else if (d.location) {
+                        let feat = { properties }
+                        return feat;
+                    }
             	});
 
-            	createLegend(scale.colors(legend_length + 1), [...domain.slice(0,legend_length), "Other"], "Measure");
+                // createLegend(scale.colors(legend_length + 1), [...domain.slice(0,legend_length), "Other"], "Measure");
 	        }
 
-            return {
-                features,
-                maxSize,
-            }
+            return features;
         }
 
         export function convert(dataView: DataView, host: IVisualHost) {
@@ -142,12 +142,7 @@ module powerbi.extensibility.visual {
             // Convert each row from value array to a JS object like { latitude: "", longitude: "" ... }
             const { datas, domain }  = transformToObjectArray(rows, columns, legend_field);
 
-            const { features, maxSize } = getFeatures(datas, domain);
-
-            return {
-                features: features,
-                maxSize
-            };
+            return getFeatures(datas, domain);
         }
     }
 }

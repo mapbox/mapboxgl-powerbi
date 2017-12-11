@@ -3,24 +3,60 @@
 
     export interface MapboxData {
         features: any[];
-        maxSize: number;
     }
 
     export class MapboxSettings extends DataViewObjectsParser {
         public api: APISettings = new APISettings();
+        public cluster: ClusterSettings = new ClusterSettings();
         public heatmap: HeatmapSettings = new HeatmapSettings();
         public circle: CircleSettings = new CircleSettings();
+        public choropleth: ChoroplethSettings = new ChoroplethSettings();
+
+        public static enumerateObjectInstances(
+            dataViewObjectParser: DataViewObjectsParser,
+            options: EnumerateVisualObjectInstancesOptions): VisualObjectInstanceEnumeration {
+                let settings : MapboxSettings = <MapboxSettings>dataViewObjectParser;
+                let instanceEnumeration = DataViewObjectsParser.enumerateObjectInstances(dataViewObjectParser, options);
+
+                switch (options.objectName) {
+                    case 'api': {
+                        return settings.api.enumerateObjectInstances(instanceEnumeration);
+                    }
+                    default: {
+                        return instanceEnumeration;
+                    }
+                }
+        }
     }
 
     export class APISettings {
         public accessToken: string = "";
-        public style: string = "";
+        public style: string = "mapbox:\/\/styles\/mapbox\/streets-v10";
         public style_url: string = "";
-        public layerType: string = "circle";
+
+        public enumerateObjectInstances(objectEnumeration) {
+            let instances = objectEnumeration.instances;
+            let properties = instances[0].properties;
+
+            // Hide / show custom map style URL control
+            if (properties.style != 'custom') {
+                properties.style_url = "";
+                delete properties.style_url
+            } else if (!properties.style_url) {
+                properties.style_url = "";
+            }
+
+            return { instances }
+        }
+    }
+
+    export class ClusterSettings {
+        public show: boolean = false;
         public aggregation: string = "count";
     }
 
     export class HeatmapSettings {
+        public show: boolean = false;
         public radius: number = 30;
         public weight: number = 1;
         public intensity: number = 1;
@@ -29,6 +65,7 @@
     }
 
     export class CircleSettings {
+        public show: boolean = true;
         public radius: number = 5;
         public color: string = "black";
         public blur: number = 0;
@@ -36,5 +73,11 @@
         public strokeWidth: number = 0;
         public strokeColor: string = "black";
         public strokeOpacity: number = 100;
+    }
+
+    export class ChoroplethSettings {
+        public show: boolean = false;
+        public vectorProperty: string = 'NAME';
+        public vectorLayer: string = null;
     }
 }

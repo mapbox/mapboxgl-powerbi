@@ -1,6 +1,12 @@
 {
   "dataRoles": [
     {
+      "name": "location",
+      "kind": "GroupingOrMeasure",
+      "displayName": "Location",
+      "description": "Location"
+    },
+    {
       "name": "latitude",
       "kind": "GroupingOrMeasure",
       "displayName": "Latitude",
@@ -53,6 +59,11 @@
             {
               "for": {
                 "in": "longitude"
+              }
+            },
+            {
+              "for": {
+                "in": "location"
               }
             }
           ]
@@ -146,29 +157,17 @@
             "text": true
           },
           "suppressFormatPainterCopy": true
-        },
-        "layerType": {
-          "type": {
-            "enumeration": [
-              {
-                "value": "circle",
-                "displayName": "Circle",
-                "displayNameKey": "circle"
-              },
-              {
-                "value": "heatmap",
-                "displayName": "Heatmap",
-                "displayNameKey": "heatmap"
-              },
-              {
-                "value": "cluster",
-                "displayName": "Cluster",
-                "displayNameKey": "cluster"
-              }
-            ]
-          },
-          "displayName": "Layer type",
-          "displayNameKey": "layer_type"
+        }
+      }
+    },
+    "cluster": {
+      "displayName": "Cluster",
+      "displayNameKey": "cluster",
+      "description": "Cluster display settings",
+      "properties": {
+        "show": {
+          "displayName": "Cluster",
+          "type": { "bool": true }
         },
         "aggregation": {
           "type": {
@@ -210,6 +209,10 @@
       "displayNameKey": "heatmap",
       "description": "Heatmap display settings",
       "properties": {
+        "show": {
+          "displayName": "Choropleth",
+          "type": { "bool": true }
+        },
         "radius": {
           "displayName": "Radius",
           "displayNameKey": "radius",
@@ -261,6 +264,10 @@
       "displayNameKey": "circle",
       "description": "Circle display settings",
       "properties": {
+        "show": {
+          "displayName": "Choropleth",
+          "type": { "bool": true }
+        },
         "radius": {
           "displayName": "Radius",
           "displayNameKey": "radius",
@@ -326,7 +333,33 @@
           }
         }
       }
+    },
+    "choropleth": {
+      "displayName": "Choropleth",
+      "displayNameKey": "choropleth",
+      "description": "Choropleth display settings",
+      "properties": {
+        "show": {
+          "displayName": "Choropleth",
+          "type": { "bool": true }
+        },
+        "vectorProperty": {
+          "type": {
+            "text": true
+          },
+          "displayName": "Vector Property",
+          "displayNameKey": "vectorProperty",
+          "description": "The property name in the vector layer to use for data join"
+        },
+        "vectorLayer": {
+          "type": {
+            "text": true
+          },
+          "displayName": "Vector Layer ID",
+          "displayNameKey": "vectorLayer",
+          "description": "The id of the vector layer to use for data join"
+        }
+      }
     }
-
   }
 }

@@ -8,11 +8,9 @@ module powerbi.extensibility.visual {
                         let minpoint = new Array(e.point['x'] - 5, e.point['y'] - 5)
                         let maxpoint = new Array(e.point['x'] + 5, e.point['y'] + 5)
                         try {
-                            console.log("Getting feawtures on mousemove", minpoint, maxpoint);
                             let features : any = map.queryRenderedFeatures([minpoint, maxpoint], {
                                 layers: ['cluster', 'circle', 'heatmap']
                             });
-                            console.log("Got 'em", features);
                             map.getCanvas().style.cursor = 'pointer';
                             let feat = features[0];
 
@@ -61,24 +59,6 @@ module powerbi.extensibility.visual {
             switch (layer.type) {
                 case 'circle': {
                     layer.paint = {};
-
-                    //const color = columns.find( column => column.roles.category);
-                    //if (color) {
-                    //layer.paint["circle-color"] = {
-                    //"property": "color",
-                    //"type": "identity"
-                    //}
-                    //}
-                    //const size = columns.find( column => column.roles.size);
-                    //if (size && maxSize) {
-                    //layer.paint["circle-radius"] = {
-                    //"property": "size",
-                    //stops: [
-                    //[1, 2],
-                    //[maxSize, 20]
-                    //]
-                    //}
-                    //}
                     break;
                 }
                 case 'cluster': {
