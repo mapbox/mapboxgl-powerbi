@@ -28,7 +28,7 @@ module powerbi.extensibility.visual {
 
                 map.addSource('choropleth-source', {
                     type: 'vector',
-                    url: `mapbox://${settings.choropleth.vectorTileUrl}`,
+                    url: settings.choropleth.vectorTileUrl,
                 })
                 this.vectorTileUrl = settings.choropleth.vectorTileUrl;
             }
