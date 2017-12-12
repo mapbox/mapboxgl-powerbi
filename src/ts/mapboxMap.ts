@@ -46,18 +46,20 @@ module powerbi.extensibility.visual {
             });
             map.addLayer(choroplethLayer);
             const limits = mapboxUtils.getLimits(features, 'colorValue');
-            let stops = [];
+            let colors = ['match', ['get', settings.choropleth.vectorProperty]];
             if (limits.min && limits.max) {
-                features.forEach( row => {
+                features.map( row => {
                     const green = ((row.properties.colorValue / limits.max) * 255);
                     const color = "rgba(" + 50 + ", " + green + ", " + 10 + ", 0.7)";
-                    stops.push([row.properties.location, color]);
+                    colors.push(row.properties.location);
+                    colors.push(color);
                 });
-                map.setPaintProperty('choropleth-layer', 'fill-color', {
-                    "property": settings.choropleth.vectorProperty,
-                    "type": "categorical",
-                    "stops": stops
-                });
+
+                // Add transparent as default so that we only see regions
+                // for which we have data values
+                colors.push('rgba(0,0,0,0)');
+
+                map.setPaintProperty('choropleth-layer', 'fill-color', colors);
             }
         }
         if (settings.cluster.show) {
