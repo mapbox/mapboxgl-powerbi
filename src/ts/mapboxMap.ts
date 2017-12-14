@@ -42,11 +42,9 @@ module powerbi.extensibility.visual {
                 "source-layer": settings.choropleth.sourceLayer
             });
 
-            if (map.getLayer('choropleth-layer')) {
-                map.removeLayer('choropleth-layer');
+            if (!map.getLayer('choropleth-layer')) {
+                map.addLayer(choroplethLayer, 'cluster');
             }
-
-            map.addLayer(choroplethLayer, 'cluster');
 
             const limits = mapboxUtils.getLimits(features.choroplethData, 'colorValue');
 
@@ -268,6 +266,7 @@ module powerbi.extensibility.visual {
             this.map = new mapboxgl.Map(mapOptions);
             this.map.addControl(new mapboxgl.NavigationControl());
 
+            /*
             this.map.on('data', (data) => {
                 if (data.dataType == 'source' && data.sourceId == 'choropleth-source') {
                     let choroplethLayer = this.map.getLayer('choropleth-layer');
@@ -282,10 +281,10 @@ module powerbi.extensibility.visual {
                     }
                 }
             });
+            */
 
             this.map.on('style.load', (e) => {
                 let style = e.target;
-                let layers = this.map.getStyle().layers;
 
                 // Find the index of the first symbol layer in the map style
                 let firstSymbolId = 'waterway-label';
