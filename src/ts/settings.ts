@@ -77,9 +77,11 @@
 
     export class ChoroplethSettings {
         public show: boolean = false;
-        public vectorProperty: string = 'NAME';
-        public sourceLayer: string = null;
         public vectorTileUrl: string = ''
+        public sourceLayer: string = null;
+        public vectorProperty: string = 'NAME';
+        public minColor: string = "red";
+        public maxColor: string = "green";
 
         public display(): boolean {
             return this.show &&

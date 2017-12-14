@@ -47,12 +47,12 @@ module powerbi.extensibility.visual {
             map.addLayer(choroplethLayer);
             const limits = mapboxUtils.getLimits(features.choroplethData, 'colorValue');
             if (limits.min && limits.max) {
+                let colorStops = chroma.scale([settings.choropleth.minColor,settings.choropleth.maxColor]).domain([limits.min, limits.max])
                 let colors = ['match', ['get', settings.choropleth.vectorProperty]];
                 features.choroplethData.map( row => {
-                    const green = ((row.properties.colorValue / limits.max) * 255);
-                    const color = "rgba(" + 50 + ", " + green + ", " + 10 + ", 0.7)";
+                    const color = colorStops(row.properties.colorValue);
                     colors.push(row.properties.location);
-                    colors.push(color);
+                    colors.push(color.toString());
                 });
 
                 // Add transparent as default so that we only see regions

@@ -343,13 +343,13 @@
           "displayName": "Choropleth",
           "type": { "bool": true }
         },
-        "vectorProperty": {
+        "vectorTileUrl": {
           "type": {
             "text": true
           },
-          "displayName": "Vector Property",
-          "displayNameKey": "vectorProperty",
-          "description": "The property name in the vector layer to use for data join"
+          "displayName": "Vector Tile Url",
+          "displayNameKey": "vectorTileUrl",
+          "description": "The URL of the vector tileset. Example for US states: mapbox://mapbox.us_census_states_2015"
         },
         "sourceLayer": {
           "type": {
@@ -359,13 +359,37 @@
           "displayNameKey": "sourceLayer",
           "description": "The id of the vector layer to use for data join"
         },
-        "vectorTileUrl": {
+        "vectorProperty": {
           "type": {
             "text": true
           },
-          "displayName": "Vector Tile Url",
-          "displayNameKey": "vectorTileUrl",
-          "description": "The URL of the vector tile"
+          "displayName": "Vector Property",
+          "displayNameKey": "vectorProperty",
+          "description": "The property name in the vector layer to use for data join"
+        },
+        "minColor": {
+          "displayName": "Min Color",
+          "displayNameKey": "minColor",
+          "description": "Defines the color for the minimum value of the color field.",
+          "type": {
+            "fill": {
+              "solid": {
+                "color": true
+              }
+            }
+          }
+        },
+        "maxColor": {
+          "displayName": "Max Color",
+          "displayNameKey": "maxColor",
+          "description": "Defines the color for the maximum value of the color field.",
+          "type": {
+            "fill": {
+              "solid": {
+                "color": true
+              }
+            }
+          }
         }
       }
     }
