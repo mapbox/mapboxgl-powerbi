@@ -66,7 +66,8 @@
 
     export class CircleSettings {
         public show: boolean = true;
-        public radius: number = 5;
+        public radius: number = 20;
+        public scaleFactor: number = 2;
         public color: string = "black";
         public blur: number = 0;
         public opacity: number = 100;

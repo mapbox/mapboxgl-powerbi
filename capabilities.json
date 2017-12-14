@@ -276,6 +276,14 @@
             "numeric": true
           }
         },
+        "scaleFactor": {
+          "displayName": "Zoom scale factor",
+          "displayNameKey": "scaleFactor",
+          "description": "The scale factor to use when sizing circles relative to zoom level.",
+          "type": {
+            "numeric": true
+          }
+        },
         "blur": {
           "displayName": "Blur",
           "displayNameKey": "blur",

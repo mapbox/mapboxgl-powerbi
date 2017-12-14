@@ -91,12 +91,27 @@ module powerbi.extensibility.visual {
             const limits = mapboxUtils.getLimits(features.rawData, 'size');
             if (limits.min !== null && limits.max !== null) {
                 map.setPaintProperty('circle', 'circle-radius', [
-                    'interpolate', ['linear'], ['get', 'size'],
-                    limits.min, 1,
-                    limits.max, 4 * settings.circle.radius,
-                ])
+                    "interpolate", ["linear"], ["zoom"],
+                    0, [
+                        "interpolate", ["exponential", 1],
+                        ["number", ['get', 'size']],
+                        limits.min, 1,
+                        limits.max, settings.circle.radius
+                    ],
+                    18, [
+                        "interpolate", ["exponential", 1],
+                        ["number", ["get", "size"]],
+                        limits.min, 1 * settings.circle.scaleFactor,
+                        limits.max, settings.circle.radius  * settings.circle.scaleFactor,
+                    ]
+                ]
+                );
             } else {
-                map.setPaintProperty('circle', 'circle-radius', settings.circle.radius);
+                map.setPaintProperty('circle', 'circle-radius', [
+                    'interpolate', ['linear'], ['zoom'],
+                    0, settings.circle.radius,
+                    18, settings.circle.radius * settings.circle.scaleFactor
+                ]);
             }
             map.setPaintProperty('circle', 'circle-blur', settings.circle.blur / 100);
             map.setPaintProperty('circle', 'circle-opacity', settings.circle.opacity / 100);
