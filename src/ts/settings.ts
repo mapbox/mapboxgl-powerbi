@@ -31,7 +31,7 @@
 
     export class APISettings {
         public accessToken: string = "";
-        public style: string = "mapbox:\/\/styles\/mapbox\/streets-v10";
+        public style: string = "mapbox:\/\/styles\/mapbox\/dark-v9?optimize=true";
         public style_url: string = "";
 
         public enumerateObjectInstances(objectEnumeration) {

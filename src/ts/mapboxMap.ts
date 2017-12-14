@@ -15,7 +15,9 @@ module powerbi.extensibility.visual {
         map.setLayoutProperty('circle', 'visibility', settings.circle.show ? 'visible' : 'none');
         map.setLayoutProperty('cluster', 'visibility', settings.cluster.show ? 'visible' : 'none');
         map.setLayoutProperty('heatmap', 'visibility', settings.heatmap.show ? 'visible' : 'none');
-        map.setLayoutProperty('choropleth-layer', 'visibility', settings.choropleth.display() ? 'visible' : 'none');
+        if (map.getLayer('choropleth-layer')) {
+            map.setLayoutProperty('choropleth-layer', 'visibility', settings.choropleth.display() ? 'visible' : 'none');
+        }
 
         if (settings.choropleth.display()) {
 
@@ -44,7 +46,7 @@ module powerbi.extensibility.visual {
                 map.removeLayer('choropleth-layer');
             }
 
-            map.addLayer(choroplethLayer);
+            map.addLayer(choroplethLayer, 'cluster');
 
             const limits = mapboxUtils.getLimits(features.choroplethData, 'colorValue');
 
@@ -283,11 +285,19 @@ module powerbi.extensibility.visual {
 
             this.map.on('style.load', (e) => {
                 let style = e.target;
+                let layers = this.map.getStyle().layers;
+
+                // Find the index of the first symbol layer in the map style
+                let firstSymbolId = 'waterway-label';
+                if (this.settings.api.style=='mapbox://styles/mapbox/satellite-v9?optimize=true') {
+                    firstSymbolId = ''
+                }
+                
                 this.map.addSource('data', {
                     type: 'geojson',
                     data: turf.featureCollection([]),
                     buffer: 10
-                })
+                });
 
                 mapboxUtils.addBuildings(this.map);
                 
@@ -296,21 +306,22 @@ module powerbi.extensibility.visual {
                     source: 'data',
                     type: 'cluster'
                 });
-                this.map.addLayer(clusterLayer);
+                this.map.addLayer(clusterLayer, firstSymbolId);
 
                 const circleLayer = mapboxUtils.decorateLayer({
                     id: 'circle',
                     source: 'data',
                     type: 'circle'
                 })
-                this.map.addLayer(circleLayer);
+                this.map.addLayer(circleLayer, firstSymbolId);
 
                 const heatmapLayer = mapboxUtils.decorateLayer({
                     id: 'heatmap',
                     source: 'data',
                     type: 'heatmap'
-                });
-                this.map.addLayer(heatmapLayer);
+                }, );
+
+                this.map.addLayer(heatmapLayer, firstSymbolId);
                 onUpdate(this.map, this.getFeatures(), this.settings, false, this.category) 
             });
 
