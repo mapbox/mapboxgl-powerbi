@@ -10,7 +10,6 @@ module powerbi.extensibility.visual {
         }
 
         let source : any = map.getSource('data');
-        console.log(source)
         source.setData( turf.featureCollection(features.clusterData || features.rawData));
 
         map.setLayoutProperty('circle', 'visibility', settings.circle.show ? 'visible' : 'none');
