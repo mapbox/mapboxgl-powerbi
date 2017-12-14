@@ -90,59 +90,49 @@
           "type": {
             "enumeration": [
               {
-                "value": "custom",
-                "displayName": "Custom...",
-                "displayNameKey": "custom"
+                "value": "mapbox:\/\/styles\/mapbox\/dark-v9?optimize=true",
+                "displayName": "Dark",
+                "displayNameKey": "dark_v9"
               },
-              {
-                "value": "mapbox:\/\/styles\/mapbox\/streets-v10",
-                "displayName": "Streets",
-                "displayNameKey": "streets_v10"
-              },
-              {
-                "value": "mapbox:\/\/styles\/mapbox\/outdoors-v10",
-                "displayName": "Outdoors",
-                "displayNameKey": "outdoors_v10"
-              },
-              {
-                "value": "mapbox:\/\/styles\/mapbox\/light-v9",
+                            {
+                "value": "mapbox:\/\/styles\/mapbox\/light-v9?optimize=true",
                 "displayName": "Light",
                 "displayNameKey": "light_v9"
               },
               {
-                "value": "mapbox:\/\/styles\/mapbox\/dark-v9",
-                "displayName": "Dark",
-                "displayNameKey": "dark_v9"
+                "value": "mapbox:\/\/styles\/mapbox\/streets-v10?optimize=true",
+                "displayName": "Streets",
+                "displayNameKey": "streets_v10"
               },
               {
-                "value": "mapbox:\/\/styles\/mapbox\/satellite-v9",
+                "value": "mapbox:\/\/styles\/mapbox\/outdoors-v10?optimize=true",
+                "displayName": "Outdoors",
+                "displayNameKey": "outdoors_v10"
+              },
+              {
+                "value": "mapbox:\/\/styles\/mapbox\/satellite-streets-v10?optimize=true",
+                "displayName": "Satellite Streets",
+                "displayNameKey": "satellite_streets_v10"
+              },
+              {
+                "value": "mapbox:\/\/styles\/mapbox\/satellite-v9?optimize=true",
                 "displayName": "Satellite",
                 "displayNameKey": "satellite_v9"
               },
               {
-                "value": "mapbox:\/\/styles\/mapbox\/satellite-streets-v10",
-                "displayName": "Satellite Streets",
-                "displayNameKey": "statellite_streets_v10"
-              },
-              {
-                "value": "mapbox:\/\/styles\/mapbox\/navigation-preview-day-v2",
-                "displayName": "Navigation Preview Day",
+                "value": "mapbox:\/\/styles\/mapbox\/navigation-preview-day-v2?optimize=true",
+                "displayName": "Traffic Light",
                 "displayNameKey": "navigation_preview_day_v2"
               },
               {
-                "value": "mapbox:\/\/styles\/mapbox\/navigation-preview-night-v2",
-                "displayName": "Navigation Preview Night",
+                "value": "mapbox:\/\/styles\/mapbox\/navigation-preview-night-v2?optimize=true",
+                "displayName": "Traffic Dark",
                 "displayNameKey": "navigation_preview_night_v2"
               },
               {
-                "value": "mapbox:\/\/styles\/mapbox\/navigation-guidance-day-v2",
-                "displayName": "Navigation Guidance Day",
-                "displayNameKey": "navigation_guidance_day_v2"
-              },
-              {
-                "value": "mapbox:\/\/styles\/mapbox\/navigation-guidance-night-v2",
-                "displayName": "Navigation Guidance Night",
-                "displayNameKey": "navigation_guidance_night_v2"
+                "value": "custom",
+                "displayName": "Custom...",
+                "displayNameKey": "custom"
               }
             ]
           },
