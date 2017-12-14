@@ -10,7 +10,7 @@ module powerbi.extensibility.visual {
         }
 
         let source : any = map.getSource('data');
-        source.setData( turf.featureCollection(features));
+        source.setData( turf.featureCollection(features.clusterData || features.rawData));
 
         map.setLayoutProperty('circle', 'visibility', settings.circle.show ? 'visible' : 'none');
         map.setLayoutProperty('cluster', 'visibility', settings.cluster.show ? 'visible' : 'none');
@@ -45,10 +45,10 @@ module powerbi.extensibility.visual {
                 "source-layer": settings.choropleth.sourceLayer
             });
             map.addLayer(choroplethLayer);
-            const limits = mapboxUtils.getLimits(features, 'colorValue');
-            let colors = ['match', ['get', settings.choropleth.vectorProperty]];
+            const limits = mapboxUtils.getLimits(features.choroplethData, 'colorValue');
             if (limits.min && limits.max) {
-                features.map( row => {
+                let colors = ['match', ['get', settings.choropleth.vectorProperty]];
+                features.choroplethData.map( row => {
                     const green = ((row.properties.colorValue / limits.max) * 255);
                     const color = "rgba(" + 50 + ", " + green + ", " + 10 + ", 0.7)";
                     colors.push(row.properties.location);
@@ -63,7 +63,7 @@ module powerbi.extensibility.visual {
             }
         }
         if (settings.cluster.show) {
-            const limits = mapboxUtils.getLimits(features, settings.cluster.aggregation);
+            const limits = mapboxUtils.getLimits(features.clusterData, settings.cluster.aggregation);
             if (limits.min && limits.max) {
                 map.setPaintProperty('cluster', 'circle-color', [
                     "rgb",
@@ -88,7 +88,7 @@ module powerbi.extensibility.visual {
             } else {
                 map.setPaintProperty('circle', 'circle-color', settings.circle.color);
             }
-            const limits = mapboxUtils.getLimits(features, 'size');
+            const limits = mapboxUtils.getLimits(features.rawData, 'size');
             if (limits.min !== null && limits.max !== null) {
                 map.setPaintProperty('circle', 'circle-radius', [
                     'interpolate', ['linear'], ['get', 'size'],
@@ -122,6 +122,12 @@ module powerbi.extensibility.visual {
         return true;
     }
 
+    class Features {
+        rawData: any[] = null;
+        choroplethData: any[] = null;
+        clusterData: any[] = null;
+    }
+
 
     export class MapboxMap implements IVisual {
         private map: mapboxgl.Map;
@@ -133,7 +139,6 @@ module powerbi.extensibility.visual {
         private popup: mapboxgl.Popup;
         private mapStyle: string = "";
         private vectorTileUrl: string = "";
-        private useClustering : boolean = false;
         private cluster: any;
         private category: any;
 
@@ -146,14 +151,33 @@ module powerbi.extensibility.visual {
             return MapboxSettings.enumerateObjectInstances(this.settings || MapboxSettings.getDefault(), options);
         }
 
-        private getFeatures(useClustering) {
-            let ret = null;
-            if (useClustering) {
+        // We might need to transform the raw data coming from PowerBI
+        // for clustered display we want to use the cluster
+        // for choropleth we need to aggregate per location as
+        // we mustn't have more than one values for a location
+        private getFeatures(): Features {
+            let ret : Features = new Features();
+            if (this.settings.cluster.show) {
                 const worldBounds = [-180.0000, -90.0000, 180.0000, 90.0000];
-                ret = this.cluster.getClusters(worldBounds, Math.floor(this.map.getZoom() - 3 ) );
-            } else {
-                ret = this.features;
+                ret.clusterData = this.cluster.getClusters(worldBounds, Math.floor(this.map.getZoom() - 3 ) );
             }
+
+            if (this.settings.choropleth.show) {
+                let values = {}
+                this.features.map( feature => {
+                    if (!values[feature.properties.location]) {
+                        values[feature.properties.location] = feature;
+                    } else {
+                        values[feature.properties.location].properties.colorValue += feature.properties.colorValue;
+                    }
+                })
+                ret.choroplethData = Object.keys(values).map( key => {
+                    return values[key];
+                });
+            }
+
+            ret.rawData = this.features;
+
             return ret;
         }
 
@@ -270,15 +294,15 @@ module powerbi.extensibility.visual {
                     type: 'heatmap'
                 });
                 this.map.addLayer(heatmapLayer);
-                onUpdate(this.map, this.getFeatures(this.useClustering), this.settings, false, this.category) 
+                onUpdate(this.map, this.getFeatures(), this.settings, false, this.category) 
             });
 
             this.map.on('load', () => {
-                onUpdate(this.map, this.getFeatures(this.useClustering), this.settings, false, this.category)
+                onUpdate(this.map, this.getFeatures(), this.settings, false, this.category)
                 mapboxUtils.addPopup(this.map, this.popup);
                 mapboxUtils.addClick(this.map);
             });
-            this.map.on('zoom', () => { if (this.useClustering) { onUpdate(this.map, this.getFeatures(this.useClustering), this.settings, true, this.category) }});
+            this.map.on('zoom', () => { if (this.settings.cluster.show) { onUpdate(this.map, this.getFeatures(), this.settings, true, this.category) }});
         }
 
         private removeMap() {
@@ -315,6 +339,11 @@ module powerbi.extensibility.visual {
                 return false;
             }
 
+            if (this.settings.choropleth.show && (!roles.location || !roles.category)) {
+                this.errorDiv.innerText = 'Location and color fields must be set when choropleth layer is turned on.'
+                return false;
+            }
+
             return true;
         }
 
@@ -322,7 +351,6 @@ module powerbi.extensibility.visual {
         public update(options: VisualUpdateOptions) {
             const dataView: DataView = options.dataViews[0];
             this.settings = MapboxSettings.parse<MapboxSettings>(dataView);
-            this.useClustering = this.settings.cluster.show;
             
             if (!this.validateOptions(options)) {
                 this.errorDiv.style.display = 'block';
@@ -335,7 +363,7 @@ module powerbi.extensibility.visual {
             }
 
             this.features  = mapboxConverter.convert(dataView, this.host);
-            if (this.useClustering) {
+            if (this.settings.cluster.show) {
                 this.cluster.load(this.features);
             }
 
@@ -361,7 +389,7 @@ module powerbi.extensibility.visual {
             // If the map is loaded and style has not changed in this update
             // then we should update right now.
             if (this.map.loaded() && !styleChanged) {
-                onUpdate(this.map, this.getFeatures(this.useClustering), this.settings, false, this.category);
+                onUpdate(this.map, this.getFeatures(), this.settings, false, this.category);
             }
         }
 
