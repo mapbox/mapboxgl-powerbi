@@ -10,42 +10,45 @@ module powerbi.extensibility.visual {
         }
 
         let source : any = map.getSource('data');
+        console.log(source)
         source.setData( turf.featureCollection(features.clusterData || features.rawData));
 
         map.setLayoutProperty('circle', 'visibility', settings.circle.show ? 'visible' : 'none');
         map.setLayoutProperty('cluster', 'visibility', settings.cluster.show ? 'visible' : 'none');
         map.setLayoutProperty('heatmap', 'visibility', settings.heatmap.show ? 'visible' : 'none');
-        if (map.getLayer('choropleth-layer')) {
-            map.setLayoutProperty('choropleth-layer', 'visibility', settings.choropleth.display() ? 'visible' : 'none');
-        }
+        map.setLayoutProperty('choropleth-layer', 'visibility', settings.choropleth.display() ? 'visible' : 'none');
 
         if (settings.choropleth.display()) {
-            let choropleth = map.getSource('choropleth-source');
+
             if (this.vectorTileUrl != settings.choropleth.vectorTileUrl) {
-                if (choropleth) {
+                if (map.getSource('choropleth-source')) {
                     map.removeSource('choropleth-source');
                 }
-
-                map.addSource('choropleth-source', {
-                    type: 'vector',
-                    url: settings.choropleth.vectorTileUrl,
-                })
                 this.vectorTileUrl = settings.choropleth.vectorTileUrl;
             }
 
-            choropleth = map.getSource('choropleth-source');
-
-            if (map.getLayer('choropleth-layer')) {
-                map.removeLayer('choropleth-layer');
+            if (!map.getSource('choropleth-source')) {
+                map.addSource('choropleth-source', {
+                    type: 'vector',
+                    url: settings.choropleth.vectorTileUrl,
+                });
             }
+
             const choroplethLayer = mapboxUtils.decorateLayer({
                 id: 'choropleth-layer',
                 type: "fill",
                 source: 'choropleth-source',
                 "source-layer": settings.choropleth.sourceLayer
             });
+
+            if (map.getLayer('choropleth-layer')) {
+                map.removeLayer('choropleth-layer');
+            }
+
             map.addLayer(choroplethLayer);
+
             const limits = mapboxUtils.getLimits(features.choroplethData, 'colorValue');
+
             if (limits.min && limits.max) {
                 let colorStops = chroma.scale([settings.choropleth.minColor,settings.choropleth.maxColor]).domain([limits.min, limits.max])
                 let colors = ['match', ['get', settings.choropleth.vectorProperty]];
