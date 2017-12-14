@@ -16,10 +16,10 @@ module powerbi.extensibility.visual {
         map.setLayoutProperty('cluster', 'visibility', settings.cluster.show ? 'visible' : 'none');
         map.setLayoutProperty('heatmap', 'visibility', settings.heatmap.show ? 'visible' : 'none');
         if (map.getLayer('choropleth-layer')) {
-            map.setLayoutProperty('choropleth-layer', 'visibility', settings.choropleth.show ? 'visible' : 'none');
+            map.setLayoutProperty('choropleth-layer', 'visibility', settings.choropleth.display() ? 'visible' : 'none');
         }
 
-        if (settings.choropleth.show) {
+        if (settings.choropleth.display()) {
             let choropleth = map.getSource('choropleth-source');
             if (this.vectorTileUrl != settings.choropleth.vectorTileUrl) {
                 if (choropleth) {

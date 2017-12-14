@@ -79,6 +79,13 @@
         public show: boolean = false;
         public vectorProperty: string = 'NAME';
         public sourceLayer: string = null;
-        public vectorTileUrl: string = 'mapbox://mapbox.us_census_states_2015'
+        public vectorTileUrl: string = ''
+
+        public display(): boolean {
+            return this.show &&
+                this.vectorProperty != "" &&
+                this.sourceLayer != "" &&
+                this.vectorTileUrl != ""
+        }
     }
 }
