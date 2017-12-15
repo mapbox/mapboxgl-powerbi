@@ -73,7 +73,7 @@ module powerbi.extensibility.visual {
             });
 
             if (!map.getLayer('choropleth-layer')) {
-                map.addLayer(choroplethLayer, 'cluster-label');
+                map.addLayer(choroplethLayer, 'cluster');
             }
 
             const limits = mapboxUtils.getLimits(features.choroplethData, 'colorValue');
@@ -312,23 +312,6 @@ module powerbi.extensibility.visual {
             this.map = new mapboxgl.Map(mapOptions);
             this.map.addControl(new mapboxgl.NavigationControl());
 
-            /*
-            this.map.on('data', (data) => {
-                if (data.dataType == 'source' && data.sourceId == 'choropleth-source') {
-                    let choroplethLayer = this.map.getLayer('choropleth-layer');
-                    if (!choroplethLayer) {
-                        const source : any =  this.map.getSource('choropleth-source');
-                        const vectorLayers : any[] = source.vectorLayers;
-                        if (vectorLayers && vectorLayers.length > 0) {
-                            if (this.settings.choropleth.sourceLayer == '') {
-                                this.settings.choropleth.sourceLayer = vectorLayers[0].id;
-                            }
-                        }
-                    }
-                }
-            });
-            */
-
             this.map.on('style.load', (e) => {
                 let style = e.target;
 
@@ -346,6 +329,13 @@ module powerbi.extensibility.visual {
 
                 mapboxUtils.addBuildings(this.map);
                 
+                const clusterLayer = mapboxUtils.decorateLayer({
+                    id: 'cluster',
+                    source: 'data',
+                    type: 'cluster'
+                });
+                this.map.addLayer(clusterLayer, firstSymbolId);
+
                 const clusterLabelLayer = mapboxUtils.decorateLayer({
                     id: 'cluster-label',
                     type: 'symbol',
@@ -357,12 +347,6 @@ module powerbi.extensibility.visual {
                     }
                 });
                 this.map.addLayer(clusterLabelLayer);
-                const clusterLayer = mapboxUtils.decorateLayer({
-                    id: 'cluster',
-                    source: 'data',
-                    type: 'cluster'
-                });
-                this.map.addLayer(clusterLayer, firstSymbolId);
 
                 const circleLayer = mapboxUtils.decorateLayer({
                     id: 'circle',
@@ -386,13 +370,9 @@ module powerbi.extensibility.visual {
                 mapboxUtils.addPopup(this.map, this.popup);
                 mapboxUtils.addClick(this.map);
             });
-            this.map.on('zoom', () => {
+            this.map.on('zoomend', () => {
                 if (this.settings.cluster.show) {
-                    // This is a quick and dirty fix for leaving time for cluster to adjust to the zoom event
-                    // before we update the labels. Without this lables tend to disappear on zooming out.
-                    setTimeout(() => {
-                        onUpdate(this.map, this.getFeatures(), this.settings, false, this.category)
-                    }, 400)
+                    onUpdate(this.map, this.getFeatures(), this.settings, false, this.category)
                 }
             });
         }
