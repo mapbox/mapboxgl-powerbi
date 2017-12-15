@@ -30,7 +30,7 @@ module powerbi.extensibility.visual {
                             popup.remove();
                             return
                         }
-                    }, 16, false);
+                    }, 12, false);
                    
                     map.on('mousemove', onMouseMove);
                 }
@@ -50,7 +50,7 @@ module powerbi.extensibility.visual {
 
                         map.easeTo({
                             center: features[0].geometry.coordinates,
-                            zoom: 15,
+                            zoom: 10,
                             duration: 500
                         });
                     }, 16, true);
