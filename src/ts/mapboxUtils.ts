@@ -15,20 +15,22 @@ module powerbi.extensibility.visual {
                             map.getCanvas().style.cursor = 'pointer';
                             let feat = features[0];
 
-                            let tooltip = "<div><h3>Tooltip</h3>"
-                            feat.properties.tooltip.split(',').map( tooltipItem => {
-                                tooltip += `<li>${tooltipItem}</li>`
-                            })
-                            tooltip += "</div>"
-                            popup.setLngLat(map.unproject(e.point))
-                                .setHTML(tooltip)
-                                .addTo(map);
+                            if (feat.properties.tooltip) {
+                                let tooltip = "<div><h3>Tooltip</h3>"
+                                feat.properties.tooltip.split(',').map( tooltipItem => {
+                                    tooltip += `<li>${tooltipItem}</li>`
+                                })
+                                tooltip += "</div>"
+                                popup.setLngLat(map.unproject(e.point))
+                                    .setHTML(tooltip)
+                                    .addTo(map);
+                            }
                         } catch (err) {
                             map.getCanvas().style.cursor = '';
                             popup.remove();
                             return
                         }
-                    }, 300, false);
+                    }, 16, false);
                    
                     map.on('mousemove', onMouseMove);
                 }
@@ -75,14 +77,21 @@ module powerbi.extensibility.visual {
             return layer;
         }
 
-        export function getLegendColumn(columns) {
-            const category = columns.find( column => {
-                return column.roles.category;
+        function addColumnWithRole(foundColumns, columns, role) {
+            const foundColumn = columns.find( column => {
+                return column.roles[role];
             });
-            const size = columns.find( column => {
-                return column.roles.size;
-            });
-            return category || size;
+            if (foundColumn) {
+                foundColumn.propertyName = role;
+                foundColumns.push(foundColumn);
+            }
+            return foundColumns;
+        }
+
+        export function getTooltipColumns(columns) {
+            let tooltipColumns = addColumnWithRole([], columns, 'category');
+            columns = addColumnWithRole(tooltipColumns, columns, 'size');
+            return tooltipColumns;
         }
 
         export function addBuildings(map) {
@@ -108,10 +117,10 @@ module powerbi.extensibility.visual {
             }, 'waterway-label');
         }
 
-        export function getLimits(geojson_data, myproperty) {
+        export function getLimits(data, myproperty) {
             let min = null;
             let max = null;
-            turf.propEach(turf.featureCollection(geojson_data), function(currentProperties, featureIndex) {
+            turf.propEach(turf.featureCollection(data), function(currentProperties, featureIndex) {
                 if (currentProperties[myproperty]) {
                     const value = Math.round(Number(currentProperties[myproperty]) * 100 / 100);
                     if (!min || value < min) { min = value }

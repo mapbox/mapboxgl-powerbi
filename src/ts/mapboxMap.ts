@@ -389,7 +389,7 @@ module powerbi.extensibility.visual {
                 this.addMap();
             }
 
-            this.features  = mapboxConverter.convert(dataView, this.host);
+            this.features = mapboxConverter.convert(dataView, this.host);
             if (this.settings.cluster.show) {
                 this.cluster.load(this.features);
             }
@@ -399,7 +399,7 @@ module powerbi.extensibility.visual {
             }
 
             let styleChanged = false;
-            let style = this.settings.api.style == 'custom' ? this.settings.api.style_url : this.settings.api.style;
+            let style = this.settings.api.style == 'custom' ? this.settings.api.styleUrl : this.settings.api.style;
             if (this.mapStyle != style) {
                 this.mapStyle = style;
                 styleChanged = true;

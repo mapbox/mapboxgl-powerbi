@@ -139,9 +139,9 @@
           "displayName": "Map Style",
           "displayNameKey": "map_style"
         },
-        "style_url": {
+        "styleUrl": {
           "displayName": "Style URL",
-          "displayNameKey": "style_url",
+          "displayNameKey": "styleUrl",
           "description": "Mapbox URL for custom style",
           "type": {
             "text": true

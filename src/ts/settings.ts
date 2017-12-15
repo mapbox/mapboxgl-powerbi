@@ -32,7 +32,7 @@
     export class APISettings {
         public accessToken: string = "";
         public style: string = "mapbox:\/\/styles\/mapbox\/dark-v9?optimize=true";
-        public style_url: string = "";
+        public styleUrl: string = "";
 
         public enumerateObjectInstances(objectEnumeration) {
             let instances = objectEnumeration.instances;
@@ -40,10 +40,10 @@
 
             // Hide / show custom map style URL control
             if (properties.style != 'custom') {
-                properties.style_url = "";
-                delete properties.style_url
-            } else if (!properties.style_url) {
-                properties.style_url = "";
+                properties.styleUrl = "";
+                delete properties.styleUrl
+            } else if (!properties.styleUrl) {
+                properties.styleUrl = "";
             }
 
             return { instances }
