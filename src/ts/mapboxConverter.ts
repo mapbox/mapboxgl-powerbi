@@ -84,29 +84,22 @@ module powerbi.extensibility.visual {
             let legend_length = length < 8 ? length : 8
             if (typeof domain[0] === 'number') {
                 var limits = chroma.limits(domain, 'q', legend_length);
-                return { 
-                    legend_length,
-                    limits,
-                    scale: chroma.scale('YlGnBu').domain(limits)
-                }
+                return chroma.scale('YlGnBu').domain(limits)
             } else {
-                return {
-                    legend_length,
-                    limits: domain.slice(0, legend_length),
-                    scale: chroma.scale('Set2').domain([1, legend_length + 1])
-                }
+                return chroma.scale('Set2').domain([1, legend_length + 1])
             }
         }
 
         const getFeatures = (datas, domain) => {
             let features = []
-            const { legend_length, limits, scale } = getScale(domain);
+            const scale = getScale(domain);
             if (scale) {
             	features = datas.map(function (d) {
+                    let tooltip = d.category || d.size;
                     let properties = {
                         "colorValue": d.color,
                         "color": (d.color) ? scale(d.color).toString() : null,
-                        "tooltip": `Value: ${(d.category || d.size).toString()}`,
+                        "tooltip": (tooltip) ? `Value: ${(tooltip).toString()}` : "",
                         "size": d.size,
                         "location": d.location
                     }
@@ -127,7 +120,6 @@ module powerbi.extensibility.visual {
                     }
             	});
 
-                // createLegend(scale.colors(legend_length + 1), [...domain.slice(0,legend_length), "Other"], "Measure");
 	        }
 
             return features;

@@ -31,7 +31,7 @@
 
     export class APISettings {
         public accessToken: string = "";
-        public style: string = "mapbox:\/\/styles\/mapbox\/streets-v10";
+        public style: string = "mapbox:\/\/styles\/mapbox\/dark-v9?optimize=true";
         public style_url: string = "";
 
         public enumerateObjectInstances(objectEnumeration) {
@@ -66,7 +66,8 @@
 
     export class CircleSettings {
         public show: boolean = true;
-        public radius: number = 5;
+        public radius: number = 20;
+        public scaleFactor: number = 2;
         public color: string = "black";
         public blur: number = 0;
         public opacity: number = 100;
@@ -77,7 +78,17 @@
 
     export class ChoroplethSettings {
         public show: boolean = false;
+        public vectorTileUrl: string = ''
+        public sourceLayer: string = null;
         public vectorProperty: string = 'NAME';
-        public vectorLayer: string = null;
+        public minColor: string = "red";
+        public maxColor: string = "green";
+
+        public display(): boolean {
+            return this.show &&
+                this.vectorProperty != "" &&
+                this.sourceLayer != "" &&
+                this.vectorTileUrl != ""
+        }
     }
 }
