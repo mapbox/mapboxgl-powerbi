@@ -3,14 +3,43 @@ module powerbi.extensibility.visual {
     declare var turf : any;
     declare var supercluster : any;
 
+    function zoomToData(map, features) {
+        let bounds : any = features.bounds;
+        if (!bounds && features.rawData) {
+            bounds = turf.bbox(turf.featureCollection(features.rawData));
+            bounds = bounds.map( bound => {
+                if (bound < -90) {
+                    return -90;
+                }
+                if (bound > 90) {
+                    return 90;
+                }
+                return bound;
+            });
+        }
 
-    function onUpdate(map, features, settings, zoomChanged, category) {
+        if (bounds) {
+            map.easeTo( {
+                duration: 500,
+                pitch: 0,
+                bearing: 0
+            });
+            map.fitBounds(bounds, {
+                padding: 25
+            });
+        }
+    }
+
+
+    function onUpdate(map, features, settings, zoom, category) {
         if (!map.getSource('data')) {
             return;
         }
 
-        let source : any = map.getSource('data');
-        source.setData( turf.featureCollection(features.clusterData || features.rawData));
+        if (features.clusterData || features.rawData) {
+            let source : any = map.getSource('data');
+            source.setData( turf.featureCollection(features.clusterData || features.rawData));
+        }
 
         map.setLayoutProperty('circle', 'visibility', settings.circle.show ? 'visible' : 'none');
         map.setLayoutProperty('cluster', 'visibility', settings.cluster.show ? 'visible' : 'none');
@@ -136,6 +165,10 @@ module powerbi.extensibility.visual {
                 1, settings.heatmap.color]);
         }
 
+        if (zoom) {
+            zoomToData(map, features)
+        }
+
         return true;
     }
 
@@ -143,6 +176,7 @@ module powerbi.extensibility.visual {
         rawData: any[] = null;
         choroplethData: any[] = null;
         clusterData: any[] = null;
+        bounds: any[] = null;
     }
 
 
@@ -191,9 +225,19 @@ module powerbi.extensibility.visual {
                 ret.choroplethData = Object.keys(values).map( key => {
                     return values[key];
                 });
+
+                const source : any = this.map.getSource('choropleth-source');
+                if (source && source.tileBounds) {
+                    ret.bounds = source.tileBounds.bounds;
+                }
             }
 
-            ret.rawData = this.features;
+            const hasCoords = this.features.length > 0 &&
+                this.features[0].geometry
+            if (hasCoords) {
+                ret.rawData = this.features;
+            }
+
 
             return ret;
         }
@@ -325,11 +369,11 @@ module powerbi.extensibility.visual {
             });
 
             this.map.on('load', () => {
-                onUpdate(this.map, this.getFeatures(), this.settings, false, this.category)
+                onUpdate(this.map, this.getFeatures(), this.settings, true, this.category)
                 mapboxUtils.addPopup(this.map, this.popup);
                 mapboxUtils.addClick(this.map);
             });
-            this.map.on('zoom', () => { if (this.settings.cluster.show) { onUpdate(this.map, this.getFeatures(), this.settings, true, this.category) }});
+            this.map.on('zoom', () => { if (this.settings.cluster.show) { onUpdate(this.map, this.getFeatures(), this.settings, false, this.category) }});
         }
 
         private removeMap() {
