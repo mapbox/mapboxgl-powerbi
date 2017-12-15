@@ -53,6 +53,9 @@
     export class ClusterSettings {
         public show: boolean = false;
         public aggregation: string = "count";
+        public minColor: string = "red";
+        public maxColor: string = "green";
+        public radius: number = 10;
     }
 
     export class HeatmapSettings {

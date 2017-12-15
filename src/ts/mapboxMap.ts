@@ -43,6 +43,7 @@ module powerbi.extensibility.visual {
 
         map.setLayoutProperty('circle', 'visibility', settings.circle.show ? 'visible' : 'none');
         map.setLayoutProperty('cluster', 'visibility', settings.cluster.show ? 'visible' : 'none');
+        map.setLayoutProperty('cluster-label', 'visibility', settings.cluster.show ? 'visible' : 'none');
         map.setLayoutProperty('heatmap', 'visibility', settings.heatmap.show ? 'visible' : 'none');
         if (map.getLayer('choropleth-layer')) {
             map.setLayoutProperty('choropleth-layer', 'visibility', settings.choropleth.display() ? 'visible' : 'none');
@@ -72,7 +73,7 @@ module powerbi.extensibility.visual {
             });
 
             if (!map.getLayer('choropleth-layer')) {
-                map.addLayer(choroplethLayer, 'cluster');
+                map.addLayer(choroplethLayer, 'cluster-label');
             }
 
             const limits = mapboxUtils.getLimits(features.choroplethData, 'colorValue');
@@ -97,17 +98,18 @@ module powerbi.extensibility.visual {
             const limits = mapboxUtils.getLimits(features.clusterData, settings.cluster.aggregation);
             if (limits.min && limits.max) {
                 map.setPaintProperty('cluster', 'circle-color', [
-                    "rgb",
-                        ['interpolate', ['linear'], ['get', settings.cluster.aggregation], limits.min, 20, limits.max, 235],
-                        ['-', 255, ['interpolate', ['linear'], ['get', settings.cluster.aggregation], limits.min, 20, limits.max, 235]],
-                        50, 
+                    'interpolate', ['linear'], ['get', settings.cluster.aggregation],
+                    limits.min, settings.cluster.minColor,
+                    limits.max, settings.cluster.maxColor
                 ]);
 
                 map.setPaintProperty('cluster', 'circle-radius', [
                     'interpolate', ['linear'], ['get', settings.cluster.aggregation],
-                    limits.min, 10,
-                    limits.max, 25,
+                    limits.min, settings.cluster.radius,
+                    limits.max, 3 * settings.cluster.radius,
                 ]);
+
+                map.setLayoutProperty('cluster-label', 'text-field', `{${settings.cluster.aggregation}}`);
             }
         }
         if (settings.circle.show) {
@@ -344,6 +346,17 @@ module powerbi.extensibility.visual {
 
                 mapboxUtils.addBuildings(this.map);
                 
+                const clusterLabelLayer = mapboxUtils.decorateLayer({
+                    id: 'cluster-label',
+                    type: 'symbol',
+                    source: 'data',
+                    layout: {
+                        'text-field': `{${this.settings.cluster.aggregation}}`,
+                        'text-font': ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
+                        'text-size': 12
+                    }
+                });
+                this.map.addLayer(clusterLabelLayer);
                 const clusterLayer = mapboxUtils.decorateLayer({
                     id: 'cluster',
                     source: 'data',
@@ -373,7 +386,15 @@ module powerbi.extensibility.visual {
                 mapboxUtils.addPopup(this.map, this.popup);
                 mapboxUtils.addClick(this.map);
             });
-            this.map.on('zoom', () => { if (this.settings.cluster.show) { onUpdate(this.map, this.getFeatures(), this.settings, false, this.category) }});
+            this.map.on('zoom', () => {
+                if (this.settings.cluster.show) {
+                    // This is a quick and dirty fix for leaving time for cluster to adjust to the zoom event
+                    // before we update the labels. Without this lables tend to disappear on zooming out.
+                    setTimeout(() => {
+                        onUpdate(this.map, this.getFeatures(), this.settings, false, this.category)
+                    }, 400)
+                }
+            });
         }
 
         private removeMap() {
