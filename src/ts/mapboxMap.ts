@@ -317,6 +317,7 @@ module powerbi.extensibility.visual {
 
                 // For default styles place data under waterway-label layer
                 let firstSymbolId = 'waterway-label';
+
                 if (this.settings.api.style=='mapbox://styles/mapbox/satellite-v9?optimize=true' ||
                         this.settings.api.style == 'custom') {
                     //For custom style find the lowest symbol layer to place data underneath
@@ -335,8 +336,6 @@ module powerbi.extensibility.visual {
                     data: turf.helpers.featureCollection([]),
                     buffer: 10
                 });
-
-                mapboxUtils.addBuildings(this.map);
                 
                 const clusterLayer = mapboxUtils.decorateLayer({
                     id: 'cluster',
