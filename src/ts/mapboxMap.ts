@@ -79,19 +79,27 @@ module powerbi.extensibility.visual {
             const limits = mapboxUtils.getLimits(features.choroplethData, 'colorValue');
 
             if (limits.min && limits.max) {
-                let colorStops = chroma.scale([settings.choropleth.minColor,settings.choropleth.maxColor]).domain([limits.min, limits.max])
+                let colorStops = chroma.scale([settings.choropleth.minColor,settings.choropleth.maxColor]).domain([limits.min, limits.max]);
                 let colors = ['match', ['get', settings.choropleth.vectorProperty]];
+                let outlineColors = ['match', ['get', settings.choropleth.vectorProperty]];
+                
                 features.choroplethData.map( row => {
                     const color = colorStops(row.properties.colorValue);
+                    var outlineColor : any = colorStops(row.properties.colorValue)
+                    outlineColor = outlineColor.darken(2);
                     colors.push(row.properties.location);
                     colors.push(color.toString());
+                    outlineColors.push(row.properties.location);
+                    outlineColors.push(outlineColor.toString());
                 });
 
                 // Add transparent as default so that we only see regions
                 // for which we have data values
                 colors.push('rgba(0,0,0,0)');
+                outlineColors.push('rgba(0,0,0,0)');
 
                 map.setPaintProperty('choropleth-layer', 'fill-color', colors);
+                map.setPaintProperty('choropleth-layer', 'fill-outline-color', outlineColors)
             }
         }
         if (settings.cluster.show) {
