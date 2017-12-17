@@ -139,9 +139,9 @@
           "displayName": "Map Style",
           "displayNameKey": "map_style"
         },
-        "style_url": {
+        "styleUrl": {
           "displayName": "Style URL",
-          "displayNameKey": "style_url",
+          "displayNameKey": "styleUrl",
           "description": "Mapbox URL for custom style",
           "type": {
             "text": true
@@ -191,6 +191,38 @@
           },
           "displayName": "Aggregation function",
           "displayNameKey": "aggregation"
+        },
+        "radius": {
+          "displayName": "Radius",
+          "displayNameKey": "radius",
+          "description": "Radius of the smallest cluster circles.",
+          "type": {
+            "numeric": true
+          }
+        },
+        "minColor": {
+          "displayName": "Min Color",
+          "displayNameKey": "minColor",
+          "description": "Defines the color for the minimum value of the color field.",
+          "type": {
+            "fill": {
+              "solid": {
+                "color": true
+              }
+            }
+          }
+        },
+        "maxColor": {
+          "displayName": "Max Color",
+          "displayNameKey": "maxColor",
+          "description": "Defines the color for the maximum value of the color field.",
+          "type": {
+            "fill": {
+              "solid": {
+                "color": true
+              }
+            }
+          }
         }
       }
     },

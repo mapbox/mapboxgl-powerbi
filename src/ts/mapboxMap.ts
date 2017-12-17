@@ -3,17 +3,47 @@ module powerbi.extensibility.visual {
     declare var turf : any;
     declare var supercluster : any;
 
+    function zoomToData(map, features) {
+        let bounds : any = features.bounds;
+        if (!bounds && features.rawData) {
+            bounds = turf.bbox(turf.featureCollection(features.rawData));
+            bounds = bounds.map( bound => {
+                if (bound < -90) {
+                    return -90;
+                }
+                if (bound > 90) {
+                    return 90;
+                }
+                return bound;
+            });
+        }
 
-    function onUpdate(map, features, settings, zoomChanged, category) {
+        if (bounds) {
+            map.easeTo( {
+                duration: 500,
+                pitch: 0,
+                bearing: 0
+            });
+            map.fitBounds(bounds, {
+                padding: 25
+            });
+        }
+    }
+
+
+    function onUpdate(map, features, settings, zoom, category) {
         if (!map.getSource('data')) {
             return;
         }
 
-        let source : any = map.getSource('data');
-        source.setData( turf.featureCollection(features.clusterData || features.rawData));
+        if (features.clusterData || features.rawData) {
+            let source : any = map.getSource('data');
+            source.setData( turf.featureCollection(features.clusterData || features.rawData));
+        }
 
         map.setLayoutProperty('circle', 'visibility', settings.circle.show ? 'visible' : 'none');
         map.setLayoutProperty('cluster', 'visibility', settings.cluster.show ? 'visible' : 'none');
+        map.setLayoutProperty('cluster-label', 'visibility', settings.cluster.show ? 'visible' : 'none');
         map.setLayoutProperty('heatmap', 'visibility', settings.heatmap.show ? 'visible' : 'none');
         if (map.getLayer('choropleth-layer')) {
             map.setLayoutProperty('choropleth-layer', 'visibility', settings.choropleth.display() ? 'visible' : 'none');
@@ -68,17 +98,18 @@ module powerbi.extensibility.visual {
             const limits = mapboxUtils.getLimits(features.clusterData, settings.cluster.aggregation);
             if (limits.min && limits.max) {
                 map.setPaintProperty('cluster', 'circle-color', [
-                    "rgb",
-                        ['interpolate', ['linear'], ['get', settings.cluster.aggregation], limits.min, 20, limits.max, 235],
-                        ['-', 255, ['interpolate', ['linear'], ['get', settings.cluster.aggregation], limits.min, 20, limits.max, 235]],
-                        50, 
+                    'interpolate', ['linear'], ['get', settings.cluster.aggregation],
+                    limits.min, settings.cluster.minColor,
+                    limits.max, settings.cluster.maxColor
                 ]);
 
                 map.setPaintProperty('cluster', 'circle-radius', [
                     'interpolate', ['linear'], ['get', settings.cluster.aggregation],
-                    limits.min, 10,
-                    limits.max, 25,
+                    limits.min, settings.cluster.radius,
+                    limits.max, 3 * settings.cluster.radius,
                 ]);
+
+                map.setLayoutProperty('cluster-label', 'text-field', `{${settings.cluster.aggregation}}`);
             }
         }
         if (settings.circle.show) {
@@ -136,6 +167,10 @@ module powerbi.extensibility.visual {
                 1, settings.heatmap.color]);
         }
 
+        if (zoom) {
+            zoomToData(map, features)
+        }
+
         return true;
     }
 
@@ -143,6 +178,7 @@ module powerbi.extensibility.visual {
         rawData: any[] = null;
         choroplethData: any[] = null;
         clusterData: any[] = null;
+        bounds: any[] = null;
     }
 
 
@@ -191,9 +227,19 @@ module powerbi.extensibility.visual {
                 ret.choroplethData = Object.keys(values).map( key => {
                     return values[key];
                 });
+
+                const source : any = this.map.getSource('choropleth-source');
+                if (source && source.tileBounds) {
+                    ret.bounds = source.tileBounds.bounds;
+                }
             }
 
-            ret.rawData = this.features;
+            const hasCoords = this.features.length > 0 &&
+                this.features[0].geometry
+            if (hasCoords) {
+                ret.rawData = this.features;
+            }
+
 
             return ret;
         }
@@ -266,23 +312,6 @@ module powerbi.extensibility.visual {
             this.map = new mapboxgl.Map(mapOptions);
             this.map.addControl(new mapboxgl.NavigationControl());
 
-            /*
-            this.map.on('data', (data) => {
-                if (data.dataType == 'source' && data.sourceId == 'choropleth-source') {
-                    let choroplethLayer = this.map.getLayer('choropleth-layer');
-                    if (!choroplethLayer) {
-                        const source : any =  this.map.getSource('choropleth-source');
-                        const vectorLayers : any[] = source.vectorLayers;
-                        if (vectorLayers && vectorLayers.length > 0) {
-                            if (this.settings.choropleth.sourceLayer == '') {
-                                this.settings.choropleth.sourceLayer = vectorLayers[0].id;
-                            }
-                        }
-                    }
-                }
-            });
-            */
-
             this.map.on('style.load', (e) => {
                 let style = e.target;
 
@@ -307,6 +336,18 @@ module powerbi.extensibility.visual {
                 });
                 this.map.addLayer(clusterLayer, firstSymbolId);
 
+                const clusterLabelLayer = mapboxUtils.decorateLayer({
+                    id: 'cluster-label',
+                    type: 'symbol',
+                    source: 'data',
+                    layout: {
+                        'text-field': `{${this.settings.cluster.aggregation}}`,
+                        'text-font': ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
+                        'text-size': 12
+                    }
+                });
+                this.map.addLayer(clusterLabelLayer);
+
                 const circleLayer = mapboxUtils.decorateLayer({
                     id: 'circle',
                     source: 'data',
@@ -325,11 +366,15 @@ module powerbi.extensibility.visual {
             });
 
             this.map.on('load', () => {
-                onUpdate(this.map, this.getFeatures(), this.settings, false, this.category)
+                onUpdate(this.map, this.getFeatures(), this.settings, true, this.category)
                 mapboxUtils.addPopup(this.map, this.popup);
                 mapboxUtils.addClick(this.map);
             });
-            this.map.on('zoom', () => { if (this.settings.cluster.show) { onUpdate(this.map, this.getFeatures(), this.settings, true, this.category) }});
+            this.map.on('zoomend', () => {
+                if (this.settings.cluster.show) {
+                    onUpdate(this.map, this.getFeatures(), this.settings, false, this.category)
+                }
+            });
         }
 
         private removeMap() {
@@ -341,13 +386,27 @@ module powerbi.extensibility.visual {
             }
         }
 
+        private createLinkElement(title, url): Element {
+            let linkElement = document.createElement("a");
+            linkElement.textContent = "Get a Mapbox Access Token";
+            linkElement.setAttribute("title", "Get a Mapbox Access Token");
+            linkElement.setAttribute("class", "mapboxLink");
+            linkElement.addEventListener("click", () => {
+                this.host.launchUrl(url);
+            });
+            return linkElement;
+        };
+
         private validateOptions(options: VisualUpdateOptions) {
             this.errorDiv.style.display = 'none';
             this.errorDiv.innerText = '';
 
             // Check for Access Token
             if (!this.settings.api.accessToken) {
-                this.errorDiv.innerText = 'Access Token is not set. Please set it on the options pane.';
+                let link = this.createLinkElement("Mapbox", "https://mapbox.com/signup")
+                let html = '<h4>Mapbox Access Token not set in options pane.</h4>';
+                this.errorDiv.innerHTML = html;
+                this.errorDiv.appendChild(link)
                 return false;
             }
 
@@ -362,7 +421,7 @@ module powerbi.extensibility.visual {
             }, {});
 
             if (!(roles.latitude && roles.longitude) && !roles.location) {
-                this.errorDiv.innerText = 'No GEO data fields are added. Please set either location or latitude and longitude.';
+                this.errorDiv.innerText = 'No GEO data fields are added. Please set either location, or latitude & longitude.';
                 return false;
             }
 
@@ -389,7 +448,7 @@ module powerbi.extensibility.visual {
                 this.addMap();
             }
 
-            this.features  = mapboxConverter.convert(dataView, this.host);
+            this.features = mapboxConverter.convert(dataView, this.host);
             if (this.settings.cluster.show) {
                 this.cluster.load(this.features);
             }
@@ -399,7 +458,7 @@ module powerbi.extensibility.visual {
             }
 
             let styleChanged = false;
-            let style = this.settings.api.style == 'custom' ? this.settings.api.style_url : this.settings.api.style;
+            let style = this.settings.api.style == 'custom' ? this.settings.api.styleUrl : this.settings.api.style;
             if (this.mapStyle != style) {
                 this.mapStyle = style;
                 styleChanged = true;

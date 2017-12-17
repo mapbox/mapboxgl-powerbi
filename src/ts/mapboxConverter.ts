@@ -13,43 +13,7 @@ module powerbi.extensibility.visual {
             }
         }
 
-        const createLegendItem = (color, label, index) => {
-            let key = document.createElement('span');
-            key.className = 'legend-key';
-            key.id = 'legend-points-id-' + index;
-            key.style.backgroundColor = color;
-
-            let value = document.createElement('span');
-            value.id = 'legend-points-value-' + index;
-            value.textContent = label;
-            
-            let item = document.createElement('div');
-            item.appendChild(key);
-            item.appendChild(value);
-
-            return item;
-        }
-
-        //Create the legend element on a Mapbox GL Style Spec property function stops array
-        const createLegend = (colorStops, valueStops, title) => {
-            var legend = document.getElementById('legend');
-            legend.innerHTML = ''
-
-            var mytitle = document.createElement('div');
-            mytitle.textContent = title;
-            mytitle.id = 'legend-title';
-            mytitle.className = 'legend-title';
-            legend.appendChild(mytitle);
-
-            colorStops.map( (color, index) => {
-                const item = createLegendItem(color, valueStops[index], index);
-
-                legend.appendChild(item);
-            })
-
-        }
-
-        const transformToObjectArray = (rows, columns, legend_field) => {
+        const transformToObjectArray = (rows, columns) => {
             let domain : any = [];
 
             const datas = rows.map( row => {
@@ -57,7 +21,7 @@ module powerbi.extensibility.visual {
                     const column = columns[index]
                     const role = Object.keys(column.roles)[0]
                     obj[role] = value;
-                    if (column == legend_field) {
+                    if (column.roles.category) {
                         const t = column.type.primitiveType;
                         pushIfNotExist(domain, value);
                         if (typeof value != 'number') {
@@ -81,46 +45,48 @@ module powerbi.extensibility.visual {
                 return null;
             }
             let length = domain.length
-            let legend_length = length < 8 ? length : 8
             if (typeof domain[0] === 'number') {
-                var limits = chroma.limits(domain, 'q', legend_length);
+                var limits = chroma.limits(domain, 'q', length);
                 return chroma.scale('YlGnBu').domain(limits)
             } else {
-                return chroma.scale('Set2').domain([1, legend_length + 1])
+                return chroma.scale('Set2').domain([1, length + 1])
             }
         }
 
-        const getFeatures = (datas, domain) => {
+        const getFeatures = (datas, domain, tooltipColumns) => {
             let features = []
             const scale = getScale(domain);
-            if (scale) {
-            	features = datas.map(function (d) {
-                    let tooltip = d.category || d.size;
-                    let properties = {
-                        "colorValue": d.color,
-                        "color": (d.color) ? scale(d.color).toString() : null,
-                        "tooltip": (tooltip) ? `Value: ${(tooltip).toString()}` : "",
-                        "size": d.size,
-                        "location": d.location
-                    }
+            features = datas.map(function (d) {
+                let tooltip = tooltipColumns.map( tooltipColumn => {
+                    return `${tooltipColumn.displayName}: ${d[tooltipColumn.propertyName]}`;
+                })
+                //let tooltip = d.category || d.size;
+                let properties = {
+                    "colorValue": d.color,
+                    "color": null,
+                    "tooltip": tooltip.join(','),
+                    "size": d.size,
+                    "location": d.location
+                }
+                if (scale && d.color) {
+                    properties.color = scale(d.color).toString();
+                }
 
-            		if ( (d.latitude >= -90) && (d.latitude <= 90) && (d.longitude >= -180) && (d.longitude <= 180) ) {
-		                let feat: GeoJSON.Feature<any> = {
-		                    "type": "Feature",
-		                    "geometry": {
-		                        "type": "Point",
-		                        "coordinates": [d.longitude, d.latitude]
-		                    },
-                            properties
-		                }
-                        return feat;
-                    } else if (d.location) {
-                        let feat = { properties }
-                        return feat;
+                if ( (d.latitude >= -90) && (d.latitude <= 90) && (d.longitude >= -180) && (d.longitude <= 180) ) {
+                    let feat: GeoJSON.Feature<any> = {
+                        "type": "Feature",
+                        "geometry": {
+                            "type": "Point",
+                            "coordinates": [d.longitude, d.latitude]
+                        },
+                        properties
                     }
-            	});
-
-	        }
+                    return feat;
+                } else if (d.location) {
+                    let feat = { properties }
+                    return feat;
+                }
+            });
 
             return features;
         }
@@ -129,12 +95,12 @@ module powerbi.extensibility.visual {
 
             const {columns, rows} = dataView.table;
 
-            const legend_field = mapboxUtils.getLegendColumn(columns);
+            const tooltipColumns = mapboxUtils.getTooltipColumns(columns);
 
             // Convert each row from value array to a JS object like { latitude: "", longitude: "" ... }
-            const { datas, domain }  = transformToObjectArray(rows, columns, legend_field);
+            const { datas, domain }  = transformToObjectArray(rows, columns);
 
-            return getFeatures(datas, domain);
+            return getFeatures(datas, domain, tooltipColumns)
         }
     }
 }
