@@ -94,29 +94,6 @@ module powerbi.extensibility.visual {
             return tooltipColumns;
         }
 
-        export function addBuildings(map) {
-            map.addLayer({
-                'id': '3d-buildings',
-                'source': 'composite',
-                'source-layer': 'building',
-                'filter': ['==', 'extrude', 'true'],
-                'type': 'fill-extrusion',
-                'minzoom': 15,
-                'paint': {
-                    'fill-extrusion-color': '#aaa',
-                    'fill-extrusion-height': {
-                        'type': 'identity',
-                        'property': 'height'
-                    },
-                    'fill-extrusion-base': {
-                        'type': 'identity',
-                        'property': 'min_height'
-                    },
-                    'fill-extrusion-opacity': .5
-                }
-            }, 'waterway-label');
-        }
-
         export function getLimits(data, myproperty) {
             let min = null;
             let max = null;
