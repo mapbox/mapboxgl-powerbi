@@ -1,36 +1,32 @@
 {
-    "visual":
-    {
-        "name": "mapboxGLMap",
-        "displayName": "Mapbox GL Map",
-        "guid": "PBI_CV_EB3A4088_75C5_4746_9D8B_255A7B7ECD6C",
-        "visualClassName": "MapboxMap",
-        "version": "1.0.0",
-        "description": "Create a Mapbox GL point map in Power BI",
-        "supportUrl": "",
-        "gitHubUrl": ""
-    },
-    "apiVersion": "1.7.0",
-    "author":
-    {
-        "name": "Ryan Baumann",
-        "email": "ryan.baumann@mapbox.com"
-    },
-    "assets":
-    {
-        "icon": "assets/icon.png"
-    },
-    "externalJS": [
-        "src/modules/mapbox-gl/mapbox-gl.js",
-        "src/js/supercluster.min.js",
-        "src/js/turf.min.js",
-        "node_modules/chroma-js/chroma.min.js",
-        "src/js/mapboxglAdaptor.js",
-        "node_modules/powerbi-visuals-utils-dataviewutils/lib/index.js"
-    ],
-    "style": "style/visual.less",
-    "capabilities": "capabilities.json",
-    "dependencies": "dependencies.json",
-    "stringResources": [
-    ]
+  "visual": {
+    "name": "mapboxGLMap",
+    "displayName": "Mapbox GL Map",
+    "guid": "PBI_CV_EB3A4088_75C5_4746_9D8B_255A7B7ECD6C",
+    "visualClassName": "MapboxMap",
+    "version": "1.0.0",
+    "description": "Create a Mapbox GL point map in Power BI",
+    "supportUrl": "",
+    "gitHubUrl": ""
+  },
+  "apiVersion": "1.9.0",
+  "author": {
+    "name": "Ryan Baumann",
+    "email": "ryan.baumann@mapbox.com"
+  },
+  "assets": {
+    "icon": "assets/icon.png"
+  },
+  "externalJS": [
+    "src/modules/mapbox-gl/mapbox-gl.js",
+    "src/js/supercluster.min.js",
+    "src/js/turf.min.js",
+    "node_modules/chroma-js/chroma.min.js",
+    "src/js/mapboxglAdaptor.js",
+    "node_modules/powerbi-visuals-utils-dataviewutils/lib/index.js"
+  ],
+  "style": "style/visual.less",
+  "capabilities": "capabilities.json",
+  "dependencies": "dependencies.json",
+  "stringResources": []
 }

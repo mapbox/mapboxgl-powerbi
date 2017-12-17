@@ -386,13 +386,27 @@ module powerbi.extensibility.visual {
             }
         }
 
+        private createLinkElement(title, url): Element {
+            let linkElement = document.createElement("a");
+            linkElement.textContent = "Get a Mapbox Access Token";
+            linkElement.setAttribute("title", "Get a Mapbox Access Token");
+            linkElement.setAttribute("class", "mapboxLink");
+            linkElement.addEventListener("click", () => {
+                this.host.launchUrl(url);
+            });
+            return linkElement;
+        };
+
         private validateOptions(options: VisualUpdateOptions) {
             this.errorDiv.style.display = 'none';
             this.errorDiv.innerText = '';
 
             // Check for Access Token
             if (!this.settings.api.accessToken) {
-                this.errorDiv.innerText = 'Access Token is not set. Please set it on the options pane.';
+                let link = this.createLinkElement("Mapbox", "https://mapbox.com/signup")
+                let html = '<h4>Mapbox Access Token not set in options pane.</h4>';
+                this.errorDiv.innerHTML = html;
+                this.errorDiv.appendChild(link)
                 return false;
             }
 
@@ -407,7 +421,7 @@ module powerbi.extensibility.visual {
             }, {});
 
             if (!(roles.latitude && roles.longitude) && !roles.location) {
-                this.errorDiv.innerText = 'No GEO data fields are added. Please set either location or latitude and longitude.';
+                this.errorDiv.innerText = 'No GEO data fields are added. Please set either location, or latitude & longitude.';
                 return false;
             }
 
