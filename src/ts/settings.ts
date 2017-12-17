@@ -81,7 +81,7 @@
 
     export class ChoroplethSettings {
         public show: boolean = false;
-        public vectorTileUrl: string = ''
+        public vectorTileUrl: string = 'mapbox://'
         public sourceLayer: string = null;
         public vectorProperty: string = 'NAME';
         public minColor: string = "red";

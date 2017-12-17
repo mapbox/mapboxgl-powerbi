@@ -51,9 +51,9 @@ module powerbi.extensibility.visual {
                         map.easeTo({
                             center: features[0].geometry.coordinates,
                             zoom: 10,
-                            duration: 500
+                            duration: 1000
                         });
-                    }, 16, true);
+                    }, 12, true);
                    
                     map.on('click', onClick);
                 };
@@ -120,7 +120,7 @@ module powerbi.extensibility.visual {
         export function getLimits(data, myproperty) {
             let min = null;
             let max = null;
-            turf.propEach(turf.featureCollection(data), function(currentProperties, featureIndex) {
+            turf.meta.propEach(turf.helpers.featureCollection(data), function(currentProperties, featureIndex) {
                 if (currentProperties[myproperty]) {
                     const value = Math.round(Number(currentProperties[myproperty]) * 100 / 100);
                     if (!min || value < min) { min = value }

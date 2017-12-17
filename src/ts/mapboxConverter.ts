@@ -79,7 +79,7 @@ module powerbi.extensibility.visual {
                             "type": "Point",
                             "coordinates": [d.longitude, d.latitude]
                         },
-                        properties
+                        "properties": properties
                     }
                     return feat;
                 } else if (d.location) {

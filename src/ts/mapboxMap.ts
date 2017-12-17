@@ -6,7 +6,7 @@ module powerbi.extensibility.visual {
     function zoomToData(map, features) {
         let bounds : any = features.bounds;
         if (!bounds && features.rawData) {
-            bounds = turf.bbox(turf.featureCollection(features.rawData));
+            bounds = turf.bbox(turf.helpers.featureCollection(features.rawData));
             bounds = bounds.map( bound => {
                 if (bound < -90) {
                     return -90;
@@ -38,7 +38,7 @@ module powerbi.extensibility.visual {
 
         if (features.clusterData || features.rawData) {
             let source : any = map.getSource('data');
-            source.setData( turf.featureCollection(features.clusterData || features.rawData));
+            source.setData( turf.helpers.featureCollection(features.clusterData || features.rawData));
         }
 
         map.setLayoutProperty('circle', 'visibility', settings.circle.show ? 'visible' : 'none');
@@ -315,15 +315,24 @@ module powerbi.extensibility.visual {
             this.map.on('style.load', (e) => {
                 let style = e.target;
 
-                // Find the index of the first symbol layer in the map style
+                // For default styles place data under waterway-label layer
                 let firstSymbolId = 'waterway-label';
-                if (this.settings.api.style=='mapbox://styles/mapbox/satellite-v9?optimize=true') {
+                if (this.settings.api.style=='mapbox://styles/mapbox/satellite-v9?optimize=true' ||
+                        this.settings.api.style == 'custom') {
+                    //For custom style find the lowest symbol layer to place data underneath
                     firstSymbolId = ''
+                    let layers = this.map.getStyle().layers;
+                    for (var i = 0; i < layers.length; i++) {
+                        if (layers[i].type === 'symbol') {
+                            firstSymbolId = layers[i].id;
+                            break;
+                        }
+                    }
                 }
                 
                 this.map.addSource('data', {
                     type: 'geojson',
-                    data: turf.featureCollection([]),
+                    data: turf.helpers.featureCollection([]),
                     buffer: 10
                 });
 
@@ -352,16 +361,16 @@ module powerbi.extensibility.visual {
                     id: 'circle',
                     source: 'data',
                     type: 'circle'
-                })
+                });
                 this.map.addLayer(circleLayer, firstSymbolId);
 
                 const heatmapLayer = mapboxUtils.decorateLayer({
                     id: 'heatmap',
                     source: 'data',
                     type: 'heatmap'
-                }, );
-
+                });
                 this.map.addLayer(heatmapLayer, firstSymbolId);
+
                 onUpdate(this.map, this.getFeatures(), this.settings, false, this.category) 
             });
 
