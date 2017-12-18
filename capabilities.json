@@ -2,19 +2,19 @@
   "dataRoles": [
     {
       "name": "location",
-      "kind": "GroupingOrMeasure",
+      "kind": "Grouping",
       "displayName": "Location",
       "description": "Location"
     },
     {
       "name": "latitude",
-      "kind": "GroupingOrMeasure",
+      "kind": "Grouping",
       "displayName": "Latitude",
       "description": "Latitude geographic point from data"
     },
     {
       "name": "longitude",
-      "kind": "GroupingOrMeasure",
+      "kind": "Grouping",
       "displayName": "Longitude",
       "description": "Longitude geographic point from data"
     },
@@ -73,14 +73,14 @@
   ],
   "objects": {
     "api": {
-      "displayName": "MapBox API",
+      "displayName": "Global Mapbox Settings",
       "displayNameKey": "mapbox_api",
-      "description": "Display MapBox API Settings",
+      "description": "Mapbox GL Visualization Settings",
       "properties": {
         "accessToken": {
           "displayName": "Access Token",
           "displayNameKey": "access_token",
-          "description": "Public Access Token from https:\/\/www.mapbox.com\/studio\/account\/tokens\/",
+          "description": "Public Access Token from your Mapbox account - get yours at https:\/\/www.mapbox.com\/studio\/account\/tokens\/",
           "type": {
             "text": true
           },
@@ -196,6 +196,22 @@
           "displayName": "Radius",
           "displayNameKey": "radius",
           "description": "Radius of the smallest cluster circles.",
+          "type": {
+            "numeric": true
+          }
+        },
+        "clusterRadius": {
+          "displayName": "Cluster Radius",
+          "displayNameKey": "clusterRadius",
+          "description": "Density of clusters in pixels.",
+          "type": {
+            "numeric": true
+          }
+        },
+        "clusterMaxZoom": {
+          "displayName": "Cluster Max Zoom",
+          "displayNameKey": "clusterMaxZoom",
+          "description": "Maximum zoom level to cluster points.",
           "type": {
             "numeric": true
           }

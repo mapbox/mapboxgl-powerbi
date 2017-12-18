@@ -14,7 +14,6 @@ module powerbi.extensibility.visual {
                             });
                             map.getCanvas().style.cursor = 'pointer';
                             let feat = features[0];
-
                             if (feat.properties.tooltip) {
                                 let tooltip = "<div><h3>Tooltip</h3>"
                                 feat.properties.tooltip.split(',').map( tooltipItem => {
@@ -30,7 +29,7 @@ module powerbi.extensibility.visual {
                             popup.remove();
                             return
                         }
-                    }, 12, false);
+                    }, 16, false);
                    
                     map.on('mousemove', onMouseMove);
                 }
@@ -53,7 +52,7 @@ module powerbi.extensibility.visual {
                             zoom: 10,
                             duration: 1000
                         });
-                    }, 12, true);
+                    }, 16, true);
                    
                     map.on('click', onClick);
                 };
