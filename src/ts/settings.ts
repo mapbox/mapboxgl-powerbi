@@ -73,7 +73,8 @@
         public show: boolean = true;
         public radius: number = 20;
         public scaleFactor: number = 2;
-        public color: string = "black";
+        public minColor: string = "white";
+        public maxColor: string = "black";
         public blur: number = 0;
         public opacity: number = 100;
         public strokeWidth: number = 0;

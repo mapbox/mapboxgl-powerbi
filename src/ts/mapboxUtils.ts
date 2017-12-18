@@ -94,6 +94,7 @@ module powerbi.extensibility.visual {
         }
 
         export function getLimits(data, myproperty) {
+
             let min = null;
             let max = null;
             turf.meta.propEach(turf.helpers.featureCollection(data), function(currentProperties, featureIndex) {
