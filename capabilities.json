@@ -3,32 +3,32 @@
     {
       "name": "location",
       "kind": "Grouping",
-      "displayName": "Location",
-      "description": "Location"
+      "displayName": "Geo Location",
+      "description": "Geo Location attribute.  Location values must match propertry values in vector tiles to create a choropleth map - i.e. zip code, FIPS code."
     },
     {
       "name": "latitude",
       "kind": "Grouping",
       "displayName": "Latitude",
-      "description": "Latitude geographic point from data"
+      "description": "Latitude geographic point"
     },
     {
       "name": "longitude",
       "kind": "Grouping",
       "displayName": "Longitude",
-      "description": "Longitude geographic point from data"
+      "description": "Longitude geographic point"
     },
     {
       "name": "category",
       "kind": "GroupingOrMeasure",
       "displayName": "Color",
-      "description": "Categorical or numerical measure value to color map long\/lat points by"
+      "description": "Categorical or numerical measure value to color visualization by for circle, cluster, choropleth visualizations"
     },
     {
       "name": "size",
       "kind": "GroupingOrMeasure",
       "displayName": "Size",
-      "description": "Categorical or numerical measure value to size map long\/lat points by"
+      "description": "Categorical or numerical measure value to size points by for circle, cluster visualizations"
     }
   ],
   "dataViewMappings": [
