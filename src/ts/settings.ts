@@ -53,6 +53,8 @@
     export class ClusterSettings {
         public show: boolean = false;
         public aggregation: string = "count";
+        public clusterRadius: number = 30;
+        public clusterMaxZoom: number = 20;
         public minColor: string = "red";
         public maxColor: string = "green";
         public radius: number = 10;
@@ -82,8 +84,8 @@
     export class ChoroplethSettings {
         public show: boolean = false;
         public vectorTileUrl: string = 'mapbox://'
-        public sourceLayer: string = null;
-        public vectorProperty: string = 'NAME';
+        public sourceLayer: string = '';
+        public vectorProperty: string = '';
         public minColor: string = "red";
         public maxColor: string = "green";
 
