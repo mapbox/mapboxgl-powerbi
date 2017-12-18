@@ -10,7 +10,7 @@ module powerbi.extensibility.visual {
                         let maxpoint = new Array(e.point['x'] + 5, e.point['y'] + 5)
                         try {
                             let features : any = map.queryRenderedFeatures([minpoint, maxpoint], {
-                                layers: ['cluster', 'circle', 'heatmap']
+                                layers: ['cluster', 'circle']
                             });
                             map.getCanvas().style.cursor = 'pointer';
                             let feat = features[0];
