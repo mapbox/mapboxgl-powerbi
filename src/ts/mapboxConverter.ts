@@ -60,16 +60,11 @@ module powerbi.extensibility.visual {
                 let tooltip = tooltipColumns.map( tooltipColumn => {
                     return `${tooltipColumn.displayName}: ${d[tooltipColumn.propertyName]}`;
                 })
-                //let tooltip = d.category || d.size;
                 let properties = {
                     "colorValue": d.color,
-                    "color": null,
                     "tooltip": tooltip.join(','),
-                    "size": d.size,
+                    "sizeValue": d.size,
                     "location": d.location
-                }
-                if (scale && d.color) {
-                    properties.color = scale(d.color).toString();
                 }
 
                 if ( (d.latitude >= -90) && (d.latitude <= 90) && (d.longitude >= -180) && (d.longitude <= 180) ) {

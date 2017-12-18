@@ -126,30 +126,23 @@ module powerbi.extensibility.visual {
         }
         if (settings.circle.show) {
 
-            if (category != null) {
-                map.setPaintProperty('circle', 'circle-color', {
-                    property: 'color',
-                    type: 'identity',
-                });
-            } else {
-                map.setPaintProperty('circle', 'circle-color', settings.circle.color);
-            }
+            const colorLimits = mapboxUtils.getLimits(features.rawData, 'colorValue');
+            const sizeLimits = mapboxUtils.getLimits(features.rawData, 'sizeValue');
 
-            const limits = mapboxUtils.getLimits(features.rawData, 'size');
-            if (limits.min !== null && limits.max !== null) {
+            if (sizeLimits.min !== null && sizeLimits.max !== null) {
                 map.setPaintProperty('circle', 'circle-radius', [
                     "interpolate", ["linear"], ["zoom"],
                     0, [
                         "interpolate", ["exponential", 1],
-                        ["number", ['get', 'size']],
-                        limits.min, 1,
-                        limits.max, settings.circle.radius
+                        ["to-number", ['get', 'sizeValue']],
+                        sizeLimits.min, 1,
+                        sizeLimits.max, settings.circle.radius
                     ],
                     18, [
                         "interpolate", ["exponential", 1],
-                        ["number", ["get", "size"]],
-                        limits.min, 1 * settings.circle.scaleFactor,
-                        limits.max, settings.circle.radius  * settings.circle.scaleFactor,
+                        ["to-number", ["get", "sizeValue"]],
+                        sizeLimits.min, 1 * settings.circle.scaleFactor,
+                        sizeLimits.max, settings.circle.radius  * settings.circle.scaleFactor,
                     ]
                 ]
                 );
@@ -159,6 +152,16 @@ module powerbi.extensibility.visual {
                     0, settings.circle.radius,
                     18, settings.circle.radius * settings.circle.scaleFactor
                 ]);
+            }
+
+            if (colorLimits.min !== null && colorLimits.max !== null) {
+                map.setPaintProperty('circle', 'circle-color', [
+                        "interpolate", ["exponential", 1],
+                        ["to-number", ['get', 'colorValue']],
+                        colorLimits.min, settings.circle.minColor,
+                        colorLimits.max, settings.circle.maxColor
+                    ]
+                );
             }
 
             map.setPaintProperty('circle', 'circle-blur', settings.circle.blur / 100);
@@ -277,39 +280,39 @@ module powerbi.extensibility.visual {
             });
 
             this.cluster = supercluster({
-                    radius: 10,
-                    maxZoom: 20,
-                    initial: function() {
-                        return {
-                            count: 0,
-                            sum: 0,
-                            min: Infinity,
-                            max: -Infinity,
-                            tooltip: '',
-                        };
-                    },
-                    map: function(properties) {
-                        const count = 1;
-                        const sum = Number(properties["colorValue"]);
-                        const min = Number(properties["colorValue"]);
-                        const max = Number(properties["colorValue"]);
-                        return {
-                            count,
-                            sum,
-                            min, 
-                            max,
-                            tooltip: `Count: ${count},Sum: ${sum}, Min: ${sum}, Max: ${max}`
-                        };
-                    },
-                    reduce: function(accumulated, properties) {
-                        accumulated.sum += Math.round(properties.sum * 100) / 100;
-                        accumulated.count += properties.count;
-                        accumulated.min = Math.round(Math.min(accumulated.min, properties.min) * 100) / 100;
-                        accumulated.max = Math.round(Math.max(accumulated.max, properties.max) * 100) / 100;
-                        accumulated.avg = Math.round(100 * accumulated.sum / accumulated.count) / 100;
-                        accumulated.tooltip = `Count: ${accumulated.count},Sum: ${accumulated.sum},Min: ${accumulated.min},Max: ${accumulated.max}`;
-                    }
-                });
+                radius: 10,
+                maxZoom: 20,
+                initial: function() {
+                    return {
+                        count: 0,
+                        sum: 0,
+                        min: Infinity,
+                        max: -Infinity,
+                        tooltip: '',
+                    };
+                },
+                map: function(properties) {
+                    const count = 1;
+                    const sum = Number(properties["colorValue"]);
+                    const min = Number(properties["colorValue"]);
+                    const max = Number(properties["colorValue"]);
+                    return {
+                        count,
+                        sum,
+                        min, 
+                        max,
+                        tooltip: `Count: ${count},Sum: ${sum}, Min: ${sum}, Max: ${max}`
+                    };
+                },
+                reduce: function(accumulated, properties) {
+                    accumulated.sum += Math.round(properties.sum * 100) / 100;
+                    accumulated.count += properties.count;
+                    accumulated.min = Math.round(Math.min(accumulated.min, properties.min) * 100) / 100;
+                    accumulated.max = Math.round(Math.max(accumulated.max, properties.max) * 100) / 100;
+                    accumulated.avg = Math.round(100 * accumulated.sum / accumulated.count) / 100;
+                    accumulated.tooltip = `Count: ${accumulated.count},Sum: ${accumulated.sum},Min: ${accumulated.min},Max: ${accumulated.max}`;
+                }
+            });
         }
 
         private addMap() {
