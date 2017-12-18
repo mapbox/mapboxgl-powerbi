@@ -103,6 +103,7 @@ module powerbi.extensibility.visual {
             }
         }
         if (settings.cluster.show) {
+
             const limits = mapboxUtils.getLimits(features.clusterData, settings.cluster.aggregation);
             if (limits.min && limits.max) {
                 map.setPaintProperty('cluster', 'circle-color', [
@@ -121,6 +122,7 @@ module powerbi.extensibility.visual {
             }
         }
         if (settings.circle.show) {
+
             if (category != null) {
                 map.setPaintProperty('circle', 'circle-color', {
                     property: 'color',
@@ -129,6 +131,7 @@ module powerbi.extensibility.visual {
             } else {
                 map.setPaintProperty('circle', 'circle-color', settings.circle.color);
             }
+
             const limits = mapboxUtils.getLimits(features.rawData, 'size');
             if (limits.min !== null && limits.max !== null) {
                 map.setPaintProperty('circle', 'circle-radius', [
@@ -154,6 +157,7 @@ module powerbi.extensibility.visual {
                     18, settings.circle.radius * settings.circle.scaleFactor
                 ]);
             }
+
             map.setPaintProperty('circle', 'circle-blur', settings.circle.blur / 100);
             map.setPaintProperty('circle', 'circle-opacity', settings.circle.opacity / 100);
             map.setPaintProperty('circle', 'circle-stroke-width', settings.circle.strokeWidth);
@@ -174,7 +178,6 @@ module powerbi.extensibility.visual {
                 0.7, "yellow",
                 1, settings.heatmap.color]);
         }
-
         if (zoom) {
             zoomToData(map, features)
         }
@@ -220,7 +223,9 @@ module powerbi.extensibility.visual {
             let ret : Features = new Features();
             if (this.settings.cluster.show) {
                 const worldBounds = [-180.0000, -90.0000, 180.0000, 90.0000];
-                ret.clusterData = this.cluster.getClusters(worldBounds, Math.floor(this.map.getZoom() - 3 ) );
+                this.cluster.options.radius = this.settings.cluster.clusterRadius;
+                this.cluster.options.maxZoom = this.settings.cluster.clusterMaxZoom;
+                ret.clusterData = this.cluster.getClusters(worldBounds, Math.floor(this.map.getZoom()) );
             }
 
             if (this.settings.choropleth.show) {
@@ -268,43 +273,40 @@ module powerbi.extensibility.visual {
                 closeOnClick: false
             });
 
-            const clusterRadius = 10;
-            const clusterMaxZoom = 20;
             this.cluster = supercluster({
-                radius: clusterRadius,
-                maxZoom: clusterMaxZoom,
-                initial: function() {
-                    return {
-                        count: 0,
-                        sum: 0,
-                        min: Infinity,
-                        max: -Infinity,
-                        tooltip: '',
-                    };
-                },
-                map: function(properties) {
-                    const count = 1;
-                    const sum = Number(properties["size"]);
-                    const min = Number(properties["size"]);
-                    const max = Number(properties["size"]);
-                    return {
-                        count,
-                        sum,
-                        min, 
-                        max,
-                        tooltip: `Count: ${count},Sum: ${sum}, Min: ${sum}, Max: ${max}`
-                    };
-                },
-                reduce: function(accumulated, properties) {
-                    accumulated.sum += Math.round(properties.sum * 100) / 100;
-                    accumulated.count += properties.count;
-                    accumulated.min = Math.round(Math.min(accumulated.min, properties.min) * 100) / 100;
-                    accumulated.max = Math.round(Math.max(accumulated.max, properties.max) * 100) / 100;
-                    accumulated.avg = Math.round(100 * accumulated.sum / accumulated.count) / 100;
-                    accumulated.tooltip = `Count: ${accumulated.count},Sum: ${accumulated.sum},Min: ${accumulated.min},Max: ${accumulated.max}`;
-                }
-            })
-
+                    radius: 10,
+                    maxZoom: 20,
+                    initial: function() {
+                        return {
+                            count: 0,
+                            sum: 0,
+                            min: Infinity,
+                            max: -Infinity,
+                            tooltip: '',
+                        };
+                    },
+                    map: function(properties) {
+                        const count = 1;
+                        const sum = Number(properties["colorValue"]);
+                        const min = Number(properties["colorValue"]);
+                        const max = Number(properties["colorValue"]);
+                        return {
+                            count,
+                            sum,
+                            min, 
+                            max,
+                            tooltip: `Count: ${count},Sum: ${sum}, Min: ${sum}, Max: ${max}`
+                        };
+                    },
+                    reduce: function(accumulated, properties) {
+                        accumulated.sum += Math.round(properties.sum * 100) / 100;
+                        accumulated.count += properties.count;
+                        accumulated.min = Math.round(Math.min(accumulated.min, properties.min) * 100) / 100;
+                        accumulated.max = Math.round(Math.max(accumulated.max, properties.max) * 100) / 100;
+                        accumulated.avg = Math.round(100 * accumulated.sum / accumulated.count) / 100;
+                        accumulated.tooltip = `Count: ${accumulated.count},Sum: ${accumulated.sum},Min: ${accumulated.min},Max: ${accumulated.max}`;
+                    }
+                });
         }
 
         private addMap() {
@@ -338,11 +340,11 @@ module powerbi.extensibility.visual {
                         }
                     }
                 }
-                
+            
                 this.map.addSource('data', {
                     type: 'geojson',
                     data: turf.helpers.featureCollection([]),
-                    buffer: 10
+                    buffer: 0
                 });
                 
                 const clusterLayer = mapboxUtils.decorateLayer({
@@ -360,6 +362,10 @@ module powerbi.extensibility.visual {
                         'text-field': `{${this.settings.cluster.aggregation}}`,
                         'text-font': ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
                         'text-size': 12
+                    },
+                    paint: {
+                        "text-halo-color": "white",
+                        "text-halo-width": 0.5
                     }
                 });
                 this.map.addLayer(clusterLabelLayer);
@@ -436,15 +442,15 @@ module powerbi.extensibility.visual {
                 return acc;
             }, {});
 
-            if (!(roles.latitude && roles.longitude) && !roles.location) {
-                this.errorDiv.innerText = 'No GEO data fields are added. Please set either location, or latitude & longitude.';
+            if ((this.settings.circle.show || this.settings.cluster.show || this.settings.heatmap.show) && !(roles.latitude && roles.longitude)) {
+                this.errorDiv.innerText = 'Longitude, Latitude fields required for circle, heatmap, and cluster visualizations.';
+                return false;
+            }
+            else if (this.settings.choropleth.show && (!roles.location || !roles.category)) {
+                this.errorDiv.innerText = 'Location, Color fields required for choropleth visualizations.'
                 return false;
             }
 
-            if (this.settings.choropleth.show && (!roles.location || !roles.category)) {
-                this.errorDiv.innerText = 'Location and color fields must be set when choropleth layer is turned on.'
-                return false;
-            }
 
             return true;
         }
