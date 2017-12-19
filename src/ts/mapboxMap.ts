@@ -53,6 +53,9 @@ module powerbi.extensibility.visual {
 
             if (this.vectorTileUrl != settings.choropleth.vectorTileUrl) {
                 if (map.getSource('choropleth-source')) {
+                    if (map.getLayer('choropleth-layer')) {
+                        map.removeLayer('choropleth-layer');
+                    }
                     map.removeSource('choropleth-source');
                 }
                 this.vectorTileUrl = settings.choropleth.vectorTileUrl;
