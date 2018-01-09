@@ -458,10 +458,21 @@ module powerbi.extensibility.visual {
             return true;
         }
 
+        private visibilityChanged(oldSettings, newSettings) {
+            return oldSettings && newSettings && (
+                oldSettings.choropleth.show != newSettings.choropleth.show ||
+                oldSettings.circle.show != newSettings.circle.show ||
+                oldSettings.cluster.show != newSettings.cluster.show ||
+                oldSettings.heatmap.show != newSettings.heatmap.show)
+        }
+
         @mapboxUtils.logExceptions()
         public update(options: VisualUpdateOptions) {
             const dataView: DataView = options.dataViews[0];
+
+            const oldSettings = this.settings;
             this.settings = MapboxSettings.parse<MapboxSettings>(dataView);
+            const layerVisibilityChanged = this.visibilityChanged(oldSettings, this.settings);
             
             if (!this.validateOptions(options)) {
                 this.errorDiv.style.display = 'block';
@@ -512,7 +523,7 @@ module powerbi.extensibility.visual {
             // If the map is loaded and style has not changed in this update
             // then we should update right now.
             if (this.map.loaded() && !styleChanged) {
-                onUpdate(this.map, this.getFeatures(), this.settings, dataChanged, this.category);
+                onUpdate(this.map, this.getFeatures(), this.settings, dataChanged || layerVisibilityChanged, this.category);
             }
         }
 
