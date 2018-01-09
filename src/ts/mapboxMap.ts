@@ -473,7 +473,19 @@ module powerbi.extensibility.visual {
                 this.addMap();
             }
 
+            let dataChanged = false;
+            let oldFeatures = "";
+            if (this.features) {
+                oldFeatures = JSON.stringify(this.features);
+            }
+
             this.features = mapboxConverter.convert(dataView, this.host);
+            if (this.features) {
+                if (JSON.stringify(this.features) != oldFeatures) {
+                    dataChanged = true;
+                }
+            }
+
             if (this.settings.cluster.show) {
                 this.cluster.load(this.features);
             }
@@ -500,7 +512,7 @@ module powerbi.extensibility.visual {
             // If the map is loaded and style has not changed in this update
             // then we should update right now.
             if (this.map.loaded() && !styleChanged) {
-                onUpdate(this.map, this.getFeatures(), this.settings, false, this.category);
+                onUpdate(this.map, this.getFeatures(), this.settings, dataChanged, this.category);
             }
         }
 
