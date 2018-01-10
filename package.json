@@ -4,10 +4,11 @@
   "description": "PowerBI visualization with mapboxgl",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "pbi": "pbiviz",
     "pbicerti": "pbiviz --install-cert",
     "package": "pbiviz package",
+    "pretest": "pbiviz package --resources --no-minify --no-pbiviz --no-plugin",
+    "test": "karma start",
     "start": "pbiviz start"
   },
   "author": "Ryan Baumann",
@@ -21,9 +22,20 @@
     "mapbox-gl": "^0.42.2",
     "mbview": "^1.15.2",
     "powerbi-client": "^2.3.4",
-    "powerbi-visuals-tools": "^1.7.2",
+    "powerbi-visuals-tools": "^1.10.0",
     "powerbi-visuals-utils-dataviewutils": "^1.2.0",
     "typescript": "^2.5.2",
     "uglify-js": "^3.1.1"
+  },
+  "devDependencies": {
+    "jasmine-core": "^2.8.0",
+    "karma": "^2.0.0",
+    "karma-chrome-launcher": "^2.2.0",
+    "karma-coverage": "^1.1.1",
+    "karma-jasmine": "^1.1.1",
+    "karma-remap-istanbul": "^0.6.0",
+    "karma-sourcemap-loader": "^0.3.7",
+    "karma-typescript-preprocessor": "^0.3.1",
+    "powerbi-visuals-utils-testutils": "^1.1.0"
   }
 }

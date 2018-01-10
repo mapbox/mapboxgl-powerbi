@@ -1,5 +1,5 @@
 {
-    "PBI_API_VERSION": "v1.9.0",
+    "PBI_API_VERSION": "v1.10.0",
     "type": "object",
     "properties": {
         "dataRoles": {
@@ -63,6 +63,10 @@
                 "description": {
                     "type": "string",
                     "description": "A description of this role shown to the user as a tooltip"
+                },
+                "descriptionKey": {
+                    "type": "string",
+                    "description": "The localization key for the description in the stringResourced file"
                 },
                 "preferredTypes": {
                     "type": "array",
@@ -643,6 +647,10 @@
                             "type": "string",
                             "description": "A description of this object shown to the user as a tooltip"
                         },
+                        "descriptionKey": {
+                            "type": "string",
+                            "description": "The localization key for the description in the stringResourced file"
+                        },
                         "properties": {
                             "type": "object",
                             "description": "A list of unique properties contained in this group",
@@ -674,6 +682,10 @@
                 "description": {
                     "type": "string",
                     "description": "A description of this property shown to the user as a tooltip"
+                },
+                "descriptionKey": {
+                    "type": "string",
+                    "description": "The localization key for the description in the stringResourced file"
                 },
                 "placeHolderText": {
                     "type": "string",
