@@ -31,9 +31,9 @@
       "description": "Categorical or numerical measure value to size map long\/lat points by"
     },
     {
-      "name": "clusterAggregation",
-      "kind": "GroupingOrMeasure",
-      "displayName": "Cluster aggregation",
+      "name": "cluster",
+      "kind": "Measure",
+      "displayName": "Cluster",
       "description": "Categorical or numerical measure value to aggregate points for clustering"
     }
   ],
@@ -74,7 +74,7 @@
             },
             {
               "for": {
-                "in": "clusterAggregation"
+                "in": "cluster"
               }
             }
           ]

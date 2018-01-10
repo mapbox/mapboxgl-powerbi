@@ -291,10 +291,10 @@ module powerbi.extensibility.visual {
                     },
                     map: function(properties) {
                         const count = 1;
-                        const sum = Number(properties["aggregationValue"]);
-                        const min = Number(properties["aggregationValue"]);
-                        const max = Number(properties["aggregationValue"]);
-                        const avg = Number(properties["aggregationValue"]);
+                        const sum = Number(properties["clusterValue"]);
+                        const min = Number(properties["clusterValue"]);
+                        const max = Number(properties["clusterValue"]);
+                        const avg = Number(properties["clusterValue"]);
                         return {
                             count,
                             sum,
@@ -456,7 +456,7 @@ module powerbi.extensibility.visual {
                 this.errorDiv.innerText = 'Location, Color fields required for choropleth visualizations.'
                 return false;
             }
-            else if (this.settings.cluster.show && !roles.clusterAggregation) {
+            else if (this.settings.cluster.show && !roles.cluster) {
                 this.errorDiv.innerText = 'Cluster aggregation field is required for cluster visualizations.';
                 return false;
             }
