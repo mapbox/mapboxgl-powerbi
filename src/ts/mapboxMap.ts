@@ -7,25 +7,11 @@ module powerbi.extensibility.visual {
         let bounds : any = features.bounds;
         if (!bounds && features.rawData) {
             bounds = turf.bbox(turf.helpers.featureCollection(features.rawData));
-            bounds = bounds.map( bound => {
-                if (bound < -90) {
-                    return -90;
-                }
-                if (bound > 90) {
-                    return 90;
-                }
-                return bound;
-            });
         }
 
         if (bounds) {
-            map.easeTo( {
-                duration: 500,
-                pitch: 0,
-                bearing: 0
-            });
             map.fitBounds(bounds, {
-                padding: 25
+                padding: 10
             });
         }
     }
@@ -522,7 +508,7 @@ module powerbi.extensibility.visual {
 
             // If the map is loaded and style has not changed in this update
             // then we should update right now.
-            if (this.map.loaded() && !styleChanged) {
+            if (!styleChanged) {
                 onUpdate(this.map, this.getFeatures(), this.settings, dataChanged || layerVisibilityChanged, this.category);
             }
         }
