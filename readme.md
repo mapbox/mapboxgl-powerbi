@@ -1,6 +1,6 @@
 # Mapbox GL Extension for PowerBI
 
-High performance, endlessly customizable, open-source tool based Mapbox GL location visuals for your PowerBI reports and dashboards.
+Make sense of your location big, dynamic location data with Mapbox.  Create interactive Graduated Circle, Cluster, and Heatmaps at 60FPS for your PowerBI reports and dashboards.  Easily handle large datasets up to the PowerBI maximum of 30,000 points.
 
 [Example Dashboard](https://app.powerbi.com/view?r=eyJrIjoiMThkYTY1MmItYzMwOC00NjUyLWJhOGMtODZiZWRkNzcxMzY2IiwidCI6IjYyOWE3MGIyLTMyYjktNDEyNi05NTFlLTE3NjA0Y2Y0NTZlYyIsImMiOjF9)
 
