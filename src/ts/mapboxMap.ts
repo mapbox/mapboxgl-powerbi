@@ -457,7 +457,7 @@ module powerbi.extensibility.visual {
                 return false;
             }
             else if (this.settings.cluster.show && !roles.cluster) {
-                this.errorDiv.innerText = 'Cluster aggregation field is required for cluster visualizations.';
+                this.errorDiv.innerText = 'Cluster field is required for cluster visualizations.';
                 return false;
             }
 
