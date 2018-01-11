@@ -66,7 +66,8 @@ module powerbi.extensibility.visual {
                     "color": null,
                     "tooltip": tooltip.join(','),
                     "size": d.size,
-                    "location": d.location
+                    "location": d.location,
+                    "clusterValue": d.cluster,
                 }
                 if (scale && d.color) {
                     properties.color = scale(d.color).toString();
