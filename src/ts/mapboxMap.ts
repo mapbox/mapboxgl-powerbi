@@ -506,8 +506,7 @@ module powerbi.extensibility.visual {
                 return column.roles.category;
             });
 
-            // If the map is loaded and style has not changed in this update
-            // then we should update right now.
+            // If the map style has not changed in this update we should update.
             if (!styleChanged) {
                 onUpdate(this.map, this.getFeatures(), this.settings, dataChanged || layerVisibilityChanged, this.category);
             }
