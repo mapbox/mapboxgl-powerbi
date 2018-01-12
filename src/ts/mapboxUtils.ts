@@ -99,15 +99,18 @@ module powerbi.extensibility.visual {
             let max = null;
             turf.meta.propEach(turf.helpers.featureCollection(data), function(currentProperties, featureIndex) {
                 if (currentProperties[myproperty]) {
-                    const value = Math.round(Number(currentProperties[myproperty]) * 100 / 100);
+                    const value = currentProperties[myproperty];
                     if (!min || value < min) { min = value }
                     if (!max || value > max) { max = value }
                 }
             })
-            // Min and max must not be equal becuse of the interpolation. 
+            // Min and max must not be equal becuse of the interpolation.
             // let's make sure with the substraction
+            if (min == max) {
+                min = min - 1
+            }
             return {
-                min: min - 1,
+                min,
                 max,
             }
         }
