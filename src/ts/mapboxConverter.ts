@@ -40,36 +40,18 @@ module powerbi.extensibility.visual {
             }
         }
 
-        const getScale = (domain) => {
-            if (!domain || !(domain.length > 0)) {
-                return null;
-            }
-            let length = domain.length
-            if (typeof domain[0] === 'number') {
-                var limits = chroma.limits(domain, 'q', length);
-                return chroma.scale('YlGnBu').domain(limits)
-            } else {
-                return chroma.scale('Set2').domain([1, length + 1])
-            }
-        }
-
         const getFeatures = (datas, domain, tooltipColumns) => {
             let features = []
-            const scale = getScale(domain);
             features = datas.map(function (d) {
                 let tooltip = tooltipColumns.map( tooltipColumn => {
                     return `${tooltipColumn.displayName}: ${d[tooltipColumn.propertyName]}`;
                 })
                 let properties = {
                     "colorValue": d.color,
-                    "color": null,
                     "tooltip": tooltip.join(','),
                     "sizeValue": d.size,
                     "location": d.location,
                     "clusterValue": d.cluster,
-                }
-                if (scale && d.color) {
-                    properties.color = scale(d.color).toString();
                 }
 
                 if ( (d.latitude >= -90) && (d.latitude <= 90) && (d.longitude >= -180) && (d.longitude <= 180) ) {
