@@ -162,6 +162,8 @@ module powerbi.extensibility.visual {
                         colorLimits.max, settings.circle.maxColor
                     ]
                 );
+            } else {
+                map.setPaintProperty('circle', 'circle-color', settings.circle.minColor);
             }
 
             map.setPaintProperty('circle', 'circle-blur', settings.circle.blur / 100);
