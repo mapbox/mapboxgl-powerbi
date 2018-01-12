@@ -26,7 +26,7 @@ module powerbi.extensibility.visual {
                         pushIfNotExist(domain, value);
                         if (typeof value != 'number') {
                             const colorIndex = positionInArray(domain, value);
-                            obj.color = colorIndex < 8 ? colorIndex + 1 : 9;
+                            obj.color = colorIndex % 9;
                         } else {
                             obj.color = value;
                         }
