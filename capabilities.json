@@ -28,7 +28,13 @@
       "name": "size",
       "kind": "Measure",
       "displayName": "Size",
-      "description": "Numerical measure value to size points by for circle, cluster visualizations"
+      "description": "Categorical or numerical measure value to size points by for circle, cluster visualizations"
+    },
+    {
+      "name": "cluster",
+      "kind": "Measure",
+      "displayName": "Cluster",
+      "description": "Categorical or numerical measure value to aggregate points for clustering"
     }
   ],
   "dataViewMappings": [
@@ -64,6 +70,11 @@
             {
               "for": {
                 "in": "location"
+              }
+            },
+            {
+              "for": {
+                "in": "cluster"
               }
             }
           ]

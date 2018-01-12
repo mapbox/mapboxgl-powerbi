@@ -62,9 +62,14 @@ module powerbi.extensibility.visual {
                 })
                 let properties = {
                     "colorValue": d.color,
+                    "color": null,
                     "tooltip": tooltip.join(','),
                     "sizeValue": d.size,
-                    "location": d.location
+                    "location": d.location,
+                    "clusterValue": d.cluster,
+                }
+                if (scale && d.color) {
+                    properties.color = scale(d.color).toString();
                 }
 
                 if ( (d.latitude >= -90) && (d.latitude <= 90) && (d.longitude >= -180) && (d.longitude <= 180) ) {

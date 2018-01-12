@@ -280,39 +280,42 @@ module powerbi.extensibility.visual {
             });
 
             this.cluster = supercluster({
-                radius: 10,
-                maxZoom: 20,
-                initial: function() {
-                    return {
-                        count: 0,
-                        sum: 0,
-                        min: Infinity,
-                        max: -Infinity,
-                        tooltip: '',
-                    };
-                },
-                map: function(properties) {
-                    const count = 1;
-                    const sum = Number(properties["colorValue"]);
-                    const min = Number(properties["colorValue"]);
-                    const max = Number(properties["colorValue"]);
-                    return {
-                        count,
-                        sum,
-                        min, 
-                        max,
-                        tooltip: `Count: ${count},Sum: ${sum}, Min: ${sum}, Max: ${max}`
-                    };
-                },
-                reduce: function(accumulated, properties) {
-                    accumulated.sum += Math.round(properties.sum * 100) / 100;
-                    accumulated.count += properties.count;
-                    accumulated.min = Math.round(Math.min(accumulated.min, properties.min) * 100) / 100;
-                    accumulated.max = Math.round(Math.max(accumulated.max, properties.max) * 100) / 100;
-                    accumulated.avg = Math.round(100 * accumulated.sum / accumulated.count) / 100;
-                    accumulated.tooltip = `Count: ${accumulated.count},Sum: ${accumulated.sum},Min: ${accumulated.min},Max: ${accumulated.max}`;
-                }
-            });
+                    radius: 10,
+                    maxZoom: 20,
+                    initial: function() {
+                        return {
+                            count: 0,
+                            sum: 0,
+                            min: Infinity,
+                            max: -Infinity,
+                            avg: 0.0,
+                            tooltip: '',
+                        };
+                    },
+                    map: function(properties) {
+                        const count = 1;
+                        const sum = Number(properties["clusterValue"]);
+                        const min = Number(properties["clusterValue"]);
+                        const max = Number(properties["clusterValue"]);
+                        const avg = Number(properties["clusterValue"]);
+                        return {
+                            count,
+                            sum,
+                            min,
+                            max,
+                            avg,
+                            tooltip: `Count: ${count},Sum: ${sum}, Min: ${sum}, Max: ${max}, Avg: ${avg}`
+                        };
+                    },
+                    reduce: function(accumulated, properties) {
+                        accumulated.sum += Math.round(properties.sum * 100) / 100;
+                        accumulated.count += properties.count;
+                        accumulated.min = Math.round(Math.min(accumulated.min, properties.min) * 100) / 100;
+                        accumulated.max = Math.round(Math.max(accumulated.max, properties.max) * 100) / 100;
+                        accumulated.avg = Math.round(100 * accumulated.sum / accumulated.count) / 100;
+                        accumulated.tooltip = `Count: ${accumulated.count},Sum: ${accumulated.sum},Min: ${accumulated.min},Max: ${accumulated.max},Avg: ${accumulated.avg}`;
+                    }
+                });
         }
 
         private addMap() {
@@ -454,6 +457,10 @@ module powerbi.extensibility.visual {
             }
             else if (this.settings.choropleth.show && (!roles.location || !roles.category)) {
                 this.errorDiv.innerText = 'Location, Color fields required for choropleth visualizations.'
+                return false;
+            }
+            else if (this.settings.cluster.show && !roles.cluster) {
+                this.errorDiv.innerText = 'Cluster field is required for cluster visualizations.';
                 return false;
             }
 
