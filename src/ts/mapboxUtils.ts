@@ -30,10 +30,10 @@ module powerbi.extensibility.visual {
                             return
                         }
                     }, 16, false);
-                   
+
                     map.on('mousemove', onMouseMove);
                 }
-                
+
                 export function addClick(map: mapboxgl.Map) {
                     // map.off('click');
                     if (map.listens('click')) { return; }
@@ -53,10 +53,10 @@ module powerbi.extensibility.visual {
                             duration: 1000
                         });
                     }, 16, true);
-                   
+
                     map.on('click', onClick);
                 };
-                        
+
         export function decorateLayer(layer) {
             switch (layer.type) {
                 case 'circle': {
@@ -88,7 +88,7 @@ module powerbi.extensibility.visual {
         }
 
         export function getTooltipColumns(columns) {
-            let tooltipColumns = addColumnWithRole([], columns, 'category');
+            let tooltipColumns = addColumnWithRole([], columns, 'color');
             columns = addColumnWithRole(tooltipColumns, columns, 'size');
             return tooltipColumns;
         }

@@ -1,11 +1,11 @@
 module powerbi.extensibility.visual {
     export module mapboxConverter {
 
-        const positionInArray = (array, element) => { 
+        const positionInArray = (array, element) => {
             return array.findIndex( value => {
                 return value === element
             })
-        } 
+        }
 
         const pushIfNotExist = (array, element) => {
             if (positionInArray(array, element) === -1) {
@@ -21,7 +21,7 @@ module powerbi.extensibility.visual {
                     const column = columns[index]
                     const role = Object.keys(column.roles)[0]
                     obj[role] = value;
-                    if (column.roles.category) {
+                    if (column.roles.color) {
                         const t = column.type.primitiveType;
                         pushIfNotExist(domain, value);
                         if (typeof value != 'number') {

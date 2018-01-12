@@ -85,7 +85,7 @@ module powerbi.extensibility.visual {
                 let colorStops = chroma.scale([settings.choropleth.minColor,settings.choropleth.maxColor]).domain([limits.min, limits.max]);
                 let colors = ['match', ['get', settings.choropleth.vectorProperty]];
                 let outlineColors = ['match', ['get', settings.choropleth.vectorProperty]];
-                
+
                 features.choroplethData.map( row => {
                     const color = colorStops(row.properties.colorValue);
                     var outlineColor : any = colorStops(row.properties.colorValue)
@@ -210,7 +210,7 @@ module powerbi.extensibility.visual {
         private mapStyle: string = "";
         private vectorTileUrl: string = "";
         private cluster: any;
-        private category: any;
+        private color: any;
 
          /**
          * This function returns the values to be displayed in the property pane for each object.
@@ -265,7 +265,7 @@ module powerbi.extensibility.visual {
 
         constructor(options: VisualConstructorOptions) {
             this.host = options.host;
-            //Map initialization    
+            //Map initialization
             this.mapDiv = document.createElement('div');
             this.mapDiv.className = 'map';
             options.element.appendChild(this.mapDiv);
@@ -273,7 +273,7 @@ module powerbi.extensibility.visual {
             this.errorDiv = document.createElement('div');
             this.errorDiv.className = 'error';
             options.element.appendChild(this.errorDiv);
-            
+
             this.popup = new mapboxgl.Popup({
                 closeButton: false,
                 closeOnClick: false
@@ -349,13 +349,13 @@ module powerbi.extensibility.visual {
                         }
                     }
                 }
-            
+
                 this.map.addSource('data', {
                     type: 'geojson',
                     data: turf.helpers.featureCollection([]),
                     buffer: 0
                 });
-                
+
                 const clusterLayer = mapboxUtils.decorateLayer({
                     id: 'cluster',
                     source: 'data',
@@ -393,17 +393,17 @@ module powerbi.extensibility.visual {
                 });
                 this.map.addLayer(heatmapLayer, firstSymbolId);
 
-                onUpdate(this.map, this.getFeatures(), this.settings, false, this.category) 
+                onUpdate(this.map, this.getFeatures(), this.settings, false, this.color)
             });
 
             this.map.on('load', () => {
-                onUpdate(this.map, this.getFeatures(), this.settings, true, this.category)
+                onUpdate(this.map, this.getFeatures(), this.settings, true, this.color)
                 mapboxUtils.addPopup(this.map, this.popup);
                 mapboxUtils.addClick(this.map);
             });
             this.map.on('zoomend', () => {
                 if (this.settings.cluster.show) {
-                    onUpdate(this.map, this.getFeatures(), this.settings, false, this.category)
+                    onUpdate(this.map, this.getFeatures(), this.settings, false, this.color)
                 }
             });
         }
@@ -455,7 +455,7 @@ module powerbi.extensibility.visual {
                 this.errorDiv.innerText = 'Longitude, Latitude fields required for circle, heatmap, and cluster visualizations.';
                 return false;
             }
-            else if (this.settings.choropleth.show && (!roles.location || !roles.category)) {
+            else if (this.settings.choropleth.show && (!roles.location || !roles.color)) {
                 this.errorDiv.innerText = 'Location, Color fields required for choropleth visualizations.'
                 return false;
             }
@@ -472,7 +472,7 @@ module powerbi.extensibility.visual {
         public update(options: VisualUpdateOptions) {
             const dataView: DataView = options.dataViews[0];
             this.settings = MapboxSettings.parse<MapboxSettings>(dataView);
-            
+
             if (!this.validateOptions(options)) {
                 this.errorDiv.style.display = 'block';
                 this.removeMap();
@@ -503,14 +503,14 @@ module powerbi.extensibility.visual {
 
             // Check is category field is set
             const columns : any = dataView.table.columns;
-            this.category = columns.find( column => {
-                return column.roles.category;
+            this.color = columns.find( column => {
+                return column.roles.color;
             });
 
             // If the map is loaded and style has not changed in this update
             // then we should update right now.
             if (this.map.loaded() && !styleChanged) {
-                onUpdate(this.map, this.getFeatures(), this.settings, false, this.category);
+                onUpdate(this.map, this.getFeatures(), this.settings, false, this.color);
             }
         }
 
