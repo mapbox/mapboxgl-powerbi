@@ -13,7 +13,7 @@ module powerbi.extensibility.visual {
                         mapboxUtils.pushIfNotExist(domain, value);
                         if (typeof value != 'number') {
                             const colorIndex = mapboxUtils.positionInArray(domain, value);
-                            obj.color = colorIndex % 9;
+                            obj.color = mapboxUtils.getColorFromIndex(colorIndex);
                         } else {
                             obj.color = value;
                         }

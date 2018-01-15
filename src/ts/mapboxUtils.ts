@@ -1,6 +1,8 @@
 module powerbi.extensibility.visual {
     declare var turf : any;
     export module mapboxUtils {
+        const NUMBER_OF_COLORVALUES = 12;
+
         export function positionInArray(array, element: any) {
             return array.findIndex( value => {
                 return value === element
@@ -11,6 +13,10 @@ module powerbi.extensibility.visual {
             if (positionInArray(array, element) === -1) {
                 array.push(element)
             }
+        }
+
+        export function getColorFromIndex(index: number) {
+            return index % NUMBER_OF_COLORVALUES
         }
 
         export function addPopup(map: mapboxgl.Map, popup: mapboxgl.Popup ) {
