@@ -268,7 +268,7 @@ module powerbi.extensibility.visual {
 
                 const source : any = this.map.getSource('choropleth-source');
                 if (source && source.tileBounds) {
-                    ret.bounds = source.tileBounds.bounds;
+                    //ret.bounds = source.tileBounds.bounds;
                 }
             }
 
@@ -559,7 +559,7 @@ module powerbi.extensibility.visual {
 
             // If the map is loaded and style has not changed in this update
             // then we should update right now.
-            if (this.map.loaded() && !styleChanged) {
+            if (!styleChanged) {
                 onUpdate(this.map, this.getFeatures(), this.settings, dataChanged || layerVisibilityChanged, this.color, this.host);
             }
         }
