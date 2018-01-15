@@ -1,18 +1,5 @@
 module powerbi.extensibility.visual {
     export module mapboxConverter {
-
-        const positionInArray = (array, element) => {
-            return array.findIndex( value => {
-                return value === element
-            })
-        }
-
-        const pushIfNotExist = (array, element) => {
-            if (positionInArray(array, element) === -1) {
-                array.push(element)
-            }
-        }
-
         const transformToObjectArray = (rows, columns) => {
             let domain : any = [];
 
@@ -23,9 +10,9 @@ module powerbi.extensibility.visual {
                     obj[role] = value;
                     if (column.roles.color) {
                         const t = column.type.primitiveType;
-                        pushIfNotExist(domain, value);
+                        mapboxUtils.pushIfNotExist(domain, value);
                         if (typeof value != 'number') {
-                            const colorIndex = positionInArray(domain, value);
+                            const colorIndex = mapboxUtils.positionInArray(domain, value);
                             obj.color = colorIndex % 9;
                         } else {
                             obj.color = value;

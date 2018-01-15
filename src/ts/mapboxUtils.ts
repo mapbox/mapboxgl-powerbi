@@ -1,6 +1,18 @@
 module powerbi.extensibility.visual {
     declare var turf : any;
     export module mapboxUtils {
+        export function positionInArray(array, element: any) {
+            return array.findIndex( value => {
+                return value === element
+            })
+        }
+
+        export function pushIfNotExist(array: any[], element: any) {
+            if (positionInArray(array, element) === -1) {
+                array.push(element)
+            }
+        }
+
         export function addPopup(map: mapboxgl.Map, popup: mapboxgl.Popup ) {
             // Don't add the popup if it already exists
                     if (map.listens('mousemove')) { return }
