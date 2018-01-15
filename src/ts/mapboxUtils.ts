@@ -19,6 +19,22 @@ module powerbi.extensibility.visual {
             return index % NUMBER_OF_COLORVALUES
         }
 
+        export function shouldUseGradient(category, colorLimits: { min: any; max: any; values: any; }) {
+            if (category != null && category.isMeasure) {
+                return true
+            }
+
+            if (colorLimits == null || colorLimits.values == null || colorLimits.values.length == null) {
+                return false
+            }
+
+            if (colorLimits.values.length >= NUMBER_OF_COLORVALUES) {
+                return true
+            }
+
+            return false
+        }
+
         export function addPopup(map: mapboxgl.Map, popup: mapboxgl.Popup ) {
             // Don't add the popup if it already exists
                     if (map.listens('mousemove')) { return }
