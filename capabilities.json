@@ -22,19 +22,19 @@
       "name": "category",
       "kind": "GroupingOrMeasure",
       "displayName": "Color",
-      "description": "Categorical or numerical measure value to color map long\/lat points by"
+      "description": "Measure or Dimension to color map layer by"
     },
     {
       "name": "size",
-      "kind": "GroupingOrMeasure",
-      "displayName": "Size",
-      "description": "Categorical or numerical measure value to size map long\/lat points by"
+      "kind": "Measure",
+      "displayName": "Circle Size",
+      "description": "Measure to size circle-layer long\/lat points by"
     },
     {
       "name": "cluster",
       "kind": "Measure",
       "displayName": "Cluster",
-      "description": "Categorical or numerical measure value to aggregate points for clustering"
+      "description": "Measure to aggregate points for clustering"
     }
   ],
   "dataViewMappings": [
@@ -250,6 +250,50 @@
               }
             }
           }
+        },
+        "strokeWidth": {
+          "displayName": "Stroke Width",
+          "displayNameKey": "strokeWidth",
+          "description": "The width of the circle's stroke. Strokes are placed outside of the Circle Radius.",
+          "type": {
+            "numeric": true
+          }
+        },
+        "strokeOpacity": {
+          "displayName": "Stroke Opacity",
+          "displayNameKey": "strokeOpacity",
+          "description": "The opacity of the circle's stroke.",
+          "type": {
+            "numeric": true
+          }
+        },
+        "strokeColor": {
+          "displayName": "Stroke Color",
+          "displayNameKey": "strokeColor",
+          "description": "The stroke color of the circle.",
+          "type": {
+            "fill": {
+              "solid": {
+                "color": true
+              }
+            }
+          }
+        },
+        "minZoom": {
+          "displayName": "Min Zoom",
+          "displayNameKey": "minZoom",
+          "description": "Minimum zoom level layer is visibile at.",
+          "type": {
+              "numeric": true
+            }
+        },
+        "maxZoom": {
+          "displayName": "Max Zoom",
+          "displayNameKey": "maxZoom",
+          "description": "Maximum zoom level layer is visibile at.",
+          "type": {
+              "numeric": true
+            }
         }
       }
     },
@@ -305,6 +349,22 @@
               }
             }
           }
+        },
+        "minZoom": {
+          "displayName": "Min Zoom",
+          "displayNameKey": "minZoom",
+          "description": "Minimum zoom level layer is visibile at.",
+          "type": {
+              "numeric": true
+            }
+        },
+        "maxZoom": {
+          "displayName": "Max Zoom",
+          "displayNameKey": "maxZoom",
+          "description": "Maximum zoom level layer is visibile at.",
+          "type": {
+              "numeric": true
+            }
         }
       }
     },
@@ -388,6 +448,22 @@
               }
             }
           }
+        },
+        "minZoom": {
+          "displayName": "Min Zoom",
+          "displayNameKey": "minZoom",
+          "description": "Minimum zoom level layer is visibile at.",
+          "type": {
+              "numeric": true
+            }
+        },
+        "maxZoom": {
+          "displayName": "Max Zoom",
+          "displayNameKey": "maxZoom",
+          "description": "Maximum zoom level layer is visibile at.",
+          "type": {
+              "numeric": true
+            }
         }
       }
     },
@@ -447,6 +523,22 @@
               }
             }
           }
+        },
+        "minZoom": {
+          "displayName": "Min Zoom",
+          "displayNameKey": "minZoom",
+          "description": "Minimum zoom level layer is visibile at.",
+          "type": {
+              "numeric": true
+            }
+        },
+        "maxZoom": {
+          "displayName": "Max Zoom",
+          "displayNameKey": "maxZoom",
+          "description": "Maximum zoom level layer is visibile at.",
+          "type": {
+              "numeric": true
+            }
         }
       }
     }
