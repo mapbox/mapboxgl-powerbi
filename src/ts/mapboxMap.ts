@@ -49,9 +49,14 @@ module powerbi.extensibility.visual {
             return;
         }
 
-        if (features.clusterData || features.rawData) {
+        if (features.clusterData ) {
+            let source : any = map.getSource('clusterData');
+            source.setData( turf.helpers.featureCollection(features.clusterData) );
+        }
+
+        if (features.rawData) {
             let source : any = map.getSource('data');
-            source.setData( turf.helpers.featureCollection(features.clusterData || features.rawData));
+            source.setData( turf.helpers.featureCollection(features.rawData) ); 
         }
 
         map.setLayoutProperty('circle', 'visibility', settings.circle.show ? 'visible' : 'none');
@@ -116,10 +121,15 @@ module powerbi.extensibility.visual {
 
                 map.setPaintProperty('choropleth-layer', 'fill-color', colors);
                 map.setPaintProperty('choropleth-layer', 'fill-outline-color', outlineColors)
+                map.setLayerZoomRange('choropleth-layer', settings.choropleth.minZoom, settings.choropleth.maxZoom);
             }
         }
         if (settings.cluster.show) {
-
+            map.setLayerZoomRange('cluster', settings.cluster.minZoom, settings.cluster.maxZoom);
+            map.setLayerZoomRange('cluster-label', settings.cluster.minZoom, settings.cluster.maxZoom);
+            map.setPaintProperty('cluster', 'circle-stroke-width', settings.cluster.strokeWidth);
+            map.setPaintProperty('cluster', 'circle-stroke-opacity', settings.cluster.strokeOpacity / 100);
+            map.setPaintProperty('cluster', 'circle-stroke-color', settings.cluster.strokeColor);
             const limits = mapboxUtils.getLimits(features.clusterData, settings.cluster.aggregation);
             if (limits.min && limits.max) {
                 map.setPaintProperty('cluster', 'circle-color', [
@@ -171,7 +181,7 @@ module powerbi.extensibility.visual {
             let colors = getCircleColors(colorLimits, isGradient, settings, host.colorPalette);
 
             map.setPaintProperty('circle', 'circle-color', colors);
-
+            map.setLayerZoomRange('circle', settings.circle.minZoom, settings.circle.maxZoom);
             map.setPaintProperty('circle', 'circle-blur', settings.circle.blur / 100);
             map.setPaintProperty('circle', 'circle-opacity', settings.circle.opacity / 100);
             map.setPaintProperty('circle', 'circle-stroke-width', settings.circle.strokeWidth);
@@ -180,6 +190,7 @@ module powerbi.extensibility.visual {
 
         }
         if (settings.heatmap.show) {
+            map.setLayerZoomRange('heatmap', settings.heatmap.minZoom, settings.heatmap.maxZoom);
             map.setPaintProperty('heatmap', 'heatmap-radius', settings.heatmap.radius);
             map.setPaintProperty('heatmap', 'heatmap-weight', settings.heatmap.weight);
             map.setPaintProperty('heatmap', 'heatmap-intensity', settings.heatmap.intensity);
@@ -288,42 +299,42 @@ module powerbi.extensibility.visual {
             });
 
             this.cluster = supercluster({
-                    radius: 10,
-                    maxZoom: 20,
-                    initial: function() {
-                        return {
-                            count: 0,
-                            sum: 0,
-                            min: Infinity,
-                            max: -Infinity,
-                            avg: 0.0,
-                            tooltip: '',
-                        };
-                    },
-                    map: function(properties) {
-                        const count = 1;
-                        const sum = Number(properties["clusterValue"]);
-                        const min = Number(properties["clusterValue"]);
-                        const max = Number(properties["clusterValue"]);
-                        const avg = Number(properties["clusterValue"]);
-                        return {
-                            count,
-                            sum,
-                            min,
-                            max,
-                            avg,
-                            tooltip: `Count: ${count},Sum: ${sum}, Min: ${sum}, Max: ${max}, Avg: ${avg}`
-                        };
-                    },
-                    reduce: function(accumulated, properties) {
-                        accumulated.sum += Math.round(properties.sum * 100) / 100;
-                        accumulated.count += properties.count;
-                        accumulated.min = Math.round(Math.min(accumulated.min, properties.min) * 100) / 100;
-                        accumulated.max = Math.round(Math.max(accumulated.max, properties.max) * 100) / 100;
-                        accumulated.avg = Math.round(100 * accumulated.sum / accumulated.count) / 100;
-                        accumulated.tooltip = `Count: ${accumulated.count},Sum: ${accumulated.sum},Min: ${accumulated.min},Max: ${accumulated.max},Avg: ${accumulated.avg}`;
-                    }
-                });
+                radius: 10,
+                maxZoom: 20,
+                initial: function() {
+                    return {
+                        count: 0,
+                        sum: 0,
+                        min: Infinity,
+                        max: -Infinity,
+                        avg: 0.0,
+                        tooltip: '',
+                    };
+                },
+                map: function(properties) {
+                    const count = 1;
+                    const sum = Number(properties["clusterValue"]);
+                    const min = Number(properties["clusterValue"]);
+                    const max = Number(properties["clusterValue"]);
+                    const avg = Number(properties["clusterValue"]);
+                    return {
+                        count,
+                        sum,
+                        min,
+                        max,
+                        avg,
+                        tooltip: `Count: ${count},Sum: ${sum}, Min: ${sum}, Max: ${max}, Avg: ${avg}`
+                    };
+                },
+                reduce: function(accumulated, properties) {
+                    accumulated.sum += Math.round(properties.sum * 100) / 100;
+                    accumulated.count += properties.count;
+                    accumulated.min = Math.round(Math.min(accumulated.min, properties.min) * 100) / 100;
+                    accumulated.max = Math.round(Math.max(accumulated.max, properties.max) * 100) / 100;
+                    accumulated.avg = Math.round(100 * accumulated.sum / accumulated.count) / 100;
+                    accumulated.tooltip = `Count: ${accumulated.count},Sum: ${accumulated.sum},Min: ${accumulated.min},Max: ${accumulated.max},Avg: ${accumulated.avg}`;
+                }
+            });
         }
 
         private addMap() {
@@ -364,17 +375,25 @@ module powerbi.extensibility.visual {
                     buffer: 0
                 });
 
+                this.map.addSource('clusterData', {
+                    type: 'geojson',
+                    data: turf.helpers.featureCollection([]),
+                    buffer: 0
+                });
+                
                 const clusterLayer = mapboxUtils.decorateLayer({
                     id: 'cluster',
-                    source: 'data',
-                    type: 'cluster'
+                    source: 'clusterData',
+                    type: 'cluster',
+                    filter: ['has', 'count']
                 });
                 this.map.addLayer(clusterLayer, firstSymbolId);
 
                 const clusterLabelLayer = mapboxUtils.decorateLayer({
                     id: 'cluster-label',
                     type: 'symbol',
-                    source: 'data',
+                    source: 'clusterData',
+                    filter: ["has", "count"],
                     layout: {
                         'text-field': `{${this.settings.cluster.aggregation}}`,
                         'text-font': ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
