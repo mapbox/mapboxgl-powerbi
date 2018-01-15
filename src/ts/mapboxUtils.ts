@@ -115,11 +115,13 @@ module powerbi.extensibility.visual {
 
             let min = null;
             let max = null;
+            let values = [];
             turf.meta.propEach(turf.helpers.featureCollection(data), function(currentProperties, featureIndex) {
                 if (currentProperties[myproperty]) {
                     const value = currentProperties[myproperty];
                     if (!min || value < min) { min = value }
                     if (!max || value > max) { max = value }
+                    pushIfNotExist(values, value)
                 }
             })
             // Min and max must not be equal becuse of the interpolation.
@@ -130,6 +132,7 @@ module powerbi.extensibility.visual {
             return {
                 min,
                 max,
+                values
             }
         }
 
