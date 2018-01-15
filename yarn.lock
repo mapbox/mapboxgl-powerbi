@@ -6726,6 +6726,10 @@ powerbi-visuals-utils-testutils@^1.1.0:
     jquery "3.1.1"
     lodash "4.16.2"
 
+powerbi-visuals-utils-typeutils@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/powerbi-visuals-utils-typeutils/-/powerbi-visuals-utils-typeutils-1.1.0.tgz#347942e581873700da55efff5136a693a76df9b2"
+
 prelude-ls@~1.1.0, prelude-ls@~1.1.1, prelude-ls@~1.1.2:
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/prelude-ls/-/prelude-ls-1.1.2.tgz#21932a549f5e52ffd9a827f570e04be62a97da54"

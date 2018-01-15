@@ -31,9 +31,10 @@ module powerbi.extensibility.visual {
     }
 
 
-    function onUpdate(map, features, settings, zoom, category) {
+    function onUpdate(map, features, settings, zoom, category, updateHandler: Function) {
         if (!map.getSource('data')) {
-            return;
+            updateHandler(false)
+            return false;
         }
 
         if (features.clusterData || features.rawData) {
@@ -185,6 +186,7 @@ module powerbi.extensibility.visual {
             zoomToData(map, features)
         }
 
+        updateHandler(true);
         return true;
     }
 
@@ -208,6 +210,7 @@ module powerbi.extensibility.visual {
         private vectorTileUrl: string = "";
         private cluster: any;
         private category: any;
+        private updateHandler: Function = () => {}
 
          /**
          * This function returns the values to be displayed in the property pane for each object.
@@ -312,6 +315,14 @@ module powerbi.extensibility.visual {
                 });
         }
 
+        public on(event: string, fn: Function) {
+            switch (event) {
+                case 'updated': {
+                    this.updateHandler = fn;
+                }
+            }
+        }
+
         private addMap() {
             if (this.map) {
                 return
@@ -387,17 +398,19 @@ module powerbi.extensibility.visual {
                 });
                 this.map.addLayer(heatmapLayer, firstSymbolId);
 
-                onUpdate(this.map, this.getFeatures(), this.settings, false, this.category) 
+                onUpdate(this.map, this.getFeatures(), this.settings, false, this.category, this.updateHandler)
             });
 
             this.map.on('load', () => {
-                onUpdate(this.map, this.getFeatures(), this.settings, true, this.category)
+                onUpdate(this.map, this.getFeatures(), this.settings, true, this.category, this.updateHandler)
                 mapboxUtils.addPopup(this.map, this.popup);
                 mapboxUtils.addClick(this.map);
             });
             this.map.on('zoomend', () => {
                 if (this.settings.cluster.show) {
-                    onUpdate(this.map, this.getFeatures(), this.settings, false, this.category)
+                    setTimeout(() => {
+                        onUpdate(this.map, this.getFeatures(), this.settings, false, this.category, this.updateHandler)
+                    }, 400)
                 }
             });
         }
@@ -411,10 +424,10 @@ module powerbi.extensibility.visual {
             }
         }
 
-        private createLinkElement(title, url): Element {
+        private createLinkElement(title: string, url: string): Element {
             let linkElement = document.createElement("a");
             linkElement.textContent = "Get a Mapbox Access Token";
-            linkElement.setAttribute("title", "Get a Mapbox Access Token");
+            linkElement.setAttribute("title", title);
             linkElement.setAttribute("class", "mapboxLink");
             linkElement.addEventListener("click", () => {
                 this.host.launchUrl(url);
@@ -426,34 +439,43 @@ module powerbi.extensibility.visual {
             this.errorDiv.style.display = 'none';
             this.errorDiv.innerText = '';
 
+            function setError(errorDiv: Element, text: string) : void {
+                const html = `<h4>${text}</h4>`;
+                errorDiv.innerHTML = html;
+            }
+
             // Check for Access Token
             if (!this.settings.api.accessToken) {
-                let link = this.createLinkElement("Mapbox", "https://mapbox.com/signup")
-                let html = '<h4>Mapbox Access Token not set in options pane.</h4>';
-                this.errorDiv.innerHTML = html;
-                this.errorDiv.appendChild(link)
+                let link = this.createLinkElement("Get a Mapbox Access Token", "https://mapbox.com/signup")
+                setError(this.errorDiv, "Mapbox Access Token not set in options pane.")
+                this.errorDiv.appendChild(link);
                 return false;
             }
 
             // Check for Location properties
             const roles : any = options.dataViews[0].metadata.columns.map( column => {
-                return Object.keys(column.roles);
+                if (column.roles) {
+                    return Object.keys(column.roles);
+                } else {
+                    return null;
+                }
             }).reduce( (acc, curr) => {
-                curr.map( role => {
-                    acc[role] = true;
-                });
+                if (curr) {
+                    curr.map( role => {
+                        acc[role] = true;
+                    });
+                }
                 return acc;
             }, {});
 
             if ((this.settings.circle.show || this.settings.cluster.show || this.settings.heatmap.show) && !(roles.latitude && roles.longitude)) {
-                this.errorDiv.innerText = 'Longitude, Latitude fields required for circle, heatmap, and cluster visualizations.';
+                setError(this.errorDiv, 'Longitude, Latitude fields required for circle, heatmap, and cluster visualizations.');
                 return false;
             }
             else if (this.settings.choropleth.show && (!roles.location || !roles.category)) {
-                this.errorDiv.innerText = 'Location, Color fields required for choropleth visualizations.'
+                setError(this.errorDiv, 'Location, Color fields required for choropleth visualizations.');
                 return false;
             }
-
 
             return true;
         }
@@ -500,7 +522,7 @@ module powerbi.extensibility.visual {
             // If the map is loaded and style has not changed in this update
             // then we should update right now.
             if (this.map.loaded() && !styleChanged) {
-                onUpdate(this.map, this.getFeatures(), this.settings, false, this.category);
+                onUpdate(this.map, this.getFeatures(), this.settings, false, this.category, this.updateHandler);
             }
         }
 

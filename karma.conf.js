@@ -17,6 +17,9 @@ module.exports = (config) => {
     }
 
     config.set({
+        client: {
+            accessToken: process.env.MAPBOX_TOKEN,
+        },
         browsers,
         customLaunchers: {
             ChromeTravisCI: {
@@ -37,8 +40,11 @@ module.exports = (config) => {
             srcRecursivePath,
             'node_modules/lodash/lodash.min.js',
             'node_modules/powerbi-visuals-utils-testutils/lib/index.js',
+            'node_modules/powerbi-visuals-utils-typeutils/lib/index.js',
             'node_modules/jquery/dist/jquery.min.js',
             'node_modules/jasmine-jquery/lib/jasmine-jquery.js',
+            'test/visualData.ts',
+            'test/visualBuilder.ts',
             recursivePathToTests,
             {
                 pattern: srcOriginalRecursivePath,
