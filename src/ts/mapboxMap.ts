@@ -31,7 +31,7 @@ module powerbi.extensibility.visual {
     }
 
 
-    function onUpdate(map, features, settings, zoom, category) {
+    function onUpdate(map, features, settings, zoom, category, host) {
         if (!map.getSource('data')) {
             return;
         }
@@ -395,17 +395,17 @@ module powerbi.extensibility.visual {
                 });
                 this.map.addLayer(heatmapLayer, firstSymbolId);
 
-                onUpdate(this.map, this.getFeatures(), this.settings, false, this.color)
+                onUpdate(this.map, this.getFeatures(), this.settings, false, this.color, this.host)
             });
 
             this.map.on('load', () => {
-                onUpdate(this.map, this.getFeatures(), this.settings, true, this.color)
+                onUpdate(this.map, this.getFeatures(), this.settings, true, this.color, this.host)
                 mapboxUtils.addPopup(this.map, this.popup);
                 mapboxUtils.addClick(this.map);
             });
             this.map.on('zoomend', () => {
                 if (this.settings.cluster.show) {
-                    onUpdate(this.map, this.getFeatures(), this.settings, false, this.color)
+                    onUpdate(this.map, this.getFeatures(), this.settings, false, this.color, this.host)
                 }
             });
         }
@@ -502,7 +502,6 @@ module powerbi.extensibility.visual {
                 this.map.setStyle(this.mapStyle);
             }
 
-
             // Check is category field is set
             const columns : any = dataView.table.columns;
             this.color = columns.find( column => {
@@ -512,7 +511,7 @@ module powerbi.extensibility.visual {
             // If the map is loaded and style has not changed in this update
             // then we should update right now.
             if (this.map.loaded() && !styleChanged) {
-                onUpdate(this.map, this.getFeatures(), this.settings, false, this.color);
+                onUpdate(this.map, this.getFeatures(), this.settings, false, this.color, this.host);
             }
         }
 
