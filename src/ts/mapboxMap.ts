@@ -30,6 +30,33 @@ module powerbi.extensibility.visual {
         }
     }
 
+    function getCircleColors(colorLimits: { min: any; max: any; }, isGradient: boolean, settings: any, colorPalette: IColorPalette) {
+        if (colorLimits.min === null || colorLimits.max === null) {
+            return settings.circle.minColor;
+        }
+
+        if (isGradient) {
+            return [
+                "interpolate", ["exponential", 1],
+                ["to-number", ['get', 'colorValue']],
+                colorLimits.min, settings.circle.minColor,
+                colorLimits.max, settings.circle.maxColor
+            ];
+        }
+
+        let colors = ['match', ['to-string', ['get', 'colorValue']]];
+            for (let index = colorLimits.min; index < colorLimits.max; index++) {
+                const idx = "" + (index-colorLimits.min);
+                const color = colorPalette.getColor(idx).value;
+                colors.push(idx);
+                colors.push(color);
+            }
+            // Add transparent as default so that we only see regions
+            // for which we have data values
+            colors.push('rgba(255,0,0,255)');
+
+        return colors;
+    }
 
     function onUpdate(map, features, settings, zoom, category, host) {
         if (!map.getSource('data')) {
@@ -154,17 +181,10 @@ module powerbi.extensibility.visual {
                 ]);
             }
 
-            if (colorLimits.min !== null && colorLimits.max !== null) {
-                map.setPaintProperty('circle', 'circle-color', [
-                        "interpolate", ["exponential", 1],
-                        ["to-number", ['get', 'colorValue']],
-                        colorLimits.min, settings.circle.minColor,
-                        colorLimits.max, settings.circle.maxColor
-                    ]
-                );
-            } else {
-                map.setPaintProperty('circle', 'circle-color', settings.circle.minColor);
-            }
+            let isGradient = mapboxUtils.shouldUseGradient(category, colorLimits);
+            let colors = getCircleColors(colorLimits, isGradient, settings, host.colorPalette);
+
+            map.setPaintProperty('circle', 'circle-color', colors);
 
             map.setPaintProperty('circle', 'circle-blur', settings.circle.blur / 100);
             map.setPaintProperty('circle', 'circle-opacity', settings.circle.opacity / 100);
