@@ -56,7 +56,7 @@ module powerbi.extensibility.visual {
 
         if (features.rawData) {
             let source : any = map.getSource('data');
-            source.setData( turf.helpers.featureCollection(features.rawData) ); 
+            source.setData( turf.helpers.featureCollection(features.rawData) );
         }
 
         map.setLayoutProperty('circle', 'visibility', settings.circle.show ? 'visible' : 'none');
@@ -158,7 +158,7 @@ module powerbi.extensibility.visual {
                     ["to-number", ['get', 'sizeValue']],
                         sizeLimits.min, settings.circle.radius,
                         sizeLimits.max, settings.circle.radius  * settings.circle.scaleFactor,
-                    
+
                 ]
                 );
             } else {
@@ -249,7 +249,8 @@ module powerbi.extensibility.visual {
                 let values = {}
                 this.features.map( feature => {
                     if (!values[feature.properties.location]) {
-                        values[feature.properties.location] = feature;
+                        // Clone feature to keep rawData untouched
+                        values[feature.properties.location] = JSON.parse(JSON.stringify(feature));
                     } else {
                         values[feature.properties.location].properties.colorValue += feature.properties.colorValue;
                     }
@@ -372,7 +373,7 @@ module powerbi.extensibility.visual {
                     data: turf.helpers.featureCollection([]),
                     buffer: 0
                 });
-                
+
                 const clusterLayer = mapboxUtils.decorateLayer({
                     id: 'cluster',
                     source: 'clusterData',
