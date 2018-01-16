@@ -26,6 +26,8 @@ On PowerBI Online, add the `dist/mapboxGLMap.pbiviz` file in this repository as 
 - `npm install -g powerbi-visuals-tools`
 - Follow Steps on https://github.com/Microsoft/PowerBI-visuals/blob/master/tools/CertificateSetup.md to setup your PowerBI live visual
 - `npm install`
+- `npm install -g typings`
+- `typings install`
 - Log into your PowerBI web UI and enable dev tools https://github.com/Microsoft/PowerBI-visuals/blob/master/tools/DebugVisualSetup.md
 - `pbiviz start`
 - Add a custom visual using the PowerBI custom viz options, using a latitude and longitude variable.
