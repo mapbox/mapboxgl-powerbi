@@ -3,26 +3,26 @@
     {
       "name": "location",
       "kind": "Grouping",
-      "displayName": "Location",
-      "description": "Location"
+      "displayName": "Geo Location",
+      "description": "Geo Location dimension.  Location values must match propertry values in vector tiles to create a choropleth map - i.e. zip code, FIPS code."
     },
     {
       "name": "latitude",
       "kind": "Grouping",
       "displayName": "Latitude",
-      "description": "Latitude geographic point from data"
+      "description": "Latitude geographic point dimension"
     },
     {
       "name": "longitude",
       "kind": "Grouping",
       "displayName": "Longitude",
-      "description": "Longitude geographic point from data"
+      "description": "Longitude geographic point dimension"
     },
     {
-      "name": "category",
+      "name": "color",
       "kind": "GroupingOrMeasure",
       "displayName": "Color",
-      "description": "Measure or Dimension to color map layer by"
+      "description": "Measure or Dimension to color map circle, cluster, or heatmap layer by"
     },
     {
       "name": "size",
@@ -54,7 +54,7 @@
             },
             {
               "for": {
-                "in": "category"
+                "in": "color"
               }
             },
             {
@@ -437,10 +437,22 @@
             }
           }
         },
-        "color": {
-          "displayName": "Color",
-          "displayNameKey": "color",
-          "description": "Defines the color of each pixel based on its density value in a heatmap. ",
+        "minColor": {
+          "displayName": "Min Color",
+          "displayNameKey": "minColor",
+          "description": "Defines the color for the minimum value of the color field.",
+          "type": {
+            "fill": {
+              "solid": {
+                "color": true
+              }
+            }
+          }
+        },
+        "maxColor": {
+          "displayName": "Max Color",
+          "displayNameKey": "maxColor",
+          "description": "Defines the color for the maximum value of the color field.",
           "type": {
             "fill": {
               "solid": {

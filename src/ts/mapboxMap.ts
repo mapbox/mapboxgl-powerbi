@@ -16,8 +16,35 @@ module powerbi.extensibility.visual {
         }
     }
 
+    function getCircleColors(colorLimits: { min: any; max: any; }, isGradient: boolean, settings: any, colorPalette: IColorPalette) {
+        if (colorLimits.min === null || colorLimits.max === null) {
+            return settings.circle.minColor;
+        }
 
-    function onUpdate(map, features, settings, zoom, category) {
+        if (isGradient) {
+            return [
+                "interpolate", ["exponential", 1],
+                ["to-number", ['get', 'colorValue']],
+                colorLimits.min, settings.circle.minColor,
+                colorLimits.max, settings.circle.maxColor
+            ];
+        }
+
+        let colors = ['match', ['to-string', ['get', 'colorValue']]];
+            for (let index = colorLimits.min; index < colorLimits.max; index++) {
+                const idx = "" + (index-colorLimits.min);
+                const color = colorPalette.getColor(idx).value;
+                colors.push(idx);
+                colors.push(color);
+            }
+            // Add transparent as default so that we only see regions
+            // for which we have data values
+            colors.push('rgba(255,0,0,255)');
+
+        return colors;
+    }
+
+    function onUpdate(map, features, settings, zoom, category, host) {
         if (!map.getSource('data')) {
             return;
         }
@@ -29,7 +56,7 @@ module powerbi.extensibility.visual {
 
         if (features.rawData) {
             let source : any = map.getSource('data');
-            source.setData( turf.helpers.featureCollection(features.rawData) ); 
+            source.setData( turf.helpers.featureCollection(features.rawData) );
         }
 
         map.setLayoutProperty('circle', 'visibility', settings.circle.show ? 'visible' : 'none');
@@ -76,7 +103,7 @@ module powerbi.extensibility.visual {
                 let colorStops = chroma.scale([settings.choropleth.minColor,settings.choropleth.maxColor]).domain([limits.min, limits.max]);
                 let colors = ['match', ['get', settings.choropleth.vectorProperty]];
                 let outlineColors = ['match', ['get', settings.choropleth.vectorProperty]];
-                
+
                 features.choroplethData.map( row => {
                     const color = colorStops(row.properties.colorValue);
                     var outlineColor : any = colorStops(row.properties.colorValue)
@@ -122,31 +149,16 @@ module powerbi.extensibility.visual {
         }
         if (settings.circle.show) {
 
-            if (category != null) {
-                map.setPaintProperty('circle', 'circle-color', {
-                    property: 'color',
-                    type: 'identity',
-                });
-            } else {
-                map.setPaintProperty('circle', 'circle-color', settings.circle.color);
-            }
+            const colorLimits = mapboxUtils.getLimits(features.rawData, 'colorValue');
+            const sizeLimits = mapboxUtils.getLimits(features.rawData, 'sizeValue');
 
-            const limits = mapboxUtils.getLimits(features.rawData, 'size');
-            if (limits.min !== null && limits.max !== null) {
+            if (sizeLimits.min !== null && sizeLimits.max !== null) {
                 map.setPaintProperty('circle', 'circle-radius', [
-                    "interpolate", ["linear"], ["zoom"],
-                    0, [
-                        "interpolate", ["exponential", 1],
-                        ["number", ['get', 'size']],
-                        limits.min, 1,
-                        limits.max, settings.circle.radius
-                    ],
-                    18, [
-                        "interpolate", ["exponential", 1],
-                        ["number", ["get", "size"]],
-                        limits.min, 1 * settings.circle.scaleFactor,
-                        limits.max, settings.circle.radius  * settings.circle.scaleFactor,
-                    ]
+                    "interpolate", ["exponential", 1.2],
+                    ["to-number", ['get', 'sizeValue']],
+                        sizeLimits.min, settings.circle.radius,
+                        sizeLimits.max, settings.circle.radius  * settings.circle.scaleFactor,
+
                 ]
                 );
             } else {
@@ -157,6 +169,10 @@ module powerbi.extensibility.visual {
                 ]);
             }
 
+            let isGradient = mapboxUtils.shouldUseGradient(category, colorLimits);
+            let colors = getCircleColors(colorLimits, isGradient, settings, host.colorPalette);
+
+            map.setPaintProperty('circle', 'circle-color', colors);
             map.setLayerZoomRange('circle', settings.circle.minZoom, settings.circle.maxZoom);
             map.setPaintProperty('circle', 'circle-blur', settings.circle.blur / 100);
             map.setPaintProperty('circle', 'circle-opacity', settings.circle.opacity / 100);
@@ -205,7 +221,7 @@ module powerbi.extensibility.visual {
         private mapStyle: string = "";
         private vectorTileUrl: string = "";
         private cluster: any;
-        private category: any;
+        private color: any;
 
          /**
          * This function returns the values to be displayed in the property pane for each object.
@@ -233,7 +249,8 @@ module powerbi.extensibility.visual {
                 let values = {}
                 this.features.map( feature => {
                     if (!values[feature.properties.location]) {
-                        values[feature.properties.location] = feature;
+                        // Clone feature to keep rawData untouched
+                        values[feature.properties.location] = JSON.parse(JSON.stringify(feature));
                     } else {
                         values[feature.properties.location].properties.colorValue += feature.properties.colorValue;
                     }
@@ -244,7 +261,7 @@ module powerbi.extensibility.visual {
 
                 const source : any = this.map.getSource('choropleth-source');
                 if (source && source.tileBounds) {
-                    ret.bounds = source.tileBounds.bounds;
+                    //ret.bounds = source.tileBounds.bounds;
                 }
             }
 
@@ -260,7 +277,7 @@ module powerbi.extensibility.visual {
 
         constructor(options: VisualConstructorOptions) {
             this.host = options.host;
-            //Map initialization    
+            //Map initialization
             this.mapDiv = document.createElement('div');
             this.mapDiv.className = 'map';
             options.element.appendChild(this.mapDiv);
@@ -268,7 +285,7 @@ module powerbi.extensibility.visual {
             this.errorDiv = document.createElement('div');
             this.errorDiv.className = 'error';
             options.element.appendChild(this.errorDiv);
-            
+
             this.popup = new mapboxgl.Popup({
                 closeButton: false,
                 closeOnClick: false
@@ -344,7 +361,7 @@ module powerbi.extensibility.visual {
                         }
                     }
                 }
-            
+
                 this.map.addSource('data', {
                     type: 'geojson',
                     data: turf.helpers.featureCollection([]),
@@ -356,7 +373,7 @@ module powerbi.extensibility.visual {
                     data: turf.helpers.featureCollection([]),
                     buffer: 0
                 });
-                
+
                 const clusterLayer = mapboxUtils.decorateLayer({
                     id: 'cluster',
                     source: 'clusterData',
@@ -396,17 +413,17 @@ module powerbi.extensibility.visual {
                 });
                 this.map.addLayer(heatmapLayer, firstSymbolId);
 
-                onUpdate(this.map, this.getFeatures(), this.settings, false, this.category) 
+                onUpdate(this.map, this.getFeatures(), this.settings, false, this.color, this.host)
             });
 
             this.map.on('load', () => {
-                onUpdate(this.map, this.getFeatures(), this.settings, true, this.category)
+                onUpdate(this.map, this.getFeatures(), this.settings, true, this.color, this.host)
                 mapboxUtils.addPopup(this.map, this.popup);
                 mapboxUtils.addClick(this.map);
             });
             this.map.on('zoomend', () => {
                 if (this.settings.cluster.show) {
-                    onUpdate(this.map, this.getFeatures(), this.settings, false, this.category)
+                    onUpdate(this.map, this.getFeatures(), this.settings, false, this.color, this.host)
                 }
             });
         }
@@ -458,7 +475,7 @@ module powerbi.extensibility.visual {
                 this.errorDiv.innerText = 'Longitude, Latitude fields required for circle, heatmap, and cluster visualizations.';
                 return false;
             }
-            else if (this.settings.choropleth.show && (!roles.location || !roles.category)) {
+            else if (this.settings.choropleth.show && (!roles.location || !roles.color)) {
                 this.errorDiv.innerText = 'Location, Color fields required for choropleth visualizations.'
                 return false;
             }
@@ -486,7 +503,7 @@ module powerbi.extensibility.visual {
             const oldSettings = this.settings;
             this.settings = MapboxSettings.parse<MapboxSettings>(dataView);
             const layerVisibilityChanged = this.visibilityChanged(oldSettings, this.settings);
-            
+
             if (!this.validateOptions(options)) {
                 this.errorDiv.style.display = 'block';
                 this.removeMap();
@@ -527,16 +544,16 @@ module powerbi.extensibility.visual {
                 this.map.setStyle(this.mapStyle);
             }
 
-
             // Check is category field is set
             const columns : any = dataView.table.columns;
-            this.category = columns.find( column => {
-                return column.roles.category;
+            this.color = columns.find( column => {
+                return column.roles.color;
             });
 
-            // If the map style has not changed in this update we should update.
+            // If the map is loaded and style has not changed in this update
+            // then we should update right now.
             if (!styleChanged) {
-                onUpdate(this.map, this.getFeatures(), this.settings, dataChanged || layerVisibilityChanged, this.category);
+                onUpdate(this.map, this.getFeatures(), this.settings, dataChanged || layerVisibilityChanged, this.color, this.host);
             }
         }
 

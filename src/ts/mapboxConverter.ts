@@ -1,18 +1,5 @@
 module powerbi.extensibility.visual {
     export module mapboxConverter {
-
-        const positionInArray = (array, element) => { 
-            return array.findIndex( value => {
-                return value === element
-            })
-        } 
-
-        const pushIfNotExist = (array, element) => {
-            if (positionInArray(array, element) === -1) {
-                array.push(element)
-            }
-        }
-
         const transformToObjectArray = (rows, columns) => {
             let domain : any = [];
 
@@ -21,12 +8,12 @@ module powerbi.extensibility.visual {
                     const column = columns[index]
                     const role = Object.keys(column.roles)[0]
                     obj[role] = value;
-                    if (column.roles.category) {
+                    if (column.roles.color) {
                         const t = column.type.primitiveType;
-                        pushIfNotExist(domain, value);
+                        mapboxUtils.pushIfNotExist(domain, value);
                         if (typeof value != 'number') {
-                            const colorIndex = positionInArray(domain, value);
-                            obj.color = colorIndex < 8 ? colorIndex + 1 : 9;
+                            const colorIndex = mapboxUtils.positionInArray(domain, value);
+                            obj.color = mapboxUtils.getColorFromIndex(colorIndex);
                         } else {
                             obj.color = value;
                         }
@@ -40,37 +27,18 @@ module powerbi.extensibility.visual {
             }
         }
 
-        const getScale = (domain) => {
-            if (!domain || !(domain.length > 0)) {
-                return null;
-            }
-            let length = domain.length
-            if (typeof domain[0] === 'number') {
-                var limits = chroma.limits(domain, 'q', length);
-                return chroma.scale('YlGnBu').domain(limits)
-            } else {
-                return chroma.scale('Set2').domain([1, length + 1])
-            }
-        }
-
         const getFeatures = (datas, domain, tooltipColumns) => {
             let features = []
-            const scale = getScale(domain);
             features = datas.map(function (d) {
                 let tooltip = tooltipColumns.map( tooltipColumn => {
                     return `${tooltipColumn.displayName}: ${d[tooltipColumn.propertyName]}`;
                 })
-                //let tooltip = d.category || d.size;
                 let properties = {
                     "colorValue": d.color,
-                    "color": null,
                     "tooltip": tooltip.join(','),
-                    "size": d.size,
+                    "sizeValue": d.size,
                     "location": d.location,
                     "clusterValue": d.cluster,
-                }
-                if (scale && d.color) {
-                    properties.color = scale(d.color).toString();
                 }
 
                 if ( (d.latitude >= -90) && (d.latitude <= 90) && (d.longitude >= -180) && (d.longitude <= 180) ) {
