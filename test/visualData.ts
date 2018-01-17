@@ -4,9 +4,6 @@ module powerbi.extensibility.visual.test {
     import getRandomNumbers = powerbi.extensibility.utils.test.helpers.getRandomNumbers;
     import TestDataViewBuilder = powerbi.extensibility.utils.test.dataViewBuilder.TestDataViewBuilder;
 
-    function getValues = (length: number, min: number, max: number): number[] {
-    }
-
     export class MapboxData extends TestDataViewBuilder {
         private rowCount: number = 5;
 
