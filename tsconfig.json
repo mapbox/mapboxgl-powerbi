@@ -14,7 +14,6 @@
     "typings"
   ],
   "files": [
-    "typings/index.d.ts",
     "node_modules/powerbi-visuals-utils-testutils/lib/index.d.ts",
     "node_modules/powerbi-visuals-utils-typeutils/lib/index.d.ts",
     "src/types/powerbi-visuals-utils-dataviewutils/index.d.ts",
