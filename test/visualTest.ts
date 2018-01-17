@@ -130,8 +130,7 @@ module powerbi.extensibility.visual.test {
                     });
                 });
             })
-
-        }
+        })
 
         describe("decorateLayer", () => {
 
