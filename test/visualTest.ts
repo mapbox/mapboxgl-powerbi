@@ -16,6 +16,8 @@ module powerbi.extensibility.visual.test {
         let locale: MockILocale;
         let allowInteractions: MockIAllowInteractions;
         let visualBuilder: MapboxChartBuilder;
+        let dataViewBuilder: MapboxData;
+        let dataView: DataView;
 
         beforeEach(() => {
 
