@@ -4,13 +4,13 @@ module powerbi.extensibility.visual.test {
     import getRandomNumbers = powerbi.extensibility.utils.test.helpers.getRandomNumbers;
     import TestDataViewBuilder = powerbi.extensibility.utils.test.dataViewBuilder.TestDataViewBuilder;
 
-    export class MapboxData extends TestDataViewBuilder {
-        // public static ColumnCategory: string = "Country";
-        public static ColumnCategory: string = "Color";
-        public static LatituceValues: string = "Latitude";
-        public static LongitudeValues: string = "Longitude";
+    function getValues = (length: number, min: number, max: number): number[] {
+    }
 
-        public valuesCategory: string[] = [
+    export class MapboxData extends TestDataViewBuilder {
+        private rowCount: number = 5;
+
+        public categoryValues: string[] = [
             "Alabama",
             "Missouri",
             "Minnesota",
@@ -18,50 +18,61 @@ module powerbi.extensibility.visual.test {
             "California",
         ];
 
-        public latitudeValues: number[] = getRandomNumbers(
-            this.valuesCategory.length,
-            -90,
-            90);
+        private getValues(min: number, max: number): number[] {
+            return getRandomNumbers(this.rowCount, min, max)
+        }
 
-        public longitudeValues: number[] = getRandomNumbers(
-            this.valuesCategory.length,
-            -180,
-            180);
 
         public getDataView(columnNames?: string[]): DataView {
             return this.createCategoricalDataViewBuilder([
                 {
                     source: {
-                        displayName: MapboxData.ColumnCategory,
+                        displayName: 'Category',
                         type: ValueType.fromDescriptor({ text: true }),
                         roles: {category: true}
                     },
-                    values: this.valuesCategory
+                    values: this.categoryValues
                 }
             ], [
                     {
                         source: {
-                            displayName: MapboxData.LatitudeValues,
+                            displayName: 'Latitude',
                             type: ValueType.fromDescriptor({ numeric: true }),
                             roles: {latitude: true}
                         },
-                        values: this.latitudeValues
+                        values: this.getValues(-90, 90)
                     },
                     {
                         source: {
-                            displayName: MapboxData.LongitudeValues,
+                            displayName: 'Longitude',
                             type: ValueType.fromDescriptor({ numeric: true }),
                             roles: {longitude: true}
                         },
-                        values: this.longitudeValues
+                        values: this.getValues(-180, 180);
                     },
                     {
                         source: {
-                            displayName: MapboxData.LocationValues,
+                            displayName: 'Location',
                             type: ValueType.fromDescriptor({ text: true }),
                             roles: {location: true}
                         }
-                        values: this.valuesCategory
+                        values: this.categoryValues
+                    },
+                    {
+                        source: {
+                            displayName: 'Color',
+                            type: ValueType.fromDescriptor({ text: true }),
+                            roles: {color: true}
+                        }
+                        values: this.getValues(0, 10000)
+                    },
+                    {
+                        source: {
+                            displayName: 'Cluster',
+                            type: ValueType.fromDescriptor({ text: true }),
+                            roles: {cluster: true}
+                        }
+                        values: this.getValues(0, 10000)
                     },
                 ], columnNames).build();
         }

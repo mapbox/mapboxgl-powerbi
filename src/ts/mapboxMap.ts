@@ -502,7 +502,7 @@ module powerbi.extensibility.visual {
                 return false;
             }
             else if (this.settings.cluster.show && !roles.cluster) {
-                this.errorDiv.innerText = 'Cluster field is required for cluster visualizations.';
+                setError(this.errorDiv, 'Cluster field is required for cluster visualizations.');
                 return false;
             }
 
