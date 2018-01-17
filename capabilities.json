@@ -3,32 +3,38 @@
     {
       "name": "location",
       "kind": "Grouping",
-      "displayName": "Location",
-      "description": "Location"
+      "displayName": "Geo Location",
+      "description": "Geo Location dimension.  Location values must match propertry values in vector tiles to create a choropleth map - i.e. zip code, FIPS code."
     },
     {
       "name": "latitude",
       "kind": "Grouping",
       "displayName": "Latitude",
-      "description": "Latitude geographic point from data"
+      "description": "Latitude geographic point dimension"
     },
     {
       "name": "longitude",
       "kind": "Grouping",
       "displayName": "Longitude",
-      "description": "Longitude geographic point from data"
+      "description": "Longitude geographic point dimension"
     },
     {
-      "name": "category",
+      "name": "color",
       "kind": "GroupingOrMeasure",
       "displayName": "Color",
-      "description": "Categorical or numerical measure value to color map long\/lat points by"
+      "description": "Measure or Dimension to color map circle, cluster, or heatmap layer by"
     },
     {
       "name": "size",
-      "kind": "GroupingOrMeasure",
-      "displayName": "Size",
-      "description": "Categorical or numerical measure value to size map long\/lat points by"
+      "kind": "Measure",
+      "displayName": "Circle Size",
+      "description": "Measure to size circle-layer long\/lat points by"
+    },
+    {
+      "name": "cluster",
+      "kind": "Measure",
+      "displayName": "Cluster",
+      "description": "Measure to aggregate points for clustering"
     }
   ],
   "dataViewMappings": [
@@ -48,7 +54,7 @@
             },
             {
               "for": {
-                "in": "category"
+                "in": "color"
               }
             },
             {
@@ -64,6 +70,11 @@
             {
               "for": {
                 "in": "location"
+              }
+            },
+            {
+              "for": {
+                "in": "cluster"
               }
             }
           ]
@@ -239,6 +250,50 @@
               }
             }
           }
+        },
+        "strokeWidth": {
+          "displayName": "Stroke Width",
+          "displayNameKey": "strokeWidth",
+          "description": "The width of the circle's stroke. Strokes are placed outside of the Circle Radius.",
+          "type": {
+            "numeric": true
+          }
+        },
+        "strokeOpacity": {
+          "displayName": "Stroke Opacity",
+          "displayNameKey": "strokeOpacity",
+          "description": "The opacity of the circle's stroke.",
+          "type": {
+            "numeric": true
+          }
+        },
+        "strokeColor": {
+          "displayName": "Stroke Color",
+          "displayNameKey": "strokeColor",
+          "description": "The stroke color of the circle.",
+          "type": {
+            "fill": {
+              "solid": {
+                "color": true
+              }
+            }
+          }
+        },
+        "minZoom": {
+          "displayName": "Min Zoom",
+          "displayNameKey": "minZoom",
+          "description": "Minimum zoom level layer is visibile at.",
+          "type": {
+              "numeric": true
+            }
+        },
+        "maxZoom": {
+          "displayName": "Max Zoom",
+          "displayNameKey": "maxZoom",
+          "description": "Maximum zoom level layer is visibile at.",
+          "type": {
+              "numeric": true
+            }
         }
       }
     },
@@ -294,6 +349,22 @@
               }
             }
           }
+        },
+        "minZoom": {
+          "displayName": "Min Zoom",
+          "displayNameKey": "minZoom",
+          "description": "Minimum zoom level layer is visibile at.",
+          "type": {
+              "numeric": true
+            }
+        },
+        "maxZoom": {
+          "displayName": "Max Zoom",
+          "displayNameKey": "maxZoom",
+          "description": "Maximum zoom level layer is visibile at.",
+          "type": {
+              "numeric": true
+            }
         }
       }
     },
@@ -366,10 +437,10 @@
             }
           }
         },
-        "color": {
-          "displayName": "Color",
-          "displayNameKey": "color",
-          "description": "Defines the color of each pixel based on its density value in a heatmap. ",
+        "minColor": {
+          "displayName": "Min Color",
+          "displayNameKey": "minColor",
+          "description": "Defines the color for the minimum value of the color field.",
           "type": {
             "fill": {
               "solid": {
@@ -377,6 +448,34 @@
               }
             }
           }
+        },
+        "maxColor": {
+          "displayName": "Max Color",
+          "displayNameKey": "maxColor",
+          "description": "Defines the color for the maximum value of the color field.",
+          "type": {
+            "fill": {
+              "solid": {
+                "color": true
+              }
+            }
+          }
+        },
+        "minZoom": {
+          "displayName": "Min Zoom",
+          "displayNameKey": "minZoom",
+          "description": "Minimum zoom level layer is visibile at.",
+          "type": {
+              "numeric": true
+            }
+        },
+        "maxZoom": {
+          "displayName": "Max Zoom",
+          "displayNameKey": "maxZoom",
+          "description": "Maximum zoom level layer is visibile at.",
+          "type": {
+              "numeric": true
+            }
         }
       }
     },
@@ -436,6 +535,22 @@
               }
             }
           }
+        },
+        "minZoom": {
+          "displayName": "Min Zoom",
+          "displayNameKey": "minZoom",
+          "description": "Minimum zoom level layer is visibile at.",
+          "type": {
+              "numeric": true
+            }
+        },
+        "maxZoom": {
+          "displayName": "Max Zoom",
+          "displayNameKey": "maxZoom",
+          "description": "Maximum zoom level layer is visibile at.",
+          "type": {
+              "numeric": true
+            }
         }
       }
     }

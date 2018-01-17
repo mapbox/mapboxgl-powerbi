@@ -1,6 +1,40 @@
 module powerbi.extensibility.visual {
     declare var turf : any;
     export module mapboxUtils {
+        const NUMBER_OF_COLORVALUES = 12;
+
+        export function positionInArray(array, element: any) {
+            return array.findIndex( value => {
+                return value === element
+            })
+        }
+
+        export function pushIfNotExist(array: any[], element: any) {
+            if (positionInArray(array, element) === -1) {
+                array.push(element)
+            }
+        }
+
+        export function getColorFromIndex(index: number) {
+            return index % NUMBER_OF_COLORVALUES
+        }
+
+        export function shouldUseGradient(category, colorLimits: { min: any; max: any; values: any; }) {
+            if (category != null && category.isMeasure) {
+                return true
+            }
+
+            if (colorLimits == null || colorLimits.values == null || colorLimits.values.length == null) {
+                return false
+            }
+
+            if (colorLimits.values.length >= NUMBER_OF_COLORVALUES) {
+                return true
+            }
+
+            return false
+        }
+
         export function addPopup(map: mapboxgl.Map, popup: mapboxgl.Popup ) {
             // Don't add the popup if it already exists
                     if (map.listens('mousemove')) { return }
@@ -10,7 +44,7 @@ module powerbi.extensibility.visual {
                         let maxpoint = new Array(e.point['x'] + 5, e.point['y'] + 5)
                         try {
                             let features : any = map.queryRenderedFeatures([minpoint, maxpoint], {
-                                layers: ['cluster', 'circle', 'heatmap']
+                                layers: ['cluster', 'circle']
                             });
                             map.getCanvas().style.cursor = 'pointer';
                             let feat = features[0];
@@ -30,10 +64,10 @@ module powerbi.extensibility.visual {
                             return
                         }
                     }, 16, false);
-                   
+
                     map.on('mousemove', onMouseMove);
                 }
-                
+
                 export function addClick(map: mapboxgl.Map) {
                     // map.off('click');
                     if (map.listens('click')) { return; }
@@ -53,10 +87,10 @@ module powerbi.extensibility.visual {
                             duration: 1000
                         });
                     }, 16, true);
-                   
+
                     map.on('click', onClick);
                 };
-                        
+
         export function decorateLayer(layer) {
             switch (layer.type) {
                 case 'circle': {
@@ -88,26 +122,33 @@ module powerbi.extensibility.visual {
         }
 
         export function getTooltipColumns(columns) {
-            let tooltipColumns = addColumnWithRole([], columns, 'category');
+            let tooltipColumns = addColumnWithRole([], columns, 'color');
             columns = addColumnWithRole(tooltipColumns, columns, 'size');
             return tooltipColumns;
         }
 
         export function getLimits(data, myproperty) {
+
             let min = null;
             let max = null;
+            let values = [];
             turf.meta.propEach(turf.helpers.featureCollection(data), function(currentProperties, featureIndex) {
                 if (currentProperties[myproperty]) {
-                    const value = Math.round(Number(currentProperties[myproperty]) * 100 / 100);
+                    const value = currentProperties[myproperty];
                     if (!min || value < min) { min = value }
                     if (!max || value > max) { max = value }
+                    pushIfNotExist(values, value)
                 }
             })
-            // Min and max must not be equal becuse of the interpolation. 
+            // Min and max must not be equal becuse of the interpolation.
             // let's make sure with the substraction
+            if (min == max) {
+                min = min - 1
+            }
             return {
-                min: min - 1,
+                min,
                 max,
+                values
             }
         }
 

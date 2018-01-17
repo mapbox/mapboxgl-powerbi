@@ -26,6 +26,7 @@
     "powerbi-visuals-utils-dataviewutils": "^1.2.0",
     "powerbi-visuals-utils-typeutils": "^1.1.0",
     "typescript": "^2.5.2",
+    "typings": "^2.1.1",
     "uglify-js": "^3.1.1"
   },
   "devDependencies": {
