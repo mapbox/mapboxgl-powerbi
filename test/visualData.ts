@@ -45,14 +45,14 @@ module powerbi.extensibility.visual.test {
                             type: ValueType.fromDescriptor({ numeric: true }),
                             roles: {longitude: true}
                         },
-                        values: this.getValues(-180, 180);
+                        values: this.getValues(-180, 180)
                     },
                     {
                         source: {
                             displayName: 'Location',
                             type: ValueType.fromDescriptor({ text: true }),
                             roles: {location: true}
-                        }
+                        },
                         values: this.categoryValues
                     },
                     {
@@ -60,7 +60,7 @@ module powerbi.extensibility.visual.test {
                             displayName: 'Color',
                             type: ValueType.fromDescriptor({ text: true }),
                             roles: {color: true}
-                        }
+                        },
                         values: this.getValues(0, 10000)
                     },
                     {
@@ -68,7 +68,7 @@ module powerbi.extensibility.visual.test {
                             displayName: 'Cluster',
                             type: ValueType.fromDescriptor({ text: true }),
                             roles: {cluster: true}
-                        }
+                        },
                         values: this.getValues(0, 10000)
                     },
                 ], columnNames).build();
