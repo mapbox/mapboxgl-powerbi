@@ -18,7 +18,7 @@ module.exports = (config) => {
 
     config.set({
         client: {
-            accessToken: process.env.MAPBOX_TOKEN,
+            accessToken: process.env.MAPBOX_TOKEN || "",
         },
         browsers,
         customLaunchers: {
