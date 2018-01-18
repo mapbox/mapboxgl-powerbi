@@ -50,7 +50,10 @@ module powerbi.extensibility.visual.test {
 
         describe("the mapbox canvas", () => {
             beforeEach(() => {
-                expect(__karma__.config.accessToken.length).toBeGreaterThan(0, "MAPBOX_TOKEN environment variable is not set. Please see README.md");
+                if (!__karma__.config.accessToken.length) {
+                    fail("MAPBOX_TOKEN environment variable is not set. Please see README.md")
+                    return
+                }
                 dataView.metadata.objects = {
                     api: {
                         accessToken: __karma__.config.accessToken,
