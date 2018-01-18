@@ -53,12 +53,13 @@ module.exports = (config) => {
             }
         ],
         preprocessors: {
-            [recursivePathToTests]: ['typescript'],
+            [recursivePathToTests]: ['typescript', 'sourcemap'],
             [srcRecursivePath]: ['sourcemap', 'coverage']
         },
         typescriptPreprocessor: {
             options: {
-                sourceMap: false,
+                sourceMap: true,
+                inlineSourceMap: true,
                 target: 'ES5',
                 removeComments: false,
                 concatenateOutput: false
