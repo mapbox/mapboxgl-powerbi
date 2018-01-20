@@ -514,19 +514,11 @@ module powerbi.extensibility.visual {
                 this.addMap();
             }
 
-            let dataChanged = false;
-            let oldFeatures = "";
-            if (this.features) {
-                // Memory efficiecy - check if data changes without copying entire data object
-                oldFeatures = JSON.stringify(this.features);
-            }
-
+            // Placeholder to indicate whether data changed or paint prop changed
+            // For now this is always true
+            let dataChanged = true; 
             this.features = mapboxConverter.convert(dataView, this.host);
-            if (this.features) {
-                if (JSON.stringify(this.features) != oldFeatures) {
-                    dataChanged = true;
-                }
-            }
+            
 
             if (this.settings.cluster.show) {
                 this.cluster.load(this.features);
