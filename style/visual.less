@@ -60,6 +60,58 @@
 
     @import (less) "./style/mapbox-gl.css";
 
+    hr {
+        display: block;
+        height: 1px;
+        border: 0;
+        border-top: 1px solid #ccc;
+        margin: 1em 0;
+        padding: 0;
+    }
+
+    /* Dark popup */
+    .mapboxgl-popup {
+        max-height: 300px;
+        min-width: 150px;
+    }
+    .mapboxgl-popup-content {
+        overflow-y: auto;
+        background-color: #333 !important;
+        color: #fff !important;
+        font-family: 'Segoe UI',wf_segoe-ui_normal,helvetica,arial,sans-serif;
+        background-color: #EAEAEA;
+        font-size: 16px;
+    }
+
+    .mapboxgl-popup-anchor-bottom-left .mapboxgl-popup-tip,
+    .mapboxgl-popup-anchor-bottom-right .mapboxgl-popup-tip,
+    .mapboxgl-popup-anchor-bottom .mapboxgl-popup-tip { border-top-color:#333 !important; }
+    .mapboxgl-popup-anchor-top-left .mapboxgl-popup-tip,
+    .mapboxgl-popup-anchor-top-right .mapboxgl-popup-tip,
+    .mapboxgl-popup-anchor-top .mapboxgl-popup-tip { border-bottom-color:#333 !important; }
+    .mapboxgl-popup-anchor-right .mapboxgl-popup-tip { border-left-color:#333 !important; }
+    .mapboxgl-popup-anchor-left .mapboxgl-popup-tip { border-right-color:#333 !important; }
+
+    /* Dark Scrollbar */
+    html {
+      scrollbar-face-color: #646464;
+      scrollbar-base-color: #646464;
+      scrollbar-3dlight-color: #646464;
+      scrollbar-highlight-color: #646464;
+      scrollbar-track-color: #000;
+      scrollbar-arrow-color: #000;
+      scrollbar-shadow-color: #646464;
+      scrollbar-dark-shadow-color: #646464;
+    }
+
+    ::-webkit-scrollbar { width: 8px; height: 3px;}
+    ::-webkit-scrollbar-button {  background-color: #666; }
+    ::-webkit-scrollbar-track {  background-color: #646464;}
+    ::-webkit-scrollbar-track-piece { background-color: #000;}
+    ::-webkit-scrollbar-thumb { height: 50px; background-color: #666; border-radius: 3px;}
+    ::-webkit-scrollbar-corner { background-color: #646464;}
+    ::-webkit-resizer { background-color: #666;}
+
     #popup-menu ul,
     #menu li {
         margin: 0;

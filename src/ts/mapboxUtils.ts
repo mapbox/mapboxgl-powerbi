@@ -47,12 +47,14 @@ module powerbi.extensibility.visual {
                                 layers: ['cluster', 'circle']
                             });
                             map.getCanvas().style.cursor = 'pointer';
-                            let feat = features[0];
-                            if (feat.properties.tooltip) {
+                            if (features[0].properties.tooltip) {
                                 let tooltip = "<div><h3>Tooltip</h3>"
-                                feat.properties.tooltip.split(',').map( tooltipItem => {
-                                    tooltip += `<li>${tooltipItem}</li>`
-                                })
+                                for (var i=0; i<features.length; i++) {
+                                    features[i].properties.tooltip.split(',').map( tooltipItem => {
+                                        tooltip += `<li>${tooltipItem}</li>`
+                                    })
+                                    tooltip += "<hr/>"
+                                }
                                 tooltip += "</div>"
                                 popup.setLngLat(map.unproject(e.point))
                                     .setHTML(tooltip)
@@ -86,7 +88,7 @@ module powerbi.extensibility.visual {
                             zoom: 10,
                             duration: 1000
                         });
-                    }, 16, true);
+                    }, 16, false);
 
                     map.on('click', onClick);
                 };
@@ -114,6 +116,7 @@ module powerbi.extensibility.visual {
             const foundColumn = columns.find( column => {
                 return column.roles[role];
             });
+
             if (foundColumn) {
                 foundColumn.propertyName = role;
                 foundColumns.push(foundColumn);
