@@ -1,12 +1,6 @@
 {
   "dataRoles": [
     {
-      "name": "location",
-      "kind": "Grouping",
-      "displayName": "Geo Location",
-      "description": "Geo Location dimension.  Location values must match propertry values in vector tiles to create a choropleth map - i.e. zip code, FIPS code."
-    },
-    {
       "name": "latitude",
       "kind": "Grouping",
       "displayName": "Latitude",
