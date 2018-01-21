@@ -155,11 +155,10 @@ module powerbi.extensibility.visual {
 
             if (sizeLimits.min !== null && sizeLimits.max !== null) {
                 map.setPaintProperty('circle', 'circle-radius', [
-                    "interpolate", ["exponential", 1.2],
+                    "interpolate", ['linear'],
                     ["to-number", ['get', 'sizeValue']],
                         sizeLimits.min, settings.circle.radius,
                         sizeLimits.max, settings.circle.radius  * settings.circle.scaleFactor,
-
                 ]
                 );
             } else {
