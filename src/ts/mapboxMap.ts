@@ -440,7 +440,7 @@ module powerbi.extensibility.visual {
         private createLinkElement(title, url): Element {
             let linkElement = document.createElement("a");
             linkElement.textContent = "Get a Mapbox Access Token";
-            linkElement.setAttribute("title", "Get a Mapbox Access Token");
+            linkElement.setAttribute("title", "Get your Mapbox Access Token");
             linkElement.setAttribute("class", "mapboxLink");
             linkElement.addEventListener("click", () => {
                 this.host.launchUrl(url);
@@ -452,12 +452,13 @@ module powerbi.extensibility.visual {
             this.errorDiv.style.display = 'none';
             this.errorDiv.innerText = '';
 
-            // Check for Access Token
-            if (!this.settings.api.accessToken) {
-                let link = this.createLinkElement("Mapbox", "https://mapbox.com/signup")
+            // Check for Access Token.  
+            // To do - check if access token is valid
+            if (!this.settings.api.accessToken)  {
+                let link = this.createLinkElement("Mapbox", "https://mapbox.com/account")
                 let html = '<h4>Mapbox Access Token not set in options pane.</h4>';
                 this.errorDiv.innerHTML = html;
-                this.errorDiv.appendChild(link)
+                this.errorDiv.appendChild(link);
                 return false;
             }
 
@@ -472,15 +473,15 @@ module powerbi.extensibility.visual {
             }, {});
 
             if ((this.settings.circle.show || this.settings.cluster.show || this.settings.heatmap.show) && !(roles.latitude && roles.longitude)) {
-                this.errorDiv.innerText = 'Longitude, Latitude fields required for circle, heatmap, and cluster visualizations.';
+                this.errorDiv.innerText = 'Longitude, Latitude fields are required.';
                 return false;
             }
             else if (this.settings.choropleth.show && (!roles.location || !roles.color)) {
-                this.errorDiv.innerText = 'Location, Color fields required for choropleth visualizations.'
+                this.errorDiv.innerText = 'Location, Color fields are required for choropleth visualizations.'
                 return false;
             }
             else if (this.settings.cluster.show && !roles.cluster) {
-                this.errorDiv.innerText = 'Cluster field is required for cluster visualizations.';
+                this.errorDiv.innerText = 'The Cluster field is required for cluster layers.';
                 return false;
             }
 

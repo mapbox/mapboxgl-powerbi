@@ -1,6 +1,6 @@
 ﻿module powerbi.extensibility.visual {
     import DataViewObjectsParser = powerbi.extensibility.utils.dataview.DataViewObjectsParser;
-
+    declare var mapbox : any;
     export interface MapboxData {
         features: any[];
     }
@@ -50,23 +50,24 @@
         }
     }
 
-    export class ClusterSettings {
-        public show: boolean = false;
-        public aggregation: string = "count";
-        public clusterRadius: number = 30;
-        public clusterMaxZoom: number = 20;
-        public minColor: string = "red";
-        public maxColor: string = "green";
-        public radius: number = 10;
-        public strokeColor: string = "white";
-        public strokeOpacity: number = 100;
+    export class CircleSettings {
+        public show: boolean = true;
+        public radius: number = 5.0;
+        public scaleFactor: number = 2.0;
+        public minColor: string = "#ffffcc";
+        public maxColor: string = "#253494";
+        public blur: number = 0.0;
+        public opacity: number = 100;
+        public strokeWidth: number = 1;
+        public strokeColor: string = "black";
+        public strokeOpacity: number = 50;
         public minZoom: number = 0;
         public maxZoom: number = 22;
     }
 
     export class HeatmapSettings {
         public show: boolean = false;
-        public radius: number = 30;
+        public radius: number = 20;
         public weight: number = 1;
         public intensity: number = 1;
         public opacity: number = 100;
@@ -75,17 +76,17 @@
         public maxZoom: number = 22;
     }
 
-    export class CircleSettings {
-        public show: boolean = true;
-        public radius: number = 20;
-        public scaleFactor: number = 2;
-        public minColor: string = "white";
-        public maxColor: string = "black";
-        public blur: number = 0;
-        public opacity: number = 100;
+    export class ClusterSettings {
+        public show: boolean = false;
+        public aggregation: string = "count";
+        public clusterRadius: number = 30;
+        public clusterMaxZoom: number = 20;
+        public minColor: string = "#ffffcc";
+        public maxColor: string = "#253494";
+        public radius: number = 10;
         public strokeWidth: number = 1;
-        public strokeColor: string = "white";
-        public strokeOpacity: number = 100;
+        public strokeColor: string = "black";
+        public strokeOpacity: number = 50;
         public minZoom: number = 0;
         public maxZoom: number = 22;
     }
