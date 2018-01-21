@@ -1,4 +1,4 @@
-﻿module powerbi.extensibility.visual {
+module powerbi.extensibility.visual {
     import DataViewObjectsParser = powerbi.extensibility.utils.dataview.DataViewObjectsParser;
     declare var mapbox : any;
     export interface MapboxData {
@@ -52,8 +52,8 @@
 
     export class CircleSettings {
         public show: boolean = true;
-        public radius: number = 5.0;
-        public scaleFactor: number = 2.0;
+        public radius: number = 3;
+        public scaleFactor: number = 5;
         public minColor: string = "#ffffcc";
         public maxColor: string = "#253494";
         public blur: number = 0.0;

@@ -48,7 +48,7 @@ module powerbi.extensibility.visual {
                             });
                             map.getCanvas().style.cursor = 'pointer';
                             if (features[0].properties.tooltip) {
-                                let tooltip = "<div><h3>Tooltip</h3>"
+                                let tooltip = "<div>"
                                 for (var i=0; i<features.length; i++) {
                                     features[i].properties.tooltip.split(',').map( tooltipItem => {
                                         tooltip += `<li>${tooltipItem}</li>`
@@ -113,20 +113,20 @@ module powerbi.extensibility.visual {
         }
 
         function addColumnWithRole(foundColumns, columns, role) {
-            const foundColumn = columns.find( column => {
-                return column.roles[role];
-            });
-
-            if (foundColumn) {
-                foundColumn.propertyName = role;
-                foundColumns.push(foundColumn);
+            const newFoundColumns = columns.filter( column => column.roles[role]);
+            if (newFoundColumns) {
+                for (var i=0; i<newFoundColumns.length; i++) {
+                    newFoundColumns[i].propertyName = role;
+                    foundColumns.push(newFoundColumns[i]);
+                }
             }
             return foundColumns;
         }
 
         export function getTooltipColumns(columns) {
             let tooltipColumns = addColumnWithRole([], columns, 'color');
-            columns = addColumnWithRole(tooltipColumns, columns, 'size');
+            tooltipColumns = addColumnWithRole(tooltipColumns, columns, 'size');
+            tooltipColumns = addColumnWithRole(tooltipColumns, columns, 'tooltips');
             return tooltipColumns;
         }
 

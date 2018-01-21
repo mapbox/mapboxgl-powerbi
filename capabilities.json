@@ -29,6 +29,12 @@
       "kind": "Measure",
       "displayName": "Cluster",
       "description": "Measure to aggregate points for clustering"
+    },
+    {
+      "name": "tooltips",
+      "kind": "GroupingOrMeasure",
+      "displayName": "Tooltips",
+      "description": "Values to display in circle tooltips"
     }
   ],
   "dataViewMappings": [
@@ -70,6 +76,11 @@
               "for": {
                 "in": "cluster"
               }
+            },
+            {
+              "for": {
+                "in": "tooltips"
+              }
             }
           ]
         }
@@ -78,7 +89,7 @@
   ],
   "objects": {
     "api": {
-      "displayName": "Global Mapbox Settings",
+      "displayName": "Viz Settings",
       "displayNameKey": "mapbox_api",
       "description": "Mapbox GL Visualization Settings",
       "properties": {
