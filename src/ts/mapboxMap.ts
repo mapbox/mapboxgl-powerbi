@@ -2,6 +2,7 @@ module powerbi.extensibility.visual {
     declare var debug : any;
     declare var turf : any;
     declare var supercluster : any;
+    declare var mapbox_geocoder : any;
 
     function zoomToData(map, features) {
         let bounds : any = features.bounds;
@@ -342,8 +343,14 @@ module powerbi.extensibility.visual {
             //If the map container doesnt exist yet, create it
             this.map = new mapboxgl.Map(mapOptions);
             this.map.addControl(new mapboxgl.NavigationControl());
+            if (document.getElementsByClassName('mapbox-gl-geocoder').length == 0) {
+                this.map.addControl(new mapbox_geocoder({
+                    accessToken: this.settings.api.accessToken,
+                }), 'top-left');
+            }
 
-            this.map.on('style.load', (e) => {
+            this.map.on('style.load', (e) => {  
+
                 let style = e.target;
 
                 // For default styles place data under waterway-label layer

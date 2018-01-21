@@ -1,4 +1,4 @@
-﻿module powerbi.extensibility.visual {
+module powerbi.extensibility.visual {
     import DataViewObjectsParser = powerbi.extensibility.utils.dataview.DataViewObjectsParser;
     declare var mapbox : any;
     export interface MapboxData {

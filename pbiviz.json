@@ -22,6 +22,7 @@
     "src/js/supercluster.min.js",
     "src/js/turf-bundle-min.js",
     "node_modules/chroma-js/chroma.min.js",
+    "node_modules/@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.min.js",
     "src/js/mapboxglAdaptor.js",
     "node_modules/powerbi-visuals-utils-dataviewutils/lib/index.js"
   ],
