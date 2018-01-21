@@ -23,6 +23,7 @@ module powerbi.extensibility.visual {
         }
 
         if (isGradient) {
+            // Set colors for continuous value
             return [
                 "interpolate", ["exponential", 1],
                 ["to-number", ['get', 'colorValue']],
@@ -31,6 +32,7 @@ module powerbi.extensibility.visual {
             ];
         }
 
+        // Set colors for categorical value
         let colors = ['match', ['to-string', ['get', 'colorValue']]];
             for (let index = colorLimits.min; index < colorLimits.max; index++) {
                 const idx = "" + (index-colorLimits.min);
@@ -337,6 +339,11 @@ module powerbi.extensibility.visual {
 
             const mapOptions = {
                 container: this.mapDiv,
+                transformRequest: (url, resourceType)=> {
+                    return {
+                       url: [url.slice(0, url.indexOf("?")+1), "pluginName=PowerBI&", url.slice(url.indexOf("?")+1)].join('')
+                     }
+                }
             }
 
             //If the map container doesnt exist yet, create it

@@ -263,6 +263,9 @@ declare namespace mapboxgl {
 
 		/** Maximum tile cache size for each layer. */
 		maxTileCacheSize?: number;
+
+		/** Callback run before the map makes a request for an external URL */
+		transformRequest?: any;
 	}
 
 	export interface PaddingOptions {
