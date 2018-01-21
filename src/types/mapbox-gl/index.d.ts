@@ -11,6 +11,7 @@ declare namespace mapboxgl {
 	let version: string;
 	export function supported(options?: {failIfMajorPerformanceCaveat?: boolean}): boolean;
 	export function setRTLTextPlugin(pluginURL: string, callback: Function): void;
+	export function RequestParameters(url: string, headers: Object, credentials: string): void;
 
 	type LngLatLike = number[] | LngLat;
 	type LngLatBoundsLike = number[][] | LngLatLike[] | LngLatBounds;
