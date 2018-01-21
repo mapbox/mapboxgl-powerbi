@@ -349,11 +349,13 @@ module powerbi.extensibility.visual {
             //If the map container doesnt exist yet, create it
             this.map = new mapboxgl.Map(mapOptions);
             this.map.addControl(new mapboxgl.NavigationControl());
-            if (document.getElementsByClassName('mapbox-gl-geocoder').length == 0) {
+
+            // Future option to enable search bar / geocoder
+            /*if (document.getElementsByClassName('mapbox-gl-geocoder').length == 0) {
                 this.map.addControl(new mapbox_geocoder({
                     accessToken: this.settings.api.accessToken,
                 }), 'top-left');
-            }
+            }*/
 
             this.map.on('style.load', (e) => {  
 
