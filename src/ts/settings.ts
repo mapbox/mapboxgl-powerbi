@@ -1,6 +1,6 @@
 ﻿module powerbi.extensibility.visual {
     import DataViewObjectsParser = powerbi.extensibility.utils.dataview.DataViewObjectsParser;
-
+    declare var mapbox : any;
     export interface MapboxData {
         features: any[];
     }
@@ -54,8 +54,8 @@
         public show: boolean = true;
         public radius: number = 5.0;
         public scaleFactor: number = 2.0;
-        public minColor: string = "white";
-        public maxColor: string = "black";
+        public minColor: string = "#ffffcc";
+        public maxColor: string = "#253494";
         public blur: number = 0.0;
         public opacity: number = 100;
         public strokeWidth: number = 1;
@@ -68,8 +68,8 @@
     export class HeatmapSettings {
         public show: boolean = false;
         public radius: number = 20;
-        public weight: number = 0.5;
-        public intensity: number = 0.9;
+        public weight: number = 1;
+        public intensity: number = 1;
         public opacity: number = 100;
         public color: string = "red";
         public minZoom: number = 0;

@@ -91,7 +91,7 @@
         "accessToken": {
           "displayName": "Access Token",
           "displayNameKey": "access_token",
-          "description": "Public Access Token from your Mapbox account - get yours at https:\/\/www.mapbox.com\/studio\/account\/tokens\/",
+          "description": "Public Access Token from your Mapbox account - get yours at https:\/\/www.mapbox.com\/account",
           "type": {
             "text": true
           },
@@ -486,7 +486,7 @@
       "properties": {
         "show": {
           "displayName": "Choropleth",
-          "type": { "bool": true }
+          "type": { "bool": false }
         },
         "vectorTileUrl": {
           "type": {
