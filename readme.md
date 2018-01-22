@@ -6,14 +6,6 @@ Make sense of your location big, dynamic location data with Mapbox.  Create inte
 
 ![](https://dl.dropbox.com/s/gtsfojr60a3pbep/powerbi-readme-170901.gif)
 
-## Status
-
-In active development!
-
-- Only point geometry sources are currently supported
-- Only a dark map style is currently supported
-- Only one color ramp is currently supported
-
 ### Adding MapboxGL Viz to a PowerBI Report
 
 On PowerBI Online, add the `dist/mapboxGLMap.pbiviz` file in this repository as a custom visual in your report.
