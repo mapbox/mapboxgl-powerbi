@@ -20,7 +20,6 @@ On PowerBI Online, add the `dist/mapboxGLMap.pbiviz` file in this repository as 
 
 ![](https://cl.ly/3303070u081q/download/Image%202017-09-01%20at%203.47.52%20PM.png)
 
-
 ## Developing
 
 - `npm install -g powerbi-visuals-tools`
@@ -29,6 +28,16 @@ On PowerBI Online, add the `dist/mapboxGLMap.pbiviz` file in this repository as 
 - Log into your PowerBI web UI and enable dev tools https://github.com/Microsoft/PowerBI-visuals/blob/master/tools/DebugVisualSetup.md
 - `npm start`
 - Add a custom visual using the PowerBI custom viz options, using a latitude and longitude variable.
+
+### Developing under MacOS
+Due to an open PowerBI [issue](https://github.com/Microsoft/PowerBI-visuals-tools/issues/157) the `npm start` might fail with `FSEvents.framework`.
+To mitigate the issue for powerbi-visuals-tools version 1.10.0 may run
+```
+git apply VisualBuilder-1.10.0.patch
+```
+
+### Running the tests
+Please consult the [README.md](test/README.md) in the test folder for futher details.
 
 ### Building
 
