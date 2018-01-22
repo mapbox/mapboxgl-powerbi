@@ -2,6 +2,7 @@ module powerbi.extensibility.visual {
     declare var debug : any;
     declare var turf : any;
     declare var supercluster : any;
+    declare var mapbox_geocoder : any;
 
     function zoomToData(map, features) {
         let bounds : any = features.bounds;
@@ -22,6 +23,7 @@ module powerbi.extensibility.visual {
         }
 
         if (isGradient) {
+            // Set colors for continuous value
             return [
                 "interpolate", ["exponential", 1],
                 ["to-number", ['get', 'colorValue']],
@@ -30,6 +32,7 @@ module powerbi.extensibility.visual {
             ];
         }
 
+        // Set colors for categorical value
         let colors = ['match', ['to-string', ['get', 'colorValue']]];
             for (let index = colorLimits.min; index < colorLimits.max; index++) {
                 const idx = "" + (index-colorLimits.min);
@@ -196,6 +199,26 @@ module powerbi.extensibility.visual {
             }
             if (zoom) {
                 zoomToData(map, features)
+        }
+        if (settings.circle.show) {
+
+            const colorLimits = mapboxUtils.getLimits(features.rawData, 'colorValue');
+            const sizeLimits = mapboxUtils.getLimits(features.rawData, 'sizeValue');
+
+            if (sizeLimits.min !== null && sizeLimits.max !== null) {
+                map.setPaintProperty('circle', 'circle-radius', [
+                    "interpolate", ['linear'],
+                    ["to-number", ['get', 'sizeValue']],
+                        sizeLimits.min, settings.circle.radius,
+                        sizeLimits.max, settings.circle.radius  * settings.circle.scaleFactor,
+                ]
+                );
+            } else {
+                map.setPaintProperty('circle', 'circle-radius', [
+                    'interpolate', ['linear'], ['zoom'],
+                    0, settings.circle.radius,
+                    18, settings.circle.radius * settings.circle.scaleFactor
+                ]);
             }
 
         } finally {
@@ -347,13 +370,26 @@ module powerbi.extensibility.visual {
 
             const mapOptions = {
                 container: this.mapDiv,
+                transformRequest: (url, resourceType)=> {
+                    return {
+                       url: [url.slice(0, url.indexOf("?")+1), "pluginName=PowerBI&", url.slice(url.indexOf("?")+1)].join('')
+                     }
+                }
             }
 
             //If the map container doesnt exist yet, create it
             this.map = new mapboxgl.Map(mapOptions);
             this.map.addControl(new mapboxgl.NavigationControl());
 
-            this.map.on('style.load', (e) => {
+            // Future option to enable search bar / geocoder
+            /*if (document.getElementsByClassName('mapbox-gl-geocoder').length == 0) {
+                this.map.addControl(new mapbox_geocoder({
+                    accessToken: this.settings.api.accessToken,
+                }), 'top-left');
+            }*/
+
+            this.map.on('style.load', (e) => {  
+
                 let style = e.target;
 
                 // For default styles place data under waterway-label layer
@@ -451,7 +487,7 @@ module powerbi.extensibility.visual {
 
         private createLinkElement(title: string, url: string): Element {
             let linkElement = document.createElement("a");
-            linkElement.textContent = "Get a Mapbox Access Token";
+            linkElement.textContent = "Get your Mapbox Access Token";
             linkElement.setAttribute("title", title);
             linkElement.setAttribute("class", "mapboxLink");
             linkElement.addEventListener("click", () => {
@@ -471,8 +507,9 @@ module powerbi.extensibility.visual {
 
             // Check for Access Token
             if (!this.settings.api.accessToken) {
-                let link = this.createLinkElement("Get a Mapbox Access Token", "https://mapbox.com/signup")
-                setError(this.errorDiv, "Mapbox Access Token not set in options pane.")
+                let link = this.createLinkElement("Mapbox", "https://mapbox.com/account")
+                let html = '<h4>Mapbox Access Token not set in options pane.</h4>';
+                setError(this.errorDiv, html)
                 this.errorDiv.appendChild(link);
                 return false;
             }
@@ -494,15 +531,15 @@ module powerbi.extensibility.visual {
             }, {});
 
             if ((this.settings.circle.show || this.settings.cluster.show || this.settings.heatmap.show) && !(roles.latitude && roles.longitude)) {
-                setError(this.errorDiv, 'Longitude, Latitude fields required for circle, heatmap, and cluster visualizations.');
+                setError(this.errorDiv, 'Longitude, Latitude fields are required.');
                 return false;
             }
             else if (this.settings.choropleth.show && (!roles.location || !roles.color)) {
-                setError(this.errorDiv, 'Location, Color fields required for choropleth visualizations.');
+                setError(this.errorDiv, 'Location, Color fields are required for choropleth visualizations.');
                 return false;
             }
             else if (this.settings.cluster.show && !roles.cluster) {
-                setError(this.errorDiv, 'Cluster field is required for cluster visualizations.');
+                setError(this.errorDiv, 'The Cluster field is required for cluster layers.');
                 return false;
             }
 
@@ -535,19 +572,11 @@ module powerbi.extensibility.visual {
                 this.addMap();
             }
 
-            let dataChanged = false;
-            let oldFeatures = "";
-            if (this.features) {
-                // Memory efficiecy - check if data changes without copying entire data object
-                oldFeatures = JSON.stringify(this.features);
-            }
-
+            // Placeholder to indicate whether data changed or paint prop changed
+            // For now this is always true
+            let dataChanged = true; 
             this.features = mapboxConverter.convert(dataView, this.host);
-            if (this.features) {
-                if (JSON.stringify(this.features) != oldFeatures) {
-                    dataChanged = true;
-                }
-            }
+            
 
             if (this.settings.cluster.show) {
                 this.cluster.load(this.features);

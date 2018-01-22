@@ -1,13 +1,13 @@
 {
   "visual": {
     "name": "mapboxGLMap",
-    "displayName": "Mapbox GL Map",
+    "displayName": "Mapbox Viz",
     "guid": "PBI_CV_EB3A4088_75C5_4746_9D8B_255A7B7ECD6C",
     "visualClassName": "MapboxMap",
     "version": "1.0.0",
-    "description": "Create a Mapbox GL point map in Power BI",
-    "supportUrl": "",
-    "gitHubUrl": ""
+    "description": "Visualize and understand big, dynamic location with Mapbox GL circle, heatmap, and cluster visualizations.",
+    "supportUrl": "www.mapbox.com/help",
+    "gitHubUrl": "https://github.com/mapbox/mapboxgl-powerbi"
   },
   "apiVersion": "1.10.0",
   "author": {

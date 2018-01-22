@@ -38,7 +38,7 @@ module powerbi.extensibility.visual {
                     "tooltip": tooltip.join(','),
                     "sizeValue": d.size,
                     "location": d.location,
-                    "clusterValue": d.cluster,
+                    "clusterValue": d.cluster
                 }
 
                 if ( (d.latitude >= -90) && (d.latitude <= 90) && (d.longitude >= -180) && (d.longitude <= 180) ) {
