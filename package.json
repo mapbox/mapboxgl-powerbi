@@ -4,17 +4,18 @@
   "description": "PowerBI visualization with mapboxgl",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "pbi": "pbiviz",
     "pbicerti": "pbiviz --install-cert",
     "package": "pbiviz package",
+    "pretest": "pbiviz package --resources --no-minify --no-pbiviz --no-plugin",
+    "test": "karma start",
     "start": "pbiviz start"
   },
   "author": "Ryan Baumann",
   "license": "MIT",
   "dependencies": {
+    "@types/d3": "^4.12.0",
     "@mapbox/mapbox-gl-geocoder": "^2.2.0",
-    "@turf/turf": "^5.1.6",
     "@types/geojson": "^1.0.6",
     "@types/mapbox-gl": "^0.41.0",
     "babel-preset-es2015": "^6.24.1",
@@ -25,8 +26,22 @@
     "powerbi-client": "^2.3.4",
     "powerbi-visuals-tools": "^1.10.0",
     "powerbi-visuals-utils-dataviewutils": "^1.2.0",
+    "powerbi-visuals-utils-testutils": "^1.1.0",
+    "powerbi-visuals-utils-typeutils": "^1.1.0",
     "typed-rest-client": "^1.0.5",
     "typescript": "^2.5.2",
     "uglify-js": "^3.1.1"
+  },
+  "devDependencies": {
+    "@types/jasmine": "^2.8.4",
+    "@types/jasmine-jquery": "^1.5.32",
+    "jasmine-core": "^2.8.0",
+    "karma": "^2.0.0",
+    "karma-chrome-launcher": "^2.2.0",
+    "karma-coverage": "^1.1.1",
+    "karma-jasmine": "^1.1.1",
+    "karma-remap-istanbul": "^0.6.0",
+    "karma-sourcemap-loader": "^0.3.7",
+    "karma-typescript-preprocessor": "^0.3.1"
   }
 }

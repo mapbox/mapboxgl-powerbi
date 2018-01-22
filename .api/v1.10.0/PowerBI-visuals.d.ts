@@ -1336,13 +1336,26 @@ declare module powerbi.extensibility {
     export function VisualPlugin (options: IVisualPluginOptions): ClassDecorator;
 }
 
+declare module powerbi.extensibility {
+    export interface ILocalizationManager {
+        getDisplayName(key: string): string; 
+    }
+}
+
+declare module powerbi.extensibility {
+    export interface IAuthenticationService {
+        getAADToken(visualId?: string): IPromise<string>;
+    }
+}
+
 declare module powerbi {
     export interface IFilter { }
 }
 
 /**
- * Change Log Version 1.9.0
- * Added launchUrl
+ * Change Log Version 1.10.0
+ * Added ILocalizationManager
+ * Added authenticationService
  */
 
 declare module powerbi.extensibility.visual {
@@ -1369,11 +1382,13 @@ declare module powerbi.extensibility.visual {
         applyJsonFilter: (filter: IFilter, objectName: string, propertyName: string, action: FilterAction) => void;
         tooltipService: ITooltipService;
         telemetry: ITelemetryService;
+        authenticationService: IAuthenticationService;
         locale: string;
         allowInteractions: boolean;
         launchUrl: (url: string) => void;
         instanceId: string;
         refreshHostData: () => void;
+        createLocalizationManager: () => ILocalizationManager;
     }
 
     export interface VisualUpdateOptions extends extensibility.VisualUpdateOptions {

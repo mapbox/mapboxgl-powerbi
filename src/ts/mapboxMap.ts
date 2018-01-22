@@ -47,161 +47,185 @@ module powerbi.extensibility.visual {
         return colors;
     }
 
-    function onUpdate(map, features, settings, zoom, category, host) {
-        if (!map.getSource('data')) {
-            return;
-        }
+    function onUpdate(map, features, settings, zoom, category, host: IVisualHost, updatedHandler: Function) {
+        try {
+            if (!map.getSource('data')) {
+                return;
+            }
 
-        if (features.clusterData ) {
-            let source : any = map.getSource('clusterData');
-            source.setData( turf.helpers.featureCollection(features.clusterData) );
-        }
+            if (features.clusterData) {
+                let source : any = map.getSource('clusterData');
+                source.setData( turf.helpers.featureCollection(features.clusterData) );
+            }
 
-        if (features.rawData) {
-            let source : any = map.getSource('data');
-            source.setData( turf.helpers.featureCollection(features.rawData) );
-        }
+            if (features.rawData) {
+                let source : any = map.getSource('data');
+                source.setData( turf.helpers.featureCollection(features.rawData) );
+            }
 
-        map.setLayoutProperty('circle', 'visibility', settings.circle.show ? 'visible' : 'none');
-        map.setLayoutProperty('cluster', 'visibility', settings.cluster.show ? 'visible' : 'none');
-        map.setLayoutProperty('cluster-label', 'visibility', settings.cluster.show ? 'visible' : 'none');
-        map.setLayoutProperty('heatmap', 'visibility', settings.heatmap.show ? 'visible' : 'none');
-        if (map.getLayer('choropleth-layer')) {
-            map.setLayoutProperty('choropleth-layer', 'visibility', settings.choropleth.display() ? 'visible' : 'none');
-        }
+            map.setLayoutProperty('circle', 'visibility', settings.circle.show ? 'visible' : 'none');
+            map.setLayoutProperty('cluster', 'visibility', settings.cluster.show ? 'visible' : 'none');
+            map.setLayoutProperty('cluster-label', 'visibility', settings.cluster.show ? 'visible' : 'none');
+            map.setLayoutProperty('heatmap', 'visibility', settings.heatmap.show ? 'visible' : 'none');
+            if (map.getLayer('choropleth-layer')) {
+                map.setLayoutProperty('choropleth-layer', 'visibility', settings.choropleth.display() ? 'visible' : 'none');
+            }
 
-        if (settings.choropleth.display()) {
+            if (settings.choropleth.display()) {
 
-            if (this.vectorTileUrl != settings.choropleth.vectorTileUrl) {
-                if (map.getSource('choropleth-source')) {
-                    if (map.getLayer('choropleth-layer')) {
-                        map.removeLayer('choropleth-layer');
+                if (this.vectorTileUrl != settings.choropleth.vectorTileUrl) {
+                    if (map.getSource('choropleth-source')) {
+                        if (map.getLayer('choropleth-layer')) {
+                            map.removeLayer('choropleth-layer');
+                        }
+                        map.removeSource('choropleth-source');
                     }
-                    map.removeSource('choropleth-source');
+                    this.vectorTileUrl = settings.choropleth.vectorTileUrl;
                 }
-                this.vectorTileUrl = settings.choropleth.vectorTileUrl;
-            }
 
-            if (!map.getSource('choropleth-source')) {
-                map.addSource('choropleth-source', {
-                    type: 'vector',
-                    url: settings.choropleth.vectorTileUrl,
-                });
-            }
+                if (!map.getSource('choropleth-source')) {
+                    map.addSource('choropleth-source', {
+                        type: 'vector',
+                        url: settings.choropleth.vectorTileUrl,
+                    });
+                }
 
-            const choroplethLayer = mapboxUtils.decorateLayer({
-                id: 'choropleth-layer',
-                type: "fill",
-                source: 'choropleth-source',
-                "source-layer": settings.choropleth.sourceLayer
-            });
-
-            if (!map.getLayer('choropleth-layer')) {
-                map.addLayer(choroplethLayer, 'cluster');
-            }
-
-            const limits = mapboxUtils.getLimits(features.choroplethData, 'colorValue');
-
-            if (limits.min && limits.max) {
-                let colorStops = chroma.scale([settings.choropleth.minColor,settings.choropleth.maxColor]).domain([limits.min, limits.max]);
-                let colors = ['match', ['get', settings.choropleth.vectorProperty]];
-                let outlineColors = ['match', ['get', settings.choropleth.vectorProperty]];
-
-                features.choroplethData.map( row => {
-                    const color = colorStops(row.properties.colorValue);
-                    var outlineColor : any = colorStops(row.properties.colorValue)
-                    outlineColor = outlineColor.darken(2);
-                    colors.push(row.properties.location);
-                    colors.push(color.toString());
-                    outlineColors.push(row.properties.location);
-                    outlineColors.push(outlineColor.toString());
+                const choroplethLayer = mapboxUtils.decorateLayer({
+                    id: 'choropleth-layer',
+                    type: "fill",
+                    source: 'choropleth-source',
+                    "source-layer": settings.choropleth.sourceLayer
                 });
 
-                // Add transparent as default so that we only see regions
-                // for which we have data values
-                colors.push('rgba(0,0,0,0)');
-                outlineColors.push('rgba(0,0,0,0)');
+                if (!map.getLayer('choropleth-layer')) {
+                    map.addLayer(choroplethLayer, 'cluster');
+                }
 
-                map.setPaintProperty('choropleth-layer', 'fill-color', colors);
-                map.setPaintProperty('choropleth-layer', 'fill-outline-color', outlineColors)
-                map.setLayerZoomRange('choropleth-layer', settings.choropleth.minZoom, settings.choropleth.maxZoom);
+                const limits = mapboxUtils.getLimits(features.choroplethData, 'colorValue');
+
+                if (limits.min && limits.max) {
+                    let colorStops = chroma.scale([settings.choropleth.minColor,settings.choropleth.maxColor]).domain([limits.min, limits.max]);
+                    let colors = ['match', ['get', settings.choropleth.vectorProperty]];
+                    let outlineColors = ['match', ['get', settings.choropleth.vectorProperty]];
+
+                    features.choroplethData.map( row => {
+                        const color = colorStops(row.properties.colorValue);
+                        var outlineColor : any = colorStops(row.properties.colorValue)
+                        outlineColor = outlineColor.darken(2);
+                        colors.push(row.properties.location);
+                        colors.push(color.toString());
+                        outlineColors.push(row.properties.location);
+                        outlineColors.push(outlineColor.toString());
+                    });
+
+                    // Add transparent as default so that we only see regions
+                    // for which we have data values
+                    colors.push('rgba(0,0,0,0)');
+                    outlineColors.push('rgba(0,0,0,0)');
+
+                    map.setPaintProperty('choropleth-layer', 'fill-color', colors);
+                    map.setPaintProperty('choropleth-layer', 'fill-outline-color', outlineColors)
+                    map.setLayerZoomRange('choropleth-layer', settings.choropleth.minZoom, settings.choropleth.maxZoom);
+                }
             }
-        }
-        if (settings.cluster.show) {
-            map.setLayerZoomRange('cluster', settings.cluster.minZoom, settings.cluster.maxZoom);
-            map.setLayerZoomRange('cluster-label', settings.cluster.minZoom, settings.cluster.maxZoom);
-            map.setPaintProperty('cluster', 'circle-stroke-width', settings.cluster.strokeWidth);
-            map.setPaintProperty('cluster', 'circle-stroke-opacity', settings.cluster.strokeOpacity / 100);
-            map.setPaintProperty('cluster', 'circle-stroke-color', settings.cluster.strokeColor);
-            const limits = mapboxUtils.getLimits(features.clusterData, settings.cluster.aggregation);
-            if (limits.min && limits.max) {
-                map.setPaintProperty('cluster', 'circle-color', [
-                    'interpolate', ['linear'], ['get', settings.cluster.aggregation],
-                    limits.min, settings.cluster.minColor,
-                    limits.max, settings.cluster.maxColor
-                ]);
+            if (settings.cluster.show) {
+                map.setLayerZoomRange('cluster', settings.cluster.minZoom, settings.cluster.maxZoom);
+                map.setLayerZoomRange('cluster-label', settings.cluster.minZoom, settings.cluster.maxZoom);
+                map.setPaintProperty('cluster', 'circle-stroke-width', settings.cluster.strokeWidth);
+                map.setPaintProperty('cluster', 'circle-stroke-opacity', settings.cluster.strokeOpacity / 100);
+                map.setPaintProperty('cluster', 'circle-stroke-color', settings.cluster.strokeColor);
+                const limits = mapboxUtils.getLimits(features.clusterData, settings.cluster.aggregation);
+                if (limits.min && limits.max) {
+                    map.setPaintProperty('cluster', 'circle-color', [
+                        'interpolate', ['linear'], ['get', settings.cluster.aggregation],
+                        limits.min, settings.cluster.minColor,
+                        limits.max, settings.cluster.maxColor
+                    ]);
 
-                map.setPaintProperty('cluster', 'circle-radius', [
-                    'interpolate', ['linear'], ['get', settings.cluster.aggregation],
-                    limits.min, settings.cluster.radius,
-                    limits.max, 3 * settings.cluster.radius,
-                ]);
+                    map.setPaintProperty('cluster', 'circle-radius', [
+                        'interpolate', ['linear'], ['get', settings.cluster.aggregation],
+                        limits.min, settings.cluster.radius,
+                        limits.max, 3 * settings.cluster.radius,
+                    ]);
 
-                map.setLayoutProperty('cluster-label', 'text-field', `{${settings.cluster.aggregation}}`);
+                    map.setLayoutProperty('cluster-label', 'text-field', `{${settings.cluster.aggregation}}`);
+                }
             }
-        }
-        if (settings.circle.show) {
+            if (settings.circle.show) {
 
-            const colorLimits = mapboxUtils.getLimits(features.rawData, 'colorValue');
-            const sizeLimits = mapboxUtils.getLimits(features.rawData, 'sizeValue');
+                const colorLimits = mapboxUtils.getLimits(features.rawData, 'colorValue');
+                const sizeLimits = mapboxUtils.getLimits(features.rawData, 'sizeValue');
 
-            if (sizeLimits.min !== null && sizeLimits.max !== null) {
-                map.setPaintProperty('circle', 'circle-radius', [
-                    "interpolate", ['linear'],
-                    ["to-number", ['get', 'sizeValue']],
-                        sizeLimits.min, settings.circle.radius,
-                        sizeLimits.max, settings.circle.radius  * settings.circle.scaleFactor,
-                ]
-                );
-            } else {
-                map.setPaintProperty('circle', 'circle-radius', [
-                    'interpolate', ['linear'], ['zoom'],
-                    0, settings.circle.radius,
-                    18, settings.circle.radius * settings.circle.scaleFactor
-                ]);
+                if (sizeLimits.min !== null && sizeLimits.max !== null) {
+                    map.setPaintProperty('circle', 'circle-radius', [
+                        "interpolate", ["exponential", 1.2],
+                        ["to-number", ['get', 'sizeValue']],
+                            sizeLimits.min, settings.circle.radius,
+                            sizeLimits.max, settings.circle.radius  * settings.circle.scaleFactor]
+                    );
+                } else {
+                    map.setPaintProperty('circle', 'circle-radius', [
+                        'interpolate', ['linear'], ['zoom'],
+                        0, settings.circle.radius,
+                        18, settings.circle.radius * settings.circle.scaleFactor
+                    ]);
+                }
+
+                let isGradient = mapboxUtils.shouldUseGradient(category, colorLimits);
+                let colors = getCircleColors(colorLimits, isGradient, settings, host.colorPalette);
+
+                map.setPaintProperty('circle', 'circle-color', colors);
+                map.setLayerZoomRange('circle', settings.circle.minZoom, settings.circle.maxZoom);
+                map.setPaintProperty('circle', 'circle-blur', settings.circle.blur / 100);
+                map.setPaintProperty('circle', 'circle-opacity', settings.circle.opacity / 100);
+                map.setPaintProperty('circle', 'circle-stroke-width', settings.circle.strokeWidth);
+                map.setPaintProperty('circle', 'circle-stroke-opacity', settings.circle.strokeOpacity / 100);
+                map.setPaintProperty('circle', 'circle-stroke-color', settings.circle.strokeColor);
+
+            }
+            if (settings.heatmap.show) {
+                map.setLayerZoomRange('heatmap', settings.heatmap.minZoom, settings.heatmap.maxZoom);
+                map.setPaintProperty('heatmap', 'heatmap-radius', settings.heatmap.radius);
+                map.setPaintProperty('heatmap', 'heatmap-weight', settings.heatmap.weight);
+                map.setPaintProperty('heatmap', 'heatmap-intensity', settings.heatmap.intensity);
+                map.setPaintProperty('heatmap', 'heatmap-opacity', settings.heatmap.opacity / 100);
+                map.setPaintProperty('heatmap', 'heatmap-color', [ "interpolate", ["linear"], ["heatmap-density"],
+                    0, "rgba(0, 0, 255, 0)",
+                    0.1, "royalblue",
+                    0.3, "cyan",
+                    0.5, "lime",
+                    0.7, "yellow",
+                    1, settings.heatmap.color]);
+            }
+            if (zoom) {
+                zoomToData(map, features)
             }
 
-            let isGradient = mapboxUtils.shouldUseGradient(category, colorLimits);
-            let colors = getCircleColors(colorLimits, isGradient, settings, host.colorPalette);
+            if (settings.circle.show) {
 
-            map.setPaintProperty('circle', 'circle-color', colors);
-            map.setLayerZoomRange('circle', settings.circle.minZoom, settings.circle.maxZoom);
-            map.setPaintProperty('circle', 'circle-blur', settings.circle.blur / 100);
-            map.setPaintProperty('circle', 'circle-opacity', settings.circle.opacity / 100);
-            map.setPaintProperty('circle', 'circle-stroke-width', settings.circle.strokeWidth);
-            map.setPaintProperty('circle', 'circle-stroke-opacity', settings.circle.strokeOpacity / 100);
-            map.setPaintProperty('circle', 'circle-stroke-color', settings.circle.strokeColor);
+                const colorLimits = mapboxUtils.getLimits(features.rawData, 'colorValue');
+                const sizeLimits = mapboxUtils.getLimits(features.rawData, 'sizeValue');
 
-        }
-        if (settings.heatmap.show) {
-            map.setLayerZoomRange('heatmap', settings.heatmap.minZoom, settings.heatmap.maxZoom);
-            map.setPaintProperty('heatmap', 'heatmap-radius', settings.heatmap.radius);
-            map.setPaintProperty('heatmap', 'heatmap-weight', settings.heatmap.weight);
-            map.setPaintProperty('heatmap', 'heatmap-intensity', settings.heatmap.intensity);
-            map.setPaintProperty('heatmap', 'heatmap-opacity', settings.heatmap.opacity / 100);
-            map.setPaintProperty('heatmap', 'heatmap-color', [ "interpolate", ["linear"], ["heatmap-density"],
-                0, "rgba(0, 0, 255, 0)",
-                0.1, "royalblue",
-                0.3, "cyan",
-                0.5, "lime",
-                0.7, "yellow",
-                1, settings.heatmap.color]);
-        }
-        if (zoom) {
-            zoomToData(map, features)
-        }
+                if (sizeLimits.min !== null && sizeLimits.max !== null) {
+                    map.setPaintProperty('circle', 'circle-radius', [
+                        "interpolate", ['linear'],
+                        ["to-number", ['get', 'sizeValue']],
+                            sizeLimits.min, settings.circle.radius,
+                            sizeLimits.max, settings.circle.radius  * settings.circle.scaleFactor,
+                    ]
+                    );
+                } else {
+                    map.setPaintProperty('circle', 'circle-radius', [
+                        'interpolate', ['linear'], ['zoom'],
+                        0, settings.circle.radius,
+                        18, settings.circle.radius * settings.circle.scaleFactor
+                    ]);
+                }
 
-        return true;
+            }
+        } finally {
+            updatedHandler();
+        }
     }
 
     class Features {
@@ -224,6 +248,7 @@ module powerbi.extensibility.visual {
         private vectorTileUrl: string = "";
         private cluster: any;
         private color: any;
+        private updatedHandler: Function = () => {}
 
          /**
          * This function returns the values to be displayed in the property pane for each object.
@@ -332,6 +357,14 @@ module powerbi.extensibility.visual {
             });
         }
 
+        public on(event: string, fn: Function) {
+            switch (event) {
+                case 'updated': {
+                    this.updatedHandler = fn;
+                }
+            }
+        }
+
         private addMap() {
             if (this.map) {
                 return
@@ -357,7 +390,7 @@ module powerbi.extensibility.visual {
                 }), 'top-left');
             }*/
 
-            this.map.on('style.load', (e) => {  
+            this.map.on('style.load', (e) => {
 
                 let style = e.target;
 
@@ -428,17 +461,19 @@ module powerbi.extensibility.visual {
                 });
                 this.map.addLayer(heatmapLayer, firstSymbolId);
 
-                onUpdate(this.map, this.getFeatures(), this.settings, false, this.color, this.host)
+                onUpdate(this.map, this.getFeatures(), this.settings, false, this.color, this.host, this.updatedHandler)
             });
 
             this.map.on('load', () => {
-                onUpdate(this.map, this.getFeatures(), this.settings, true, this.color, this.host)
+                onUpdate(this.map, this.getFeatures(), this.settings, true, this.color, this.host, this.updatedHandler)
                 mapboxUtils.addPopup(this.map, this.popup);
                 mapboxUtils.addClick(this.map);
             });
             this.map.on('zoomend', () => {
                 if (this.settings.cluster.show) {
-                    onUpdate(this.map, this.getFeatures(), this.settings, false, this.color, this.host)
+                    setTimeout(() => {
+                        onUpdate(this.map, this.getFeatures(), this.settings, false, this.color, this.host, this.updatedHandler)
+                    }, 400)
                 }
             });
         }
@@ -452,10 +487,10 @@ module powerbi.extensibility.visual {
             }
         }
 
-        private createLinkElement(title, url): Element {
+        private createLinkElement(title: string, url: string): Element {
             let linkElement = document.createElement("a");
-            linkElement.textContent = "Get a Mapbox Access Token";
-            linkElement.setAttribute("title", "Get your Mapbox Access Token");
+            linkElement.textContent = "Get your Mapbox Access Token";
+            linkElement.setAttribute("title", title);
             linkElement.setAttribute("class", "mapboxLink");
             linkElement.addEventListener("click", () => {
                 this.host.launchUrl(url);
@@ -467,39 +502,48 @@ module powerbi.extensibility.visual {
             this.errorDiv.style.display = 'none';
             this.errorDiv.innerText = '';
 
-            // Check for Access Token.  
-            // To do - check if access token is valid
-            if (!this.settings.api.accessToken)  {
+            function setError(errorDiv: Element, text: string) : void {
+                const html = `<h4>${text}</h4>`;
+                errorDiv.innerHTML = html;
+            }
+
+            // Check for Access Token
+            if (!this.settings.api.accessToken) {
                 let link = this.createLinkElement("Mapbox", "https://mapbox.com/account")
                 let html = '<h4>Mapbox Access Token not set in options pane.</h4>';
-                this.errorDiv.innerHTML = html;
+                setError(this.errorDiv, html)
                 this.errorDiv.appendChild(link);
                 return false;
             }
 
             // Check for Location properties
             const roles : any = options.dataViews[0].metadata.columns.map( column => {
-                return Object.keys(column.roles);
+                if (column.roles) {
+                    return Object.keys(column.roles);
+                } else {
+                    return null;
+                }
             }).reduce( (acc, curr) => {
-                curr.map( role => {
-                    acc[role] = true;
-                });
+                if (curr) {
+                    curr.map( role => {
+                        acc[role] = true;
+                    });
+                }
                 return acc;
             }, {});
 
             if ((this.settings.circle.show || this.settings.cluster.show || this.settings.heatmap.show) && !(roles.latitude && roles.longitude)) {
-                this.errorDiv.innerText = 'Longitude, Latitude fields are required.';
+                setError(this.errorDiv, 'Longitude, Latitude fields are required.');
                 return false;
             }
             else if (this.settings.choropleth.show && (!roles.location || !roles.color)) {
-                this.errorDiv.innerText = 'Location, Color fields are required for choropleth visualizations.'
+                setError(this.errorDiv, 'Location, Color fields are required for choropleth visualizations.');
                 return false;
             }
             else if (this.settings.cluster.show && !roles.cluster) {
-                this.errorDiv.innerText = 'The Cluster field is required for cluster layers.';
+                setError(this.errorDiv, 'The Cluster field is required for cluster layers.');
                 return false;
             }
-
 
             return true;
         }
@@ -532,9 +576,9 @@ module powerbi.extensibility.visual {
 
             // Placeholder to indicate whether data changed or paint prop changed
             // For now this is always true
-            let dataChanged = true; 
+            let dataChanged = true;
             this.features = mapboxConverter.convert(dataView, this.host);
-            
+
 
             if (this.settings.cluster.show) {
                 this.cluster.load(this.features);
@@ -561,7 +605,7 @@ module powerbi.extensibility.visual {
             // If the map is loaded and style has not changed in this update
             // then we should update right now.
             if (!styleChanged) {
-                onUpdate(this.map, this.getFeatures(), this.settings, dataChanged || layerVisibilityChanged, this.color, this.host);
+                onUpdate(this.map, this.getFeatures(), this.settings, dataChanged || layerVisibilityChanged, this.color, this.host, this.updatedHandler);
             }
         }
 
