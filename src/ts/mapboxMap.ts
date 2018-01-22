@@ -328,6 +328,7 @@ module powerbi.extensibility.visual {
                         min: Infinity,
                         max: -Infinity,
                         avg: 0.0,
+                        propertyName: '',
                         tooltip: '',
                     };
                 },
@@ -337,13 +338,21 @@ module powerbi.extensibility.visual {
                     const min = Number(properties["clusterValue"]);
                     const max = Number(properties["clusterValue"]);
                     const avg = Number(properties["clusterValue"]);
+                    let propertyName = '';
+                    if (properties.tooltip) {
+                        const tooltipParts = properties.tooltip.split(':');
+                        if (tooltipParts.length > 0) {
+                            propertyName = tooltipParts[0];
+                        }
+                    }
                     return {
                         count,
                         sum,
                         min,
                         max,
                         avg,
-                        tooltip: `Count: ${count},Sum: ${sum}, Min: ${sum}, Max: ${max}, Avg: ${avg}`
+                        tooltip: properties.tooltip,
+                        propertyName
                     };
                 },
                 reduce: function(accumulated, properties) {
@@ -352,7 +361,8 @@ module powerbi.extensibility.visual {
                     accumulated.min = Math.round(Math.min(accumulated.min, properties.min) * 100) / 100;
                     accumulated.max = Math.round(Math.max(accumulated.max, properties.max) * 100) / 100;
                     accumulated.avg = Math.round(100 * accumulated.sum / accumulated.count) / 100;
-                    accumulated.tooltip = `Count: ${accumulated.count},Sum: ${accumulated.sum},Min: ${accumulated.min},Max: ${accumulated.max},Avg: ${accumulated.avg}`;
+                    accumulated.propertyName = properties.propertyName;
+                    accumulated.tooltip = `${accumulated.propertyName}, Count: ${accumulated.count},Sum: ${accumulated.sum},Min: ${accumulated.min},Max: ${accumulated.max},Avg: ${accumulated.avg}`;
                 }
             });
         }

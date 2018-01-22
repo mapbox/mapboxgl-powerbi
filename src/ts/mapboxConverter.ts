@@ -6,18 +6,19 @@ module powerbi.extensibility.visual {
             const datas = rows.map( row => {
                 return row.reduce( (obj, value, index) => {
                     const column = columns[index]
-                    const role = Object.keys(column.roles)[0]
-                    obj[role] = value;
-                    if (column.roles.color) {
-                        const t = column.type.primitiveType;
-                        mapboxUtils.pushIfNotExist(domain, value);
-                        if (typeof value != 'number') {
-                            const colorIndex = mapboxUtils.positionInArray(domain, value);
-                            obj.color = mapboxUtils.getColorFromIndex(colorIndex);
-                        } else {
-                            obj.color = value;
+                    Object.keys(column.roles).map( role => {
+                        obj[role] = value;
+                        if (role == 'color') {
+                            const t = column.type.primitiveType;
+                            mapboxUtils.pushIfNotExist(domain, value);
+                            if (typeof value != 'number') {
+                                const colorIndex = mapboxUtils.positionInArray(domain, value);
+                                obj.color = mapboxUtils.getColorFromIndex(colorIndex);
+                            } else {
+                                obj.color = value;
+                            }
                         }
-                    }
+                    })
                     return obj;
                 }, {});
             });

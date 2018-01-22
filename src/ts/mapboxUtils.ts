@@ -112,21 +112,22 @@ module powerbi.extensibility.visual {
             return layer;
         }
 
-        function addColumnWithRole(foundColumns, columns, role) {
-            const newFoundColumns = columns.filter( column => column.roles[role]);
-            if (newFoundColumns) {
-                for (var i=0; i<newFoundColumns.length; i++) {
-                    newFoundColumns[i].propertyName = role;
-                    foundColumns.push(newFoundColumns[i]);
-                }
-            }
-            return foundColumns;
+        function addColumnWithRole(columns, role) {
+            return columns
+                .filter( column => column.roles[role])
+                .map( column => {
+                    return {
+                        displayName: column.displayName,
+                        propertyName: role
+                    }
+                })
         }
 
         export function getTooltipColumns(columns) {
-            let tooltipColumns = addColumnWithRole([], columns, 'color');
-            tooltipColumns = addColumnWithRole(tooltipColumns, columns, 'size');
-            tooltipColumns = addColumnWithRole(tooltipColumns, columns, 'tooltips');
+            let tooltipColumns = []
+            tooltipColumns = tooltipColumns.concat(addColumnWithRole(columns, 'color'))
+            tooltipColumns = tooltipColumns.concat(addColumnWithRole(columns, 'size'))
+            tooltipColumns = tooltipColumns.concat(addColumnWithRole(columns, 'tooltips'))
             return tooltipColumns;
         }
 
