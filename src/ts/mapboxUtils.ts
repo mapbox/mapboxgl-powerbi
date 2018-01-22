@@ -49,12 +49,23 @@ module powerbi.extensibility.visual {
                             map.getCanvas().style.cursor = 'pointer';
                             if (features[0].properties.tooltip) {
                                 let tooltip = "<div>"
-                                for (var i=0; i<features.length; i++) {
-                                    features[i].properties.tooltip.split(',').map( tooltipItem => {
-                                        tooltip += `<li>${tooltipItem}</li>`
-                                    })
-                                    tooltip += "<hr/>"
-                                }
+                                let tooltips = features.map( feature => {
+                                    let tooltipItem = "";
+                                    try {
+                                        const tooltipObj = JSON.parse(feature.properties.tooltip);
+                                        if (tooltipObj.title) {
+                                            tooltipItem += `<h3>${tooltipObj.title}</h3>`
+                                        }
+                                        tooltipItem += Object.keys(tooltipObj.content).map( key => {
+                                            return `<li><b>${key}:</b> ${tooltipObj.content[key]}</li>`
+                                        }).join('');
+                                    } catch (_err) {
+                                        // Pass, if we couldn't parse the JSON just skip.
+                                    } finally {
+                                        return tooltipItem;
+                                    }
+                                })
+                                tooltip += tooltips.join('<hr />')
                                 tooltip += "</div>"
                                 popup.setLngLat(map.unproject(e.point))
                                     .setHTML(tooltip)
@@ -110,24 +121,6 @@ module powerbi.extensibility.visual {
                 }
             }
             return layer;
-        }
-
-        function addColumnWithRole(foundColumns, columns, role) {
-            const newFoundColumns = columns.filter( column => column.roles[role]);
-            if (newFoundColumns) {
-                for (var i=0; i<newFoundColumns.length; i++) {
-                    newFoundColumns[i].propertyName = role;
-                    foundColumns.push(newFoundColumns[i]);
-                }
-            }
-            return foundColumns;
-        }
-
-        export function getTooltipColumns(columns) {
-            let tooltipColumns = addColumnWithRole([], columns, 'color');
-            tooltipColumns = addColumnWithRole(tooltipColumns, columns, 'size');
-            tooltipColumns = addColumnWithRole(tooltipColumns, columns, 'tooltips');
-            return tooltipColumns;
         }
 
         export function getLimits(data, myproperty) {

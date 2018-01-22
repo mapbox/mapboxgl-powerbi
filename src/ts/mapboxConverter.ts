@@ -1,23 +1,40 @@
 module powerbi.extensibility.visual {
     export module mapboxConverter {
+        const isTooltip = (role) => {
+            return role == 'color' || role == 'size' || role == 'tooltips' || role == 'cluster';
+        }
+
         const transformToObjectArray = (rows, columns) => {
             let domain : any = [];
 
             const datas = rows.map( row => {
                 return row.reduce( (obj, value, index) => {
                     const column = columns[index]
-                    const role = Object.keys(column.roles)[0]
-                    obj[role] = value;
-                    if (column.roles.color) {
-                        const t = column.type.primitiveType;
-                        mapboxUtils.pushIfNotExist(domain, value);
-                        if (typeof value != 'number') {
-                            const colorIndex = mapboxUtils.positionInArray(domain, value);
-                            obj.color = mapboxUtils.getColorFromIndex(colorIndex);
-                        } else {
-                            obj.color = value;
+                    Object.keys(column.roles).map( role => {
+                        if (isTooltip(role)) {
+                            if (!obj.tooltip) {
+                                obj.tooltip = {}
+                            }
+                            obj.tooltip[column.displayName] = value;
                         }
-                    }
+
+                        if (role == 'cluster') {
+                            obj.clusterField = column.displayName;
+                        }
+
+                        obj[role] = value;
+
+                        if (role == 'color') {
+                            const t = column.type.primitiveType;
+                            mapboxUtils.pushIfNotExist(domain, value);
+                            if (typeof value != 'number') {
+                                const colorIndex = mapboxUtils.positionInArray(domain, value);
+                                obj.color = mapboxUtils.getColorFromIndex(colorIndex);
+                            } else {
+                                obj.color = value;
+                            }
+                        }
+                    })
                     return obj;
                 }, {});
             });
@@ -27,15 +44,17 @@ module powerbi.extensibility.visual {
             }
         }
 
-        const getFeatures = (datas, domain, tooltipColumns) => {
+        const getFeatures = (rows, columns) => {
+            const { datas, domain }  = transformToObjectArray(rows, columns);
+
             let features = []
             features = datas.map(function (d) {
-                let tooltip = tooltipColumns.map( tooltipColumn => {
-                    return `${tooltipColumn.displayName}: ${d[tooltipColumn.propertyName]}`;
-                })
-                let properties = {
+                let properties : any = {
                     "colorValue": d.color,
-                    "tooltip": tooltip.join(','),
+                    "tooltip": JSON.stringify({
+                        clusterField: d.clusterField,
+                        content: d.tooltip
+                    }),
                     "sizeValue": d.size,
                     "location": d.location,
                     "clusterValue": d.cluster
@@ -63,13 +82,7 @@ module powerbi.extensibility.visual {
         export function convert(dataView: DataView, host: IVisualHost) {
 
             const {columns, rows} = dataView.table;
-
-            const tooltipColumns = mapboxUtils.getTooltipColumns(columns);
-
-            // Convert each row from value array to a JS object like { latitude: "", longitude: "" ... }
-            const { datas, domain }  = transformToObjectArray(rows, columns);
-
-            return getFeatures(datas, domain, tooltipColumns)
+            return getFeatures(rows, columns)
         }
     }
 }
