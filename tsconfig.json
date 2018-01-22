@@ -14,13 +14,7 @@
     "typings"
   ],
   "files": [
-    "node_modules/powerbi-visuals-utils-testutils/lib/index.d.ts",
-    "node_modules/powerbi-visuals-utils-typeutils/lib/index.d.ts",
-    "src/types/powerbi-visuals-utils-dataviewutils/index.d.ts",
     ".api/v1.10.0/PowerBI-visuals.d.ts",
-    "src/types/geojson/index.d.ts",
-    "src/types/mapbox-gl/index.d.ts",
-    "src/types/chroma-js/index.d.ts",
     "src/ts/settings.ts",
     "src/ts/mapboxUtils.ts",
     "src/ts/cluster.ts",
