@@ -3051,6 +3051,10 @@ geojson-vt@^2.4.0:
   version "2.4.0"
   resolved "https://registry.yarnpkg.com/geojson-vt/-/geojson-vt-2.4.0.tgz#3c1cf44493f35eb4d2c70c95da6550de66072c05"
 
+geostats@^1.5.0:
+  version "1.5.0"
+  resolved "https://registry.yarnpkg.com/geostats/-/geostats-1.5.0.tgz#8113ec545964f31a4664536345aab6ffe2ec90c0"
+
 get-own-enumerable-property-symbols@^2.0.1:
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/get-own-enumerable-property-symbols/-/get-own-enumerable-property-symbols-2.0.1.tgz#5c4ad87f2834c4b9b4e84549dc1e0650fb38c24b"
