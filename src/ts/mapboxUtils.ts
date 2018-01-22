@@ -54,10 +54,10 @@ module powerbi.extensibility.visual {
                                     try {
                                         const tooltipObj = JSON.parse(feature.properties.tooltip);
                                         if (tooltipObj.title) {
-                                            tooltipItem += `<b>${tooltipObj.title}</b><br>`
+                                            tooltipItem += `<h3>${tooltipObj.title}</h3>`
                                         }
                                         tooltipItem += Object.keys(tooltipObj.content).map( key => {
-                                            return `<li>${key}: ${tooltipObj.content[key]}</li>`
+                                            return `<li><b>${key}:</b> ${tooltipObj.content[key]}</li>`
                                         }).join('');
                                     } catch (_err) {
                                         // Pass, if we couldn't parse the JSON just skip.
