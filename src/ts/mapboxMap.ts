@@ -1,7 +1,6 @@
 module powerbi.extensibility.visual {
     declare var debug : any;
     declare var turf : any;
-    declare var supercluster : any;
     declare var mapbox_geocoder : any;
 
     function zoomToData(map, features) {
@@ -318,53 +317,8 @@ module powerbi.extensibility.visual {
                 closeOnClick: false
             });
 
-            this.cluster = supercluster({
-                radius: 10,
-                maxZoom: 20,
-                initial: function() {
-                    return {
-                        count: 0,
-                        sum: 0,
-                        min: Infinity,
-                        max: -Infinity,
-                        avg: 0.0,
-                        propertyName: '',
-                        tooltip: '',
-                    };
-                },
-                map: function(properties) {
-                    const count = 1;
-                    const sum = Number(properties["clusterValue"]);
-                    const min = Number(properties["clusterValue"]);
-                    const max = Number(properties["clusterValue"]);
-                    const avg = Number(properties["clusterValue"]);
-                    let propertyName = '';
-                    if (properties.tooltip) {
-                        const tooltipParts = properties.tooltip.split(':');
-                        if (tooltipParts.length > 0) {
-                            propertyName = tooltipParts[0];
-                        }
-                    }
-                    return {
-                        count,
-                        sum,
-                        min,
-                        max,
-                        avg,
-                        tooltip: properties.tooltip,
-                        propertyName
-                    };
-                },
-                reduce: function(accumulated, properties) {
-                    accumulated.sum += Math.round(properties.sum * 100) / 100;
-                    accumulated.count += properties.count;
-                    accumulated.min = Math.round(Math.min(accumulated.min, properties.min) * 100) / 100;
-                    accumulated.max = Math.round(Math.max(accumulated.max, properties.max) * 100) / 100;
-                    accumulated.avg = Math.round(100 * accumulated.sum / accumulated.count) / 100;
-                    accumulated.propertyName = properties.propertyName;
-                    accumulated.tooltip = `${accumulated.propertyName}, Count: ${accumulated.count},Sum: ${accumulated.sum},Min: ${accumulated.min},Max: ${accumulated.max},Avg: ${accumulated.avg}`;
-                }
-            });
+            this.cluster = createCluster();
+
         }
 
         public on(event: string, fn: Function) {
