@@ -135,16 +135,19 @@
         left: 0;
         width: 100%;
         height: 100%;
-        background: url("https://dl.dropbox.com/s/5io6dvr1l8gcgtp/mapbox-logo-color.png") no-repeat center center fixed;
-        background-size: conatain;
-        background-repeat: no-repeat;
-        background-position: center center;
         text-align: center;
         font-size: 30px;
         background-color: #FFFFFF;
         font-color: black;
         font-weight: 800;
         display: none;
+        overflow-y: auto;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    img {
+        object-fit: cover;
     }
 
     .mapboxLink {
@@ -157,7 +160,7 @@
         font-size: 30px;
         line-height: 2px;
         transition: all 900ms ease;
-
+        padding-top: 20px;
         &:hover {
             color: #5080B0;
             border-color: #5080B0;
