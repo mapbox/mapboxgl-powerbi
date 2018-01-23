@@ -351,6 +351,7 @@ module powerbi.extensibility.visual {
             this.map = new mapboxgl.Map(mapOptions);
             this.map.addControl(new mapboxgl.NavigationControl());
 
+
             // Future option to enable search bar / geocoder
             /*if (document.getElementsByClassName('mapbox-gl-geocoder').length == 0) {
                 this.map.addControl(new mapbox_geocoder({
@@ -511,6 +512,12 @@ module powerbi.extensibility.visual {
                 }
                 return acc;
             }, {});
+
+            if (!mapboxgl.supported()) {
+                console.log('no WebGL support in browser')
+                setError(this.errorDiv, '<h4>Your browser doesnt support WebGL.  Please try a different browser.</h4>');
+                return false;
+            }
 
             if ((this.settings.circle.show || this.settings.cluster.show || this.settings.heatmap.show) && !(roles.latitude && roles.longitude)) {
                 setError(this.errorDiv, '<h4>Add Longitude & Latitude fields to make a viz.</h4>');
