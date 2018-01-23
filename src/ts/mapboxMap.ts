@@ -18,14 +18,19 @@ module powerbi.extensibility.visual {
     }
 
     function getCircleColors(colorLimits: { min: number; max: number; values: number[] }, isGradient: boolean, settings: any, colorPalette: IColorPalette) {
-        if (colorLimits.min === null || colorLimits.max === null) {
+        if (colorLimits.min == null || colorLimits.max == null || colorLimits.values.length <= 0) {
             return settings.circle.minColor;
         }
 
         if (isGradient) {
             // Set colors for continuous value
-            const numOf = 5
-            const domain: any[] = new geostats(colorLimits.values).getClassJenks(numOf)
+            const MAX_BOUND_COUNT = 6
+            // For example if you want 5 classes, you have to enter 6 bounds
+            // (1 bound is the minimum value, 1 bound is the maximum value,
+            // the rest are class separators)
+            const classCount = Math.min(colorLimits.values.length, MAX_BOUND_COUNT) - 1
+
+            const domain: any[] = new geostats(colorLimits.values).getClassJenks(classCount)
             const colors = chroma.scale([settings.circle.minColor,settings.circle.maxColor]).colors(domain.length)
 
             const style = ["interpolate", ["linear"], ["to-number", ['get', 'colorValue']]]
@@ -61,7 +66,7 @@ module powerbi.extensibility.visual {
 
             if (features.clusterData) {
                 let source : any = map.getSource('clusterData');
-                
+
                 source.setData( turf.helpers.featureCollection(features.clusterData) );
             }
 
