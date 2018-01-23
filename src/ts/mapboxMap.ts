@@ -453,7 +453,7 @@ module powerbi.extensibility.visual {
 
         private createLinkElement(title: string, url: string): Element {
             let linkElement = document.createElement("a");
-            linkElement.textContent = "Click here to get your Mapbox access token (free signup required)";
+            linkElement.textContent = "Click here to get your Mapbox access token (free to signup)";
             //linkElement.setAttribute("title", title);
             linkElement.setAttribute("class", "mapboxLink");
             linkElement.addEventListener("click", () => {
