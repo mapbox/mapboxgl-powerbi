@@ -336,11 +336,11 @@ module powerbi.extensibility.visual {
 
             const mapOptions = {
                 container: this.mapDiv,
-                /*transformRequest: (url, resourceType)=> {
+                transformRequest: (url, resourceType)=> {
                     return {
                        url: [url.slice(0, url.indexOf("?")+1), "pluginName=PowerBI&", url.slice(url.indexOf("?")+1)].join('')
                      }
-                }*/
+                }
             }
 
             //If the map container doesnt exist yet, create it
