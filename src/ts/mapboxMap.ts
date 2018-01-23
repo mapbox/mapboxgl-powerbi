@@ -42,11 +42,7 @@ module powerbi.extensibility.visual {
 
         if (isGradient) {
             // Set colors for continuous value
-            const MAX_BOUND_COUNT = 6
-            // For example if you want 5 classes, you have to enter 6 bounds
-            // (1 bound is the minimum value, 1 bound is the maximum value,
-            // the rest are class separators)
-            const classCount = Math.min(colorLimits.values.length, MAX_BOUND_COUNT) - 1
+            const classCount = getClassCount(colorLimits);
 
             const domain: any[] = new geostats(colorLimits.values).getClassJenks(classCount)
             const colors = chroma.scale([settings.circle.minColor,settings.circle.maxColor]).colors(domain.length)
@@ -74,6 +70,15 @@ module powerbi.extensibility.visual {
             colors.push('rgba(255,0,0,255)');
 
         return colors;
+    }
+
+    function getClassCount(limits: { min: number; max: number; values: number[]; }) {
+        const MAX_BOUND_COUNT = 6;
+        // For example if you want 5 classes, you have to enter 6 bounds
+        // (1 bound is the minimum value, 1 bound is the maximum value,
+        // the rest are class separators)
+        const classCount = Math.min(limits.values.length, MAX_BOUND_COUNT) - 1;
+        return classCount;
     }
 
     function onUpdate(map, features, settings, zoom, category, host: IVisualHost, updatedHandler: Function) {
