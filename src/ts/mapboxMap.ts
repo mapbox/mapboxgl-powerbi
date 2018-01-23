@@ -17,6 +17,24 @@ module powerbi.extensibility.visual {
         }
     }
 
+    function getCircleSizes(sizeLimits: { min: any; max: any; values: any[]; }, map: any, settings: any) {
+        if (sizeLimits.min !== null && sizeLimits.max !== null) {
+            return [
+                "interpolate", ["exponential", 1.2],
+                ["to-number", ['get', 'sizeValue']],
+                sizeLimits.min, settings.circle.radius,
+                sizeLimits.max, settings.circle.radius * settings.circle.scaleFactor
+            ];
+        }
+        else {
+            return [
+                'interpolate', ['linear'], ['zoom'],
+                0, settings.circle.radius,
+                18, settings.circle.radius * settings.circle.scaleFactor
+            ];
+        }
+    }
+
     function getCircleColors(colorLimits: { min: number; max: number; values: number[] }, isGradient: boolean, settings: any, colorPalette: IColorPalette) {
         if (colorLimits.min == null || colorLimits.max == null || colorLimits.values.length <= 0) {
             return settings.circle.minColor;
@@ -172,24 +190,12 @@ module powerbi.extensibility.visual {
                 const colorLimits = mapboxUtils.getLimits(features.rawData, 'colorValue');
                 const sizeLimits = mapboxUtils.getLimits(features.rawData, 'sizeValue');
 
-                if (sizeLimits.min !== null && sizeLimits.max !== null) {
-                    map.setPaintProperty('circle', 'circle-radius', [
-                        "interpolate", ["exponential", 1.2],
-                        ["to-number", ['get', 'sizeValue']],
-                            sizeLimits.min, settings.circle.radius,
-                            sizeLimits.max, settings.circle.radius  * settings.circle.scaleFactor]
-                    );
-                } else {
-                    map.setPaintProperty('circle', 'circle-radius', [
-                        'interpolate', ['linear'], ['zoom'],
-                        0, settings.circle.radius,
-                        18, settings.circle.radius * settings.circle.scaleFactor
-                    ]);
-                }
+                const sizes = getCircleSizes(sizeLimits, map, settings);
 
                 let isGradient = mapboxUtils.shouldUseGradient(category, colorLimits);
                 let colors = getCircleColors(colorLimits, isGradient, settings, host.colorPalette);
 
+                map.setPaintProperty('circle', 'circle-radius', sizes);
                 map.setPaintProperty('circle', 'circle-color', colors);
                 map.setLayerZoomRange('circle', settings.circle.minZoom, settings.circle.maxZoom);
                 map.setPaintProperty('circle', 'circle-blur', settings.circle.blur / 100);
