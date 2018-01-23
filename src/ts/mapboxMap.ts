@@ -1,4 +1,5 @@
 module powerbi.extensibility.visual {
+    declare var geostats : any;
     declare var debug : any;
     declare var turf : any;
     declare var mapbox_geocoder : any;
@@ -16,19 +17,25 @@ module powerbi.extensibility.visual {
         }
     }
 
-    function getCircleColors(colorLimits: { min: any; max: any; }, isGradient: boolean, settings: any, colorPalette: IColorPalette) {
+    function getCircleColors(colorLimits: { min: number; max: number; values: number[] }, isGradient: boolean, settings: any, colorPalette: IColorPalette) {
         if (colorLimits.min === null || colorLimits.max === null) {
             return settings.circle.minColor;
         }
 
         if (isGradient) {
             // Set colors for continuous value
-            return [
-                "interpolate", ["exponential", 1],
-                ["to-number", ['get', 'colorValue']],
-                colorLimits.min, settings.circle.minColor,
-                colorLimits.max, settings.circle.maxColor
-            ];
+            const numOf = 5
+            const domain: any[] = new geostats(colorLimits.values).getClassJenks(numOf)
+            const colors = chroma.scale([settings.circle.minColor,settings.circle.maxColor]).colors(domain.length)
+
+            const style = ["interpolate", ["linear"], ["to-number", ['get', 'colorValue']]]
+            domain.map((colorStop, idx) => {
+                const color = colors[idx].toString();
+                style.push(colorStop);
+                style.push(color);
+            });
+
+            return style;
         }
 
         // Set colors for categorical value
