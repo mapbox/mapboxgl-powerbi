@@ -202,7 +202,7 @@
         "opacity": {
           "displayName": "Opacity",
           "displayNameKey": "opacity",
-          "description": "The global opacity in percentage at which the heatmap layer will be drawn.",
+          "description": "The global opacity in percentage at which the layer will be drawn.",
           "type": {
             "numeric": true
           }
@@ -294,18 +294,10 @@
             "numeric": true
           }
         },
-        "weight": {
-          "displayName": "Weight",
-          "displayNameKey": "weight",
-          "description": "A measure of how much an individual point contributes to the heatmap. A value of 10 would be equivalent to having 10 points of weight 1 in the same spot. Especially useful when combined with clustering.",
-          "type": {
-            "numeric": true
-          }
-        },
         "intensity": {
           "displayName": "Intensity",
           "displayNameKey": "intensity",
-          "description": "Similar to Weight but controls the intensity of the heatmap globally. Primarily used for adjusting the heatmap based on zoom level.",
+          "description": "Controls the intensity of the heatmap globally.",
           "type": {
             "numeric": true
           }
@@ -318,10 +310,34 @@
             "numeric": true
           }
         },
-        "color": {
-          "displayName": "Color",
+        "minColor": {
+          "displayName": "Min Color",
           "displayNameKey": "color",
-          "description": "Defines the color of each pixel based on its density value in a heatmap. ",
+          "description": "Minimum color for heatmap color ramp. ",
+          "type": {
+            "fill": {
+              "solid": {
+                "color": true
+              }
+            }
+          }
+        },
+        "medColor": {
+          "displayName": "Med Color",
+          "displayNameKey": "color",
+          "description": "Intermediate color for heatmap color ramp. ",
+          "type": {
+            "fill": {
+              "solid": {
+                "color": true
+              }
+            }
+          }
+        },
+        "maxColor": {
+          "displayName": "Max Color",
+          "displayNameKey": "color",
+          "description": "Maximum color for heatmap color ramp. ",
           "type": {
             "fill": {
               "solid": {

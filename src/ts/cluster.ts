@@ -3,8 +3,8 @@ module powerbi.extensibility.visual {
 
     export function createCluster() {
         return supercluster({
-            radius: 10,
-            maxZoom: 20,
+            radius: 50,
+            maxZoom: 12,
             initial: function() {
                 return {
                     count: 0,

@@ -44,7 +44,7 @@ module powerbi.extensibility.visual {
                         let maxpoint = new Array(e.point['x'] + 5, e.point['y'] + 5)
                         try {
                             let features : any = map.queryRenderedFeatures([minpoint, maxpoint], {
-                                layers: ['cluster', 'circle']
+                                layers: ['cluster', 'circle', 'uncluster']
                             });
                             map.getCanvas().style.cursor = 'pointer';
                             if (features[0].properties.tooltip) {
@@ -112,7 +112,6 @@ module powerbi.extensibility.visual {
                 }
                 case 'cluster': {
                     layer.type = 'circle';
-                    layer.filter = ["has", "point_count"];
                     break;
                 }
                 case 'heatmap': {

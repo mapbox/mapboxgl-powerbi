@@ -67,11 +67,12 @@ module powerbi.extensibility.visual {
 
     export class HeatmapSettings {
         public show: boolean = false;
-        public radius: number = 20;
-        public weight: number = 1;
-        public intensity: number = 1;
+        public radius: number = 5;
+        public intensity: number = 0.5;
         public opacity: number = 100;
-        public color: string = "red";
+        public minColor: string = "#0571b0";
+        public medColor: string = "#f7f7f7";
+        public maxColor: string = "#ca0020";
         public minZoom: number = 0;
         public maxZoom: number = 22;
     }
@@ -79,8 +80,8 @@ module powerbi.extensibility.visual {
     export class ClusterSettings {
         public show: boolean = false;
         public aggregation: string = "count";
-        public clusterRadius: number = 30;
-        public clusterMaxZoom: number = 20;
+        public clusterRadius: number = 50;
+        public clusterMaxZoom: number = 12;
         public minColor: string = "#ffffcc";
         public maxColor: string = "#253494";
         public radius: number = 10;

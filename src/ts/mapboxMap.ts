@@ -54,6 +54,7 @@ module powerbi.extensibility.visual {
 
             if (features.clusterData) {
                 let source : any = map.getSource('clusterData');
+                
                 source.setData( turf.helpers.featureCollection(features.clusterData) );
             }
 
@@ -64,6 +65,7 @@ module powerbi.extensibility.visual {
 
             map.setLayoutProperty('circle', 'visibility', settings.circle.show ? 'visible' : 'none');
             map.setLayoutProperty('cluster', 'visibility', settings.cluster.show ? 'visible' : 'none');
+            map.setLayoutProperty('uncluster', 'visibility', settings.cluster.show ? 'visible' : 'none');
             map.setLayoutProperty('cluster-label', 'visibility', settings.cluster.show ? 'visible' : 'none');
             map.setLayoutProperty('heatmap', 'visibility', settings.heatmap.show ? 'visible' : 'none');
             if (map.getLayer('choropleth-layer')) {
@@ -130,9 +132,12 @@ module powerbi.extensibility.visual {
             if (settings.cluster.show) {
                 map.setLayerZoomRange('cluster', settings.cluster.minZoom, settings.cluster.maxZoom);
                 map.setLayerZoomRange('cluster-label', settings.cluster.minZoom, settings.cluster.maxZoom);
-                map.setPaintProperty('cluster', 'circle-stroke-width', settings.cluster.strokeWidth);
-                map.setPaintProperty('cluster', 'circle-stroke-opacity', settings.cluster.strokeOpacity / 100);
-                map.setPaintProperty('cluster', 'circle-stroke-color', settings.cluster.strokeColor);
+                map.setLayerZoomRange('uncluster', settings.cluster.minZoom, settings.cluster.maxZoom);
+                map.setPaintProperty('uncluster', 'circle-stroke-width', settings.cluster.strokeWidth);
+                map.setPaintProperty('uncluster', 'circle-stroke-opacity', settings.cluster.strokeOpacity / 100);
+                map.setPaintProperty('uncluster', 'circle-stroke-color', settings.cluster.strokeColor);
+                map.setPaintProperty('uncluster', 'circle-color', settings.cluster.minColor);
+                map.setPaintProperty('uncluster', 'circle-radius', settings.cluster.radius/2);
                 const limits = mapboxUtils.getLimits(features.clusterData, settings.cluster.aggregation);
                 if (limits.min && limits.max) {
                     map.setPaintProperty('cluster', 'circle-color', [
@@ -184,17 +189,16 @@ module powerbi.extensibility.visual {
             }
             if (settings.heatmap.show) {
                 map.setLayerZoomRange('heatmap', settings.heatmap.minZoom, settings.heatmap.maxZoom);
-                map.setPaintProperty('heatmap', 'heatmap-radius', settings.heatmap.radius);
-                map.setPaintProperty('heatmap', 'heatmap-weight', settings.heatmap.weight);
+                map.setPaintProperty('heatmap', 'heatmap-radius', [ "interpolate", ["exponential", 1.2], ["zoom"],
+                    0, settings.heatmap.radius, 14, settings.heatmap.radius*25
+                    ]);
                 map.setPaintProperty('heatmap', 'heatmap-intensity', settings.heatmap.intensity);
                 map.setPaintProperty('heatmap', 'heatmap-opacity', settings.heatmap.opacity / 100);
                 map.setPaintProperty('heatmap', 'heatmap-color', [ "interpolate", ["linear"], ["heatmap-density"],
                     0, "rgba(0, 0, 255, 0)",
-                    0.1, "royalblue",
-                    0.3, "cyan",
-                    0.5, "lime",
-                    0.7, "yellow",
-                    1, settings.heatmap.color]);
+                    0.1, settings.heatmap.minColor,
+                    0.5, settings.heatmap.medColor,
+                    1, settings.heatmap.maxColor]);
             }
             if (zoom) {
                 zoomToData(map, features)
@@ -392,7 +396,15 @@ module powerbi.extensibility.visual {
                     type: 'cluster',
                     filter: ['has', 'count']
                 });
+                const unclusterLayer = mapboxUtils.decorateLayer({
+                    id: 'uncluster',
+                    source: 'clusterData',
+                    type: 'cluster',
+                    filter: ['!has', 'count']
+                });
+
                 this.map.addLayer(clusterLayer, firstSymbolId);
+                this.map.addLayer(unclusterLayer, firstSymbolId);
 
                 const clusterLabelLayer = mapboxUtils.decorateLayer({
                     id: 'cluster-label',
@@ -406,7 +418,7 @@ module powerbi.extensibility.visual {
                     },
                     paint: {
                         "text-halo-color": "white",
-                        "text-halo-width": 0.5
+                        "text-halo-width": 1
                     }
                 });
                 this.map.addLayer(clusterLabelLayer);
@@ -435,9 +447,7 @@ module powerbi.extensibility.visual {
             });
             this.map.on('zoomend', () => {
                 if (this.settings.cluster.show) {
-                    setTimeout(() => {
-                        onUpdate(this.map, this.getFeatures(), this.settings, false, this.color, this.host, this.updatedHandler)
-                    }, 400)
+                    onUpdate(this.map, this.getFeatures(), this.settings, false, this.color, this.host, this.updatedHandler)
                 }
             });
         }
@@ -454,7 +464,6 @@ module powerbi.extensibility.visual {
         private createLinkElement(title: string, url: string): Element {
             let linkElement = document.createElement("a");
             linkElement.textContent = "Click here to get your Mapbox access token (free to signup)";
-            //linkElement.setAttribute("title", title);
             linkElement.setAttribute("class", "mapboxLink");
             linkElement.addEventListener("click", () => {
                 this.host.launchUrl(url);
