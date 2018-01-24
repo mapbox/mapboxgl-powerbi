@@ -25,7 +25,7 @@ module powerbi.extensibility.visual {
             ]
 
             const classCount = getClassCount(sizeLimits);
-            const sizeStops: any[] = new geostats(sizeLimits.values).getClassJenks(classCount)
+            const sizeStops: any[] = getNaturalBreaks(sizeLimits, classCount);
             const sizeDelta = (settings.circle.radius * settings.circle.scaleFactor - settings.circle.radius) / classCount
 
             sizeStops.map((sizeStop, index) => {
@@ -44,6 +44,11 @@ module powerbi.extensibility.visual {
         }
     }
 
+    function getNaturalBreaks(limits: { min: any; max: any; values: any[]; }, classCount: number) {
+        const stops: any[] = new geostats(sizeLimits.values).getClassJenks(classCount)
+        return stops;
+    }
+
     function getCircleColors(colorLimits: { min: number; max: number; values: number[] }, isGradient: boolean, settings: any, colorPalette: IColorPalette) {
         if (colorLimits.min == null || colorLimits.max == null || colorLimits.values.length <= 0) {
             return settings.circle.minColor;
@@ -53,7 +58,7 @@ module powerbi.extensibility.visual {
             // Set colors for continuous value
             const classCount = getClassCount(colorLimits);
 
-            const domain: any[] = new geostats(colorLimits.values).getClassJenks(classCount)
+            const domain: any[] = getNaturalBreaks(colorLimits, classCount);
             const colors = chroma.scale([settings.circle.minColor,settings.circle.maxColor]).colors(domain.length)
 
             const style = ["interpolate", ["linear"], ["to-number", ['get', 'colorValue']]]
