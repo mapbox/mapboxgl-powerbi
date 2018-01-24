@@ -360,6 +360,7 @@ module powerbi.extensibility.visual {
             this.map = new mapboxgl.Map(mapOptions);
             this.map.addControl(new mapboxgl.NavigationControl());
 
+
             // Future option to enable search bar / geocoder
             /*if (document.getElementsByClassName('mapbox-gl-geocoder').length == 0) {
                 this.map.addControl(new mapbox_geocoder({
@@ -470,9 +471,9 @@ module powerbi.extensibility.visual {
             }
         }
 
-        private createLinkElement(title: string, url: string): Element {
+        private createLinkElement(textContent: string, url: string): Element {
             let linkElement = document.createElement("a");
-            linkElement.textContent = "Click here to get your Mapbox access token (free to signup)";
+            linkElement.textContent = textContent;
             linkElement.setAttribute("class", "mapboxLink");
             linkElement.addEventListener("click", () => {
                 this.host.launchUrl(url);
@@ -491,17 +492,21 @@ module powerbi.extensibility.visual {
 
             // Check for Access Token
             if (!this.settings.api.accessToken) {
-                let link = this.createLinkElement("Mapbox", "https://mapbox.com/account/access-tokens?source=PowerBI")
-                let html = '<h4>Start building with PowerBI & Mapbox<br><br></h4>'+
+                let link1 = this.createLinkElement("Click here to get a free Mapbox access token", "https://mapbox.com/account/access-tokens?source=PowerBI");
+                let link2 = this.createLinkElement("Contact Mapbox Support", "https://www.mapbox.com/contact/support?source=PowerBI")
+                let html = '<h4>Start building with Mapbox in 3 steps:<br><br></h4>'+
                     '<ol>' +
-                    '<li style="font-size: 24px; font-weight:800;"> 1. Add your access token in Power BI under format → viz settings.</li>'+
-                    '<li style="font-size: 24px; font-weight:800;"> 2. Select latitude, longitude, and a measure from your data.</li>'+
-                    '</ol>'+
-                    '<br>'+
-                    '<h4>Contact <i>support@mapbox.com</i> with feedback or questions.</h4>'+
-                    '<img src="https://dl.dropbox.com/s/5io6dvr1l8gcgtp/mapbox-logo-color.png"></img>'
+                    '<li style="font-size: 24px; font-weight:800; text-align: left;"> 1. Copy your Mapbox access token from the link above.</li>'+
+                    '<li style="font-size: 24px; font-weight:800; text-align: left;"> 2. In PowerBI, format → viz settings -> paste Access Token.</li>'+
+                    '<li style="font-size: 24px; font-weight:800; text-align: left;"> 3. Select latitude, longitude, and a measure from your data.</li><br>'+
+                    '<li style="font-size: 32px; font-weight:800;">Still have questions?</li>'
+                    '</ol>'
                 setError(this.errorDiv, html)
-                this.errorDiv.childNodes[1].appendChild(link);
+                this.errorDiv.childNodes[1].appendChild(link1);
+                this.errorDiv.childNodes[2].appendChild(link2);
+                let img = document.createElement('img');
+                img.src="https://dl.dropbox.com/s/5io6dvr1l8gcgtp/mapbox-logo-color.png"
+                this.errorDiv.appendChild(img)
                 return false;
             }
 
@@ -521,16 +526,31 @@ module powerbi.extensibility.visual {
                 return acc;
             }, {});
 
+            if (!mapboxgl.supported()) {
+                console.log('no WebGL support in browser')
+                let link = this.createLinkElement("Contact Mapbox Support", "https://www.mapbox.com/contact/support?source=PowerBI");
+                setError(this.errorDiv, '<h4>Your browser doesnt support WebGL.  Please try a different browser.</h4>' +
+                                        '<h3>Still have issues?</h3>');
+                this.errorDiv.appendChild(link);
+                let img = document.createElement('img');
+                img.src="https://dl.dropbox.com/s/5io6dvr1l8gcgtp/mapbox-logo-color.png"
+                this.errorDiv.appendChild(img);
+                return false;
+            }
+
             if ((this.settings.circle.show || this.settings.cluster.show || this.settings.heatmap.show) && !(roles.latitude && roles.longitude)) {
-                setError(this.errorDiv, '<h4>Add Longitude & Latitude fields to make a viz.</h4>');
+                setError(this.errorDiv, '<h4>Add Longitude & Latitude fields to make a viz.</h4>'+
+                    '<img src="https://dl.dropbox.com/s/5io6dvr1l8gcgtp/mapbox-logo-color.png"></img>');
                 return false;
             }
             else if (this.settings.choropleth.show && (!roles.location || !roles.color)) {
-                setError(this.errorDiv, '<h4>Add Location & Color fields for choropleth visualizations.</h4>');
+                setError(this.errorDiv, '<h4>Add Location & Color fields for choropleth visualizations.</h4>'+
+                    '<img src="https://dl.dropbox.com/s/5io6dvr1l8gcgtp/mapbox-logo-color.png"></img>');
                 return false;
             }
             else if (this.settings.cluster.show && !roles.cluster) {
-                setError(this.errorDiv, '<h4>Add data to the Cluster field to see a cluster layer.</h4>');
+                setError(this.errorDiv, '<h4>Add data to the Cluster field to see a cluster layer.</h4>'+
+                    '<img src="https://dl.dropbox.com/s/5io6dvr1l8gcgtp/mapbox-logo-color.png"></img>');
                 return false;
             }
 

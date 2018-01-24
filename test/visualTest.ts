@@ -134,27 +134,5 @@ module powerbi.extensibility.visual.test {
                 });
             })
         })
-
-        describe("decorateLayer", () => {
-
-            it("should add filter to cluster layer", () => {
-                const layer = {
-                    type: "cluster"
-                }
-                const decorated = Utils.decorateLayer(layer);
-
-                expect(decorated.filter).toBeDefined();
-                expect(decorated.filter.length).toEqual(2);
-            });
-
-            it("should set type to circle for cluster layer", () => {
-                const layer = {
-                    type: "cluster"
-                }
-                const decorated = Utils.decorateLayer(layer);
-
-                expect(decorated.type).toEqual("circle");
-            });
-        });
     });
 }
