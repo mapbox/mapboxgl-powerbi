@@ -235,29 +235,6 @@ module powerbi.extensibility.visual {
             if (zoom) {
                 zoomToData(map, features)
             }
-
-            if (settings.circle.show) {
-
-                const colorLimits = mapboxUtils.getLimits(features.rawData, 'colorValue');
-                const sizeLimits = mapboxUtils.getLimits(features.rawData, 'sizeValue');
-
-                if (sizeLimits.min !== null && sizeLimits.max !== null) {
-                    map.setPaintProperty('circle', 'circle-radius', [
-                        "interpolate", ['linear'],
-                        ["to-number", ['get', 'sizeValue']],
-                            sizeLimits.min, settings.circle.radius,
-                            sizeLimits.max, settings.circle.radius  * settings.circle.scaleFactor,
-                    ]
-                    );
-                } else {
-                    map.setPaintProperty('circle', 'circle-radius', [
-                        'interpolate', ['linear'], ['zoom'],
-                        0, settings.circle.radius,
-                        18, settings.circle.radius * settings.circle.scaleFactor
-                    ]);
-                }
-
-            }
         } finally {
             updatedHandler();
         }
