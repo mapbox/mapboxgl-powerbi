@@ -18,13 +18,22 @@ module powerbi.extensibility.visual {
     }
 
     function getCircleSizes(sizeLimits: { min: any; max: any; values: any[]; }, map: any, settings: any) {
-        if (sizeLimits.min !== null && sizeLimits.max !== null) {
-            return [
-                "interpolate", ["exponential", 1.2],
-                ["to-number", ['get', 'sizeValue']],
-                sizeLimits.min, settings.circle.radius,
-                sizeLimits.max, settings.circle.radius * settings.circle.scaleFactor
-            ];
+        if (sizeLimits.min != null && sizeLimits.max != null && sizeLimits.min != sizeLimits.max) {
+            const style: any[] = [
+                "interpolate", ["linear"],
+                ["to-number", ['get', 'sizeValue']]
+            ]
+
+            const classCount = getClassCount(sizeLimits);
+            const sizeStops: any[] = new geostats(sizeLimits.values).getClassJenks(classCount)
+            const sizeDelta = (settings.circle.radius * settings.circle.scaleFactor - settings.circle.radius) / classCount
+
+            sizeStops.map((sizeStop, index) => {
+                const size = settings.circle.radius + index * sizeDelta
+                style.push(sizeStop);
+                style.push(size);
+            });
+            return style;
         }
         else {
             return [
