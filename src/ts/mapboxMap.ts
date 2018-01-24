@@ -1,5 +1,4 @@
 module powerbi.extensibility.visual {
-    declare var geostats : any;
     declare var debug : any;
     declare var turf : any;
     declare var mapbox_geocoder : any;
@@ -45,7 +44,7 @@ module powerbi.extensibility.visual {
     }
 
     function getNaturalBreaks(limits: { min: any; max: any; values: any[]; }, classCount: number) {
-        const stops: any[] = new geostats(sizeLimits.values).getClassJenks(classCount)
+        const stops: any[] = chroma.limits(limits.values, 'k', classCount);
         return stops;
     }
 
