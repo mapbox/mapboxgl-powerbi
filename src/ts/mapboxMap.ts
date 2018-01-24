@@ -16,19 +16,58 @@ module powerbi.extensibility.visual {
         }
     }
 
-    function getCircleColors(colorLimits: { min: any; max: any; }, isGradient: boolean, settings: any, colorPalette: IColorPalette) {
-        if (colorLimits.min === null || colorLimits.max === null) {
+    function getCircleSizes(sizeLimits: { min: any; max: any; values: any[]; }, map: any, settings: any) {
+        if (sizeLimits.min != null && sizeLimits.max != null && sizeLimits.min != sizeLimits.max) {
+            const style: any[] = [
+                "interpolate", ["linear"],
+                ["to-number", ['get', 'sizeValue']]
+            ]
+
+            const classCount = getClassCount(sizeLimits);
+            const sizeStops: any[] = getNaturalBreaks(sizeLimits, classCount);
+            const sizeDelta = (settings.circle.radius * settings.circle.scaleFactor - settings.circle.radius) / classCount
+
+            sizeStops.map((sizeStop, index) => {
+                const size = settings.circle.radius + index * sizeDelta
+                style.push(sizeStop);
+                style.push(size);
+            });
+            return style;
+        }
+        else {
+            return [
+                'interpolate', ['linear'], ['zoom'],
+                0, settings.circle.radius,
+                18, settings.circle.radius * settings.circle.scaleFactor
+            ];
+        }
+    }
+
+    function getNaturalBreaks(limits: { min: any; max: any; values: any[]; }, classCount: number) {
+        const stops: any[] = chroma.limits(limits.values, 'q', classCount);
+        return stops;
+    }
+
+    function getCircleColors(colorLimits: { min: number; max: number; values: number[] }, isGradient: boolean, settings: any, colorPalette: IColorPalette) {
+        if (colorLimits.min == null || colorLimits.max == null || colorLimits.values.length <= 0) {
             return settings.circle.minColor;
         }
 
         if (isGradient) {
             // Set colors for continuous value
-            return [
-                "interpolate", ["exponential", 1],
-                ["to-number", ['get', 'colorValue']],
-                colorLimits.min, settings.circle.minColor,
-                colorLimits.max, settings.circle.maxColor
-            ];
+            const classCount = getClassCount(colorLimits);
+
+            const domain: any[] = getNaturalBreaks(colorLimits, classCount);
+            const colors = chroma.scale([settings.circle.minColor,settings.circle.maxColor]).colors(domain.length)
+
+            const style = ["interpolate", ["linear"], ["to-number", ['get', 'colorValue']]]
+            domain.map((colorStop, idx) => {
+                const color = colors[idx].toString();
+                style.push(colorStop);
+                style.push(color);
+            });
+
+            return style;
         }
 
         // Set colors for categorical value
@@ -46,6 +85,15 @@ module powerbi.extensibility.visual {
         return colors;
     }
 
+    function getClassCount(limits: { min: number; max: number; values: number[]; }) {
+        const MAX_BOUND_COUNT = 6;
+        // For example if you want 5 classes, you have to enter 6 bounds
+        // (1 bound is the minimum value, 1 bound is the maximum value,
+        // the rest are class separators)
+        const classCount = Math.min(limits.values.length, MAX_BOUND_COUNT) - 1;
+        return classCount;
+    }
+
     function onUpdate(map, features, settings, zoom, category, host: IVisualHost, updatedHandler: Function) {
         try {
             if (!map.getSource('data')) {
@@ -54,7 +102,7 @@ module powerbi.extensibility.visual {
 
             if (features.clusterData) {
                 let source : any = map.getSource('clusterData');
-                
+
                 source.setData( turf.helpers.featureCollection(features.clusterData) );
             }
 
@@ -160,24 +208,12 @@ module powerbi.extensibility.visual {
                 const colorLimits = mapboxUtils.getLimits(features.rawData, 'colorValue');
                 const sizeLimits = mapboxUtils.getLimits(features.rawData, 'sizeValue');
 
-                if (sizeLimits.min !== null && sizeLimits.max !== null) {
-                    map.setPaintProperty('circle', 'circle-radius', [
-                        "interpolate", ["exponential", 1.2],
-                        ["to-number", ['get', 'sizeValue']],
-                            sizeLimits.min, settings.circle.radius,
-                            sizeLimits.max, settings.circle.radius  * settings.circle.scaleFactor]
-                    );
-                } else {
-                    map.setPaintProperty('circle', 'circle-radius', [
-                        'interpolate', ['linear'], ['zoom'],
-                        0, settings.circle.radius,
-                        18, settings.circle.radius * settings.circle.scaleFactor
-                    ]);
-                }
+                const sizes = getCircleSizes(sizeLimits, map, settings);
 
                 let isGradient = mapboxUtils.shouldUseGradient(category, colorLimits);
                 let colors = getCircleColors(colorLimits, isGradient, settings, host.colorPalette);
 
+                map.setPaintProperty('circle', 'circle-radius', sizes);
                 map.setPaintProperty('circle', 'circle-color', colors);
                 map.setLayerZoomRange('circle', settings.circle.minZoom, settings.circle.maxZoom);
                 map.setPaintProperty('circle', 'circle-blur', settings.circle.blur / 100);
@@ -202,29 +238,6 @@ module powerbi.extensibility.visual {
             }
             if (zoom) {
                 zoomToData(map, features)
-            }
-
-            if (settings.circle.show) {
-
-                const colorLimits = mapboxUtils.getLimits(features.rawData, 'colorValue');
-                const sizeLimits = mapboxUtils.getLimits(features.rawData, 'sizeValue');
-
-                if (sizeLimits.min !== null && sizeLimits.max !== null) {
-                    map.setPaintProperty('circle', 'circle-radius', [
-                        "interpolate", ['linear'],
-                        ["to-number", ['get', 'sizeValue']],
-                            sizeLimits.min, settings.circle.radius,
-                            sizeLimits.max, settings.circle.radius  * settings.circle.scaleFactor,
-                    ]
-                    );
-                } else {
-                    map.setPaintProperty('circle', 'circle-radius', [
-                        'interpolate', ['linear'], ['zoom'],
-                        0, settings.circle.radius,
-                        18, settings.circle.radius * settings.circle.scaleFactor
-                    ]);
-                }
-
             }
         } finally {
             updatedHandler();
