@@ -1,7 +1,6 @@
 module powerbi.extensibility.visual {
     declare var debug : any;
     declare var turf : any;
-    declare var mapbox_geocoder : any;
 
     function zoomToData(map, features) {
         let bounds : any = features.bounds;
@@ -500,17 +499,20 @@ module powerbi.extensibility.visual {
                 let link2 = this.createLinkElement("Contact Mapbox Support", "https://www.mapbox.com/contact/support?source=PowerBI")
                 let html = '<h4>Start building with Mapbox in 3 steps:<br><br></h4>'+
                     '<ol>' +
-                    '<li style="font-size: 24px; font-weight:800; text-align: left;"> 1. Copy your Mapbox access token from the link above.</li>'+
-                    '<li style="font-size: 24px; font-weight:800; text-align: left;"> 2. In PowerBI, format → viz settings -> paste Access Token.</li>'+
-                    '<li style="font-size: 24px; font-weight:800; text-align: left;"> 3. Select latitude, longitude, and a measure from your data.</li><br>'+
+                    '<li style="font-size: 24px; font-weight:800; text-align: left;"> 1. Copy your Mapbox access token from the link above.  Your access token will begin with the letters `pk`.</li>'+
+                    '<li style="font-size: 24px; font-weight:800; text-align: left;"> 2. Paste your Mapbox access token into the PowerBI Viz format pannel for this custom visual.</li>'+
+                    '<img src="https://dl.dropbox.com/s/akn1lyw5qwtmxyn/add-access-token.png"></img><br>'+
+                    '<li style="font-size: 24px; font-weight:800; text-align: left;"> 3. Drag latitude and longitude fields from your data onto your the values.</li><br>'+
+                    '<img src="https://dl.dropbox.com/s/aobsdsrzn0ewc2t/add-long-lat.png"></img>'+
                     '<li style="font-size: 32px; font-weight:800;">Still have questions?</li>'
                     '</ol>'
                 setError(this.errorDiv, html)
                 this.errorDiv.childNodes[1].appendChild(link1);
                 this.errorDiv.childNodes[2].appendChild(link2);
                 let img = document.createElement('img');
-                img.src="https://dl.dropbox.com/s/5io6dvr1l8gcgtp/mapbox-logo-color.png"
+                img.src="https://dl.dropbox.com/s/5io6dvr1l8gcgtp/mapbox-logo-color.png";
                 this.errorDiv.appendChild(img)
+                
                 return false;
             }
 
@@ -543,7 +545,8 @@ module powerbi.extensibility.visual {
             }
 
             if ((this.settings.circle.show || this.settings.cluster.show || this.settings.heatmap.show) && !(roles.latitude && roles.longitude)) {
-                setError(this.errorDiv, '<h4>Add Longitude & Latitude fields to make a viz.</h4>'+
+                setError(this.errorDiv, '<h4>Add longitude & latitude fields to the custom viz values to see the map.</h4>'+
+                    '<img src="https://dl.dropbox.com/s/aobsdsrzn0ewc2t/add-long-lat.png"></img>'+
                     '<img src="https://dl.dropbox.com/s/5io6dvr1l8gcgtp/mapbox-logo-color.png"></img>');
                 return false;
             }
@@ -553,7 +556,8 @@ module powerbi.extensibility.visual {
                 return false;
             }
             else if (this.settings.cluster.show && !roles.cluster) {
-                setError(this.errorDiv, '<h4>Add data to the Cluster field to see a cluster layer.</h4>'+
+                setError(this.errorDiv, '<h4>Add fields to the `Cluster` value to enable a cluster layer.</h4>'+
+                    '<img src="https://dl.dropbox.com/s/io61ltmj69xlt75/add-cluster.png"></img><br>'+
                     '<img src="https://dl.dropbox.com/s/5io6dvr1l8gcgtp/mapbox-logo-color.png"></img>');
                 return false;
             }
