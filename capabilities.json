@@ -2,16 +2,30 @@
   "dataRoles": [
     {
       "name": "latitude",
-      "kind": "Grouping",
+      "kind": "GroupingOrMeasure",
       "displayName": "Latitude",
-      "description": "Latitude geographic point dimension"
+      "description": "Latitude geographic point dimension",
+      "preferredTypes": [
+        {
+          "geography": {
+              "latitude": true
+          }
+        }
+      ]
     },
     {
       "name": "longitude",
-      "kind": "Grouping",
+      "kind": "GroupingOrMeasure",
       "displayName": "Longitude",
-      "description": "Longitude geographic point dimension"
-    },
+      "description": "Longitude geographic point dimension",
+      "preferredTypes": [
+        {
+          "geography": {
+              "longitude": true
+          }
+        }
+      ]
+    },    
     {
       "name": "color",
       "kind": "GroupingOrMeasure",
