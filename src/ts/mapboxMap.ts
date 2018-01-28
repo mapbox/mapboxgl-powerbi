@@ -459,7 +459,6 @@ module powerbi.extensibility.visual {
             });
             this.map.on('zoomend', () => {
                 if (this.settings.cluster.show) {
-                	mapboxUtils.addPopup(this.map, this.popup, this.settings); //Update tooltip
                     onUpdate(this.map, this.getFeatures(), this.settings, false, this.color, this.host, this.updatedHandler);
                 }
             });
@@ -624,6 +623,7 @@ module powerbi.extensibility.visual {
             // If the map is loaded and style has not changed in this update
             // then we should update right now.
             if (!styleChanged) {
+            	mapboxUtils.addPopup(this.map, this.popup, this.settings); //Update tooltip
                 onUpdate(this.map, this.getFeatures(), this.settings, dataChanged || layerVisibilityChanged, this.color, this.host, this.updatedHandler);
             }
         }

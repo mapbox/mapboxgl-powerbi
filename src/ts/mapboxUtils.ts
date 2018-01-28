@@ -37,7 +37,7 @@ module powerbi.extensibility.visual {
 
         export function addPopup(map: mapboxgl.Map, popup: mapboxgl.Popup, settings ) {
             // Don't add the popup if it already exists
-                if (map.listens('mousemove')) { return }
+                if (map.listens('mousemove')) { map.off('mousemove') }
 
                 function jsUcfirst(string) {
                     return string.charAt(0).toUpperCase() + string.slice(1);
