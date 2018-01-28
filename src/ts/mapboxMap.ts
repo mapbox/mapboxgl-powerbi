@@ -101,7 +101,6 @@ module powerbi.extensibility.visual {
 
             if (features.clusterData) {
                 let source : any = map.getSource('clusterData');
-
                 source.setData( turf.helpers.featureCollection(features.clusterData) );
             }
 
@@ -257,7 +256,7 @@ module powerbi.extensibility.visual {
         private errorDiv: HTMLDivElement;
         private host: IVisualHost;
         private features: any[];
-        private settings: MapboxSettings;
+        public settings: MapboxSettings;
         private popup: mapboxgl.Popup;
         private mapStyle: string = "";
         private vectorTileUrl: string = "";
@@ -460,7 +459,8 @@ module powerbi.extensibility.visual {
             });
             this.map.on('zoomend', () => {
                 if (this.settings.cluster.show) {
-                    onUpdate(this.map, this.getFeatures(), this.settings, false, this.color, this.host, this.updatedHandler)
+                	mapboxUtils.addPopup(this.map, this.popup, this.settings); //Update tooltip
+                    onUpdate(this.map, this.getFeatures(), this.settings, false, this.color, this.host, this.updatedHandler);
                 }
             });
         }
@@ -536,7 +536,6 @@ module powerbi.extensibility.visual {
             }, {});
 
             if (!mapboxgl.supported()) {
-                console.log('no WebGL support in browser')
                 let link = this.createLinkElement("Contact Mapbox Support", "https://www.mapbox.com/contact/support?source=PowerBI");
                 setError(this.errorDiv, '<h4>Your browser doesnt support WebGL.  Please try a different browser.</h4>' +
                                         '<h3>Still have issues?</h3>');
