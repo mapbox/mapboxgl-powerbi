@@ -50,6 +50,6 @@ This custom-altered version of the Mapbox GL js library is packaged with this re
 ### Screenshots
 
 ![](./assets/mapbox-viz-screenshot-1-min.png)
-![](./assets/mapbox-viz-screenshot-2.min.png)
-![](./assets/mapbox-viz-screenshot-3.min.png)
-![](./assets/mapbox-viz-screenshot-4.min.png)
+![](./assets/mapbox-viz-screenshot-2-min.png)
+![](./assets/mapbox-viz-screenshot-3-min.png)
+![](./assets/mapbox-viz-screenshot-4-min.png)
