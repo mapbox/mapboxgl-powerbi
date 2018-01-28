@@ -88,7 +88,7 @@ module powerbi.extensibility.visual {
                             popup.remove();
                             return
                         }
-                    }, 16, false);
+                    }, 22, false);
 
                     map.on('mousemove', onMouseMove);
                 }
@@ -101,17 +101,17 @@ module powerbi.extensibility.visual {
                         let minpoint = new Array(e.point['x'] - 5, e.point['y'] - 5)
                         let maxpoint = new Array(e.point['x'] + 5, e.point['y'] + 5)
                         let features : any = map.queryRenderedFeatures([minpoint, maxpoint], {
-                            layers: ['cluster']
+                            layers: ['cluster', 'circle', 'uncluster']
                         });
 
                         if (!features.length) {return}
 
                         map.easeTo({
                             center: features[0].geometry.coordinates,
-                            zoom: 10,
+                            zoom: map.getZoom() + 1,
                             duration: 1000
                         });
-                    }, 16, false);
+                    }, 22, false);
 
                     map.on('click', onClick);
                 };

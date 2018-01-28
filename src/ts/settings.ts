@@ -86,6 +86,7 @@ module powerbi.extensibility.visual {
         public minColor: string = "#ffffcc";
         public maxColor: string = "#253494";
         public radius: number = 10;
+        public blur: number = 30;
         public strokeWidth: number = 1;
         public strokeColor: string = "black";
         public strokeOpacity: number = 50;

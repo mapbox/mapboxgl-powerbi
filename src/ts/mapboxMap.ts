@@ -177,6 +177,10 @@ module powerbi.extensibility.visual {
             }
             if (settings.cluster.show) {
                 map.setLayerZoomRange('cluster', settings.cluster.minZoom, settings.cluster.maxZoom);
+                map.setPaintProperty('cluster', 'circle-stroke-width', settings.cluster.strokeWidth);
+                map.setPaintProperty('cluster', 'circle-stroke-opacity', settings.cluster.strokeOpacity / 100);
+                map.setPaintProperty('cluster', 'circle-stroke-color', settings.cluster.strokeColor);
+                map.setPaintProperty('cluster', 'circle-blur', settings.cluster.blur/100);
                 map.setLayerZoomRange('cluster-label', settings.cluster.minZoom, settings.cluster.maxZoom);
                 map.setLayerZoomRange('uncluster', settings.cluster.minZoom, settings.cluster.maxZoom);
                 map.setPaintProperty('uncluster', 'circle-stroke-width', settings.cluster.strokeWidth);
@@ -256,7 +260,7 @@ module powerbi.extensibility.visual {
         private errorDiv: HTMLDivElement;
         private host: IVisualHost;
         private features: any[];
-        public settings: MapboxSettings;
+        private settings: MapboxSettings;
         private popup: mapboxgl.Popup;
         private mapStyle: string = "";
         private vectorTileUrl: string = "";

@@ -208,7 +208,7 @@
         "blur": {
           "displayName": "Blur",
           "displayNameKey": "blur",
-          "description": "Amount to blur the circle. 1 blurs the circle such that only the centerpoint is full opacity.",
+          "description": "Amount to blur the circle (0-100).",
           "type": {
             "numeric": true
           }
@@ -436,6 +436,14 @@
           "displayName": "Radius",
           "displayNameKey": "radius",
           "description": "Radius of the smallest cluster circles.",
+          "type": {
+            "numeric": true
+          }
+        },
+        "blur": {
+          "displayName": "Blur",
+          "displayNameKey": "blur",
+          "description": "Amount to blur the circle (0-100).",
           "type": {
             "numeric": true
           }
