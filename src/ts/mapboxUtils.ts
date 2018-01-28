@@ -52,9 +52,10 @@ module powerbi.extensibility.visual {
                             layers: ['cluster', 'circle', 'uncluster']
                         });
                         map.getCanvas().style.cursor = 'pointer';
-                        if ( (features[0].properties.tooltip) || (Object.keys(features[0].properties.tooltip).length == 0)) {
+                        if (features[0].properties.tooltip) {
                             let tooltip = "<div>"
-                            let tooltips = features.map( feature => {
+                            //Add tooltips for up to 5 items under the mouse cursor (improves performance while zoomed out)
+                            let tooltips = features.slice(0,5).map( feature => {
                                 let tooltipItem = "";
                                 try {
                                     const tooltipObj = JSON.parse(feature.properties.tooltip);
