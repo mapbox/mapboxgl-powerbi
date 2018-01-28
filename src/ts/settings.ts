@@ -55,6 +55,7 @@ module powerbi.extensibility.visual {
         public radius: number = 3;
         public scaleFactor: number = 5;
         public minColor: string = "#ffffcc";
+        public medColor: string = "#41b6c4";
         public maxColor: string = "#253494";
         public blur: number = 0.0;
         public opacity: number = 100;

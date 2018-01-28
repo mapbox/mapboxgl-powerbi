@@ -261,6 +261,18 @@
             }
           }
         },
+        "medColor": {
+          "displayName": "Med Color",
+          "displayNameKey": "color",
+          "description": "Intermediate color for circle color ramp. ",
+          "type": {
+            "fill": {
+              "solid": {
+                "color": true
+              }
+            }
+          }
+        },
         "maxColor": {
           "displayName": "Max Color",
           "displayNameKey": "maxColor",

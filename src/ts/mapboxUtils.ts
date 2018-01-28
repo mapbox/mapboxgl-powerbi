@@ -35,41 +35,53 @@ module powerbi.extensibility.visual {
             return false
         }
 
-        export function addPopup(map: mapboxgl.Map, popup: mapboxgl.Popup ) {
+        export function addPopup(map: mapboxgl.Map, popup: mapboxgl.Popup, settings ) {
             // Don't add the popup if it already exists
-                    if (map.listens('mousemove')) { return }
+                if (map.listens('mousemove')) { return }
 
-                    var onMouseMove : Function = debounce(function(e) {
-                        let minpoint = new Array(e.point['x'] - 5, e.point['y'] - 5)
-                        let maxpoint = new Array(e.point['x'] + 5, e.point['y'] + 5)
-                        try {
-                            let features : any = map.queryRenderedFeatures([minpoint, maxpoint], {
-                                layers: ['cluster', 'circle', 'uncluster']
-                            });
-                            map.getCanvas().style.cursor = 'pointer';
-                            if (features[0].properties.tooltip) {
-                                let tooltip = "<div>"
-                                let tooltips = features.map( feature => {
-                                    let tooltipItem = "";
-                                    try {
-                                        const tooltipObj = JSON.parse(feature.properties.tooltip);
-                                        if (tooltipObj.title) {
-                                            tooltipItem += `<h3>${tooltipObj.title}</h3>`
-                                        }
+                function jsUcfirst(string) {
+                    return string.charAt(0).toUpperCase() + string.slice(1);
+                }
+
+                var onMouseMove : Function = debounce(function(e) {
+                    let minpoint = new Array(e.point['x'] - 5, e.point['y'] - 5)
+                    let maxpoint = new Array(e.point['x'] + 5, e.point['y'] + 5)
+
+                    try {
+                        let features : any = map.queryRenderedFeatures([minpoint, maxpoint], {
+                            layers: ['cluster', 'circle', 'uncluster']
+                        });
+                        map.getCanvas().style.cursor = 'pointer';
+                        if (features[0].properties.tooltip) {
+                            let tooltip = "<div>"
+                            //Add tooltips for up to 5 items under the mouse cursor (improves performance while zoomed out)
+                            let tooltips = features.slice(0,5).map( feature => {
+                                let tooltipItem = "";
+                                try {
+                                    const tooltipObj = JSON.parse(feature.properties.tooltip);
+                                    tooltipItem += `<li><b>Longitude:</b> ` + Math.round(feature.geometry.coordinates[0]*100000)/10000 + `</li>`;
+                                    tooltipItem += `<li><b>Latitude:</b> ` + Math.round(feature.geometry.coordinates[1]*10000)/100000 + `</li>`;
+                                    if (tooltipObj.title) {
+                                        let agg = jsUcfirst(settings.cluster.aggregation);
+                                        let title = tooltipObj.title;
+                                        tooltipItem += `<li><b>` + agg + ` of ` + title + `:</b> ` + tooltipObj.content[agg] + `</li>`;
+                                    }
+                                    else {
                                         tooltipItem += Object.keys(tooltipObj.content).map( key => {
                                             return `<li><b>${key}:</b> ${tooltipObj.content[key]}</li>`
                                         }).join('');
-                                    } catch (_err) {
-                                        // Pass, if we couldn't parse the JSON just skip.
-                                    } finally {
-                                        return tooltipItem;
                                     }
-                                })
-                                tooltip += tooltips.join('<hr />')
-                                tooltip += "</div>"
-                                popup.setLngLat(map.unproject(e.point))
-                                    .setHTML(tooltip)
-                                    .addTo(map);
+                                } catch (_err) {
+                                    // Pass, if we couldn't parse the JSON just skip.
+                                } finally {
+                                    return tooltipItem;
+                                }
+                            })
+                            tooltip += tooltips.join('<hr />')
+                            tooltip += "</div>"
+                            popup.setLngLat(map.unproject(e.point))
+                                .setHTML(tooltip)
+                                .addTo(map);
                             }
                         } catch (err) {
                             map.getCanvas().style.cursor = '';

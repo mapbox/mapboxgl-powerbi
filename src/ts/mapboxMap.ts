@@ -57,7 +57,7 @@ module powerbi.extensibility.visual {
             const classCount = getClassCount(colorLimits);
 
             const domain: any[] = getNaturalBreaks(colorLimits, classCount);
-            const colors = chroma.scale([settings.circle.minColor,settings.circle.maxColor]).colors(domain.length)
+            const colors = chroma.scale([settings.circle.minColor,settings.circle.medColor, settings.circle.maxColor]).colors(domain.length)
 
             const style = ["interpolate", ["linear"], ["to-number", ['get', 'colorValue']]]
             domain.map((colorStop, idx) => {
@@ -455,7 +455,7 @@ module powerbi.extensibility.visual {
 
             this.map.on('load', () => {
                 onUpdate(this.map, this.getFeatures(), this.settings, true, this.color, this.host, this.updatedHandler)
-                mapboxUtils.addPopup(this.map, this.popup);
+                mapboxUtils.addPopup(this.map, this.popup, this.settings);
                 mapboxUtils.addClick(this.map);
             });
             this.map.on('zoomend', () => {
@@ -496,15 +496,18 @@ module powerbi.extensibility.visual {
             // Check for Access Token
             if (!this.settings.api.accessToken) {
                 let link1 = this.createLinkElement("Click here to get a free Mapbox access token", "https://mapbox.com/account/access-tokens?source=PowerBI");
-                let link2 = this.createLinkElement("Contact Mapbox Support", "https://www.mapbox.com/contact/support?source=PowerBI")
-                let html = '<h4>Start building with Mapbox in 3 steps:<br><br></h4>'+
+                let link2 = this.createLinkElement("Contact Support", "https://www.mapbox.com/contact/support?source=PowerBI")
+                let html = '<h4>Start building with Mapbox in 3 steps:</h4>'+
                     '<ol>' +
-                    '<li style="font-size: 24px; font-weight:800; text-align: left;"> 1. Copy your Mapbox access token from the link above.  Your access token will begin with the letters `pk`.</li>'+
-                    '<li style="font-size: 24px; font-weight:800; text-align: left;"> 2. Paste your Mapbox access token into the PowerBI Viz format pannel for this custom visual.</li>'+
-                    '<img src="https://dl.dropbox.com/s/akn1lyw5qwtmxyn/add-access-token.png"></img><br>'+
-                    '<li style="font-size: 24px; font-weight:800; text-align: left;"> 3. Drag latitude and longitude fields from your data onto your the values.</li><br>'+
-                    '<img src="https://dl.dropbox.com/s/aobsdsrzn0ewc2t/add-long-lat.png"></img>'+
-                    '<li style="font-size: 32px; font-weight:800;">Still have questions?</li>'
+                    '<li style="font-size: 18px;"> 1. Copy your Mapbox access token from the link above.</li>'+
+                    '<img style="padding-bottom: 20px;" src="https://dl.dropbox.com/s/heywck8rrxw8fd0/copy_mapbox_access_token.png"></img><br>'+
+                    '<li style="font-size: 18px;"> 2. Paste your Mapbox access token into the PowerBI Viz format pannel.</li>'+
+                    '<img style="padding-bottom: 20px;" src="https://dl.dropbox.com/s/akn1lyw5qwtmxyn/add-access-token.png"></img><br>'+
+                    '<li style="font-size: 18px;"> 3. Add latitude and longitude fields to your viz.</li><br>'+
+                    '<img style="padding-bottom: 20px;" src="https://dl.dropbox.com/s/aobsdsrzn0ewc2t/add-long-lat.png"></img><br>'+
+                    '<li style="font-size: 18px;"> Select a map style, then design heatmaps, circles, and cluster visualizations in the format pannel.</li><br>'+
+                    '<img style="padding-bottom: 20px;" src="https://dl.dropbox.com/s/dc9ibu2f71t4t23/start-visualizing.png"></img><br>'+
+                    '<li style="font-size: 18px;"> Still have questions? </li>'+
                     '</ol>'
                 setError(this.errorDiv, html)
                 this.errorDiv.childNodes[1].appendChild(link1);
@@ -545,19 +548,19 @@ module powerbi.extensibility.visual {
             }
 
             if ((this.settings.circle.show || this.settings.cluster.show || this.settings.heatmap.show) && !(roles.latitude && roles.longitude)) {
-                setError(this.errorDiv, '<h4>Add longitude & latitude fields to the custom viz values to see the map.</h4>'+
-                    '<img src="https://dl.dropbox.com/s/aobsdsrzn0ewc2t/add-long-lat.png"></img>'+
+                setError(this.errorDiv, '<h4>Add longitude & latitude fields to see your Mapbox viz.</h4>'+
+                    '<img style="padding-bottom: 20px;" src="https://dl.dropbox.com/s/aobsdsrzn0ewc2t/add-long-lat.png"></img><br>'+
                     '<img src="https://dl.dropbox.com/s/5io6dvr1l8gcgtp/mapbox-logo-color.png"></img>');
                 return false;
             }
             else if (this.settings.choropleth.show && (!roles.location || !roles.color)) {
-                setError(this.errorDiv, '<h4>Add Location & Color fields for choropleth visualizations.</h4>'+
+                setError(this.errorDiv, '<h4>Add Location & Color fields to use a choropleth layer.</h4>'+
                     '<img src="https://dl.dropbox.com/s/5io6dvr1l8gcgtp/mapbox-logo-color.png"></img>');
                 return false;
             }
             else if (this.settings.cluster.show && !roles.cluster) {
-                setError(this.errorDiv, '<h4>Add fields to the `Cluster` value to enable a cluster layer.</h4>'+
-                    '<img src="https://dl.dropbox.com/s/io61ltmj69xlt75/add-cluster.png"></img><br>'+
+                setError(this.errorDiv, '<h4>Add a cluster field to use a cluster layer.</h4>'+
+                    '<img style="padding-bottom: 20px;" src="https://dl.dropbox.com/s/io61ltmj69xlt75/add-cluster.png"></img><br>'+
                     '<img src="https://dl.dropbox.com/s/5io6dvr1l8gcgtp/mapbox-logo-color.png"></img>');
                 return false;
             }
