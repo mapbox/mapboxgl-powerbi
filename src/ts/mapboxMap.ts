@@ -496,16 +496,17 @@ module powerbi.extensibility.visual {
             // Check for Access Token
             if (!this.settings.api.accessToken) {
                 let link1 = this.createLinkElement("Click here to get a free Mapbox access token", "https://mapbox.com/account/access-tokens?source=PowerBI");
-                let link2 = this.createLinkElement("Contact Mapbox Support", "https://www.mapbox.com/contact/support?source=PowerBI")
+                let link2 = this.createLinkElement("Contact Support", "https://www.mapbox.com/contact/support?source=PowerBI")
                 let html = '<h4>Start building with Mapbox in 3 steps:</h4>'+
                     '<ol>' +
-                    '<li style="font-size: 24px; font-weight:800; text-align: left;"> 1. Copy your Mapbox access token from the link above.</li>'+
-                    '<img src="https://dl.dropbox.com/s/heywck8rrxw8fd0/copy_mapbox_access_token.png"></img><br>'+
-                    '<li style="font-size: 24px; font-weight:800; text-align: left;"> 2. Paste your Mapbox access token into the PowerBI Viz format pannel.</li>'+
-                    '<img src="https://dl.dropbox.com/s/akn1lyw5qwtmxyn/add-access-token.png"></img><br>'+
-                    '<li style="font-size: 24px; font-weight:800; text-align: left;"> 3. Drag latitude and longitude fields from your data onto your the values.</li><br>'+
-                    '<img src="https://dl.dropbox.com/s/aobsdsrzn0ewc2t/add-long-lat.png"></img>'+
-                    '<li style="font-size: 32px; font-weight:800;">Still have questions?</li>'
+                    '<li style="font-size: 18px;"> 1. Copy your Mapbox access token from the link above.</li>'+
+                    '<img style="padding-bottom: 20px;" src="https://dl.dropbox.com/s/heywck8rrxw8fd0/copy_mapbox_access_token.png"></img><br>'+
+                    '<li style="font-size: 18px;"> 2. Paste your Mapbox access token into the PowerBI Viz format pannel.</li>'+
+                    '<img style="padding-bottom: 20px;" src="https://dl.dropbox.com/s/akn1lyw5qwtmxyn/add-access-token.png"></img><br>'+
+                    '<li style="font-size: 18px;"> 3. Add latitude and longitude fields.</li><br>'+
+                    '<img style="padding-bottom: 20px;" src="https://dl.dropbox.com/s/aobsdsrzn0ewc2t/add-long-lat.png"></img><br>'+
+                    '<li style="font-size: 18px;"> Choose heatmaps, circles, and cluster visualizations from the format pannel.</li><br>'+
+                    '<img style="padding-bottom: 20px;" src="https://dl.dropbox.com/s/dc9ibu2f71t4t23/start-visualizing.png"></img><br>'+
                     '</ol>'
                 setError(this.errorDiv, html)
                 this.errorDiv.childNodes[1].appendChild(link1);
