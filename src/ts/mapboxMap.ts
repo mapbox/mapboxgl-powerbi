@@ -455,7 +455,7 @@ module powerbi.extensibility.visual {
 
             this.map.on('load', () => {
                 onUpdate(this.map, this.getFeatures(), this.settings, true, this.color, this.host, this.updatedHandler)
-                mapboxUtils.addPopup(this.map, this.popup);
+                mapboxUtils.addPopup(this.map, this.popup, this.settings);
                 mapboxUtils.addClick(this.map);
             });
             this.map.on('zoomend', () => {
