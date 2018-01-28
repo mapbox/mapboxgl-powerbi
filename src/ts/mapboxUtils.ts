@@ -42,12 +42,13 @@ module powerbi.extensibility.visual {
                     var onMouseMove : Function = debounce(function(e) {
                         let minpoint = new Array(e.point['x'] - 5, e.point['y'] - 5)
                         let maxpoint = new Array(e.point['x'] + 5, e.point['y'] + 5)
+
                         try {
                             let features : any = map.queryRenderedFeatures([minpoint, maxpoint], {
                                 layers: ['cluster', 'circle', 'uncluster']
                             });
                             map.getCanvas().style.cursor = 'pointer';
-                            if (features[0].properties.tooltip) {
+                            if ( (features[0].properties.tooltip) || (Object.keys(features[0].properties.tooltip).length == 0)) {
                                 let tooltip = "<div>"
                                 let tooltips = features.map( feature => {
                                     let tooltipItem = "";
@@ -56,6 +57,8 @@ module powerbi.extensibility.visual {
                                         if (tooltipObj.title) {
                                             tooltipItem += `<h3>${tooltipObj.title}</h3>`
                                         }
+                                        tooltipItem += `<li><b>Longitude:</b> ` + Math.round(feature.geometry.coordinates[0]*100000)/10000 + `</li>`
+                                        tooltipItem += `<li><b>Latitude:</b> ` + Math.round(feature.geometry.coordinates[1]*10000)/100000 + `</li>`
                                         tooltipItem += Object.keys(tooltipObj.content).map( key => {
                                             return `<li><b>${key}:</b> ${tooltipObj.content[key]}</li>`
                                         }).join('');

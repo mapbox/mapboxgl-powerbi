@@ -2,7 +2,7 @@
   "dataRoles": [
     {
       "name": "latitude",
-      "kind": "GroupingOrMeasure",
+      "kind": "Grouping",
       "displayName": "Latitude",
       "description": "Latitude geographic point dimension",
       "preferredTypes": [
@@ -15,7 +15,7 @@
     },
     {
       "name": "longitude",
-      "kind": "GroupingOrMeasure",
+      "kind": "Grouping",
       "displayName": "Longitude",
       "description": "Longitude geographic point dimension",
       "preferredTypes": [
@@ -253,6 +253,18 @@
           "displayName": "Min Color",
           "displayNameKey": "minColor",
           "description": "Defines the color for the minimum value of the color field.",
+          "type": {
+            "fill": {
+              "solid": {
+                "color": true
+              }
+            }
+          }
+        },
+        "medColor": {
+          "displayName": "Med Color",
+          "displayNameKey": "color",
+          "description": "Intermediate color for circle color ramp. ",
           "type": {
             "fill": {
               "solid": {
