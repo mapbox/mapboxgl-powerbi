@@ -59,8 +59,8 @@ module powerbi.extensibility.visual {
                                 let tooltipItem = "";
                                 try {
                                     const tooltipObj = JSON.parse(feature.properties.tooltip);
-                                    tooltipItem += `<li><b>Longitude:</b> ` + Math.round(feature.geometry.coordinates[0]*100000)/10000 + `</li>`;
-                                    tooltipItem += `<li><b>Latitude:</b> ` + Math.round(feature.geometry.coordinates[1]*10000)/100000 + `</li>`;
+                                    tooltipItem += `<li><b>Longitude:</b> ` + Math.round(feature.geometry.coordinates[0]*100000)/100000 + `</li>`;
+                                    tooltipItem += `<li><b>Latitude:</b> ` + Math.round(feature.geometry.coordinates[1]*100000)/100000 + `</li>`;
                                     if (tooltipObj.title) {
                                         let agg = jsUcfirst(settings.cluster.aggregation);
                                         let title = tooltipObj.title;
