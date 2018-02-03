@@ -11,7 +11,7 @@ Make sense of your location big, dynamic location data with Mapbox.  Create inte
 
 ### Adding MapboxGL Viz to a PowerBI Report
 
-On PowerBI Online, add the `dist/mapboxGLMap.pbiviz` file in this repository as a custom visual in your report.
+On PowerBI Online, add the [dist/mapboxGLMap.pbiviz](https://github.com/mapbox/mapboxgl-powerbi/raw/master/dist/mapboxGLMap.pbiviz) file in this repository as a custom visual in your report.
 
 ![](https://cl.ly/3303070u081q/download/Image%202017-09-01%20at%203.47.52%20PM.png)
 
