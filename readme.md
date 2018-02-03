@@ -4,7 +4,7 @@ Comming soon as a PowerBI Custom Visual to the Microsoft Office Store!
 
 Make sense of your location big, dynamic location data with Mapbox.  Create interactive Graduated Circle, Cluster, and Heatmaps at 60FPS for your PowerBI reports and dashboards.  Easily handle large datasets up to the PowerBI maximum of 30,000 points.
 
-* [Example Dashboard - NYC Cycling Incidents](www.mapbox.com/bites/00369)
+* [Example Dashboard - NYC Cycling Incidents](https://www.mapbox.com/bites/00369)
 * [Example Dashboard - 2017 USGS Earthquakes](https://app.powerbi.com/view?r=eyJrIjoiNTlkMzA5N2MtNGU0ZS00MDY5LTg1NTktNTZkODkyMmJjOThmIiwidCI6IjYyOWE3MGIyLTMyYjktNDEyNi05NTFlLTE3NjA0Y2Y0NTZlYyIsImMiOjF9)
 
 ![](https://dl.dropbox.com/s/kymonz28oanehje/PowerBI-2.gif)
