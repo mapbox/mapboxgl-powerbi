@@ -4,14 +4,18 @@ Make sense of your big & dynamic location data with the Mapbox Visual for Power 
 
 Comming soon as a PowerBI Custom Visual to the Microsoft Office Store.
 
-**The Mapbox Visual for Power BI supports Power BI Desktop and Power BI Online using Chrome or Firefox browsers**
-
 ![](https://dl.dropbox.com/s/kymonz28oanehje/PowerBI-2.gif)
 
 ### Examples
 
 * [Example Dashboard - NYC Cycling Incidents](https://www.mapbox.com/bites/00369)
 * [Example Dashboard - 2017 USGS Earthquakes](https://app.powerbi.com/view?r=eyJrIjoiNTlkMzA5N2MtNGU0ZS00MDY5LTg1NTktNTZkODkyMmJjOThmIiwidCI6IjYyOWE3MGIyLTMyYjktNDEyNi05NTFlLTE3NjA0Y2Y0NTZlYyIsImMiOjF9)
+
+### Support
+The Mapbox Visual for Power BI supports:
+
+* Power BI Desktop 
+* Power BI Online using **Chrome or Firefox** browsers.
 
 ### Adding MapboxGL Viz to a PowerBI Report
 
