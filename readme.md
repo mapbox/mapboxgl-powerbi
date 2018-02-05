@@ -1,8 +1,8 @@
-# Mapbox GL Extension for PowerBI
+# Mapbox Visual for Power BI
 
-Comming soon as a PowerBI Custom Visual to the Microsoft Office Store!
+Make sense of your big & dynamic location data with the Mapbox Visual for Power BI.  Quickly design high-performance map visuals like graduated circles, clusters by maximum property value, and interactive heatmaps right in your Power BI dashboards.  Even add your own custom map style usigng any shapes and data you prefer, created in [Mapbox Studio](www.mapbox.com/studio)!
 
-Make sense of your location big, dynamic location data with Mapbox.  Create interactive Graduated Circle, Cluster, and Heatmaps at 60FPS for your PowerBI reports and dashboards.  Easily handle large datasets up to the PowerBI maximum of 30,000 points.
+Comming soon as a PowerBI Custom Visual to the Microsoft Office Store.
 
 * [Example Dashboard - NYC Cycling Incidents](https://www.mapbox.com/bites/00369)
 * [Example Dashboard - 2017 USGS Earthquakes](https://app.powerbi.com/view?r=eyJrIjoiNTlkMzA5N2MtNGU0ZS00MDY5LTg1NTktNTZkODkyMmJjOThmIiwidCI6IjYyOWE3MGIyLTMyYjktNDEyNi05NTFlLTE3NjA0Y2Y0NTZlYyIsImMiOjF9)
@@ -11,7 +11,7 @@ Make sense of your location big, dynamic location data with Mapbox.  Create inte
 
 ### Adding MapboxGL Viz to a PowerBI Report
 
-On PowerBI Online, add the [dist/mapboxGLMap.pbiviz](https://github.com/mapbox/mapboxgl-powerbi/raw/master/dist/mapboxGLMap.pbiviz) file in this repository as a custom visual in your report.
+On Power BI Online, add the [dist/mapboxGLMap.pbiviz](https://github.com/mapbox/mapboxgl-powerbi/raw/master/dist/mapboxGLMap.pbiviz) file in this repository as a custom visual in your report.
 
 ![](https://cl.ly/3303070u081q/download/Image%202017-09-01%20at%203.47.52%20PM.png)
 
