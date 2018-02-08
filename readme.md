@@ -1,5 +1,5 @@
 <a href="https://www.mapbox.com">
-  <img src="https://c1.staticflickr.com/3/2863/33742461420_90c7cd525f_o.png" width="500"/>
+  <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b4/Mapbox_Logo.svg/1280px-Mapbox_Logo.svg.png" width="500"/>
 </a>
 
 # Mapbox Visual for Power BI
