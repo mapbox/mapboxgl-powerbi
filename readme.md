@@ -1,3 +1,7 @@
+<a href="https://www.mapbox.com">
+  <img src="/assets/mapbox_logo.png" width="500"/>
+</a>
+
 # Mapbox Visual for Power BI
 
 Make sense of your big & dynamic location data with the Mapbox Visual for Power BI.  Quickly design high-performance map visuals using graduated circles, clusters, and interactive heatmaps.  Even customize your Mapbox visual with custom shapes, imagery, and design using [Mapbox Studio](www.mapbox.com/studio).  Check out the [Mapbox Gallery](https://www.mapbox.com/gallery/) to get a sense of what's possible with Studio.
