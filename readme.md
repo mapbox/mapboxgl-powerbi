@@ -1,5 +1,5 @@
 <a href="https://www.mapbox.com">
-  <img src="/assets/mapbox_logo.png" width="500"/>
+  <img src="/assets/logo.png" width="500"/>
 </a>
 
 # Mapbox Visual for Power BI
@@ -28,37 +28,17 @@ On Power BI Online, add the [dist/mapboxGLMap.pbiviz](https://github.com/mapbox/
 
 ![](https://cl.ly/3303070u081q/download/Image%202017-09-01%20at%203.47.52%20PM.png)
 
-## Developing
+## What is Mapbox?
 
-- `npm install -g powerbi-visuals-tools`
-- Follow Steps on https://github.com/Microsoft/PowerBI-visuals/blob/master/tools/CertificateSetup.md to setup your PowerBI live visual
-- `npm install`
-- Log into your PowerBI web UI and enable dev tools https://github.com/Microsoft/PowerBI-visuals/blob/master/tools/DebugVisualSetup.md
-- `npm start`
-- Add a custom visual using the PowerBI custom viz options, using a latitude and longitude variable.
+Mapbox is the location data platform for mobile and web applications. We provide [building blocks](https://www.mapbox.com/products/) to add location features like maps, search, and navigation into any experience you create. Use our simple and powerful APIs & SDKs and our open source libraries for interactivity and control.
 
-### Developing under MacOS
+## Sign up for Mapbox
 
-Due to an open PowerBI [issue](https://github.com/Microsoft/PowerBI-visuals-tools/issues/157) the `npm start` might fail with `FSEvents.framework`.
+Not a Mapbox user yet? [Sign up for an account here](https://www.mapbox.com/signup/). Once you’re signed in, all you need to start building is a Mapbox access token. Use this same short code with all of our interactive mapping libraries, Python and JavaScript SDKs, and directly against our REST APIs. You can create and manage your access tokens on your [Mapbox Account page](https://www.mapbox.com/account/).
 
-To mitigate the issue for powerbi-visuals-tools version 1.10.0 may run
-```
-git apply VisualBuilder-1.10.0.patch
-```
+### Developing
 
-### Running the tests
-Please consult the [README.md](test/README.md) in the `/test` folder for futher details.
-
-### Building
-
-`npm run package`
-The packaged output `pbiviz` file will be in the `/dist` folder.
-
-### Updating Mapbox GL JS to latest version
-
-Due to an open PowerBI [issue](https://github.com/Microsoft/PowerBI-visuals/issues/165) mapbox-gl.js needs to be copied from under `node_modules` to `src/modules` and patched. During the patch all `window.devicePixelRatio` needs to be replaced to `window.window.devicePixelRatio`.  
-
-This custom-altered version of the Mapbox GL js library is packaged with this repository and will need to be manually checked and validated for new mapboxgl JS version upgrades.
+Please see [contributing.md](./contributing.md)
 
 ### Screenshots
 
