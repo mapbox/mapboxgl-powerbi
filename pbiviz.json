@@ -1,17 +1,17 @@
 {
   "visual": {
     "name": "mapboxGLMap",
-    "displayName": "Mapbox Viz",
+    "displayName": "Mapbox Visual",
     "guid": "PBI_CV_EB3A4088_75C5_4746_9D8B_255A7B7ECD6C",
     "visualClassName": "MapboxMap",
     "version": "1.0.0",
-    "description": "Visualize and understand big, dynamic location with Mapbox GL circle, heatmap, and cluster visualizations.",
+    "description": "Visualze massive location data with custom map styles, using circle, heatmap, and cluster layers.",
     "supportUrl": "www.mapbox.com/help",
     "gitHubUrl": "https://github.com/mapbox/mapboxgl-powerbi"
   },
   "apiVersion": "1.10.0",
   "author": {
-    "name": "Ryan Baumann",
+    "name": "Mapbox",
     "email": "ryan.baumann@mapbox.com"
   },
   "assets": {

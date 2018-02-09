@@ -38,7 +38,7 @@ Not a Mapbox user yet? [Sign up for an account here](https://www.mapbox.com/sign
 
 ### Developing
 
-Please see [contributing.md](./contributing.md)
+Please see [contributing.md](CONTRIBUTING.md)
 
 ### Screenshots
 
