@@ -496,13 +496,17 @@ module powerbi.extensibility.visual {
                 errorDiv.innerHTML = html;
             }
 
-            // Check for Access Token
-            if (!this.settings.api.accessToken) {
+            function validateToken(token) {
+            	return token.slice(0,2) == 'pk'
+            }
+
+            // Show splash screen requesting user to enter access token if viz is in edit mode
+            if ((!(this.settings.api.accessToken) || !(validateToken(this.settings.api.accessToken))) && (options.viewMode === 1)) {
                 let link1 = this.createLinkElement("Click here to get a free Mapbox access token", "https://mapbox.com/account/access-tokens?source=PowerBI");
                 let link2 = this.createLinkElement("Contact Support", "https://www.mapbox.com/contact/support?source=PowerBI")
                 let html = '<h4>Start building with Mapbox in 3 steps:</h4>'+
                     '<ol>' +
-                    '<li style="font-size: 18px;"> 1. Copy your Mapbox access token from the link above.</li>'+
+                    '<li style="font-size: 18px;"> 1. Copy your Mapbox access token from the link above.  Tokens are free to use for up to 50k map views per month.</li>'+
                     '<img style="padding-bottom: 20px;" src="https://dl.dropbox.com/s/heywck8rrxw8fd0/copy_mapbox_access_token.png"></img><br>'+
                     '<li style="font-size: 18px;"> 2. Paste your Mapbox access token into the PowerBI Viz format pannel.</li>'+
                     '<img style="padding-bottom: 20px;" src="https://dl.dropbox.com/s/akn1lyw5qwtmxyn/add-access-token.png"></img><br>'+
@@ -519,6 +523,18 @@ module powerbi.extensibility.visual {
                 img.src="https://dl.dropbox.com/s/5io6dvr1l8gcgtp/mapbox-logo-color.png";
                 this.errorDiv.appendChild(img)
                 
+                return false;
+            }
+            // Show splash screen requesting user to contact workbook owner if in edit mode
+            else if ((!(this.settings.api.accessToken) || !(validateToken(this.settings.api.accessToken))) && (options.viewMode === 0)) {
+            	let link = this.createLinkElement("Contact Support", "https://www.mapbox.com/contact/support?source=PowerBI");
+            	setError(this.errorDiv, '<h4>This Mapbox Visual for Power BI is missing a Mapbox access token.  Ask the Power BI workbook owner to update the visual.</h4>' +
+                                        '<h3>Still have issues?</h3>');
+                this.errorDiv.appendChild(link);
+                let img = document.createElement('img');
+                img.src="https://dl.dropbox.com/s/5io6dvr1l8gcgtp/mapbox-logo-color.png"
+                this.errorDiv.appendChild(img);
+
                 return false;
             }
 
@@ -640,7 +656,7 @@ module powerbi.extensibility.visual {
 
             let ua = navigator.userAgent;
             let detected = parseUserAgent(ua)
-            console.log("browser info: " + JSON.stringify(detected))
+
             if ( !(detected.name === 'chrome')  && !(detected.name === 'firefox') ) {
                 let link = this.createLinkElement("Contact Mapbox Support", "https://www.mapbox.com/contact/support?source=PowerBI");
                 setError(this.errorDiv, '<h4>IE11, Edge, and Safari are not supported at this time.  Please try the latest Chrome or Firefox.</h4>' +
