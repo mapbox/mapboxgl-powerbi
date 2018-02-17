@@ -4,6 +4,12 @@ module powerbi.extensibility.visual {
             return role == 'color' || role == 'size' || role == 'tooltips' || role == 'cluster';
         }
 
+        const checkLngLatValid = (feat) => {
+            return feat.longitude != undefined && feat.latitude != undefined &&
+                feat.latitude >= -90 && feat.latitude <= 90 &&
+                feat.longitude >= -180 && feat.longitude <= 180
+        }
+
         const transformToObjectArray = (rows, columns) => {
             let domain : any = [];
 
@@ -47,8 +53,8 @@ module powerbi.extensibility.visual {
         const getFeatures = (rows, columns) => {
             const { datas, domain }  = transformToObjectArray(rows, columns);
 
-            let features = []
-            features = datas.map(function (d) {
+            return datas.filter(checkLngLatValid).map(d => {
+
                 let properties : any = {
                     "colorValue": d.color,
                     "tooltip": JSON.stringify({
@@ -60,7 +66,12 @@ module powerbi.extensibility.visual {
                     "clusterValue": d.cluster
                 }
 
-                if ( (d.latitude >= -90) && (d.latitude <= 90) && (d.longitude >= -180) && (d.longitude <= 180) ) {
+                if ( d.location ) {
+                    // If location for choropleth
+                    return { properties }
+                }
+                else {
+                    // Return geojson feature
                     let feat: GeoJSON.Feature<any> = {
                         "type": "Feature",
                         "geometry": {
@@ -70,13 +81,8 @@ module powerbi.extensibility.visual {
                         "properties": properties
                     }
                     return feat;
-                } else if (d.location) {
-                    let feat = { properties }
-                    return feat;
                 }
             });
-
-            return features;
         }
 
         export function convert(dataView: DataView, host: IVisualHost) {
