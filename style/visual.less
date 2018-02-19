@@ -7,6 +7,30 @@
         }
     }
 
+    .full {
+        top: 0;
+        bottom: 0;
+        width: 100%;
+        position: absolute;
+    }
+
+    .loader {
+    	position: relative;
+    	margin-left: auto; 
+    	margin-right:auto;
+    	border: 16px solid #f3f3f3; /* Light grey */
+	    border-top: 16px solid #3498db; /* Blue */
+	    border-radius: 50%;
+        height: 100px;
+        width: 100px;
+	    animation: spin 2s linear infinite;
+	}
+
+	@keyframes spin {
+	    0% { transform: rotate(0deg); }
+	    100% { transform: rotate(360deg); }
+	}
+
     .map {
         position: absolute;
         top: 0;
