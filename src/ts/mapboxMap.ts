@@ -376,7 +376,6 @@ module powerbi.extensibility.visual {
             this.map = new mapboxgl.Map(mapOptions);
             this.map.addControl(new mapboxgl.NavigationControl());
 
-
             // Future option to enable search bar / geocoder
             /*if (document.getElementsByClassName('mapbox-gl-geocoder').length == 0) {
                 this.map.addControl(new mapbox_geocoder({
@@ -393,15 +392,17 @@ module powerbi.extensibility.visual {
 
                 if (this.settings.api.style=='mapbox://styles/mapbox/satellite-v9?optimize=true' ||
                         this.settings.api.style == 'custom') {
+                    
                     //For custom style find the lowest symbol layer to place data underneath
-                    firstSymbolId = ''
-                    let layers = this.map.getStyle().layers;
+                    firstSymbolId = '';
+                    
+                    /*let layers = this.map.getStyle().layers;
                     for (var i = 0; i < layers.length; i++) {
                         if (layers[i].type === 'symbol') {
                             firstSymbolId = layers[i].id;
                             break;
                         }
-                    }
+                    }*/
                 }
 
                 this.map.addSource('data', {
@@ -506,71 +507,45 @@ module powerbi.extensibility.visual {
                 errorDiv.innerHTML = html;
             }
 
-            function validateToken(token) {
-            	return token.slice(0,2) == 'pk'
+            function isValidToken(token, callback, errorDiv) {
+                // Not used at the moment
+                // Request a sample resource to check if access token is valid
+                let url = 'https://api.mapbox.com/v4/mapbox.mapbox-streets-v7/0/0/0.mvt?access_token=' + token
+                var xhr = new XMLHttpRequest();
+                xhr.onreadystatechange = function() {
+                    if ((this.readyState == 4) && !(this.status == 200)) {
+                        callback(errorDiv);
+                    }
+                    else {
+                        errorDiv.style.visiblity = 'none';
+                    }
+                }
+                xhr.open("GET", url);
+                xhr.send(); 
             }
 
-            // Show splash screen requesting user to enter access token if viz is in edit mode
-            if ((!(this.settings.api.accessToken) || !(validateToken(this.settings.api.accessToken))) && (options.viewMode === 1)) {
-                let link1 = this.createLinkElement("Click here to get a free Mapbox access token", "https://mapbox.com/account/access-tokens?source=PowerBI");
-                let link2 = this.createLinkElement("Contact Support", "https://www.mapbox.com/contact/support?source=PowerBI")
-                let html = '<h4>Start building with Mapbox in 3 steps:</h4>'+
-                    '<ol>' +
-                    '<li style="font-size: 18px;"> 1. Copy your Mapbox access token from the link above.  Tokens are free to use for up to 50k map views per month.</li>'+
-                    '<img style="padding-bottom: 20px;" src="https://dl.dropbox.com/s/heywck8rrxw8fd0/copy_mapbox_access_token.png"></img><br>'+
-                    '<li style="font-size: 18px;"> 2. Paste your Mapbox access token into the PowerBI Viz format pannel.</li>'+
-                    '<img style="padding-bottom: 20px;" src="https://dl.dropbox.com/s/akn1lyw5qwtmxyn/add-access-token.png"></img><br>'+
-                    '<li style="font-size: 18px;"> 3. Add latitude and longitude fields to your viz.</li><br>'+
-                    '<img style="padding-bottom: 20px;" src="https://dl.dropbox.com/s/aobsdsrzn0ewc2t/add-long-lat.png"></img><br>'+
-                    '<li style="font-size: 18px;"> Select a map style, then design heatmaps, circles, and cluster visualizations in the format pannel.</li><br>'+
-                    '<img style="padding-bottom: 20px;" src="https://dl.dropbox.com/s/dc9ibu2f71t4t23/start-visualizing.png"></img><br>'+
-                    '<li style="font-size: 18px;"> Still have questions? </li>'+
-                    '</ol>'
-                setError(this.errorDiv, html)
-                this.errorDiv.childNodes[1].appendChild(link1);
-                this.errorDiv.childNodes[2].appendChild(link2);
+            function showInvalidTokenError(errorDiv) {
+                // Not used at the moment
+                // Display an error that the users account token is not valid
+                setError(errorDiv, '<h4>This Mapbox Visual does not have a valid Mapbox Access token.  Please ask the workbook owner to update the access token in the visual.</h4>');
                 let img = document.createElement('img');
-                img.src="https://dl.dropbox.com/s/5io6dvr1l8gcgtp/mapbox-logo-color.png";
-                this.errorDiv.appendChild(img)
-                
-                return false;
+                img.src="https://dl.dropbox.com/s/5io6dvr1l8gcgtp/mapbox-logo-color.png"
+                errorDiv.appendChild(img);
             }
-            // Show splash screen requesting user to contact workbook owner if in edit mode
-            else if ((!(this.settings.api.accessToken) || !(validateToken(this.settings.api.accessToken))) && (options.viewMode === 0)) {
-            	let link = this.createLinkElement("Contact Support", "https://www.mapbox.com/contact/support?source=PowerBI");
-            	setError(this.errorDiv, '<h4>This Mapbox Visual for Power BI is missing a Mapbox access token.  Ask the Power BI workbook owner to update the visual.</h4>' +
+
+            function validatePkToken(token) {
+                return token.slice(0,2) === 'pk'
+            }
+
+            if (!mapboxgl.supported()) {
+                let link = this.createLinkElement("Contact Mapbox Support", "https://www.mapbox.com/contact/support?source=PowerBI");
+                setError(this.errorDiv, '<h4>Your browser doesnt support WebGL.  Please try a different browser.</h4>' +
                                         '<h3>Still have issues?</h3>');
                 this.errorDiv.appendChild(link);
                 let img = document.createElement('img');
                 img.src="https://dl.dropbox.com/s/5io6dvr1l8gcgtp/mapbox-logo-color.png"
                 this.errorDiv.appendChild(img);
-
                 return false;
-            }
-
-            // Check for Location properties
-            const roles : any = options.dataViews[0].metadata.columns.map( column => {
-                if (column.roles) {
-                    return Object.keys(column.roles);
-                } else {
-                    return null;
-                }
-            }).reduce( (acc, curr) => {
-                if (curr) {
-                    curr.map( role => {
-                        acc[role] = true;
-                    });
-                }
-                return acc;
-            }, {});
-
-            function buildRules(ruleTuples) {
-              return ruleTuples.map(function(tuple) {
-                return {
-                  name: tuple[0],
-                  rule: tuple[1]
-                };
-              });
             }
 
             // Helper functions to determine if Browser is supported
@@ -664,6 +639,7 @@ module powerbi.extensibility.visual {
               ]);
             }
 
+            // Check if browser is supported
             let ua = navigator.userAgent;
             let detected = parseUserAgent(ua)
 
@@ -678,15 +654,68 @@ module powerbi.extensibility.visual {
                 return false;
             }
 
-            if (!mapboxgl.supported()) {
-                let link = this.createLinkElement("Contact Mapbox Support", "https://www.mapbox.com/contact/support?source=PowerBI");
-                setError(this.errorDiv, '<h4>Your browser doesnt support WebGL.  Please try a different browser.</h4>' +
+            // Show splash screen requesting user to enter access token if viz is in edit mode
+            if ((!(this.settings.api.accessToken) || !(validatePkToken(this.settings.api.accessToken))) && (options.viewMode === 1)) {
+                let link1 = this.createLinkElement("Click here to get a free Mapbox access token", "https://mapbox.com/account/access-tokens?source=PowerBI");
+                let link2 = this.createLinkElement("Contact Support", "https://www.mapbox.com/contact/support?source=PowerBI")
+                let html = '<h4>Start building with Mapbox in 3 steps:</h4>'+
+                    '<ol>' +
+                    '<li style="font-size: 18px;"> 1. Copy your Mapbox access token from the link above.  Tokens are free to use for up to 50k map views per month.</li>'+
+                    '<img style="padding-bottom: 20px;" src="https://dl.dropbox.com/s/heywck8rrxw8fd0/copy_mapbox_access_token.png"></img><br>'+
+                    '<li style="font-size: 18px;"> 2. Paste your Mapbox access token into the PowerBI Viz format pannel.</li>'+
+                    '<img style="padding-bottom: 20px;" src="https://dl.dropbox.com/s/akn1lyw5qwtmxyn/add-access-token.png"></img><br>'+
+                    '<li style="font-size: 18px;"> 3. Add latitude and longitude fields to your viz.</li><br>'+
+                    '<img style="padding-bottom: 20px;" src="https://dl.dropbox.com/s/aobsdsrzn0ewc2t/add-long-lat.png"></img><br>'+
+                    '<li style="font-size: 18px;"> Select a map style, then design heatmaps, circles, and cluster visualizations in the format pannel.</li><br>'+
+                    '<img style="padding-bottom: 20px;" src="https://dl.dropbox.com/s/dc9ibu2f71t4t23/start-visualizing.png"></img><br>'+
+                    '<li style="font-size: 18px;"> Still have questions? </li>'+
+                    '</ol>'
+                setError(this.errorDiv, html)
+                this.errorDiv.childNodes[1].appendChild(link1);
+                this.errorDiv.childNodes[2].appendChild(link2);
+                let img = document.createElement('img');
+                img.src="https://dl.dropbox.com/s/5io6dvr1l8gcgtp/mapbox-logo-color.png";
+                this.errorDiv.appendChild(img)
+                
+                return false;
+            }
+
+            // Show splash screen requesting user to contact workbook owner if in edit mode
+            else if ((!(this.settings.api.accessToken) || !(validatePkToken(this.settings.api.accessToken))) && (options.viewMode === 0)) {
+            	let link = this.createLinkElement("Contact Support", "https://www.mapbox.com/contact/support?source=PowerBI");
+            	setError(this.errorDiv, '<h4>This Mapbox Visual for Power BI has an invalid Mapbox access token.  Ask the Power BI workbook owner to update the visual.</h4>' +
                                         '<h3>Still have issues?</h3>');
                 this.errorDiv.appendChild(link);
                 let img = document.createElement('img');
                 img.src="https://dl.dropbox.com/s/5io6dvr1l8gcgtp/mapbox-logo-color.png"
                 this.errorDiv.appendChild(img);
+
                 return false;
+            }
+
+            // Check for Location properties
+            const roles : any = options.dataViews[0].metadata.columns.map( column => {
+                if (column.roles) {
+                    return Object.keys(column.roles);
+                } else {
+                    return null;
+                }
+            }).reduce( (acc, curr) => {
+                if (curr) {
+                    curr.map( role => {
+                        acc[role] = true;
+                    });
+                }
+                return acc;
+            }, {});
+
+            function buildRules(ruleTuples) {
+              return ruleTuples.map(function(tuple) {
+                return {
+                  name: tuple[0],
+                  rule: tuple[1]
+                };
+              });
             }
 
             if ((this.settings.circle.show || this.settings.cluster.show || this.settings.heatmap.show) && !(roles.latitude && roles.longitude)) {
