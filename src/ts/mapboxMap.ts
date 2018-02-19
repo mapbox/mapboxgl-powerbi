@@ -256,6 +256,7 @@ module powerbi.extensibility.visual {
 
     export class MapboxMap implements IVisual {
         private map: mapboxgl.Map;
+        private initDiv: HTMLDivElement;
         private mapDiv: HTMLDivElement;
         private errorDiv: HTMLDivElement;
         private host: IVisualHost;
@@ -322,7 +323,16 @@ module powerbi.extensibility.visual {
 
         constructor(options: VisualConstructorOptions) {
             this.host = options.host;
-            //Map initialization
+
+            this.initDiv = document.createElement('div');
+            this.initDiv.className = 'full';
+
+            let loaderDiv = document.createElement('div');
+            loaderDiv.className = 'loader';
+
+            this.initDiv.appendChild(loaderDiv);
+            options.element.appendChild(this.initDiv);
+
             this.mapDiv = document.createElement('div');
             this.mapDiv.className = 'map';
             options.element.appendChild(this.mapDiv);
