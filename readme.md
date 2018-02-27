@@ -21,6 +21,10 @@ The Mapbox Visual for Power BI supports:
 * Power BI Desktop 
 * Power BI Online using **Chrome or Firefox** browsers.
     - We are actively working on a solution for [IE11 & Edge](https://github.com/mapbox/mapboxgl-powerbi/issues/48) browser support
+    
+### Documentation
+
+Check out the official Mapbox Visual for Power BI docs at https://www.mapbox.com/help/power-bi/.
 
 ### Adding MapboxGL Viz to a Power BI Dashboard
 
