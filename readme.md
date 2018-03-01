@@ -6,7 +6,7 @@
 
 Make sense of your big & dynamic location data with the Mapbox Visual for Power BI.  Quickly design high-performance map visuals using graduated circles, clusters, and interactive heatmaps.  Even customize your Mapbox visual with custom shapes, imagery, and design using [Mapbox Studio](www.mapbox.com/studio).  Check out the [Mapbox Gallery](https://www.mapbox.com/gallery/) to get a sense of what's possible with Studio.
 
-Comming soon as a PowerBI Custom Visual to the Microsoft Office Store.
+Drop in the Mapbox Visual to your Power BI dashboard from the [Microsoft Office Store](https://appsource.microsoft.com/en-us/product/power-bi-visuals/WA104381472?tab=Overview).
 
 ![](https://dl.dropbox.com/s/kymonz28oanehje/PowerBI-2.gif)
 
@@ -28,9 +28,9 @@ Check out the official Mapbox Visual for Power BI docs at https://www.mapbox.com
 
 ### Adding MapboxGL Viz to a Power BI Dashboard
 
-On Power BI Online, add the [dist/mapboxGLMap.pbiviz](https://github.com/mapbox/mapboxgl-powerbi/raw/master/dist/mapboxGLMap.pbiviz) file in this repository as a custom visual in your report.  Follow the same process in Power BI desktop.
+On Power BI Online or Desktop, click `add visual from marketplace` and search `Mapbox`.  Check out the visual on the Microsoft Office Store at https://appsource.microsoft.com/en-us/product/power-bi-visuals/WA104381472?tab=Overview.
 
-![](https://cl.ly/3303070u081q/download/Image%202017-09-01%20at%203.47.52%20PM.png)
+![](https://cl.ly/0f1d1h1i2N3W/download/Image%202018-03-01%20at%2010.20.32%20AM.png)
 
 ## What is Mapbox?
 
