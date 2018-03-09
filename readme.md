@@ -24,7 +24,9 @@ The Mapbox Visual for Power BI supports:
     
 ### Documentation
 
-Check out the official Mapbox Visual for Power BI docs at https://www.mapbox.com/help/power-bi/.
+- Check out the official Mapbox Visual for Power BI docs at https://www.mapbox.com/help/power-bi/.
+- Check out 3rd party documenation below:
+    * Devin Knight's March 2018 video tutorial: https://www.youtube.com/watch?v=qDCOo3bm01o
 
 ### Adding MapboxGL Viz to a Power BI Dashboard
 
