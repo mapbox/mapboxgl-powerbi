@@ -1,6 +1,12 @@
 {
   "dataRoles": [
     {
+      "name": "location",
+      "kind": "GroupingOrMeasure",
+      "displayName": "Location",
+      "description": "Location"
+    },
+    {
       "name": "latitude",
       "kind": "GroupingOrMeasure",
       "displayName": "Latitude",
@@ -186,7 +192,7 @@
       "description": "Circle display settings",
       "properties": {
         "show": {
-          "displayName": "Choropleth",
+          "displayName": "Circle",
           "type": { "bool": true }
         },
         "radius": {
@@ -309,7 +315,7 @@
       "description": "Heatmap display settings",
       "properties": {
         "show": {
-          "displayName": "Choropleth",
+          "displayName": "Heatmap",
           "type": { "bool": true }
         },
         "radius": {
@@ -541,7 +547,7 @@
       "properties": {
         "show": {
           "displayName": "Choropleth",
-          "type": { "bool": false }
+          "type": { "bool": true }
         },
         "vectorTileUrl": {
           "type": {
@@ -571,6 +577,18 @@
           "displayName": "Min Color",
           "displayNameKey": "minColor",
           "description": "Defines the color for the minimum value of the color field.",
+          "type": {
+            "fill": {
+              "solid": {
+                "color": true
+              }
+            }
+          }
+        },
+        "medColor": {
+          "displayName": "Med Color",
+          "displayNameKey": "color",
+          "description": "Intermediate color for choropleth color ramp. ",
           "type": {
             "fill": {
               "solid": {
