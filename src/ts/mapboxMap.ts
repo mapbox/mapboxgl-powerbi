@@ -23,13 +23,18 @@ module powerbi.extensibility.visual {
             map.setLayoutProperty('uncluster', 'visibility', settings.cluster.show ? 'visible' : 'none');
             map.setLayoutProperty('cluster-label', 'visibility', settings.cluster.show ? 'visible' : 'none');
             map.setLayoutProperty('heatmap', 'visibility', settings.heatmap.show ? 'visible' : 'none');
+
             if (map.getLayer('choropleth-layer')) {
                 map.setLayoutProperty('choropleth-layer', 'visibility', settings.choropleth.display() ? 'visible' : 'none');
             }
 
             if (settings.choropleth.display()) {
 
+                // The choropleth layer is different since it is a vector tile source, not geojson.  We can't modify it in-place.
+                // If it is, we'll create the vector tile source from the URL.  If not, we'll make sure the source doesn't exist.
+
                 if (this.vectorTileUrl != settings.choropleth.vectorTileUrl) {
+                    // Update the vector tile source if it exists and has changed.
                     if (map.getSource('choropleth-source')) {
                         if (map.getLayer('choropleth-layer')) {
                             map.removeLayer('choropleth-layer');
@@ -40,6 +45,7 @@ module powerbi.extensibility.visual {
                 }
 
                 if (!map.getSource('choropleth-source')) {
+                    // Create the vector tile source if it doesnt yet exist
                     map.addSource('choropleth-source', {
                         type: 'vector',
                         url: settings.choropleth.vectorTileUrl,
@@ -54,6 +60,7 @@ module powerbi.extensibility.visual {
                 });
 
                 if (!map.getLayer('choropleth-layer')) {
+                    // add the choropleth layer if it doesn't exist
                     map.addLayer(choroplethLayer, 'cluster');
                 }
 
@@ -81,6 +88,7 @@ module powerbi.extensibility.visual {
                 
             }
             if (settings.cluster.show) {
+                
                 map.setLayerZoomRange('cluster', settings.cluster.minZoom, settings.cluster.maxZoom);
                 map.setPaintProperty('cluster', 'circle-stroke-width', settings.cluster.strokeWidth);
                 map.setPaintProperty('cluster', 'circle-stroke-opacity', settings.cluster.strokeOpacity / 100);
@@ -93,7 +101,9 @@ module powerbi.extensibility.visual {
                 map.setPaintProperty('uncluster', 'circle-stroke-color', settings.cluster.strokeColor);
                 map.setPaintProperty('uncluster', 'circle-color', settings.cluster.minColor);
                 map.setPaintProperty('uncluster', 'circle-radius', settings.cluster.radius/2);
+
                 const limits = mapboxUtils.getLimits(features.clusterData, settings.cluster.aggregation);
+
                 if (limits.min && limits.max) {
                     map.setPaintProperty('cluster', 'circle-color', [
                         'interpolate', ['linear'], ['get', settings.cluster.aggregation],
@@ -129,6 +139,7 @@ module powerbi.extensibility.visual {
 
             }
             if (settings.heatmap.show) {
+
                 map.setLayerZoomRange('heatmap', settings.heatmap.minZoom, settings.heatmap.maxZoom);
                 map.setPaintProperty('heatmap', 'heatmap-radius', [ "interpolate", ["exponential", 1.2], ["zoom"],
                     0, settings.heatmap.radius, 14, settings.heatmap.radius*25
@@ -141,9 +152,11 @@ module powerbi.extensibility.visual {
                     0.5, settings.heatmap.medColor,
                     1, settings.heatmap.maxColor]);
             }
+
             if (zoom) {
                 mapboxUtils.zoomToData(map, features)
             }
+
         } finally {
             updatedHandler();
         }
