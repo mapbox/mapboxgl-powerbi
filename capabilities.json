@@ -2,7 +2,7 @@
   "dataRoles": [
     {
       "name": "location",
-      "kind": "GroupingOrMeasure",
+      "kind": "Grouping",
       "displayName": "Location",
       "description": "Location"
     },
