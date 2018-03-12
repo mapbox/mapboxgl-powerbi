@@ -53,7 +53,7 @@ module powerbi.extensibility.visual {
         const getFeatures = (rows, columns) => {
             const { datas, domain }  = transformToObjectArray(rows, columns);
 
-            return datas.filter(checkLngLatValid).map(d => {
+            return datas.map(d => {
 
                 let properties : any = {
                     "colorValue": d.color,
@@ -66,22 +66,20 @@ module powerbi.extensibility.visual {
                     "clusterValue": d.cluster
                 }
 
-                if ( d.location ) {
-                    // If location for choropleth
-                    return { properties }
+                // Return geojson feature
+                let feat: GeoJSON.Feature<any> = {
+                    "type": "Feature",
+                    "geometry": {
+                        "type": "Point",
+                        // Use null coordinate values if no long/lats are defined.
+                        // Useful for location visualizations
+                        "coordinates": [checkLngLatValid(d) ? d.longitude : null, 
+                                        checkLngLatValid(d) ? d.latitude : null]
+                    },
+                    "properties": properties
                 }
-                else {
-                    // Return geojson feature
-                    let feat: GeoJSON.Feature<any> = {
-                        "type": "Feature",
-                        "geometry": {
-                            "type": "Point",
-                            "coordinates": [d.longitude, d.latitude]
-                        },
-                        "properties": properties
-                    }
-                    return feat;
-                }
+                return feat;
+                
             });
         }
 

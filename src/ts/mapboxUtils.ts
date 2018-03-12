@@ -226,18 +226,34 @@ module powerbi.extensibility.visual {
         }
 
         export function getLimits(data, myproperty) {
-
+            
             let min = null;
             let max = null;
             let values = [];
-            turf.meta.propEach(turf.helpers.featureCollection(data), function(currentProperties, featureIndex) {
-                if (currentProperties[myproperty]) {
-                    const value = currentProperties[myproperty];
-                    if (!min || value < min) { min = value }
-                    if (!max || value > max) { max = value }
-                    pushIfNotExist(values, value)
-                }
-            })
+
+            if (data[0]['type']) {
+                // data are geojson
+                turf.meta.propEach(turf.helpers.featureCollection(data), function(currentProperties, featureIndex) {
+                    if (currentProperties[myproperty]) {
+                        const value = currentProperties[myproperty];
+                        if (!min || value < min) { min = value }
+                        if (!max || value > max) { max = value }
+                        pushIfNotExist(values, value)
+                    }
+                })
+            }
+            else {
+                // data are non-geojson objects for a choropleth
+                data.forEach(f => {
+                    if (f[myproperty]) {
+                        const value = f[myproperty];
+                        if (!min || value < min) { min = value }
+                        if (!max || value > max) { max = value }
+                        pushIfNotExist(values, value)
+                    }
+                })          
+            }
+
             // Min and max must not be equal becuse of the interpolation.
             // let's make sure with the substraction
             if (min == max) {
