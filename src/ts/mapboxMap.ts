@@ -627,8 +627,8 @@ module powerbi.extensibility.visual {
                     '<img src="https://dl.dropbox.com/s/5io6dvr1l8gcgtp/mapbox-logo-color.png"></img>');
                 return false;
             }
-            else if (this.settings.choropleth.show && (!roles.location || !roles.color)) {
-                setError(this.errorDiv, '<h4>Add Location & Color fields to use a choropleth layer.</h4>'+
+            else if (this.settings.choropleth.show && (!roles.location || !roles.color) || (roles.latitude || roles.longitude || roles.size)) {
+                setError(this.errorDiv, '<h4>Add only Location & Color fields to use a choropleth layer.  Choropleth layers do not support using multiple layers in the same map - only a choropleth layer is allowed.</h4>'+
                     '<img src="https://dl.dropbox.com/s/5io6dvr1l8gcgtp/mapbox-logo-color.png"></img>');
                 return false;
             }
