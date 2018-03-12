@@ -75,11 +75,11 @@ module powerbi.extensibility.visual {
                 let outlineColors = {type: "categorical", property: settings.choropleth.vectorProperty, default: "rgba(0,0,0,0)", stops: []};
 
                 features.choroplethData.map( row => {
-                    let color : any = colorStops(row.properties.colorValue);
-                    let outlineColor : any = colorStops(row.properties.colorValue)
+                    let color : any = colorStops(row.colorValue);
+                    let outlineColor : any = colorStops(row.colorValue)
                     outlineColor = outlineColor.darken(2);
-                    colors.stops.push([row.properties.location, color.toString()]);
-                    outlineColors.stops.push([row.properties.location, outlineColor.toString()]);
+                    colors.stops.push([row.location, color.toString()]);
+                    outlineColors.stops.push([row.location, outlineColor.toString()]);
                 });
 
                 map.setPaintProperty('choropleth-layer', 'fill-color', colors);
@@ -88,7 +88,7 @@ module powerbi.extensibility.visual {
                 
             }
             if (settings.cluster.show) {
-                
+
                 map.setLayerZoomRange('cluster', settings.cluster.minZoom, settings.cluster.maxZoom);
                 map.setPaintProperty('cluster', 'circle-stroke-width', settings.cluster.strokeWidth);
                 map.setPaintProperty('cluster', 'circle-stroke-opacity', settings.cluster.strokeOpacity / 100);
@@ -199,7 +199,13 @@ module powerbi.extensibility.visual {
         // for choropleth we need to aggregate per location as
         // we mustn't have more than one values for a location
         private getFeatures(): Features {
+
             let ret : Features = new Features();
+
+            if (this.features.length > 0 && this.features[0].geometry.coordinates[0] != null) { 
+                ret.rawData = this.features; 
+            }
+
             if (this.settings.cluster.show) {
                 const worldBounds = [-180.0000, -90.0000, 180.0000, 90.0000];
                 this.cluster.options.radius = this.settings.cluster.clusterRadius;
@@ -208,31 +214,12 @@ module powerbi.extensibility.visual {
             }
 
             if (this.settings.choropleth.show) {
-                let values = {}
-                this.features.map( feature => {
-                    if (!values[feature.properties.location]) {
-                        // Clone feature to keep rawData untouched
-                        values[feature.properties.location] = JSON.parse(JSON.stringify(feature));
-                    } else {
-                        values[feature.properties.location].properties.colorValue += feature.properties.colorValue;
-                    }
-                })
-                ret.choroplethData = Object.keys(values).map( key => {
-                    return values[key];
-                });
-
+                ret.choroplethData = this.features.map( f => f.properties );
                 const source : any = this.map.getSource('choropleth-source');
                 if (source && source.tileBounds) {
-                    //ret.bounds = source.tileBounds.bounds;
+                    ret.bounds = source.tileBounds.bounds;
                 }
             }
-
-            const hasCoords = this.features.length > 0 &&
-                this.features[0].geometry
-            if (hasCoords) {
-                ret.rawData = this.features;
-            }
-
 
             return ret;
         }
