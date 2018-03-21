@@ -8,9 +8,11 @@ module powerbi.extensibility.visual {
             bounds = turf.bbox(turf.helpers.featureCollection(features.rawData));
         }
 
-        if (bounds) {
+        const isPinned = false /* mapboxMapNotYetGiventoThisMethod.isPinned() */
+        if (bounds && !isPinned) {
             map.fitBounds(bounds, {
-                padding: 10
+                padding: 10,
+                maxZoom: 15,
             });
         }
     }
@@ -267,6 +269,7 @@ module powerbi.extensibility.visual {
         private cluster: any;
         private color: any;
         private updatedHandler: Function = () => {}
+        private tooltipServiceWrapper: ITooltipServiceWrapper;
 
          /**
          * This function returns the values to be displayed in the property pane for each object.
@@ -330,6 +333,7 @@ module powerbi.extensibility.visual {
             this.errorDiv = document.createElement('div');
             this.errorDiv.className = 'error';
             options.element.appendChild(this.errorDiv);
+            this.tooltipServiceWrapper = createTooltipServiceWrapper(this.host.tooltipService, options.element);
 
             this.popup = new mapboxgl.Popup({
                 closeButton: false,
@@ -458,7 +462,7 @@ module powerbi.extensibility.visual {
 
             this.map.on('load', () => {
                 onUpdate(this.map, this.getFeatures(), this.settings, true, this.color, this.host, this.updatedHandler)
-                mapboxUtils.addPopup(this.map, this.popup, this.settings);
+                //mapboxUtils.addPopup(this.map, this.popup, this.settings);
                 mapboxUtils.addClick(this.map);
             });
             this.map.on('zoomend', () => {
@@ -578,6 +582,23 @@ module powerbi.extensibility.visual {
                 oldSettings.heatmap.show != newSettings.heatmap.show)
         }
 
+        private static getTooltipData(value: any): VisualTooltipDataItem[] {
+            console.log("Getting Tooltip Data", value);
+            //return [{
+            //displayName: value.category,
+            //value: value.value.toString(),
+            //color: value.color
+            //}];
+             return [{
+                 displayName: "Cica",
+                 value: '42',
+             },
+                 {
+                displayName: 'Ütvefúrótükörakármigép',
+                value: 'Sok',
+                 }];
+         }
+
         @mapboxUtils.logExceptions()
         public update(options: VisualUpdateOptions) {
             const dataView: DataView = options.dataViews[0];
@@ -624,10 +645,15 @@ module powerbi.extensibility.visual {
                 return column.roles.color;
             });
 
+            this.tooltipServiceWrapper.addTooltip(this,
+                (tooltipEvent: TooltipEventArgs<number>) => MapboxMap.getTooltipData(tooltipEvent.data),
+                (tooltipEvent: TooltipEventArgs<number>) => null
+            );
+
             // If the map is loaded and style has not changed in this update
             // then we should update right now.
             if (!styleChanged) {
-            	mapboxUtils.addPopup(this.map, this.popup, this.settings); //Update tooltip
+                //mapboxUtils.addPopup(this.map, this.popup, this.settings); //Update tooltip
                 onUpdate(this.map, this.getFeatures(), this.settings, dataChanged || layerVisibilityChanged, this.color, this.host, this.updatedHandler);
             }
         }
