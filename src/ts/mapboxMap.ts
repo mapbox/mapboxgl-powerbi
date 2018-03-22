@@ -537,17 +537,6 @@ module powerbi.extensibility.visual {
                 return token.slice(0,2) === 'pk'
             }
 
-            if (!mapboxgl.supported()) {
-                let link = this.createLinkElement("Contact Mapbox Support", "https://www.mapbox.com/contact/support?source=PowerBI");
-                setError(this.errorDiv, '<h4>Your browser doesnt support WebGL.  Please try a different browser.</h4>' +
-                                        '<h3>Still have issues?</h3>');
-                this.errorDiv.appendChild(link);
-                let img = document.createElement('img');
-                img.src="https://dl.dropbox.com/s/5io6dvr1l8gcgtp/mapbox-logo-color.png"
-                this.errorDiv.appendChild(img);
-                return false;
-            }
-
             // Helper functions to determine if Browser is supported
             
             function parseUserAgent(userAgentString) {
