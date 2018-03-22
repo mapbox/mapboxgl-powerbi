@@ -583,20 +583,12 @@ module powerbi.extensibility.visual {
         }
 
         private static getTooltipData(value: any): VisualTooltipDataItem[] {
-            console.log("Getting Tooltip Data", value);
-            //return [{
-            //displayName: value.category,
-            //value: value.value.toString(),
-            //color: value.color
-            //}];
-             return [{
-                 displayName: "Cica",
-                 value: '42',
-             },
-                 {
-                displayName: 'Ütvefúrótükörakármigép',
-                value: 'Sok',
-                 }];
+            return value ? value.map( item => {
+                return {
+                    displayName: item.key,
+                    value: item.value.toString(),
+                }
+            }) : []
          }
 
         @mapboxUtils.logExceptions()
@@ -645,9 +637,12 @@ module powerbi.extensibility.visual {
                 return column.roles.color;
             });
 
-            this.tooltipServiceWrapper.addTooltip(this,
-                (tooltipEvent: TooltipEventArgs<number>) => MapboxMap.getTooltipData(tooltipEvent.data),
-                (tooltipEvent: TooltipEventArgs<number>) => null
+            this.tooltipServiceWrapper.addTooltip(this.map,
+                'circle',
+                (tooltipEvent: TooltipEventArgs<number>) => {
+                    const tooltipData = MapboxMap.getTooltipData(tooltipEvent.data)
+                    return tooltipData;
+                }
             );
 
             // If the map is loaded and style has not changed in this update
