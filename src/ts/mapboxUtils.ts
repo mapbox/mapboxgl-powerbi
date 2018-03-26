@@ -1,7 +1,20 @@
 module powerbi.extensibility.visual {
     declare var turf : any;
     export module mapboxUtils {
-        const NUMBER_OF_COLORVALUES = 12;
+        export function zoomToData(map, features) {
+            let bounds : any = features.bounds;
+            if (!bounds && features.rawData) {
+                bounds = turf.bbox(turf.helpers.featureCollection(features.rawData));
+            }
+
+            const isPinned = false /* mapboxMapNotYetGiventoThisMethod.isPinned() */
+            if (bounds && !isPinned) {
+                map.fitBounds(bounds, {
+                    padding: 10,
+                    maxZoom: 15,
+                });
+            }
+        }
 
         export function positionInArray(array, element: any) {
             return array.findIndex( value => {
@@ -15,26 +28,7 @@ module powerbi.extensibility.visual {
             }
         }
 
-        export function getColorFromIndex(index: number) {
-            return index % NUMBER_OF_COLORVALUES
-        }
-
-        export function shouldUseGradient(category, colorLimits: { min: any; max: any; values: any; }) {
-            if (category != null && category.isMeasure) {
-                return true
-            }
-
-            if (colorLimits == null || colorLimits.values == null || colorLimits.values.length == null) {
-                return false
-            }
-
-            if (colorLimits.values.length >= NUMBER_OF_COLORVALUES) {
-                return true
-            }
-
-            return false
-        }
-
+        // TODO remove when native popups are fully functional
         export function addPopup(map: mapboxgl.Map, popup: mapboxgl.Popup, settings ) {
             // Don't add the popup if it already exists
                 if (map.listens('mousemove')) { map.off('mousemove') }
@@ -191,6 +185,7 @@ module powerbi.extensibility.visual {
 
             return returnFunction
         };
+
     }
 }
 

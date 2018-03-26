@@ -29,7 +29,7 @@ module powerbi.extensibility.visual {
                             mapboxUtils.pushIfNotExist(domain, value);
                             if (typeof value != 'number') {
                                 const colorIndex = mapboxUtils.positionInArray(domain, value);
-                                obj.color = mapboxUtils.getColorFromIndex(colorIndex);
+                                obj.color = Circle.getColorFromIndex(colorIndex);
                             } else {
                                 obj.color = value;
                             }
@@ -79,7 +79,7 @@ module powerbi.extensibility.visual {
             return features;
         }
 
-        export function convert(dataView: DataView, host: IVisualHost) {
+        export function convert(dataView: DataView) {
 
             const {columns, rows} = dataView.table;
             return getFeatures(rows, columns)
