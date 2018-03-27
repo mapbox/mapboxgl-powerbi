@@ -22,7 +22,16 @@ module powerbi.extensibility.visual {
             const map = this.parent.getMap();
             this.cluster.options.radius = settings.cluster.clusterRadius;
             this.cluster.options.maxZoom = settings.cluster.clusterMaxZoom;
-            return this.cluster.getClusters(worldBounds, Math.floor(map.getZoom()) );
+            return this.cluster.getClusters(worldBounds, Math.floor(map.getZoom()) ).
+                map( feature => {
+                    // Remove built-in supercluster properties
+                    // as they are not needed and are ruining our tooltips
+                    delete feature.properties.cluster;
+                    delete feature.properties.cluster_id;
+                    delete feature.properties.point_count;
+                    delete feature.properties.point_count_abbreviated;
+                    return feature;
+                });
         }
 
         addLayer(settings, beforeLayerId) {
@@ -31,13 +40,13 @@ module powerbi.extensibility.visual {
                 id: Cluster.ID,
                 source: 'clusterData',
                 type: 'cluster',
-                filter: ['has', 'point_count']
+                filter: ['has', 'Count']
             });
             const unclusterLayer = mapboxUtils.decorateLayer({
                 id: Cluster.UnclusterID,
                 source: 'clusterData',
                 type: 'cluster',
-                filter: ['!has', 'point_count']
+                filter: ['!has', 'Count']
             });
 
             map.addLayer(clusterLayer, beforeLayerId);
@@ -47,7 +56,7 @@ module powerbi.extensibility.visual {
                 id: Cluster.LabelID,
                 type: 'symbol',
                 source: 'clusterData',
-                filter: ["has", "point_count"],
+                filter: ["has", "Count"],
                 layout: {
                     'text-field': `{${settings.cluster.aggregation}}`,
                     'text-font': ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
