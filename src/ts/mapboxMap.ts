@@ -287,12 +287,22 @@ module powerbi.extensibility.visual {
         }
 
         private static getTooltipData(value: any): VisualTooltipDataItem[] {
-            return value ? value.map( item => {
-                return {
-                    displayName: item.key,
-                    value: item.value.toString(),
-                }
-            }) : []
+            if (!value) {
+                return []
+            }
+
+            // Flatten the multiple properties or multiple datapoints
+            return [].concat.apply([], value.map( properties => {
+                // This mapping is needed to copy the value with the toString
+                // call as otherwise some caching logic causes to be the same
+                // tooltip displayed for all datapoints.
+                return properties.map( prop => {
+                    return {
+                        displayName: prop.key,
+                        value: prop.value.toString(),
+                    }
+                });
+            }))
          }
 
         @mapboxUtils.logExceptions()

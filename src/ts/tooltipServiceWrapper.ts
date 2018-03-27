@@ -55,9 +55,10 @@ module powerbi.extensibility.visual {
             map.on('mouseleave', layerId, hideTooltip);
             map.on('touchend', layerId, hideTooltip);
 
+            console.log("Adding mousemove event handler");
             map.on('mousemove', layerId, (e) => {
 
-                let tooltipEventArgs = this.makeTooltipEventArgs<T>(e, map, rootNode, true, false);
+                let tooltipEventArgs = this.makeTooltipEventArgs<T>(e);
                 if (!tooltipEventArgs)
                     return;
                 
@@ -77,29 +78,39 @@ module powerbi.extensibility.visual {
             });
         }
 
+        private getDisplayNameMap(metadata) {
+            let ret = {}
+            metadata.columns.map(column => {
+                Object.keys(column.roles).map(role => {
+                    ret[role] = column.displayName
+                });
+            });
+            return ret;
+        }
+        
+
+
         public hide(): void {
             this.visualHostTooltipService.hide({ immediately: true, isTouchEvent: false });
         }
 
-        private makeTooltipEventArgs<T>(e: any, rootNode: Element, map: any, isPointerEvent: boolean, isTouchEvent: boolean): TooltipEventArgs<T> {
+        private makeTooltipEventArgs<T>(e: any): TooltipEventArgs<T> {
 
             let tooltipEventArgs : TooltipEventArgs<T> = null;
             try {
-                if (e.features[0].properties.tooltip) {
+                if (e.features && e.features.length > 0) {
 
                     tooltipEventArgs = {
                         data: e.features.map( feature => {
-                            const tooltip = JSON.parse(feature.properties.tooltip);
-                            const ret = Object.keys(tooltip.content).map( key => {
+                            return Object.keys(feature.properties).map( prop => {
                                 return {
-                                    key: key,
-                                    value: tooltip.content[key],
+                                    key: prop,
+                                    value: feature.properties[prop]
                                 }
                             });
-                            return ret[0];
                         }),
                         coordinates: [e.point.x, e.point.y],
-                        isTouchEvent: isTouchEvent
+                        isTouchEvent: false
                     };
 
                 }

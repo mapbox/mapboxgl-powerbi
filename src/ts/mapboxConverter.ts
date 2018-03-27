@@ -1,88 +1,38 @@
 module powerbi.extensibility.visual {
     export module mapboxConverter {
-        const isTooltip = (role) => {
-            return role == 'color' || role == 'size' || role == 'tooltips' || role == 'cluster';
-        }
-
-        const transformToObjectArray = (rows, columns) => {
-            let domain : any = [];
-
-            const datas = rows.map( row => {
-                return row.reduce( (obj, value, index) => {
-                    const column = columns[index]
-                    Object.keys(column.roles).map( role => {
-                        if (isTooltip(role)) {
-                            if (!obj.tooltip) {
-                                obj.tooltip = {}
-                            }
-                            obj.tooltip[column.displayName] = value;
-                        }
-
-                        if (role == 'cluster') {
-                            obj.clusterField = column.displayName;
-                        }
-
-                        obj[role] = value;
-
-                        if (role == 'color') {
-                            const t = column.type.primitiveType;
-                            mapboxUtils.pushIfNotExist(domain, value);
-                            if (typeof value != 'number') {
-                                const colorIndex = mapboxUtils.positionInArray(domain, value);
-                                obj.color = Circle.getColorFromIndex(colorIndex);
-                            } else {
-                                obj.color = value;
-                            }
-                        }
-                    })
-                    return obj;
-                }, {});
-            });
-            return {
-                datas,
-                domain,
-            }
-        }
-
-        const getFeatures = (rows, columns) => {
-            const { datas, domain }  = transformToObjectArray(rows, columns);
-
-            let features = []
-            features = datas.map(function (d) {
-                let properties : any = {
-                    "colorValue": d.color,
-                    "tooltip": JSON.stringify({
-                        clusterField: d.clusterField,
-                        content: d.tooltip
-                    }),
-                    "sizeValue": d.size,
-                    "location": d.location,
-                    "clusterValue": d.cluster
-                }
-
-                if ( (d.latitude >= -90) && (d.latitude <= 90) && (d.longitude >= -180) && (d.longitude <= 180) ) {
-                    let feat: GeoJSON.Feature<any> = {
-                        "type": "Feature",
-                        "geometry": {
-                            "type": "Point",
-                            "coordinates": [d.longitude, d.latitude]
-                        },
-                        "properties": properties
+        const convertToFeatures = (rows, columns) => {
+            return rows.map( (row, rowIndex) => {
+                let ret: GeoJSON.Feature<any> = {
+                    type: "Feature",
+                    geometry: {
+                        type: "Point",
+                        coordinates: []
+                    },
+                    properties: {
                     }
-                    return feat;
-                } else if (d.location) {
-                    let feat = { properties }
-                    return feat;
                 }
+                row.map( (value, index) => {
+                    const column = columns[index];
+                    if (column.roles.latitude && value >= -90 && value <= 90) {
+                        ret.geometry.coordinates[1] = value;
+                    }
+                    if (column.roles.longitude && value >= -180 && value <= 180) {
+                        ret.geometry.coordinates[0] = value;
+                    }
+                    ret.properties[column.displayName] = value;
+                })
+                return ret;
+            }).map( feature => {
+                if (feature.geometry.coordinates.length < 2) {
+                    delete feature.geometry;
+                }
+                return feature;
             });
-
-            return features;
         }
 
         export function convert(dataView: DataView) {
-
             const {columns, rows} = dataView.table;
-            return getFeatures(rows, columns)
+            return convertToFeatures(rows, columns);
         }
     }
 }
