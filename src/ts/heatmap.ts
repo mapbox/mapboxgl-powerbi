@@ -17,7 +17,7 @@ module powerbi.extensibility.visual {
             map.addLayer(heatmapLayer, beforeLayerId);
         }
 
-        applySettings(features, settings) {
+        applySettings(features, settings, roleMap) {
             const map = this.parent.getMap();
             map.setLayoutProperty(Heatmap.ID, 'visibility', settings.heatmap.show ? 'visible' : 'none');
             if (settings.heatmap.show) {

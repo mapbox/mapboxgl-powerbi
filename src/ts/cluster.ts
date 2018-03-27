@@ -8,9 +8,9 @@ module powerbi.extensibility.visual {
         private static LabelID = 'cluster-label'
         private static UnclusterID = 'uncluster'
         
-        constructor(map: MapboxMap) {
+        constructor(map: MapboxMap, getClusterField) {
             this.parent = map
-            this.cluster = createCluster();
+            this.cluster = createCluster(getClusterField);
         }
 
         update(features) {
@@ -31,13 +31,13 @@ module powerbi.extensibility.visual {
                 id: Cluster.ID,
                 source: 'clusterData',
                 type: 'cluster',
-                filter: ['has', 'count']
+                filter: ['has', 'point_count']
             });
             const unclusterLayer = mapboxUtils.decorateLayer({
                 id: Cluster.UnclusterID,
                 source: 'clusterData',
                 type: 'cluster',
-                filter: ['!has', 'count']
+                filter: ['!has', 'point_count']
             });
 
             map.addLayer(clusterLayer, beforeLayerId);
@@ -47,7 +47,7 @@ module powerbi.extensibility.visual {
                 id: Cluster.LabelID,
                 type: 'symbol',
                 source: 'clusterData',
-                filter: ["has", "count"],
+                filter: ["has", "point_count"],
                 layout: {
                     'text-field': `{${settings.cluster.aggregation}}`,
                     'text-font': ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
@@ -61,7 +61,7 @@ module powerbi.extensibility.visual {
             map.addLayer(clusterLabelLayer);
         }
 
-        applySettings(features, settings) {
+        applySettings(features, settings, roleMap) {
             const map = this.parent.getMap();
             map.setLayoutProperty('cluster', 'visibility', settings.cluster.show ? 'visible' : 'none');
             map.setLayoutProperty('uncluster', 'visibility', settings.cluster.show ? 'visible' : 'none');
@@ -99,74 +99,46 @@ module powerbi.extensibility.visual {
         }
     }
 
-    export function createCluster() {
+    export function createCluster(getClusterField) {
         return supercluster({
             radius: 50,
             maxZoom: 12,
             initial: function() {
                 return {
-                    count: 0,
-                    sum: 0,
-                    min: Infinity,
-                    max: -Infinity,
-                    avg: 0.0,
-                    tooltip: '',
+                    Count: 0,
+                    Sum: 0,
+                    Minimum: Infinity,
+                    Maximum: -Infinity,
+                    Average: 0.0,
                 };
             },
             map: function(properties) {
-                const count = 1;
-                const sum = Number(properties["clusterValue"]);
-                const min = Number(properties["clusterValue"]);
-                const max = Number(properties["clusterValue"]);
-                const avg = Number(properties["clusterValue"]);
+                const Count = 1;
+                const Sum = Number(properties[getClusterField()]);
+                const Minimum = Number(properties[getClusterField()]);
+                const Maximum = Number(properties[getClusterField()]);
+                const Average = Number(properties[getClusterField()]);
                 const obj = {
-                    count,
-                    sum,
-                    min,
-                    max,
-                    avg
-                }
-                let propertyName = '';
-                if (properties.tooltip) {
-                    let tooltipData = JSON.parse(properties.tooltip);
-                    propertyName = tooltipData.clusterField;
+                    Count,
+                    Sum,
+                    Minimum,
+                    Maximum,
+                    Average
                 }
                 return {
-                    count,
-                    sum,
-                    min,
-                    max,
-                    avg,
-                    propertyName,
-                    tooltip: JSON.stringify({
-                        title: propertyName,
-                        content: {
-                            Sum: sum,
-                            Count: count,
-                            Min: min,
-                            Max: max,
-                            Avg: avg,
-                        }
-                    })
+                    Count,
+                    Sum,
+                    Minimum,
+                    Maximum,
+                    Average,
                 };
             },
             reduce: function(accumulated, properties) {
-                accumulated.sum += Math.round(properties.sum * 100) / 100;
-                accumulated.count += properties.count;
-                accumulated.min = Math.round(Math.min(accumulated.min, properties.min) * 100) / 100;
-                accumulated.max = Math.round(Math.max(accumulated.max, properties.max) * 100) / 100;
-                accumulated.avg = Math.round(100 * accumulated.sum / accumulated.count) / 100;
-                accumulated.propertyName = properties.propertyName;
-                accumulated.tooltip = JSON.stringify({
-                    title: properties.propertyName,
-                    content: {
-                        Sum: accumulated.sum,
-                        Count: accumulated.count,
-                        Min: accumulated.min,
-                        Max: accumulated.max,
-                        Avg: accumulated.avg,
-                    }
-                })
+                accumulated.Sum += Math.round(properties.Sum * 100) / 100;
+                accumulated.Count += properties.Count;
+                accumulated.Minimum = Math.round(Math.min(accumulated.Minimum, properties.Minimum) * 100) / 100;
+                accumulated.Maximum = Math.round(Math.max(accumulated.Maximum, properties.Maximum) * 100) / 100;
+                accumulated.Average = Math.round(100 * accumulated.Sum / accumulated.Count) / 100;
             }
         });
     }

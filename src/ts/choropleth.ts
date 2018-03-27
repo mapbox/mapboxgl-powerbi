@@ -12,7 +12,7 @@ module powerbi.extensibility.visual {
         addLayer(beforeLayerId) {
         }
 
-        applySettings(features, settings) {
+        applySettings(features, settings, roleMap) {
             const map = this.parent.getMap();
             if (map.getLayer('choropleth-layer')) {
                 map.setLayoutProperty('choropleth-layer', 'visibility', settings.choropleth.display() ? 'visible' : 'none');
@@ -46,7 +46,7 @@ module powerbi.extensibility.visual {
                     map.addLayer(choroplethLayer, 'cluster');
                 }
 
-                const limits = mapboxUtils.getLimits(features.choroplethData, 'colorValue');
+                const limits = mapboxUtils.getLimits(features.choroplethData, 'color');
 
                 if (limits.min && limits.max) {
                     let colorStops = chroma.scale([settings.choropleth.minColor,settings.choropleth.maxColor]).domain([limits.min, limits.max]);
@@ -54,8 +54,8 @@ module powerbi.extensibility.visual {
                     let outlineColors = ['match', ['get', settings.choropleth.vectorProperty]];
 
                     features.choroplethData.map( row => {
-                        const color = colorStops(row.properties.colorValue);
-                        var outlineColor : any = colorStops(row.properties.colorValue)
+                        const color = colorStops(row.properties.color);
+                        var outlineColor : any = colorStops(row.properties.color)
                         outlineColor = outlineColor.darken(2);
                         colors.push(row.properties.location);
                         colors.push(color.toString());

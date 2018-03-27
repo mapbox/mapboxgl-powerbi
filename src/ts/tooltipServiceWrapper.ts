@@ -9,7 +9,7 @@ module powerbi.extensibility.visual {
     export interface ITooltipServiceWrapper {
         addTooltip<T>(
             map,
-            layerId,
+            layers,
             getTooltipInfoDelegate: (args: TooltipEventArgs<T>) => VisualTooltipDataItem[],
             reloadTooltipDataOnMouseMove?: boolean): void;
         hide(): void;
@@ -35,7 +35,7 @@ module powerbi.extensibility.visual {
         
         public addTooltip<T>(
             map,
-            layerId,
+            layers,
             getTooltipInfoDelegate: (args: TooltipEventArgs<T>) => VisualTooltipDataItem[],
             reloadTooltipDataOnMouseMove?: boolean): void {
             
@@ -52,12 +52,7 @@ module powerbi.extensibility.visual {
                 });
             }
 
-            map.on('mouseleave', layerId, hideTooltip);
-            map.on('touchend', layerId, hideTooltip);
-
-            console.log("Adding mousemove event handler");
-            map.on('mousemove', layerId, (e) => {
-
+            const showTooltip = (e) => {
                 let tooltipEventArgs = this.makeTooltipEventArgs<T>(e);
                 if (!tooltipEventArgs)
                     return;
@@ -75,6 +70,16 @@ module powerbi.extensibility.visual {
                     dataItems: tooltipInfo,
                     identities: [],
                 });
+            }
+
+            layers.map( layerId => {
+                map.off('mouseleave', layerId, hideTooltip);
+                map.on('mouseleave', layerId, hideTooltip);
+                map.off('touchend', layerId, hideTooltip);
+                map.on('touchend', layerId, hideTooltip);
+
+                map.off('mousemove', layerId, showTooltip);
+                map.on('mousemove', layerId, showTooltip);
             });
         }
 

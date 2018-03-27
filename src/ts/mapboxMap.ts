@@ -26,6 +26,7 @@ module powerbi.extensibility.visual {
         private updatedHandler: Function = () => {}
         private tooltipServiceWrapper: ITooltipServiceWrapper;
         private layers: Layers;
+        private roleMap: any;
 
         constructor(options: VisualConstructorOptions) {
             //Map initialization
@@ -50,7 +51,9 @@ module powerbi.extensibility.visual {
 
             this.layers = new Layers();
             this.layers.heatmap = new Heatmap(this);
-            this.layers.cluster = new Cluster(this);
+            this.layers.cluster = new Cluster(this, () => {
+                return this.roleMap.cluster
+            });
             this.layers.circle = new Circle(this, options.host.colorPalette);
             this.layers.choropleth = new Choropleth(this);
 
@@ -72,10 +75,10 @@ module powerbi.extensibility.visual {
                     source.setData( turf.helpers.featureCollection(features.rawData) );
                 }
 
-                this.layers.heatmap.applySettings(features, settings);
-                this.layers.cluster.applySettings(features, settings);
-                this.layers.circle.applySettings(features, settings);
-                this.layers.choropleth.applySettings(features, settings);
+                this.layers.heatmap.applySettings(features, settings, this.roleMap);
+                this.layers.cluster.applySettings(features, settings, this.roleMap);
+                this.layers.circle.applySettings(features, settings, this.roleMap);
+                this.layers.choropleth.applySettings(features, settings, this.roleMap);
 
                 if (zoom) {
                     mapboxUtils.zoomToData(map, features)
@@ -111,7 +114,7 @@ module powerbi.extensibility.visual {
                         // Clone feature to keep rawData untouched
                         values[feature.properties.location] = JSON.parse(JSON.stringify(feature));
                     } else {
-                        values[feature.properties.location].properties.colorValue += feature.properties.colorValue;
+                        values[feature.properties.location].properties.color += feature.properties.color;
                     }
                 })
                 ret.choroplethData = Object.keys(values).map( key => {
@@ -309,6 +312,8 @@ module powerbi.extensibility.visual {
         public update(options: VisualUpdateOptions) {
             const dataView: DataView = options.dataViews[0];
 
+            this.roleMap = mapboxUtils.getRoleMap(dataView.metadata);
+
             const oldSettings = this.settings;
             this.settings = MapboxSettings.parse<MapboxSettings>(dataView);
             const layerVisibilityChanged = this.visibilityChanged(oldSettings, this.settings);
@@ -346,10 +351,10 @@ module powerbi.extensibility.visual {
             }
 
             // Check is category field is set
-            this.layers.circle.updateCategory(dataView.table.columns);
+            this.layers.circle.updateColorColumn(dataView.table.columns);
 
             this.tooltipServiceWrapper.addTooltip(this.map,
-                'circle',
+                ['circle', 'cluster', 'uncluster'],
                 (tooltipEvent: TooltipEventArgs<number>) => {
                     const tooltipData = MapboxMap.getTooltipData(tooltipEvent.data)
                     return tooltipData;

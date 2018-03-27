@@ -6,19 +6,15 @@ module powerbi.extensibility.visual {
         private parent: MapboxMap;
         private palette: IColorPalette;
         private static ID = 'circle';
-        private category: any;
+        private colorColumn: any;
 
         constructor(map: MapboxMap, palette: IColorPalette) {
             this.parent = map
             this.palette = palette
         }
 
-        static getColorFromIndex(index: number) {
-            return index % NUMBER_OF_COLORVALUES
-        }
-
-        updateCategory(columns) {
-            this.category = columns.find( column => {
+        updateColorColumn(columns) {
+            this.colorColumn = columns.find( column => {
                 return column.roles.color;
             });
         }
@@ -33,17 +29,17 @@ module powerbi.extensibility.visual {
             map.addLayer(circleLayer, beforeLayerId);
         }
 
-        applySettings(features, settings) {
+        applySettings(features, settings, roleMap) {
             const map = this.parent.getMap();
             map.setLayoutProperty(Circle.ID, 'visibility', settings.circle.show ? 'visible' : 'none');
             if (settings.circle.show) {
-                const colorLimits = mapboxUtils.getLimits(features.rawData, 'colorValue');
-                const sizeLimits = mapboxUtils.getLimits(features.rawData, 'sizeValue');
+                const colorLimits = mapboxUtils.getLimits(features.rawData, roleMap.color);
+                const sizeLimits = mapboxUtils.getLimits(features.rawData, roleMap.size);
 
-                const sizes = Circle.getSizes(sizeLimits, map, settings);
+                const sizes = Circle.getSizes(sizeLimits, map, settings, roleMap.size);
 
                 let isGradient = this.shouldUseGradient(colorLimits);
-                let colors = Circle.getColors(colorLimits, isGradient, settings, this.palette);
+                let colors = Circle.getColors(colorLimits, isGradient, settings, this.palette, roleMap.color);
 
                 map.setPaintProperty(Circle.ID, 'circle-radius', sizes);
                 map.setPaintProperty(Circle.ID, 'circle-color', colors);
@@ -57,7 +53,7 @@ module powerbi.extensibility.visual {
         }
 
         private shouldUseGradient(colorLimits: { min: any; max: any; values: any; }) {
-            if (this.category != null && this.category.isMeasure) {
+            if (this.colorColumn != null && this.colorColumn.isMeasure) {
                 return true
             }
 
@@ -65,14 +61,10 @@ module powerbi.extensibility.visual {
                 return false
             }
 
-            if (colorLimits.values.length >= NUMBER_OF_COLORVALUES) {
-                return true
-            }
-
             return false
         }
 
-        private static getColors(colorLimits: { min: number; max: number; values: number[] }, isGradient: boolean, settings: any, colorPalette: IColorPalette) {
+        private static getColors(colorLimits: { min: number; max: number; values: number[] }, isGradient: boolean, settings: any, colorPalette: IColorPalette, colorField: string) {
             if (colorLimits.min == null || colorLimits.max == null || colorLimits.values.length <= 0) {
                 return settings.circle.minColor;
             }
@@ -84,7 +76,7 @@ module powerbi.extensibility.visual {
                 const domain: any[] = getNaturalBreaks(colorLimits, classCount);
                 const colors = chroma.scale([settings.circle.minColor,settings.circle.medColor, settings.circle.maxColor]).colors(domain.length)
 
-                const style = ["interpolate", ["linear"], ["to-number", ['get', 'colorValue']]]
+                const style = ["interpolate", ["linear"], ["to-number", ['get', colorField]]]
                 domain.map((colorStop, idx) => {
                     const color = colors[idx].toString();
                     style.push(colorStop);
@@ -95,25 +87,25 @@ module powerbi.extensibility.visual {
             }
 
             // Set colors for categorical value
-            let colors = ['match', ['to-string', ['get', 'colorValue']]];
-                for (let index = colorLimits.min; index < colorLimits.max; index++) {
-                    const idx = "" + (index-colorLimits.min);
-                    const color = colorPalette.getColor(idx).value;
-                    colors.push(idx);
-                    colors.push(color);
-                }
-                // Add transparent as default so that we only see regions
-                // for which we have data values
-                colors.push('rgba(255,0,0,255)');
+            let colors = ['match', ['to-string', ['get', colorField]]];
+            colorLimits.values.map( (value, idx) => {
+                colors.push(value.toString());
+                const color = colorPalette.getColor(idx.toString()).value;
+                colors.push(color);
+            });
+            
+            // Add transparent as default so that we only see regions
+            // for which we have data values
+            colors.push('rgba(255,0,0,255)');
 
             return colors;
         }
 
-        private static getSizes(sizeLimits: { min: any; max: any; values: any[]; }, map: any, settings: any) {
+        private static getSizes(sizeLimits: { min: any; max: any; values: any[]; }, map: any, settings: any, sizeField: string) {
             if (sizeLimits.min != null && sizeLimits.max != null && sizeLimits.min != sizeLimits.max) {
                 const style: any[] = [
                     "interpolate", ["linear"],
-                    ["to-number", ['get', 'sizeValue']]
+                    ["to-number", ['get',sizeField]]
                 ]
 
                 const classCount = getClassCount(sizeLimits);
@@ -125,6 +117,7 @@ module powerbi.extensibility.visual {
                     style.push(sizeStop);
                     style.push(size);
                 });
+                console.log("Style: ", style);
                 return style;
             }
             else {
