@@ -38,7 +38,7 @@ module powerbi.extensibility.visual {
 
                 const sizes = Circle.getSizes(sizeLimits, map, settings, roleMap.size);
 
-                let isGradient = this.shouldUseGradient(colorLimits);
+                let isGradient = mapboxUtils.shouldUseGradient(this.colorColumn, colorLimits);
                 let colors = Circle.getColors(colorLimits, isGradient, settings, this.palette, roleMap.color);
 
                 map.setPaintProperty(Circle.ID, 'circle-radius', sizes);
@@ -52,18 +52,6 @@ module powerbi.extensibility.visual {
             }
         }
 
-        private shouldUseGradient(colorLimits: { min: any; max: any; values: any; }) {
-            if (this.colorColumn != null && this.colorColumn.isMeasure) {
-                return true
-            }
-
-            if (colorLimits == null || colorLimits.values == null || colorLimits.values.length == null) {
-                return false
-            }
-
-            return false
-        }
-
         private static getColors(colorLimits: { min: number; max: number; values: number[] }, isGradient: boolean, settings: any, colorPalette: IColorPalette, colorField: string) {
             if (colorLimits.min == null || colorLimits.max == null || colorLimits.values.length <= 0) {
                 return settings.circle.minColor;
@@ -71,9 +59,9 @@ module powerbi.extensibility.visual {
 
             if (isGradient) {
                 // Set colors for continuous value
-                const classCount = getClassCount(colorLimits);
+                const classCount = mapboxUtils.getClassCount(colorLimits);
 
-                const domain: any[] = getNaturalBreaks(colorLimits, classCount);
+                const domain: any[] = mapboxUtils.getNaturalBreaks(colorLimits, classCount);
                 const colors = chroma.scale([settings.circle.minColor,settings.circle.medColor, settings.circle.maxColor]).colors(domain.length)
 
                 const style = ["interpolate", ["linear"], ["to-number", ['get', colorField]]]
@@ -108,8 +96,8 @@ module powerbi.extensibility.visual {
                     ["to-number", ['get',sizeField]]
                 ]
 
-                const classCount = getClassCount(sizeLimits);
-                const sizeStops: any[] = getNaturalBreaks(sizeLimits, classCount);
+                const classCount = mapboxUtils.getClassCount(sizeLimits);
+                const sizeStops: any[] = mapboxUtils.getNaturalBreaks(sizeLimits, classCount);
                 const sizeDelta = (settings.circle.radius * settings.circle.scaleFactor - settings.circle.radius) / classCount
 
                 sizeStops.map((sizeStop, index) => {
@@ -131,18 +119,5 @@ module powerbi.extensibility.visual {
 
     }
 
-    function getClassCount(limits: { min: number; max: number; values: number[]; }) {
-        const MAX_BOUND_COUNT = 6;
-        // For example if you want 5 classes, you have to enter 6 bounds
-        // (1 bound is the minimum value, 1 bound is the maximum value,
-        // the rest are class separators)
-        const classCount = Math.min(limits.values.length, MAX_BOUND_COUNT) - 1;
-        return classCount;
-    }
-
-    function getNaturalBreaks(limits: { min: any; max: any; values: any[]; }, classCount: number) {
-        const stops: any[] = chroma.limits(limits.values, 'q', classCount);
-        return stops;
-    }
 }
 

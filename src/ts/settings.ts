@@ -99,8 +99,9 @@ module powerbi.extensibility.visual {
         public vectorTileUrl: string = 'mapbox://'
         public sourceLayer: string = '';
         public vectorProperty: string = '';
-        public minColor: string = "red";
-        public maxColor: string = "green";
+        public minColor: string = "#0571b0";
+        public medColor: string = "#f7f7f7";
+        public maxColor: string = "#ca0020";
         public minZoom: number = 0;
         public maxZoom: number = 22;
 

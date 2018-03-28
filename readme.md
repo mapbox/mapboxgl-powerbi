@@ -1,51 +1,50 @@
-# Mapbox GL Extension for PowerBI
+<a href="https://www.mapbox.com">
+  <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b4/Mapbox_Logo.svg/1280px-Mapbox_Logo.svg.png" width="500"/>
+</a>
 
-Comming soon as a PowerBI Custom Visual to the Microsoft Office Store!
+# Mapbox Visual for Microsoft Power BI
 
-Make sense of your location big, dynamic location data with Mapbox.  Create interactive Graduated Circle, Cluster, and Heatmaps at 60FPS for your PowerBI reports and dashboards.  Easily handle large datasets up to the PowerBI maximum of 30,000 points.
+Make sense of your big & dynamic location data with the Mapbox Visual for Power BI.  Quickly design high-performance map visuals using graduated circles, clusters, and interactive heatmaps.  Even customize your Mapbox visual with custom shapes, imagery, and design using [Mapbox Studio](www.mapbox.com/studio).  Check out the [Mapbox Gallery](https://www.mapbox.com/gallery/) to get a sense of what's possible with Studio.
 
-* [Example Dashboard - NYC Cycling Incidents](www.mapbox.com/bites/00369)
-* [Example Dashboard - 2017 USGS Earthquakes](https://app.powerbi.com/view?r=eyJrIjoiNTlkMzA5N2MtNGU0ZS00MDY5LTg1NTktNTZkODkyMmJjOThmIiwidCI6IjYyOWE3MGIyLTMyYjktNDEyNi05NTFlLTE3NjA0Y2Y0NTZlYyIsImMiOjF9)
+Drop in the Mapbox Visual to your Power BI dashboard from the [Microsoft Office Store](https://appsource.microsoft.com/en-us/product/power-bi-visuals/WA104381472?tab=Overview).
 
 ![](https://dl.dropbox.com/s/kymonz28oanehje/PowerBI-2.gif)
 
-### Adding MapboxGL Viz to a PowerBI Report
+### Examples
 
-On PowerBI Online, add the `dist/mapboxGLMap.pbiviz` file in this repository as a custom visual in your report.
+* [Example Dashboard - NYC Cycling Incidents](https://www.mapbox.com/bites/00369)
+* [Example Dashboard - 2017 USGS Earthquakes](https://app.powerbi.com/view?r=eyJrIjoiNTlkMzA5N2MtNGU0ZS00MDY5LTg1NTktNTZkODkyMmJjOThmIiwidCI6IjYyOWE3MGIyLTMyYjktNDEyNi05NTFlLTE3NjA0Y2Y0NTZlYyIsImMiOjF9)
 
-![](https://cl.ly/3303070u081q/download/Image%202017-09-01%20at%203.47.52%20PM.png)
+### Support
+The Mapbox Visual for Power BI supports:
 
-## Developing
+* Power BI Desktop 
+* Power BI Online using **Chrome or Firefox** browsers.
+    - We are actively working on a solution for [IE11 & Edge](https://github.com/mapbox/mapboxgl-powerbi/issues/48) browser support
+    
+### Documentation
 
-- `npm install -g powerbi-visuals-tools`
-- Follow Steps on https://github.com/Microsoft/PowerBI-visuals/blob/master/tools/CertificateSetup.md to setup your PowerBI live visual
-- `npm install`
-- Log into your PowerBI web UI and enable dev tools https://github.com/Microsoft/PowerBI-visuals/blob/master/tools/DebugVisualSetup.md
-- `npm start`
-- Add a custom visual using the PowerBI custom viz options, using a latitude and longitude variable.
+- Check out the official Mapbox Visual for Power BI docs at https://www.mapbox.com/help/power-bi/.
+- Check out 3rd party documenation below:
+    * Devin Knight's March 2018 video tutorial: https://www.youtube.com/watch?v=qDCOo3bm01o
 
-### Developing under MacOS
+### Adding MapboxGL Viz to a Power BI Dashboard
 
-Due to an open PowerBI [issue](https://github.com/Microsoft/PowerBI-visuals-tools/issues/157) the `npm start` might fail with `FSEvents.framework`.
+On Power BI Online or Desktop, click `add visual from marketplace` and search `Mapbox`.  Check out the visual on the Microsoft Office Store at https://appsource.microsoft.com/en-us/product/power-bi-visuals/WA104381472?tab=Overview.
 
-To mitigate the issue for powerbi-visuals-tools version 1.10.0 may run
-```
-git apply VisualBuilder-1.10.0.patch
-```
+![](https://cl.ly/0f1d1h1i2N3W/download/Image%202018-03-01%20at%2010.20.32%20AM.png)
 
-### Running the tests
-Please consult the [README.md](test/README.md) in the `/test` folder for futher details.
+## What is Mapbox?
 
-### Building
+Mapbox is the location data platform for mobile and web applications. We provide [building blocks](https://www.mapbox.com/products/) to add location features like maps, search, and navigation into any experience you create. Use our simple and powerful APIs & SDKs and our open source libraries for interactivity and control.
 
-`npm run package`
-The packaged output `pbiviz` file will be in the `/dist` folder.
+## Sign up for Mapbox
 
-### Updating Mapbox GL JS to latest version
+Not a Mapbox user yet? [Sign up for an account here](https://www.mapbox.com/signup/). Once you’re signed in, all you need to start building with Power BI is a Mapbox access token. 
 
-Due to an open PowerBI [issue](https://github.com/Microsoft/PowerBI-visuals/issues/165) mapbox-gl.js needs to be copied from under `node_modules` to `src/modules` and patched. During the patch all `window.devicePixelRatio` needs to be replaced to `window.window.devicePixelRatio`.  
+### Developing
 
-This custom-altered version of the Mapbox GL js library is packaged with this repository and will need to be manually checked and validated for new mapboxgl JS version upgrades.
+Please see [contributing.md](CONTRIBUTING.md)
 
 ### Screenshots
 

@@ -4,9 +4,16 @@ module powerbi.extensibility.visual {
         private parent: MapboxMap;
         private static ID = 'choropleth'
         private vectorTileUrl: string = "";
+        private colorColumn: any;
 
         constructor(map: MapboxMap) {
             this.parent = map
+        }
+
+        updateColorColumn(columns) {
+            this.colorColumn = columns.find( column => {
+                return column.roles.color;
+            });
         }
 
         addLayer(beforeLayerId) {
@@ -18,7 +25,11 @@ module powerbi.extensibility.visual {
                 map.setLayoutProperty('choropleth-layer', 'visibility', settings.choropleth.display() ? 'visible' : 'none');
             }
             if (settings.choropleth.display()) {
+                // The choropleth layer is different since it is a vector tile source, not geojson.  We can't modify it in-place.
+                // If it is, we'll create the vector tile source from the URL.  If not, we'll make sure the source doesn't exist.
+
                 if (this.vectorTileUrl != settings.choropleth.vectorTileUrl) {
+                    // Update the vector tile source if it exists and has changed.
                     if (map.getSource('choropleth-source')) {
                         if (map.getLayer('choropleth-layer')) {
                             map.removeLayer('choropleth-layer');
@@ -29,6 +40,7 @@ module powerbi.extensibility.visual {
                 }
 
                 if (!map.getSource('choropleth-source')) {
+                    // Create the vector tile source if it doesnt yet exist
                     map.addSource('choropleth-source', {
                         type: 'vector',
                         url: settings.choropleth.vectorTileUrl,
@@ -43,35 +55,33 @@ module powerbi.extensibility.visual {
                 });
 
                 if (!map.getLayer('choropleth-layer')) {
+                    // add the choropleth layer if it doesn't exist
                     map.addLayer(choroplethLayer, 'cluster');
                 }
 
-                const limits = mapboxUtils.getLimits(features.choroplethData, 'color');
+                let fillColorLimits = mapboxUtils.getLimits(features.choroplethData,roleMap.color);
+                let isGradient = mapboxUtils.shouldUseGradient(this.colorColumn, fillColorLimits);
+                let fillClassCount = mapboxUtils.getClassCount(fillColorLimits);
+                let fillDomain: any[] = mapboxUtils.getNaturalBreaks(fillColorLimits, fillClassCount);
+                let colorStops = chroma.scale([settings.choropleth.minColor,settings.choropleth.medColor, settings.choropleth.maxColor]).domain(fillDomain);
+                // We use the old property function syntax here because the data-join technique is faster to parse still than expressions with this method
+                let colors = {type: "categorical", property: settings.choropleth.vectorProperty, default: "rgba(0,0,0,0)", stops: []};
+                let outlineColors = {type: "categorical", property: settings.choropleth.vectorProperty, default: "rgba(0,0,0,0)", stops: []};
 
-                if (limits.min && limits.max) {
-                    let colorStops = chroma.scale([settings.choropleth.minColor,settings.choropleth.maxColor]).domain([limits.min, limits.max]);
-                    let colors = ['match', ['get', settings.choropleth.vectorProperty]];
-                    let outlineColors = ['match', ['get', settings.choropleth.vectorProperty]];
 
-                    features.choroplethData.map( row => {
-                        const color = colorStops(row.properties.color);
-                        var outlineColor : any = colorStops(row.properties.color)
-                        outlineColor = outlineColor.darken(2);
-                        colors.push(row.properties.location);
-                        colors.push(color.toString());
-                        outlineColors.push(row.properties.location);
-                        outlineColors.push(outlineColor.toString());
-                    });
+                features.choroplethData.map( row => {
+                    let color : any = colorStops(row[roleMap.color]);
+                    let outlineColor : any = colorStops(row[roleMap.color])
+                    outlineColor = outlineColor.darken(2);
+                    colors.stops.push([row[roleMap.location], color.toString()]);
+                    outlineColors.stops.push([row[roleMap.location], outlineColor.toString()]);
+                });
 
-                    // Add transparent as default so that we only see regions
-                    // for which we have data values
-                    colors.push('rgba(0,0,0,0)');
-                    outlineColors.push('rgba(0,0,0,0)');
-
-                    map.setPaintProperty('choropleth-layer', 'fill-color', colors);
-                    map.setPaintProperty('choropleth-layer', 'fill-outline-color', outlineColors)
-                    map.setLayerZoomRange('choropleth-layer', settings.choropleth.minZoom, settings.choropleth.maxZoom);
-                }
+                map.setPaintProperty('choropleth-layer', 'fill-color', colors);
+                map.setPaintProperty('choropleth-layer', 'fill-outline-color', outlineColors)
+                map.setLayerZoomRange('choropleth-layer', settings.choropleth.minZoom, settings.choropleth.maxZoom);
+                
+ 
             }
         }
     }

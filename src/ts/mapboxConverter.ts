@@ -6,28 +6,25 @@ module powerbi.extensibility.visual {
                     type: "Feature",
                     geometry: {
                         type: "Point",
-                        coordinates: []
+                        // Use null coordinate values if no long/lats are defined.
+                        // Useful for location visualizations
+                        coordinates: [null, null]
                     },
                     properties: {
                     }
                 }
                 row.map( (value, index) => {
                     const column = columns[index];
-                    if (column.roles.latitude && value >= -90 && value <= 90) {
-                        ret.geometry.coordinates[1] = value;
-                    }
                     if (column.roles.longitude && value >= -180 && value <= 180) {
                         ret.geometry.coordinates[0] = value;
+                    }
+                    if (column.roles.latitude && value >= -90 && value <= 90) {
+                        ret.geometry.coordinates[1] = value;
                     }
                     ret.properties[column.displayName] = value;
                 })
                 return ret;
-            }).map( feature => {
-                if (feature.geometry.coordinates.length < 2) {
-                    delete feature.geometry;
-                }
-                return feature;
-            });
+            })
         }
 
         export function convert(dataView: DataView) {

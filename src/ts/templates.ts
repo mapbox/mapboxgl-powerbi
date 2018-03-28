@@ -40,7 +40,7 @@ module powerbi.extensibility.visual {
 
         export const MissingLocationOrColor = `
             <h4>
-                Add Location & Color fields to use a choropleth layer.
+                Add only Location & Color fields to use a choropleth layer.  Choropleth layers do not support using multiple layers in the same map - only a choropleth layer is allowed.
             </h4>
            <img src="https://dl.dropbox.com/s/5io6dvr1l8gcgtp/mapbox-logo-color.png"></img>
         `

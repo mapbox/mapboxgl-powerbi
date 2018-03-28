@@ -16,6 +16,32 @@ module powerbi.extensibility.visual {
             }
         }
 
+        export function shouldUseGradient(colorColumn, colorLimits: { min: any; max: any; values: any; }) {
+            if (colorColumn != null && colorColumn.isMeasure) {
+                return true
+            }
+
+            if (colorLimits == null || colorLimits.values == null || colorLimits.values.length == null) {
+                return false
+            }
+
+            return false
+        }
+
+        export function getClassCount(limits: { min: number; max: number; values: number[]; }) {
+            const MAX_BOUND_COUNT = 6;
+            // For example if you want 5 classes, you have to enter 6 bounds
+            // (1 bound is the minimum value, 1 bound is the maximum value,
+            // the rest are class separators)
+            const classCount = Math.min(limits.values.length, MAX_BOUND_COUNT) - 1;
+            return classCount;
+        }
+
+        export function getNaturalBreaks(limits: { min: any; max: any; values: any[]; }, classCount: number) {
+            const stops: any[] = chroma.limits(limits.values, 'q', classCount);
+            return stops;
+        }
+
         export function getRoleMap(metadata) {
             let ret = {}
             metadata.columns.map(column => {
@@ -84,14 +110,30 @@ module powerbi.extensibility.visual {
             let min = null;
             let max = null;
             let values = [];
-            turf.meta.propEach(turf.helpers.featureCollection(data), function(currentProperties, featureIndex) {
-                if (currentProperties[myproperty]) {
-                    const value = currentProperties[myproperty];
-                    if (!min || value < min) { min = value }
-                    if (!max || value > max) { max = value }
-                    pushIfNotExist(values, value)
-                }
-            })
+
+            if (data[0]['type']) {
+                // data are geojson
+                turf.meta.propEach(turf.helpers.featureCollection(data), function(currentProperties, featureIndex) {
+                    if (currentProperties[myproperty]) {
+                        const value = currentProperties[myproperty];
+                        if (!min || value < min) { min = value }
+                        if (!max || value > max) { max = value }
+                        pushIfNotExist(values, value)
+                    }
+                })
+            }
+            else {
+                // data are non-geojson objects for a choropleth
+                data.forEach(f => {
+                    if (f[myproperty]) {
+                        const value = f[myproperty];
+                        if (!min || value < min) { min = value }
+                        if (!max || value > max) { max = value }
+                        pushIfNotExist(values, value)
+                    }
+                })          
+            }
+
             // Min and max must not be equal becuse of the interpolation.
             // let's make sure with the substraction
             if (min == max) {

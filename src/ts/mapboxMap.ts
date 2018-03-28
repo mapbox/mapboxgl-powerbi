@@ -103,36 +103,22 @@ module powerbi.extensibility.visual {
         // we mustn't have more than one values for a location
         private getFeatures(): Features {
             let ret : Features = new Features();
+
+            if (this.features.length > 0 && this.features[0].geometry.coordinates[0] != null) { 
+                ret.rawData = this.features; 
+            }
+
             if (this.settings.cluster.show) {
                 ret.clusterData = this.layers.cluster.getData(this.settings);
             }
 
             if (this.settings.choropleth.show) {
-                let values = {}
-                this.features.map( feature => {
-                    if (!values[feature.properties.location]) {
-                        // Clone feature to keep rawData untouched
-                        values[feature.properties.location] = JSON.parse(JSON.stringify(feature));
-                    } else {
-                        values[feature.properties.location].properties.color += feature.properties.color;
-                    }
-                })
-                ret.choroplethData = Object.keys(values).map( key => {
-                    return values[key];
-                });
-
+                ret.choroplethData = this.features.map( f => f.properties );
                 const source : any = this.map.getSource('choropleth-source');
                 if (source && source.tileBounds) {
-                    //ret.bounds = source.tileBounds.bounds;
+                    ret.bounds = source.tileBounds.bounds
                 }
             }
-
-            const hasCoords = this.features.length > 0 &&
-                this.features[0].geometry
-            if (hasCoords) {
-                ret.rawData = this.features;
-            }
-
 
             return ret;
         }
@@ -269,7 +255,8 @@ module powerbi.extensibility.visual {
                 this.errorDiv.innerHTML = Templates.MissingGeo;
                 return false;
             }
-            else if (this.settings.choropleth.show && (!roles.location || !roles.color)) {
+            else if (this.settings.choropleth.show && ((!roles.location || !roles.color) || (roles.latitude || roles.longitude || roles.size))) {
+ 
                 this.errorDiv.innerHTML = Templates.MissingLocationOrColor;
                 return false;
             }
@@ -352,6 +339,7 @@ module powerbi.extensibility.visual {
 
             // Check is category field is set
             this.layers.circle.updateColorColumn(dataView.table.columns);
+            this.layers.choropleth.updateColorColumn(dataView.table.columns);
 
             this.tooltipServiceWrapper.addTooltip(this.map,
                 ['circle', 'cluster', 'uncluster'],
