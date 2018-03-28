@@ -80,7 +80,7 @@ module powerbi.extensibility.visual {
 
     export class ClusterSettings {
         public show: boolean = false;
-        public aggregation: string = "count";
+        public aggregation: string = "Count";
         public clusterRadius: number = 50;
         public clusterMaxZoom: number = 12;
         public minColor: string = "#ffffcc";

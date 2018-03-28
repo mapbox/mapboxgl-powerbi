@@ -409,29 +409,29 @@
           "type": {
             "enumeration": [
               {
-                "value": "count",
+                "value": "Count",
                 "displayName": "Count",
-                "displayNameKey": "count"
+                "displayNameKey": "Count"
               },
               {
-                "value": "sum",
+                "value": "Sum",
                 "displayName": "Sum",
-                "displayNameKey": "sum"
+                "displayNameKey": "Sum"
               },
               {
-                "value": "avg",
+                "value": "Average",
                 "displayName": "Average",
-                "displayNameKey": "avg"
+                "displayNameKey": "Average"
               },
               {
-                "value": "min",
+                "value": "Minimum",
                 "displayName": "Minimum",
-                "displayNameKey": "min"
+                "displayNameKey": "Minimum"
               },
               {
-                "value": "max",
+                "value": "Maximum",
                 "displayName": "Maximum",
-                "displayNameKey": "max"
+                "displayNameKey": "Maximum"
               }
             ]
           },
