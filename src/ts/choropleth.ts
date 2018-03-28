@@ -40,7 +40,7 @@ module powerbi.extensibility.visual {
                 }
 
                 if (!map.getSource('choropleth-source')) {
-                    // Create the vector tile source if it doesnt yet exist
+                    // Create the vector tile source if it doesn't yet exist
                     map.addSource('choropleth-source', {
                         type: 'vector',
                         url: settings.choropleth.vectorTileUrl,

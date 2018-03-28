@@ -105,7 +105,6 @@ module powerbi.extensibility.visual {
                     style.push(sizeStop);
                     style.push(size);
                 });
-                console.log("Style: ", style);
                 return style;
             }
             else {

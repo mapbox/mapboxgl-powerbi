@@ -108,7 +108,7 @@ module powerbi.extensibility.visual {
         }
     }
 
-    export function createCluster(getClusterField) {
+    function createCluster(getClusterField) {
         return supercluster({
             radius: 50,
             maxZoom: 12,
@@ -143,13 +143,19 @@ module powerbi.extensibility.visual {
                 };
             },
             reduce: function(accumulated, properties) {
-                accumulated.Sum += Math.round(properties.Sum * 100) / 100;
-                accumulated.Count += properties.Count;
-                accumulated.Minimum = Math.round(Math.min(accumulated.Minimum, properties.Minimum) * 100) / 100;
-                accumulated.Maximum = Math.round(Math.max(accumulated.Maximum, properties.Maximum) * 100) / 100;
-                accumulated.Average = Math.round(100 * accumulated.Sum / accumulated.Count) / 100;
+                accumulated.Sum += roundToDecimals(properties.Sum, 2)
+                accumulated.Count += properties.Count
+                accumulated.Minimum = roundToDecimals(Math.min(accumulated.Minimum, properties.Minimum), 2)
+                accumulated.Maximum = roundToDecimals(Math.max(accumulated.Maximum, properties.Maximum), 2)
+                accumulated.Average = roundToDecimals(accumulated.Sum / accumulated.Count, 2)
             }
         });
     }
+
+    function roundToDecimals(value, decimals) {
+        const tenPow = Math.pow(10, decimals)
+        return Math.round(value * tenPow) / tenPow
+    }
+
 }
 
