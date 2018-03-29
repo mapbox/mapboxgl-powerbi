@@ -152,6 +152,7 @@ module powerbi.extensibility.visual {
             //If the map container doesnt exist yet, create it
             this.map = new mapboxgl.Map(mapOptions);
             this.map.addControl(new mapboxgl.NavigationControl());
+            this.map.addControl(new AutoZoomControl());
 
 
             // Future option to enable search bar / geocoder
