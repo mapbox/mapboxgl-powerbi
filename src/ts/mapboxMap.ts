@@ -20,6 +20,7 @@ module powerbi.extensibility.visual {
         private map: mapboxgl.Map;
         private mapDiv: HTMLDivElement;
         private errorDiv: HTMLDivElement;
+        private autoZoomControl: AutoZoomControl;
         private features: any[];
         private settings: MapboxSettings;
         private mapStyle: string = "";
@@ -29,13 +30,15 @@ module powerbi.extensibility.visual {
         private roleMap: any;
 
         constructor(options: VisualConstructorOptions) {
-            //Map initialization
+            // Map initialization
             this.mapDiv = document.createElement('div');
             this.mapDiv.className = 'map';
             options.element.appendChild(this.mapDiv);
             this.errorDiv = document.createElement('div');
             this.errorDiv.className = 'error';
             options.element.appendChild(this.errorDiv);
+
+            this.autoZoomControl = new AutoZoomControl();
 
             // For anchor elements to work we need to manually
             // call launchUrl API method
@@ -81,7 +84,7 @@ module powerbi.extensibility.visual {
                 this.layers.choropleth.applySettings(features, settings, this.roleMap);
 
                 if (zoom) {
-                    mapboxUtils.zoomToData(map, features)
+                    mapboxUtils.zoomToData(map, features, this.autoZoomControl.isPinned());
                 }
             } finally {
                 updatedHandler();
@@ -149,10 +152,10 @@ module powerbi.extensibility.visual {
                 }
             }
 
-            //If the map container doesnt exist yet, create it
+            // If the map container doesn't exist yet, create it
             this.map = new mapboxgl.Map(mapOptions);
             this.map.addControl(new mapboxgl.NavigationControl());
-            this.map.addControl(new AutoZoomControl());
+            this.map.addControl(this.autoZoomControl);
 
 
             // Future option to enable search bar / geocoder

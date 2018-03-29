@@ -32,6 +32,10 @@ module powerbi.extensibility.visual {
             return 'top-right';
         }
 
+        public isPinned() {
+            return this._toggled;
+        }
+
         private _createButton(className: string, ariaLabel: string, fn: () => any) {
             const a = this._createElement('button', className, this._container);
             a.type = 'button';
