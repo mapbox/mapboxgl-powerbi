@@ -11,15 +11,13 @@ module powerbi.extensibility.visual {
             this.map = map;
             this.container = document.createElement('div');
             this.container.className = 'mapboxgl-ctrl mapboxgl-ctrl-group';
-            this.zoomPinButton = this.createButton('mapboxgl-ctrl-icon mapboxgl-ctrl-zoom-pin', 'Toggle auto zoom',
-                                                     () => {
-                                                        this.toggled = !this.toggled;
-                                                        let buttonClassName = 'mapboxgl-ctrl-icon mapboxgl-ctrl-zoom-pin';
-                                                        if (this.toggled) {
-                                                            buttonClassName = 'mapboxgl-ctrl-icon mapboxgl-ctrl-zoom-pin-toggled';
-                                                        }
-                                                        this.zoomPinButton.className = buttonClassName;
-                                                     });
+
+            this.zoomPinButton = this.createButton(this.getButtonClass(), this.getButtonTitle(),
+                                    () => {
+                                        this.toggled = !this.toggled;
+                                        this.zoomPinButton.className = this.getButtonClass();
+                                        this.zoomPinButton.title = this.getButtonTitle();
+                                    });
             return this.container;
         }
 
@@ -37,11 +35,12 @@ module powerbi.extensibility.visual {
         }
 
         private createButton(className: string, ariaLabel: string, fn: () => any) {
-            const a = this.createElement('button', className, this.container);
-            a.type = 'button';
-            a.setAttribute('aria-label', ariaLabel);
-            a.addEventListener('click', fn);
-            return a;
+            const button = this.createElement('button', className, this.container);
+            button.type = 'button';
+            button.setAttribute('aria-label', ariaLabel);
+            button.title = ariaLabel;
+            button.addEventListener('click', fn);
+            return button;
         }
 
         private createElement = function (tagName: any, className?: string, container?: HTMLElement) {
@@ -50,5 +49,21 @@ module powerbi.extensibility.visual {
             if (container) container.appendChild(el);
             return el;
         };
+
+        private getButtonClass() {
+            let buttonClassName = 'mapboxgl-ctrl-icon ';
+            if (this.toggled) {
+                return buttonClassName + 'mapboxgl-ctrl-zoom-pin-toggled';
+            }
+            return buttonClassName + 'mapboxgl-ctrl-zoom-pin';
+        }
+
+        private getButtonTitle() {
+            let title = 'autoZoom ';
+            if (this.toggled) {
+                return title + 'off';
+            }
+            return title + 'on';
+        }
     }
 }
