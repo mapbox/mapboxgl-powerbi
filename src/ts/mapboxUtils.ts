@@ -1,14 +1,13 @@
 module powerbi.extensibility.visual {
     declare var turf : any;
     export module mapboxUtils {
-        export function zoomToData(map, features) {
+        export function zoomToData(map, features, autoZoomPinned) {
             let bounds : any = features.bounds;
             if (!bounds && features.rawData) {
                 bounds = turf.bbox(turf.helpers.featureCollection(features.rawData));
             }
 
-            const isPinned = false /* mapboxMapNotYetGiventoThisMethod.isPinned() */
-            if (bounds && !isPinned) {
+            if (bounds && !autoZoomPinned) {
                 map.fitBounds(bounds, {
                     padding: 10,
                     maxZoom: 15,
