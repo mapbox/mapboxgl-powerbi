@@ -1,6 +1,6 @@
 module powerbi.extensibility.visual {
-    declare var debug : any;
-    declare var turf : any;
+    declare var debug: any;
+    declare var turf: any;
 
     class Features {
         rawData: any[] = null;
@@ -24,13 +24,15 @@ module powerbi.extensibility.visual {
         private features: any[];
         private settings: MapboxSettings;
         private mapStyle: string = "";
-        private updatedHandler: Function = () => {}
+        private updatedHandler: Function = () => { }
         private tooltipServiceWrapper: ITooltipServiceWrapper;
         private layers: Layers;
         private roleMap: any;
+        private previousZoom: number;
 
         constructor(options: VisualConstructorOptions) {
             // Map initialization
+            this.previousZoom = 0;
             this.mapDiv = document.createElement('div');
             this.mapDiv.className = 'map';
             options.element.appendChild(this.mapDiv);
@@ -69,13 +71,13 @@ module powerbi.extensibility.visual {
                 }
 
                 if (features.clusterData) {
-                    let source : any = map.getSource('clusterData');
-                    source.setData( turf.helpers.featureCollection(features.clusterData) );
+                    let source: any = map.getSource('clusterData');
+                    source.setData(turf.helpers.featureCollection(features.clusterData));
                 }
 
                 if (features.rawData) {
-                    let source : any = map.getSource('data');
-                    source.setData( turf.helpers.featureCollection(features.rawData) );
+                    let source: any = map.getSource('data');
+                    source.setData(turf.helpers.featureCollection(features.rawData));
                 }
 
                 this.layers.heatmap.applySettings(features, settings, this.roleMap);
@@ -91,11 +93,11 @@ module powerbi.extensibility.visual {
             }
         }
 
-         /**
-         * This function returns the values to be displayed in the property pane for each object.
-         * Usually it is a bind pass of what the property pane gave you, but sometimes you may want to do
-         * validation and return other values/defaults
-         */
+        /**
+        * This function returns the values to be displayed in the property pane for each object.
+        * Usually it is a bind pass of what the property pane gave you, but sometimes you may want to do
+        * validation and return other values/defaults
+        */
         public enumerateObjectInstances(options: EnumerateVisualObjectInstancesOptions): VisualObjectInstanceEnumeration {
             return MapboxSettings.enumerateObjectInstances(this.settings || MapboxSettings.getDefault(), options);
         }
@@ -105,10 +107,10 @@ module powerbi.extensibility.visual {
         // for choropleth we need to aggregate per location as
         // we mustn't have more than one values for a location
         private getFeatures(): Features {
-            let ret : Features = new Features();
+            let ret: Features = new Features();
 
-            if (this.features.length > 0 && this.features[0].geometry.coordinates[0] != null) { 
-                ret.rawData = this.features; 
+            if (this.features.length > 0 && this.features[0].geometry.coordinates[0] != null) {
+                ret.rawData = this.features;
             }
 
             if (this.settings.cluster.show) {
@@ -116,8 +118,8 @@ module powerbi.extensibility.visual {
             }
 
             if (this.settings.choropleth.show) {
-                ret.choroplethData = this.features.map( f => f.properties );
-                const source : any = this.map.getSource('choropleth-source');
+                ret.choroplethData = this.features.map(f => f.properties);
+                const source: any = this.map.getSource('choropleth-source');
                 if (source && source.tileBounds) {
                     ret.bounds = source.tileBounds.bounds
                 }
@@ -145,10 +147,10 @@ module powerbi.extensibility.visual {
 
             const mapOptions = {
                 container: this.mapDiv,
-                transformRequest: (url, resourceType)=> {
+                transformRequest: (url, resourceType) => {
                     return {
-                       url: [url.slice(0, url.indexOf("?")+1), "pluginName=PowerBI&", url.slice(url.indexOf("?")+1)].join('')
-                     }
+                        url: [url.slice(0, url.indexOf("?") + 1), "pluginName=PowerBI&", url.slice(url.indexOf("?") + 1)].join('')
+                    }
                 }
             }
 
@@ -172,8 +174,8 @@ module powerbi.extensibility.visual {
                 // For default styles place data under waterway-label layer
                 let firstSymbolId = 'waterway-label';
 
-                if (this.settings.api.style=='mapbox://styles/mapbox/satellite-v9?optimize=true' ||
-                        this.settings.api.style == 'custom') {
+                if (this.settings.api.style == 'mapbox://styles/mapbox/satellite-v9?optimize=true' ||
+                    this.settings.api.style == 'custom') {
                     //For custom style find the lowest symbol layer to place data underneath
                     firstSymbolId = ''
                     let layers = this.map.getStyle().layers;
@@ -209,9 +211,12 @@ module powerbi.extensibility.visual {
                 this.onUpdate(this.map, this.getFeatures(), this.settings, true, this.updatedHandler)
                 mapboxUtils.addClick(this.map);
             });
-            this.map.on('zoomend', () => {
-                if (this.settings.cluster.show) {
-                    this.onUpdate(this.map, this.getFeatures(), this.settings, false, this.updatedHandler);
+            this.map.on('zoom', () => {
+                if (this.previousZoom != Math.floor(this.map.getZoom())) {
+                    this.previousZoom = Math.floor(this.map.getZoom());
+                    if (this.settings.cluster.show) {
+                        this.onUpdate(this.map, this.getFeatures(), this.settings, false, this.updatedHandler);
+                    }
                 }
             });
         }
@@ -235,15 +240,15 @@ module powerbi.extensibility.visual {
             }
 
             // Check for Location properties
-            const roles : any = options.dataViews[0].metadata.columns.map( column => {
+            const roles: any = options.dataViews[0].metadata.columns.map(column => {
                 if (column.roles) {
                     return Object.keys(column.roles);
                 } else {
                     return null;
                 }
-            }).reduce( (acc, curr) => {
+            }).reduce((acc, curr) => {
                 if (curr) {
-                    curr.map( role => {
+                    curr.map(role => {
                         acc[role] = true;
                     });
                 }
@@ -260,7 +265,7 @@ module powerbi.extensibility.visual {
                 return false;
             }
             else if (this.settings.choropleth.show && ((!roles.location || !roles.color) || (roles.latitude || roles.longitude || roles.size))) {
- 
+
                 this.errorDiv.innerHTML = Templates.MissingLocationOrColor;
                 return false;
             }
@@ -286,18 +291,18 @@ module powerbi.extensibility.visual {
             }
 
             // Flatten the multiple properties or multiple datapoints
-            return [].concat.apply([], value.map( properties => {
+            return [].concat.apply([], value.map(properties => {
                 // This mapping is needed to copy the value with the toString
                 // call as otherwise some caching logic causes to be the same
                 // tooltip displayed for all datapoints.
-                return properties.map( prop => {
+                return properties.map(prop => {
                     return {
                         displayName: prop.key,
                         value: prop.value.toString(),
                     }
                 });
             }))
-         }
+        }
 
         @mapboxUtils.logExceptions()
         public update(options: VisualUpdateOptions) {

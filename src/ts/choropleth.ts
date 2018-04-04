@@ -67,18 +67,19 @@ module powerbi.extensibility.visual {
                 // We use the old property function syntax here because the data-join technique is faster to parse still than expressions with this method
                 let colors = {type: "categorical", property: settings.choropleth.vectorProperty, default: "rgba(0,0,0,0)", stops: []};
                 let outlineColors = {type: "categorical", property: settings.choropleth.vectorProperty, default: "rgba(0,0,0,0)", stops: []};
-
-
+                let filter = ['in', settings.choropleth.vectorProperty]
                 features.choroplethData.map( row => {
                     let color : any = colorStops(row[roleMap.color]);
                     let outlineColor : any = colorStops(row[roleMap.color])
                     outlineColor = outlineColor.darken(2);
                     colors.stops.push([row[roleMap.location], color.toString()]);
+                    filter.push(row[roleMap.location]);
                     outlineColors.stops.push([row[roleMap.location], outlineColor.toString()]);
                 });
 
                 map.setPaintProperty('choropleth-layer', 'fill-color', colors);
-                map.setPaintProperty('choropleth-layer', 'fill-outline-color', outlineColors)
+                map.setPaintProperty('choropleth-layer', 'fill-outline-color', 'rgba(0,0,0,0.05)');
+                map.setFilter('choropleth-layer', filter);
                 map.setLayerZoomRange('choropleth-layer', settings.choropleth.minZoom, settings.choropleth.maxZoom);
                 
  
