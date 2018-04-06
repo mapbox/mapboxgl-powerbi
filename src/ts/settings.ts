@@ -19,8 +19,9 @@ module powerbi.extensibility.visual {
                 let instanceEnumeration = DataViewObjectsParser.enumerateObjectInstances(dataViewObjectParser, options);
 
                 switch (options.objectName) {
-                    case 'api': {
-                        return settings.api.enumerateObjectInstances(instanceEnumeration);
+                    case 'api':
+                    case 'choropleth': {
+                        return settings[options.objectName].enumerateObjectInstances(instanceEnumeration);
                     }
                     default: {
                         return instanceEnumeration;
@@ -96,20 +97,45 @@ module powerbi.extensibility.visual {
 
     export class ChoroplethSettings {
         public show: boolean = false;
-        public vectorTileUrl: string = 'mapbox://'
-        public sourceLayer: string = '';
-        public vectorProperty: string = '';
         public minColor: string = "#0571b0";
         public medColor: string = "#f7f7f7";
         public maxColor: string = "#ca0020";
         public minZoom: number = 0;
         public maxZoom: number = 22;
+        public data: string = 'mapbox://mapbox.us_census_states_2015';
+        public vectorTileUrl: string = 'mapbox://';
+        public sourceLayer: string = '';
+        public vectorProperty: string = '';
 
         public display(): boolean {
             return this.show &&
                 this.vectorProperty != "" &&
                 this.sourceLayer != "" &&
                 this.vectorTileUrl != ""
+        }
+
+        public enumerateObjectInstances(objectEnumeration) {
+            let instances = objectEnumeration.instances;
+            let properties = instances[0].properties;
+
+            // Hide / show choropleth custom vector tile, source layer and vector property controls
+            if (properties.data !== 'custom') {
+                // TODO: have proper implicit values based on selected choropleth data boundaries
+                let implicitVectorTileUrl = 'mapbox://mapbox.us_census_states_2015';
+                let implicitSourceLayer = 'states';
+                let implicitVectorProperty = 'NAME';
+
+                properties.vectorTileUrl = implicitVectorTileUrl;
+                delete properties.vectorTileUrl;
+                properties.sourceLayer = implicitSourceLayer;
+                delete properties.sourceLayer;
+                properties.vectorProperty = implicitVectorProperty;
+                delete properties.vectorProperty;
+            // } else if (!properties.styleUrl) {
+            //     properties.styleUrl = "";
+            }
+
+            return { instances }
         }
     }
 }
