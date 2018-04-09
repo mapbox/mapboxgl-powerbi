@@ -29,6 +29,7 @@ module powerbi.extensibility.visual {
         private layers: Layers;
         private roleMap: any;
         private previousZoom: number;
+        private firstSymbolId: string;
 
         constructor(options: VisualConstructorOptions) {
             // Map initialization
@@ -87,6 +88,38 @@ module powerbi.extensibility.visual {
 
                 if (zoom) {
                     mapboxUtils.zoomToData(map, features, this.autoZoomControl.isPinned());
+                }
+
+                if (this.settings.api.extrudeBuildings) {
+                    if (!this.map.getLayer('3d-buildings') && this.settings.api.style != 'custom') {
+                        this.map.addLayer({
+                            'id': '3d-buildings',
+                            'source': 'composite',
+                            'source-layer': 'building',
+                            'filter': ['==', 'extrude', 'true'],
+                            'type': 'fill-extrusion',
+                            'minzoom': 15,
+                            'paint': {
+                                'fill-extrusion-color': '#aaa',
+                                'fill-extrusion-height': [
+                                    "interpolate", ["linear"], ["zoom"],
+                                    15, 0,
+                                    15.05, ["get", "height"]
+                                ],
+                                'fill-extrusion-base': [
+                                    "interpolate", ["linear"], ["zoom"],
+                                    15, 0,
+                                    15.05, ["get", "min_height"]
+                                ],
+                                'fill-extrusion-opacity': .6
+                            }
+                        }, 'waterway-label');
+                    }
+                }
+                else {
+                    if (this.map.getLayer('3d-buildings')) {
+                        this.map.removeLayer('3d-buildings')
+                    }
                 }
             } finally {
                 updatedHandler();
@@ -186,6 +219,7 @@ module powerbi.extensibility.visual {
                         }
                     }
                 }
+                this.firstSymbolId = firstSymbolId;
 
                 this.map.addSource('data', {
                     type: 'geojson',

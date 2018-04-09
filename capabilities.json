@@ -183,6 +183,12 @@
             "text": true
           },
           "suppressFormatPainterCopy": true
+        },
+        "extrudeBuildings": {
+          "displayName": "3D Buildings",
+          "displayNameKey": "extrudeBuildings",
+          "description": "Show 3D buildings",
+          "type": { "bool": true }
         }
       }
     },
