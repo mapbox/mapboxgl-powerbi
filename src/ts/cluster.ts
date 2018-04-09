@@ -1,15 +1,17 @@
 module powerbi.extensibility.visual {
+    declare var turf : any;
     declare var supercluster : any;
 
-    export class Cluster {
-        private parent: MapboxMap;
+    export class Cluster extends Layer {
         private cluster: any;
         private static ID = 'cluster'
         private static LabelID = 'cluster-label'
         private static UnclusterID = 'uncluster'
+        private limits: mapboxUtils.Limits;
+        protected bounds: any[];
         
         constructor(map: MapboxMap, getClusterField) {
-            this.parent = map
+            super(map)
             this.cluster = createCluster(getClusterField);
         }
 
@@ -70,7 +72,32 @@ module powerbi.extensibility.visual {
             map.addLayer(clusterLabelLayer);
         }
 
-        applySettings(features, settings, roleMap) {
+        updateSource(features, roleMap, settings) {
+            const map = this.parent.getMap();
+            let source: any = map.getSource('clusterData');
+            if (settings.cluster.show) {
+                this.update(features);
+                this.handleZoom(settings)
+                const featureCollection = turf.helpers.featureCollection(features);
+                this.bounds = turf.bbox(featureCollection);
+            }
+        }
+
+        getBounds() : any[] {
+            return this.bounds;
+        }
+
+        handleZoom(settings) {
+            if (settings.cluster.show) {
+                const map = this.parent.getMap();
+                let source: any = map.getSource('clusterData');
+                const clusterData = this.getData(settings);
+                source.setData(turf.helpers.featureCollection(clusterData));
+                this.limits = mapboxUtils.getLimits(clusterData, settings.cluster.aggregation);
+            }
+        }
+
+        applySettings(settings, roleMap) {
             const map = this.parent.getMap();
             map.setLayoutProperty('cluster', 'visibility', settings.cluster.show ? 'visible' : 'none');
             map.setLayoutProperty('uncluster', 'visibility', settings.cluster.show ? 'visible' : 'none');
@@ -88,18 +115,17 @@ module powerbi.extensibility.visual {
                 map.setPaintProperty(Cluster.UnclusterID, 'circle-stroke-color', settings.cluster.strokeColor);
                 map.setPaintProperty(Cluster.UnclusterID, 'circle-color', settings.cluster.minColor);
                 map.setPaintProperty(Cluster.UnclusterID, 'circle-radius', settings.cluster.radius/2);
-                const limits = mapboxUtils.getLimits(features.clusterData, settings.cluster.aggregation);
-                if (limits.min && limits.max) {
+                if (this.limits.min && this.limits.max) {
                     map.setPaintProperty(Cluster.ID, 'circle-color', [
                         'interpolate', ['linear'], ['get', settings.cluster.aggregation],
-                        limits.min, settings.cluster.minColor,
-                        limits.max, settings.cluster.maxColor
+                        this.limits.min, settings.cluster.minColor,
+                        this.limits.max, settings.cluster.maxColor
                     ]);
 
                     map.setPaintProperty(Cluster.ID, 'circle-radius', [
                         'interpolate', ['linear'], ['get', settings.cluster.aggregation],
-                        limits.min, settings.cluster.radius,
-                        limits.max, 3 * settings.cluster.radius,
+                        this.limits.min, settings.cluster.radius,
+                        this.limits.max, 3 * settings.cluster.radius,
                     ]);
 
                     map.setLayoutProperty(Cluster.LabelID, 'text-field', `{${settings.cluster.aggregation}}`);

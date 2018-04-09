@@ -1,23 +1,22 @@
 module powerbi.extensibility.visual {
-    export class Heatmap {
-        private parent: MapboxMap;
+    export class Heatmap extends Point {
         private static ID = 'heatmap'
 
         constructor(map: MapboxMap) {
-            this.parent = map
+            super(map)
         }
 
-        addLayer(beforeLayerId) {
+        addLayer(settings, beforeLayerId) {
             const map = this.parent.getMap();
             const heatmapLayer = mapboxUtils.decorateLayer({
                 id: Heatmap.ID,
                 source: 'data',
-                type: 'heatmap'
+                type: 'heatmap',
             });
             map.addLayer(heatmapLayer, beforeLayerId);
         }
 
-        applySettings(features, settings, roleMap) {
+        applySettings(settings, roleMap) {
             const map = this.parent.getMap();
             map.setLayoutProperty(Heatmap.ID, 'visibility', settings.heatmap.show ? 'visible' : 'none');
             if (settings.heatmap.show) {

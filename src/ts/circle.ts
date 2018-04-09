@@ -2,24 +2,18 @@ module powerbi.extensibility.visual {
     declare var turf : any;
     const NUMBER_OF_COLORVALUES = 12;
 
-    export class Circle {
-        private parent: MapboxMap;
+    export class Circle extends Point {
         private palette: IColorPalette;
         private static ID = 'circle';
-        private colorColumn: any;
 
         constructor(map: MapboxMap, palette: IColorPalette) {
+            super(map)
             this.parent = map
             this.palette = palette
         }
 
-        updateColorColumn(columns) {
-            this.colorColumn = columns.find( column => {
-                return column.roles.color;
-            });
-        }
 
-        addLayer(beforeLayerId) {
+        addLayer(settings, beforeLayerId) {
             const map = this.parent.getMap();
             const circleLayer = mapboxUtils.decorateLayer({
                 id: 'circle',
@@ -29,17 +23,14 @@ module powerbi.extensibility.visual {
             map.addLayer(circleLayer, beforeLayerId);
         }
 
-        applySettings(features, settings, roleMap) {
+        applySettings(settings, roleMap) {
             const map = this.parent.getMap();
             map.setLayoutProperty(Circle.ID, 'visibility', settings.circle.show ? 'visible' : 'none');
             if (settings.circle.show) {
-                const colorLimits = mapboxUtils.getLimits(features.rawData, roleMap.color);
-                const sizeLimits = mapboxUtils.getLimits(features.rawData, roleMap.size);
+                const sizes = Circle.getSizes(this.sizeLimits, map, settings, roleMap.size);
 
-                const sizes = Circle.getSizes(sizeLimits, map, settings, roleMap.size);
-
-                let isGradient = mapboxUtils.shouldUseGradient(this.colorColumn, colorLimits);
-                let colors = Circle.getColors(colorLimits, isGradient, settings, this.palette, roleMap.color);
+                let isGradient = mapboxUtils.shouldUseGradient(roleMap.color, this.colorLimits);
+                let colors = Circle.getColors(this.colorLimits, isGradient, settings, this.palette, roleMap.color);
 
                 map.setPaintProperty(Circle.ID, 'circle-radius', sizes);
                 map.setPaintProperty(Circle.ID, 'circle-color', colors);
@@ -52,8 +43,8 @@ module powerbi.extensibility.visual {
             }
         }
 
-        private static getColors(colorLimits: { min: number; max: number; values: number[] }, isGradient: boolean, settings: any, colorPalette: IColorPalette, colorField: string) {
-            if (colorLimits.min == null || colorLimits.max == null || colorLimits.values.length <= 0) {
+        private static getColors(colorLimits: mapboxUtils.Limits, isGradient: boolean, settings: any, colorPalette: IColorPalette, colorField: any) {
+            if (!colorField || colorLimits == null || colorLimits.min == null || colorLimits.max == null || colorLimits.values.length <= 0) {
                 return settings.circle.minColor;
             }
 
@@ -64,7 +55,7 @@ module powerbi.extensibility.visual {
                 const domain: any[] = mapboxUtils.getNaturalBreaks(colorLimits, classCount);
                 const colors = chroma.scale([settings.circle.minColor,settings.circle.medColor, settings.circle.maxColor]).colors(domain.length)
 
-                const style = ["interpolate", ["linear"], ["to-number", ['get', colorField]]]
+                const style = ["interpolate", ["linear"], ["to-number", ['get', colorField.displayName]]]
                 domain.map((colorStop, idx) => {
                     const color = colors[idx].toString();
                     style.push(colorStop);
@@ -75,7 +66,7 @@ module powerbi.extensibility.visual {
             }
 
             // Set colors for categorical value
-            let colors = ['match', ['to-string', ['get', colorField]]];
+            let colors = ['match', ['to-string', ['get', colorField.displayName]]];
             colorLimits.values.map( (value, idx) => {
                 colors.push(value.toString());
                 const color = colorPalette.getColor(idx.toString()).value;
@@ -89,11 +80,11 @@ module powerbi.extensibility.visual {
             return colors;
         }
 
-        private static getSizes(sizeLimits: { min: any; max: any; values: any[]; }, map: any, settings: any, sizeField: string) {
-            if (sizeLimits.min != null && sizeLimits.max != null && sizeLimits.min != sizeLimits.max) {
+        private static getSizes(sizeLimits: mapboxUtils.Limits, map: any, settings: any, sizeField: any) {
+            if (sizeField && sizeLimits && sizeLimits.min != null && sizeLimits.max != null && sizeLimits.min != sizeLimits.max) {
                 const style: any[] = [
                     "interpolate", ["linear"],
-                    ["to-number", ['get',sizeField]]
+                    ["to-number", ['get',sizeField.displayName]]
                 ]
 
                 const classCount = mapboxUtils.getClassCount(sizeLimits);
