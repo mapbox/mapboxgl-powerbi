@@ -26,13 +26,13 @@
     "mapbox-gl": "^0.42.2",
     "mbview": "^1.15.2",
     "powerbi-client": "^2.3.4",
-    "powerbi-visuals-tools": "^1.10.0",
+    "powerbi-visuals-tools": "^1.10.1",
     "powerbi-visuals-utils-dataviewutils": "^1.2.0",
     "powerbi-visuals-utils-testutils": "^1.1.0",
     "powerbi-visuals-utils-typeutils": "^1.1.0",
     "typed-rest-client": "^1.0.5",
     "typescript": "^2.7.2",
-    "uglify-js": "^3.1.1"
+    "uglify-js": "^3.3.14"
   },
   "devDependencies": {
     "@types/jasmine": "^2.8.4",

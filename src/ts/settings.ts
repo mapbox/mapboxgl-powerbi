@@ -33,6 +33,7 @@ module powerbi.extensibility.visual {
         public accessToken: string = "";
         public style: string = "mapbox:\/\/styles\/mapbox\/dark-v9?optimize=true";
         public styleUrl: string = "";
+        public extrudeBuildings: boolean = true;
 
         public enumerateObjectInstances(objectEnumeration) {
             let instances = objectEnumeration.instances;
@@ -80,7 +81,7 @@ module powerbi.extensibility.visual {
 
     export class ClusterSettings {
         public show: boolean = false;
-        public aggregation: string = "count";
+        public aggregation: string = "Count";
         public clusterRadius: number = 50;
         public clusterMaxZoom: number = 12;
         public minColor: string = "#ffffcc";
@@ -99,8 +100,9 @@ module powerbi.extensibility.visual {
         public vectorTileUrl: string = 'mapbox://'
         public sourceLayer: string = '';
         public vectorProperty: string = '';
-        public minColor: string = "red";
-        public maxColor: string = "green";
+        public minColor: string = "#0571b0";
+        public medColor: string = "#f7f7f7";
+        public maxColor: string = "#ca0020";
         public minZoom: number = 0;
         public maxZoom: number = 22;
 

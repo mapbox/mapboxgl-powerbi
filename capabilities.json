@@ -1,6 +1,12 @@
 {
   "dataRoles": [
     {
+      "name": "location",
+      "kind": "Grouping",
+      "displayName": "Location",
+      "description": "Location"
+    },
+    {
       "name": "latitude",
       "kind": "GroupingOrMeasure",
       "displayName": "Latitude",
@@ -177,6 +183,12 @@
             "text": true
           },
           "suppressFormatPainterCopy": true
+        },
+        "extrudeBuildings": {
+          "displayName": "3D Buildings",
+          "displayNameKey": "extrudeBuildings",
+          "description": "Show 3D buildings",
+          "type": { "bool": true }
         }
       }
     },
@@ -186,7 +198,7 @@
       "description": "Circle display settings",
       "properties": {
         "show": {
-          "displayName": "Choropleth",
+          "displayName": "Circle",
           "type": { "bool": true }
         },
         "radius": {
@@ -309,7 +321,7 @@
       "description": "Heatmap display settings",
       "properties": {
         "show": {
-          "displayName": "Choropleth",
+          "displayName": "Heatmap",
           "type": { "bool": true }
         },
         "radius": {
@@ -403,29 +415,29 @@
           "type": {
             "enumeration": [
               {
-                "value": "count",
+                "value": "Count",
                 "displayName": "Count",
-                "displayNameKey": "count"
+                "displayNameKey": "Count"
               },
               {
-                "value": "sum",
+                "value": "Sum",
                 "displayName": "Sum",
-                "displayNameKey": "sum"
+                "displayNameKey": "Sum"
               },
               {
-                "value": "avg",
+                "value": "Average",
                 "displayName": "Average",
-                "displayNameKey": "avg"
+                "displayNameKey": "Average"
               },
               {
-                "value": "min",
+                "value": "Minimum",
                 "displayName": "Minimum",
-                "displayNameKey": "min"
+                "displayNameKey": "Minimum"
               },
               {
-                "value": "max",
+                "value": "Maximum",
                 "displayName": "Maximum",
-                "displayNameKey": "max"
+                "displayNameKey": "Maximum"
               }
             ]
           },
@@ -541,7 +553,7 @@
       "properties": {
         "show": {
           "displayName": "Choropleth",
-          "type": { "bool": false }
+          "type": { "bool": true }
         },
         "vectorTileUrl": {
           "type": {
@@ -571,6 +583,18 @@
           "displayName": "Min Color",
           "displayNameKey": "minColor",
           "description": "Defines the color for the minimum value of the color field.",
+          "type": {
+            "fill": {
+              "solid": {
+                "color": true
+              }
+            }
+          }
+        },
+        "medColor": {
+          "displayName": "Med Color",
+          "displayNameKey": "color",
+          "description": "Intermediate color for choropleth color ramp. ",
           "type": {
             "fill": {
               "solid": {
