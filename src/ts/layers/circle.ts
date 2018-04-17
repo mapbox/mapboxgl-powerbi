@@ -8,10 +8,9 @@ module powerbi.extensibility.visual {
 
         constructor(map: MapboxMap, palette: IColorPalette) {
             super(map)
-            this.parent = map
+            this.id = Circle.ID
             this.palette = palette
         }
-
 
         addLayer(settings, beforeLayerId) {
             const map = this.parent.getMap();
@@ -23,9 +22,15 @@ module powerbi.extensibility.visual {
             map.addLayer(circleLayer, beforeLayerId);
         }
 
-        applySettings(settings, roleMap) {
+        removeLayer() {
             const map = this.parent.getMap();
-            map.setLayoutProperty(Circle.ID, 'visibility', settings.circle.show ? 'visible' : 'none');
+            map.removeLayer(Circle.ID);
+            this.source.removeFromMap(map, Circle.ID);
+        }
+
+        applySettings(settings, roleMap) {
+            super.applySettings(settings, roleMap);
+            const map = this.parent.getMap();
             if (settings.circle.show) {
                 const sizes = Circle.getSizes(this.sizeLimits, map, settings, roleMap.size);
 

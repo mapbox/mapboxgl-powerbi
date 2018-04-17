@@ -102,9 +102,6 @@ module powerbi.extensibility.visual {
                     break;
                 }
             }
-            layer.layout = {
-                visibility: 'none'
-            }
             return layer;
         }
 

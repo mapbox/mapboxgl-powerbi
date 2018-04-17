@@ -42,20 +42,16 @@ module powerbi.extensibility.visual {
 
             this.layers = []
             this.layers.push(new Heatmap(this))
-            this.layers.push(new Cluster(this, () => {
-                return this.roleMap.cluster
-            }))
+            //this.layers.push(new Cluster(this, () => {
+            //return this.roleMap.cluster.displayName;
+            //}))
             this.layers.push(new Circle(this, options.host.colorPalette))
-            this.layers.push(new Choropleth(this))
+            //this.layers.push(new Choropleth(this))
 
         }
 
         onUpdate(map, settings, zoom, updatedHandler: Function) {
             try {
-                if (!map.getSource('data')) {
-                    return;
-                }
-
                 this.layers.map( layer => {
                     layer.applySettings(settings, this.roleMap);
                 });
@@ -127,52 +123,17 @@ module powerbi.extensibility.visual {
                     accessToken: this.settings.api.accessToken,
                 }), 'top-left');
             }*/
-
-            this.map.on('style.load', (e) => {
-                let style = e.target;
-
-                // For default styles place data under waterway-label layer
-                let firstSymbolId = 'waterway-label';
-
-                if (this.settings.api.style == 'mapbox://styles/mapbox/satellite-v9?optimize=true' ||
-                    this.settings.api.style == 'custom') {
-                    //For custom style find the lowest symbol layer to place data underneath
-                    firstSymbolId = ''
-                    let layers = this.map.getStyle().layers;
-                    for (var i = 0; i < layers.length; i++) {
-                        if (layers[i].type === 'symbol') {
-                            firstSymbolId = layers[i].id;
-                            break;
-                        }
-                    }
-                }
-
-                this.map.addSource('data', {
-                    type: 'geojson',
-                    data: turf.helpers.featureCollection([]),
-                    buffer: 0
-                });
-
-                this.map.addSource('clusterData', {
-                    type: 'geojson',
-                    data: turf.helpers.featureCollection([]),
-                    buffer: 0
-                });
-
-                this.layers.map( layer => {
-                    layer.addLayer(this.settings, firstSymbolId);
-                });
-            });
-
             this.map.on('load', () => {
                 this.onUpdate(this.map, this.settings, true, this.updatedHandler)
                 mapboxUtils.addClick(this.map);
             });
             this.map.on('zoom', () => {
-                if (this.previousZoom != Math.floor(this.map.getZoom())) {
-                    this.previousZoom = Math.floor(this.map.getZoom());
+                const newZoom = Math.floor(this.map.getZoom())
+                if (this.previousZoom != newZoom) {
+                    this.previousZoom = newZoom;
                     this.layers.map( layer => {
                         layer.handleZoom(this.settings);
+                        layer.applySettings(this.settings, this.roleMap);
                     });
                 }
             });
@@ -266,9 +227,18 @@ module powerbi.extensibility.visual {
             // For now this is always true
             let dataChanged = true;
             const features = mapboxConverter.convert(dataView);
+            let datasources :  Map<any, boolean> = new Map<any, boolean>()
             this.layers.map( layer => {
-                layer.updateSource(features, this.roleMap, this.settings);
-            });
+                const source = layer.getSource(this.settings, this.map);
+                if (source) {
+                    datasources.set(source, true)
+                }
+            })
+
+            for (let datasource of datasources.keys()) {
+                datasource.update(this.map, features, this.roleMap);
+            };
+
 
             // TODO has to do this async as choropleth datasource may not yet be added
             // and bounds are not filled
@@ -315,14 +285,20 @@ module powerbi.extensibility.visual {
 
 
             let style = this.settings.api.style == 'custom' ? this.settings.api.styleUrl : this.settings.api.style;
-            if (this.mapStyle != style) {
-                this.mapStyle = style;
+            if (this.mapStyle == '' || !this.map.isStyleLoaded() || this.mapStyle != style) {
+
+                // This should run only once but it runs with different dataView
+                // param every time so we need to set a different event handler on every
+                // style change and deregister it when it ran.
                 const delayedUpdate = (e) => {
                     this.updateLayers(dataView)
                     this.map.off('style.load', delayedUpdate);
                 }
                 this.map.on('style.load', delayedUpdate);
-                const ret = this.map.setStyle(this.mapStyle);
+                if (this.mapStyle != style) {
+                    this.mapStyle = style;
+                    const ret = this.map.setStyle(this.mapStyle);
+                }
             } else {
                 this.updateLayers(dataView)
                 return;

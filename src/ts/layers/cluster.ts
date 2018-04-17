@@ -15,6 +15,10 @@ module powerbi.extensibility.visual {
             this.cluster = createCluster(getClusterField);
         }
 
+        show(settings) {
+            return settings.cluster.show;
+        }
+
         update(features) {
             this.cluster.load(features);
         }
@@ -34,6 +38,20 @@ module powerbi.extensibility.visual {
                     delete feature.properties.point_count_abbreviated;
                     return feature;
                 });
+        }
+
+        layerExists() {
+            const map = this.parent.getMap();
+            const layer = map.getLayer(Cluster.ID);
+            return layer != null;
+        }
+ 
+        removeLayer() {
+            const map = this.parent.getMap();
+            map.removeLayer(Cluster.ID);
+            map.removeLayer(Cluster.UnclusterID);
+            map.removeLayer(Cluster.LabelID);
+            map.removeSource('clusterData');
         }
 
         addLayer(settings, beforeLayerId) {
@@ -76,10 +94,24 @@ module powerbi.extensibility.visual {
             const map = this.parent.getMap();
             let source: any = map.getSource('clusterData');
             if (settings.cluster.show) {
+                console.log("Cluster.updateSource");
+                if (!source) {
+                    console.log("Adding source clusterData");
+                    map.addSource('clusterData', {
+                        type: 'geojson',
+                        data: turf.helpers.featureCollection([]),
+                        buffer: 0
+                    });
+                    source = map.getSource('clusterData');
+                }
+
                 this.update(features);
                 this.handleZoom(settings)
                 const featureCollection = turf.helpers.featureCollection(features);
                 this.bounds = turf.bbox(featureCollection);
+            } else {
+                this.update([])
+                this.bounds = null;
             }
         }
 
@@ -98,10 +130,8 @@ module powerbi.extensibility.visual {
         }
 
         applySettings(settings, roleMap) {
+            super.applySettings(settings, roleMap);
             const map = this.parent.getMap();
-            map.setLayoutProperty('cluster', 'visibility', settings.cluster.show ? 'visible' : 'none');
-            map.setLayoutProperty('uncluster', 'visibility', settings.cluster.show ? 'visible' : 'none');
-            map.setLayoutProperty('cluster-label', 'visibility', settings.cluster.show ? 'visible' : 'none');
             if (settings.cluster.show) {
                 map.setLayerZoomRange(Cluster.ID, settings.cluster.minZoom, settings.cluster.maxZoom);
                 map.setPaintProperty(Cluster.ID, 'circle-stroke-width', settings.cluster.strokeWidth);

@@ -32,8 +32,14 @@ module powerbi.extensibility.visual {
                     url: settings.choropleth.vectorTileUrl,
                 });
             }
-
         }
+
+        removeLayer() {
+            const map = this.parent.getMap();
+            map.removeLayer(Choropleth.ID);
+            this.source.removeFromMap(map, Choropleth.ID);
+        }
+
 
         getBounds() : any[] {
             const map = this.parent.getMap();

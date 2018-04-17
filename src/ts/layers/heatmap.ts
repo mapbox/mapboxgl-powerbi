@@ -4,6 +4,7 @@ module powerbi.extensibility.visual {
 
         constructor(map: MapboxMap) {
             super(map)
+            this.id = Heatmap.ID
         }
 
         addLayer(settings, beforeLayerId) {
@@ -16,9 +17,16 @@ module powerbi.extensibility.visual {
             map.addLayer(heatmapLayer, beforeLayerId);
         }
 
-        applySettings(settings, roleMap) {
+        removeLayer() {
             const map = this.parent.getMap();
-            map.setLayoutProperty(Heatmap.ID, 'visibility', settings.heatmap.show ? 'visible' : 'none');
+            map.removeLayer(Heatmap.ID);
+            this.source.removeFromMap(map, Heatmap.ID);
+        }
+
+
+        applySettings(settings, roleMap) {
+            super.applySettings(settings, roleMap);
+            const map = this.parent.getMap();
             if (settings.heatmap.show) {
                 map.setLayerZoomRange(Heatmap.ID, settings.heatmap.minZoom, settings.heatmap.maxZoom);
                 map.setPaintProperty(Heatmap.ID, 'heatmap-radius', [ "interpolate", ["exponential", 1.2], ["zoom"],
