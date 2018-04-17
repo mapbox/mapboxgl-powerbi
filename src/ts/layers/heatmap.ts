@@ -1,10 +1,11 @@
 module powerbi.extensibility.visual {
-    export class Heatmap extends Point {
+    export class Heatmap extends Layer {
         private static ID = 'heatmap'
 
         constructor(map: MapboxMap) {
             super(map)
             this.id = Heatmap.ID
+            this.source = data.Sources.Point
         }
 
         addLayer(settings, beforeLayerId) {

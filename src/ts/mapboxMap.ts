@@ -42,9 +42,9 @@ module powerbi.extensibility.visual {
 
             this.layers = []
             this.layers.push(new Heatmap(this))
-            //this.layers.push(new Cluster(this, () => {
-            //return this.roleMap.cluster.displayName;
-            //}))
+            this.layers.push(new Cluster(this, () => {
+                return this.roleMap.cluster.displayName;
+            }))
             this.layers.push(new Circle(this, options.host.colorPalette))
             //this.layers.push(new Choropleth(this))
 
@@ -58,10 +58,13 @@ module powerbi.extensibility.visual {
 
                 if (zoom) {
                     const bounds = this.layers.map( layer => {
-                        return layer.getBounds();
+                        return layer.getBounds(settings);
                     }).reduce( (acc, bounds) => {
                         if (!bounds) {
                             return acc;
+                        }
+                        if (!acc) {
+                            return bounds
                         }
                         const combined = turf.helpers.featureCollection([
                             turf.bboxPolygon(acc),
@@ -236,7 +239,7 @@ module powerbi.extensibility.visual {
             })
 
             for (let datasource of datasources.keys()) {
-                datasource.update(this.map, features, this.roleMap);
+                datasource.update(this.map, features, this.roleMap, this.settings);
             };
 
 

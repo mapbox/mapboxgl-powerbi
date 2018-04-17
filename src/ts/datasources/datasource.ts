@@ -27,8 +27,10 @@ module powerbi.extensibility.visual.data {
             this.references[layerId] = true;
         }
 
-        update(map, features, roleMap) {}
+        update(map, features, roleMap, settings) {}
         getBounds() : any[] { return this.bounds }
+        getLimits() : any { return null }
+        handleZoom(map, settings) {}
     }
 }
 

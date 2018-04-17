@@ -2,7 +2,7 @@ module powerbi.extensibility.visual {
     declare var turf : any;
     const NUMBER_OF_COLORVALUES = 12;
 
-    export class Circle extends Point {
+    export class Circle extends Layer {
         private palette: IColorPalette;
         private static ID = 'circle';
 
@@ -10,6 +10,7 @@ module powerbi.extensibility.visual {
             super(map)
             this.id = Circle.ID
             this.palette = palette
+            this.source = data.Sources.Point
         }
 
         addLayer(settings, beforeLayerId) {
@@ -31,11 +32,12 @@ module powerbi.extensibility.visual {
         applySettings(settings, roleMap) {
             super.applySettings(settings, roleMap);
             const map = this.parent.getMap();
+            const limits = this.source.getLimits();
             if (settings.circle.show) {
-                const sizes = Circle.getSizes(this.sizeLimits, map, settings, roleMap.size);
+                const sizes = Circle.getSizes(limits.size, map, settings, roleMap.size);
 
-                let isGradient = mapboxUtils.shouldUseGradient(roleMap.color, this.colorLimits);
-                let colors = Circle.getColors(this.colorLimits, isGradient, settings, this.palette, roleMap.color);
+                let isGradient = mapboxUtils.shouldUseGradient(roleMap.color, limits.color);
+                let colors = Circle.getColors(limits.color, isGradient, settings, this.palette, roleMap.color);
 
                 map.setPaintProperty(Circle.ID, 'circle-radius', sizes);
                 map.setPaintProperty(Circle.ID, 'circle-color', colors);

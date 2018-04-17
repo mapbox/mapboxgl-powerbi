@@ -10,11 +10,16 @@ module powerbi.extensibility.visual {
 
         updateSource(features, roleMap, settings) {
             if (settings[this.id].show) {
-                this.source.update(this.parent.getMap(), features, roleMap);
+                this.source.update(this.parent.getMap(), features, roleMap, settings);
             }
         }
 
-        abstract getBounds() : any[];
+        getBounds(settings) : any[] {
+            if (settings[this.id].show) {
+                return this.source.getBounds();
+            }
+            return null;
+        }
 
         applySettings(settings, roleMap) {
             const map = this.parent.getMap();
@@ -46,6 +51,7 @@ module powerbi.extensibility.visual {
 
         addLayer(settings, beforeLayerId : string) {
         }
+        abstract removeLayer()
 
         layerExists() {
             const map = this.parent.getMap();
@@ -60,9 +66,10 @@ module powerbi.extensibility.visual {
             return null;
         }
 
-        abstract removeLayer()
-
         handleZoom(settings) {
+            if (settings[this.id].show) {
+                this.source.handleZoom(this.parent.getMap(), settings);
+            }
         }
 
     }
