@@ -8,12 +8,12 @@ module powerbi.extensibility.visual.data {
             this.references = {}
         }
 
-        abstract addSources(map);
+        abstract addSources(map, settings);
         abstract removeSources(map);
 
 
-        addToMap(map) {
-            this.addSources(map)
+        addToMap(map, settings) {
+            this.addSources(map, settings)
         }
 
         removeFromMap(map, layerId) {
@@ -23,7 +23,7 @@ module powerbi.extensibility.visual.data {
             }
         }
 
-        ensure(map, layerId) {
+        ensure(map, layerId, settings) {
             this.references[layerId] = true;
         }
 
@@ -31,6 +31,7 @@ module powerbi.extensibility.visual.data {
         getBounds() : any[] { return this.bounds }
         getLimits() : any { return null }
         handleZoom(map, settings) {}
+        getData(map, settings) : any[] { return null }
     }
 }
 

@@ -46,7 +46,7 @@ module powerbi.extensibility.visual {
                 return this.roleMap.cluster.displayName;
             }))
             this.layers.push(new Circle(this, options.host.colorPalette))
-            //this.layers.push(new Choropleth(this))
+            this.layers.push(new Choropleth(this))
 
         }
 
@@ -188,6 +188,14 @@ module powerbi.extensibility.visual {
             else if (this.settings.choropleth.show && ((!roles.location || !roles.color) || (roles.latitude || roles.longitude || roles.size))) {
 
                 this.errorDiv.innerHTML = Templates.MissingLocationOrColor;
+                return false;
+            }
+            else if (this.settings.choropleth.show && (
+                !this.settings.choropleth.vectorTileUrl ||
+                !this.settings.choropleth.sourceLayer ||
+                !this.settings.choropleth.vectorProperty)
+            ) {
+                this.errorDiv.innerHTML = Templates.MissingChoroplethSettings;
                 return false;
             }
             else if (this.settings.cluster.show && !roles.cluster) {

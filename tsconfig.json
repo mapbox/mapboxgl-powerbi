@@ -18,6 +18,7 @@
     "src/ts/datasources/datasource.ts",
     "src/ts/datasources/point.ts",
     "src/ts/datasources/cluster.ts",
+    "src/ts/datasources/choropleth.ts",
     "src/ts/datasources/sources.ts",
     "src/ts/layers/layer.ts",
     "src/ts/layers/circle.ts",

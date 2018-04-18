@@ -9,7 +9,7 @@ module powerbi.extensibility.visual.data {
             super()
         }
 
-        addSources(map) {
+        addSources(map, settings) {
             map.addSource('data', {
                 type: 'geojson',
                 data: turf.helpers.featureCollection([]),
@@ -29,11 +29,11 @@ module powerbi.extensibility.visual.data {
             }
         }
 
-        ensure(map, layerId) {
-            super.ensure(map, layerId)
+        ensure(map, layerId, settings) {
+            super.ensure(map, layerId, settings)
             const source: any = map.getSource('data');
             if (!source) {
-                this.addToMap(map);
+                this.addToMap(map, settings);
             }
             return this;
         }

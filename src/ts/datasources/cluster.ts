@@ -17,7 +17,7 @@ module powerbi.extensibility.visual.data {
             return this;
         }
 
-        addSources(map) {
+        addSources(map, settings) {
             map.addSource('clusterData', {
                 type: 'geojson',
                 data: turf.helpers.featureCollection([]),
@@ -34,11 +34,11 @@ module powerbi.extensibility.visual.data {
             return this.limits
         }
 
-        ensure(map, layerId) {
-            super.ensure(map, layerId)
+        ensure(map, layerId, settings) {
+            super.ensure(map, layerId, settings)
             const source: any = map.getSource('clusterData');
             if (!source) {
-                this.addToMap(map);
+                this.addToMap(map, settings);
             }
             return this;
         }
@@ -106,7 +106,7 @@ module powerbi.extensibility.visual.data {
             });
         }
 
-        getData(map, settings) {
+        getData(map, settings) : any[] {
             const worldBounds = [-180.0000, -90.0000, 180.0000, 90.0000];
             this.cluster.options.radius = settings.clusterRadius;
             this.cluster.options.maxZoom = settings.clusterMaxZoom;
