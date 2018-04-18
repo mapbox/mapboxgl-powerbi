@@ -28,6 +28,7 @@ module powerbi.extensibility.visual.data {
 
         removeSources(map) {
             map.removeSource('clusterData');
+            this.cluster.load([]);
         }
 
         getLimits() {
