@@ -605,24 +605,24 @@
           "type": {
             "enumeration": [
               {
-                "value": "Global countries",
-                "displayName": "Global countries",
-                "displayNameKey": "Global countries"
+                "value": "mapbox://mapbox.pbi-countries-v1",
+                "displayName": "Global Countries",
+                "displayNameKey": "globalCountries"
               },
               {
-                "value": "mapbox://mapbox.us_census_states_2015",
-                "displayName": "USA States",
-                "displayNameKey": "USA States"
+                "value": "mapbox://mapbox.pbi-us-states-v1",
+                "displayName": "US States",
+                "displayNameKey": "usaStates"
               },
               {
-                "value": "USA Counties",
-                "displayName": "USA Counties",
-                "displayNameKey": "USA Counties"
+                "value": "mapbox://mapbox.pbi-us-counties-v1",
+                "displayName": "US Counties",
+                "displayNameKey": "usaCounties"
               },
               {
-                "value": "USA Postcodes (5-digit)",
-                "displayName": "USA Postcodes (5-digit)",
-                "displayNameKey": "USA Postcodes (5-digit)"
+                "value": "mapbox://mapbox.pbi-us-postcodes-v1",
+                "displayName": "US Postcodes (5-digit)",
+                "displayNameKey": "usaPostcodes5digit"
               },
               {
                 "value": "custom",

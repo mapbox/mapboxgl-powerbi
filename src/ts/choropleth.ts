@@ -21,14 +21,17 @@ module powerbi.extensibility.visual {
 
         applySettings(features, settings, roleMap) {
             const map = this.parent.getMap();
+            const choroSettings = settings.choropleth;
+
             if (map.getLayer('choropleth-layer')) {
-                map.setLayoutProperty('choropleth-layer', 'visibility', settings.choropleth.display() ? 'visible' : 'none');
+                map.setLayoutProperty('choropleth-layer', 'visibility', choroSettings.display() ? 'visible' : 'none');
             }
-            if (settings.choropleth.display()) {
+            if (choroSettings.display()) {
                 // The choropleth layer is different since it is a vector tile source, not geojson.  We can't modify it in-place.
                 // If it is, we'll create the vector tile source from the URL.  If not, we'll make sure the source doesn't exist.
+                const newVectorTileUrl = choroSettings.getVectorTileUrl();
 
-                if (this.vectorTileUrl != settings.choropleth.vectorTileUrl) {
+                if (this.vectorTileUrl != newVectorTileUrl) {
                     // Update the vector tile source if it exists and has changed.
                     if (map.getSource('choropleth-source')) {
                         if (map.getLayer('choropleth-layer')) {
@@ -36,14 +39,14 @@ module powerbi.extensibility.visual {
                         }
                         map.removeSource('choropleth-source');
                     }
-                    this.vectorTileUrl = settings.choropleth.vectorTileUrl;
+                    this.vectorTileUrl = newVectorTileUrl;
                 }
 
                 if (!map.getSource('choropleth-source')) {
                     // Create the vector tile source if it doesn't yet exist
                     map.addSource('choropleth-source', {
                         type: 'vector',
-                        url: settings.choropleth.vectorTileUrl,
+                        url: newVectorTileUrl,
                     });
                 }
 
@@ -51,7 +54,7 @@ module powerbi.extensibility.visual {
                     id: 'choropleth-layer',
                     type: "fill",
                     source: 'choropleth-source',
-                    "source-layer": settings.choropleth.sourceLayer
+                    "source-layer": choroSettings.getSourceLayer()
                 });
 
                 if (!map.getLayer('choropleth-layer')) {
@@ -63,14 +66,15 @@ module powerbi.extensibility.visual {
                 let isGradient = mapboxUtils.shouldUseGradient(this.colorColumn, fillColorLimits);
                 let fillClassCount = mapboxUtils.getClassCount(fillColorLimits);
                 let fillDomain: any[] = mapboxUtils.getNaturalBreaks(fillColorLimits, fillClassCount);
-                let colorStops = chroma.scale([settings.choropleth.minColor,settings.choropleth.medColor, settings.choropleth.maxColor]).domain(fillDomain);
+                let colorStops = chroma.scale([choroSettings.minColor, choroSettings.medColor, choroSettings.maxColor]).domain(fillDomain);
                 // We use the old property function syntax here because the data-join technique is faster to parse still than expressions with this method
-                let colors = {type: "categorical", property: settings.choropleth.vectorProperty, default: "rgba(0,0,0,0)", stops: []};
-                let outlineColors = {type: "categorical", property: settings.choropleth.vectorProperty, default: "rgba(0,0,0,0)", stops: []};
-                let filter = ['in', settings.choropleth.vectorProperty]
+                const vectorProperty = choroSettings.getVectorProperty();
+                let colors = {type: "categorical", property: vectorProperty, default: "rgba(0,0,0,0)", stops: []};
+                let outlineColors = {type: "categorical", property: vectorProperty, default: "rgba(0,0,0,0)", stops: []};
+                let filter = ['in', vectorProperty]
                 features.choroplethData.map( row => {
-                    let color : any = colorStops(row[roleMap.color]);
-                    let outlineColor : any = colorStops(row[roleMap.color])
+                    let color: any = colorStops(row[roleMap.color]);
+                    let outlineColor: any = colorStops(row[roleMap.color]);
                     outlineColor = outlineColor.darken(2);
                     colors.stops.push([row[roleMap.location], color.toString()]);
                     filter.push(row[roleMap.location]);
@@ -80,9 +84,7 @@ module powerbi.extensibility.visual {
                 map.setPaintProperty('choropleth-layer', 'fill-color', colors);
                 map.setPaintProperty('choropleth-layer', 'fill-outline-color', 'rgba(0,0,0,0.05)');
                 map.setFilter('choropleth-layer', filter);
-                map.setLayerZoomRange('choropleth-layer', settings.choropleth.minZoom, settings.choropleth.maxZoom);
-                
- 
+                map.setLayerZoomRange('choropleth-layer', choroSettings.minZoom, choroSettings.maxZoom);
             }
         }
     }

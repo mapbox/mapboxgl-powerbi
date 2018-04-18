@@ -1,6 +1,6 @@
 module powerbi.extensibility.visual {
     import DataViewObjectsParser = powerbi.extensibility.utils.dataview.DataViewObjectsParser;
-    declare var mapbox : any;
+    declare var mapbox: any;
     export interface MapboxData {
         features: any[];
     }
@@ -15,7 +15,8 @@ module powerbi.extensibility.visual {
         public static enumerateObjectInstances(
             dataViewObjectParser: DataViewObjectsParser,
             options: EnumerateVisualObjectInstancesOptions): VisualObjectInstanceEnumeration {
-                let settings : MapboxSettings = <MapboxSettings>dataViewObjectParser;
+
+                let settings: MapboxSettings = <MapboxSettings>dataViewObjectParser;
                 let instanceEnumeration = DataViewObjectsParser.enumerateObjectInstances(dataViewObjectParser, options);
 
                 switch (options.objectName) {
@@ -96,16 +97,27 @@ module powerbi.extensibility.visual {
     }
 
     export class ChoroplethSettings {
+        static readonly GLOBAL_COUNTRIES_TILE_URL = "mapbox://mapbox.pbi-countries-v1";
+        static readonly US_STATES_TILE_URL = "mapbox://mapbox.pbi-us-states-v1";
+        static readonly US_COUNTIES_TILE_URL = "mapbox://mapbox.pbi-us-counties-v1";
+        static readonly US_POSTCODES_TILE_URL = "mapbox://mapbox.pbi-us-postcodes-v1";
+
         public show: boolean = false;
         public minColor: string = "#0571b0";
         public medColor: string = "#f7f7f7";
         public maxColor: string = "#ca0020";
         public minZoom: number = 0;
         public maxZoom: number = 22;
-        public data: string = 'mapbox://mapbox.us_census_states_2015';
-        public vectorTileUrl: string = 'mapbox://';
-        public sourceLayer: string = '';
-        public vectorProperty: string = '';
+        public data: string = ChoroplethSettings.US_STATES_TILE_URL;  // Let US states be the default
+
+        private vectorTileUrl: string = 'mapbox://';
+        private sourceLayer: string = '';
+        private vectorProperty: string = '';
+
+        private implicitVectorTileUrl: string = '';
+        private implicitSourceLayer: string = '';
+        private implicitVectorProperty: string = '';
+
 
         public display(): boolean {
             return this.show &&
@@ -114,28 +126,59 @@ module powerbi.extensibility.visual {
                 this.vectorTileUrl != ""
         }
 
+        public getVectorTileUrl(): string {
+            if (this.implicitVectorTileUrl) {
+                return this.implicitVectorTileUrl;
+            }
+            return this.vectorTileUrl;
+        }
+
+        public getSourceLayer(): string {
+            console.log('getting source layer', this)
+            if (this.implicitSourceLayer) {
+                return this.implicitSourceLayer;
+            }
+            return this.sourceLayer;
+        }
+
+        public getVectorProperty(): string {
+            if (this.implicitVectorProperty) {
+                return this.implicitVectorProperty;
+            }
+            return this.vectorProperty;
+        }
+
         public enumerateObjectInstances(objectEnumeration) {
             let instances = objectEnumeration.instances;
             let properties = instances[0].properties;
 
             // Hide / show choropleth custom vector tile, source layer and vector property controls
             if (properties.data !== 'custom') {
-                // TODO: have proper implicit values based on selected choropleth data boundaries
-                let implicitVectorTileUrl = 'mapbox://mapbox.us_census_states_2015';
-                let implicitSourceLayer = 'states';
-                let implicitVectorProperty = 'NAME';
+                // Let US states be the default
+                this.implicitSourceLayer = 'pbi-us-states';
+                const implicitVectorProperty = 'name';
 
-                properties.vectorTileUrl = implicitVectorTileUrl;
+                switch (properties.data) {
+                    case ChoroplethSettings.GLOBAL_COUNTRIES_TILE_URL:
+                        this.implicitSourceLayer = 'pbi-countries';
+                        break;
+                    case ChoroplethSettings.US_COUNTIES_TILE_URL:
+                        this.implicitSourceLayer = 'pbi-us-counties';
+                        break;
+                    case ChoroplethSettings.US_POSTCODES_TILE_URL:
+                        this.implicitSourceLayer = 'pbi-us-postcodes';
+                        break;
+                }
+
+                properties.implicitVectorTileUrl = properties.data;
                 delete properties.vectorTileUrl;
-                properties.sourceLayer = implicitSourceLayer;
+                properties.implicitSourceLayer = this.implicitSourceLayer;
                 delete properties.sourceLayer;
                 properties.vectorProperty = implicitVectorProperty;
                 delete properties.vectorProperty;
-            // } else if (!properties.styleUrl) {
-            //     properties.styleUrl = "";
             }
 
-            return { instances }
+            return { instances };
         }
     }
 }
