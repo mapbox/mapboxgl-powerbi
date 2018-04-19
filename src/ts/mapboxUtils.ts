@@ -64,14 +64,14 @@ module powerbi.extensibility.visual {
             }
         }
 
-        export function createClickHandler(map: mapboxgl.Map) {
-            // map.queryRenderedFeatures fails
-            // when option.layers contains an id which is not on the map
-            const currentLayers = new Set(map.getStyle().layers.map(layer => layer.id))
-            const layersSupportClick = ['cluster', 'circle', 'uncluster']
-            const layers = layersSupportClick.filter(layer => currentLayers.has(layer))
-
+        export function createClickHandler(mapVisual: MapboxMap) {
             var onClick : Function = debounce(function(e) {
+                const map = mapVisual.getMap()
+
+                // map.queryRenderedFeatures fails
+                // when option.layers contains an id which is not on the map
+                const layers = mapVisual.getExistingLayers().map(layer => layer.getId())
+
                 const radius = 5
                 let minpoint = new Array(e.point['x'] - radius, e.point['y'] - radius)
                 let maxpoint = new Array(e.point['x'] + radius, e.point['y'] + radius)

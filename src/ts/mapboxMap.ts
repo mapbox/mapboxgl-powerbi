@@ -153,7 +153,7 @@ module powerbi.extensibility.visual {
         private addClick() {
             if (!this.map) { return }
             if (this.map.listens('click')) { return }
-            const onClick = mapboxUtils.createClickHandler(this.map)
+            const onClick = mapboxUtils.createClickHandler(this)
             this.map.on('click', onClick);
         }
 
