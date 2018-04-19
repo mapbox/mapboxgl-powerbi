@@ -21,6 +21,10 @@ module powerbi.extensibility.visual {
             return null;
         }
 
+        getId() {
+            return this.id
+        }
+
         applySettings(settings, roleMap) {
             const map = this.parent.getMap();
             if (settings[this.id].show) {
