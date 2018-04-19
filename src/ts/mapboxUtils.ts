@@ -75,8 +75,9 @@ module powerbi.extensibility.visual {
             const layers = layersSupportClick.filter(layer => currentLayers.has(layer))
 
             var onClick : Function = debounce(function(e) {
-                let minpoint = new Array(e.point['x'] - 5, e.point['y'] - 5)
-                let maxpoint = new Array(e.point['x'] + 5, e.point['y'] + 5)
+                const radius = 5
+                let minpoint = new Array(e.point['x'] - radius, e.point['y'] - radius)
+                let maxpoint = new Array(e.point['x'] + radius, e.point['y'] + radius)
                 let features : any = map.queryRenderedFeatures([minpoint, maxpoint], {
                     layers
                 });
