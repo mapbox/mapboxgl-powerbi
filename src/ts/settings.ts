@@ -127,8 +127,9 @@ module powerbi.extensibility.visual {
             let instances = objectEnumeration.instances;
             let properties = instances[0].properties;
 
-            // Hide / show choropleth custom vector tile, source layer and vector property controls
             if (properties.data !== 'custom') {
+                // Hide custom vector tile URL, source layer and vector property controls, since a
+                // predefined boundary is selected
                 delete properties.vectorTileUrl;
                 delete properties.sourceLayer;
                 delete properties.vectorProperty;
