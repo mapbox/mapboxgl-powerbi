@@ -102,6 +102,8 @@ module powerbi.extensibility.visual {
         static readonly US_COUNTIES_TILE_URL = "mapbox://mapbox.pbi-us-counties-v1";
         static readonly US_POSTCODES_TILE_URL = "mapbox://mapbox.pbi-us-postcodes-v1";
 
+        static readonly PREDEFINED_VECTOR_PROPERTY = "name";
+
         public show: boolean = false;
         public minColor: string = "#0571b0";
         public medColor: string = "#f7f7f7";

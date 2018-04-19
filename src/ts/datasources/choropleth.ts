@@ -44,6 +44,5 @@ module powerbi.extensibility.visual.data {
             this.choroplethData = features.map(f => f.properties);
             this.fillColorLimits = mapboxUtils.getLimits(this.choroplethData, roleMap.color ? roleMap.color.displayName : '');
         }
-
     }
 }
