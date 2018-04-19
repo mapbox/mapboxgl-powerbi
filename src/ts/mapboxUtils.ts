@@ -64,33 +64,37 @@ module powerbi.extensibility.visual {
             }
         }
 
-        export function addClick(map: mapboxgl.Map) {
-            if (!map) { return }
-            if (map.listens('click')) { return }
-
-            // map.queryRenderedFeatures fails
-            // when option.layers contains an id which is not on the map
-            const currentLayers = new Set(map.getStyle().layers.map(layer => layer.id))
-            const layersSupportClick = ['cluster', 'circle', 'uncluster']
-            const layers = layersSupportClick.filter(layer => currentLayers.has(layer))
-
+        export function createClickHandler(mapVisual: MapboxMap) {
             var onClick : Function = debounce(function(e) {
-                let minpoint = new Array(e.point['x'] - 5, e.point['y'] - 5)
-                let maxpoint = new Array(e.point['x'] + 5, e.point['y'] + 5)
+                const map = mapVisual.getMap()
+
+                // map.queryRenderedFeatures fails
+                // when option.layers contains an id which is not on the map
+                const layers = mapVisual.getExistingLayers().map(layer => layer.getId())
+
+                const radius = 5
+                let minpoint = new Array(e.point['x'] - radius, e.point['y'] - radius)
+                let maxpoint = new Array(e.point['x'] + radius, e.point['y'] + radius)
                 let features : any = map.queryRenderedFeatures([minpoint, maxpoint], {
                     layers
                 });
 
-                if (!features.length) {return}
+                if (features
+                    && features.length
+                    && features[0]
+                    && features[0].geometry
+                    && features[0].geometry.coordinates
+                ) {
+                    map.easeTo({
+                        center: features[0].geometry.coordinates,
+                        zoom: map.getZoom() + 1,
+                        duration: 1000
+                    });
+                }
 
-                map.easeTo({
-                    center: features[0].geometry.coordinates,
-                    zoom: map.getZoom() + 1,
-                    duration: 1000
-                });
             }, 22, false);
 
-            map.on('click', onClick);
+            return onClick
         };
 
         export function decorateLayer(layer) {
