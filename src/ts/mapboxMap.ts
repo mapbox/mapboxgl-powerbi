@@ -157,6 +157,10 @@ module powerbi.extensibility.visual {
             this.map.on('click', onClick);
         }
 
+        getExistingLayers(): Layer[] {
+            return this.layers.filter(layer => layer.layerExists())
+        }
+
         private validateOptions(options: VisualUpdateOptions) {
             this.errorDiv.style.display = 'none';
             this.errorDiv.innerText = '';
