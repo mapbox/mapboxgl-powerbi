@@ -65,14 +65,20 @@ module powerbi.extensibility.visual {
         }
 
         export function addClick(map: mapboxgl.Map) {
-            // map.off('click');
-            if (map.listens('click')) { return; }
+            if (!map) { return }
+            if (map.listens('click')) { return }
+
+            // map.queryRenderedFeatures fails
+            // when option.layers contains an id which is not on the map
+            const currentLayers = new Set(map.getStyle().layers.map(layer => layer.id))
+            const layersSupportClick = ['cluster', 'circle', 'uncluster']
+            const layers = layersSupportClick.filter(layer => currentLayers.has(layer))
 
             var onClick : Function = debounce(function(e) {
                 let minpoint = new Array(e.point['x'] - 5, e.point['y'] - 5)
                 let maxpoint = new Array(e.point['x'] + 5, e.point['y'] + 5)
                 let features : any = map.queryRenderedFeatures([minpoint, maxpoint], {
-                    layers: ['cluster', 'circle', 'uncluster']
+                    layers
                 });
 
                 if (!features.length) {return}
@@ -132,7 +138,7 @@ module powerbi.extensibility.visual {
                             if (!max || value > max) { max = value }
                             pushIfNotExist(values, value)
                         }
-                    })          
+                    })
                 }
             }
 
