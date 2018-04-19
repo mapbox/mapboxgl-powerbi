@@ -110,14 +110,9 @@ module powerbi.extensibility.visual {
         public maxZoom: number = 22;
         public data: string = ChoroplethSettings.US_STATES_TILE_URL;  // Let US states be the default
 
-        private vectorTileUrl: string = 'mapbox://';
-        private sourceLayer: string = '';
-        private vectorProperty: string = '';
-
-        private implicitVectorTileUrl: string = '';
-        private implicitSourceLayer: string = '';
-        private implicitVectorProperty: string = '';
-
+        public vectorTileUrl: string = 'mapbox://';
+        public sourceLayer: string = '';
+        public vectorProperty: string = '';
 
         public display(): boolean {
             return this.show &&
@@ -126,55 +121,14 @@ module powerbi.extensibility.visual {
                 this.vectorTileUrl != ""
         }
 
-        public getVectorTileUrl(): string {
-            if (this.implicitVectorTileUrl) {
-                return this.implicitVectorTileUrl;
-            }
-            return this.vectorTileUrl;
-        }
-
-        public getSourceLayer(): string {
-            console.log('getting source layer', this)
-            if (this.implicitSourceLayer) {
-                return this.implicitSourceLayer;
-            }
-            return this.sourceLayer;
-        }
-
-        public getVectorProperty(): string {
-            if (this.implicitVectorProperty) {
-                return this.implicitVectorProperty;
-            }
-            return this.vectorProperty;
-        }
-
         public enumerateObjectInstances(objectEnumeration) {
             let instances = objectEnumeration.instances;
             let properties = instances[0].properties;
 
             // Hide / show choropleth custom vector tile, source layer and vector property controls
             if (properties.data !== 'custom') {
-                // Let US states be the default
-                this.implicitSourceLayer = 'pbi-us-states';
-                const implicitVectorProperty = 'name';
-
-                switch (properties.data) {
-                    case ChoroplethSettings.GLOBAL_COUNTRIES_TILE_URL:
-                        this.implicitSourceLayer = 'pbi-countries';
-                        break;
-                    case ChoroplethSettings.US_COUNTIES_TILE_URL:
-                        this.implicitSourceLayer = 'pbi-us-counties';
-                        break;
-                    case ChoroplethSettings.US_POSTCODES_TILE_URL:
-                        this.implicitSourceLayer = 'pbi-us-postcodes';
-                        break;
-                }
-
-                properties.implicitVectorTileUrl = properties.data;
                 delete properties.vectorTileUrl;
-                properties.implicitSourceLayer = this.implicitSourceLayer;
                 delete properties.sourceLayer;
-                properties.vectorProperty = implicitVectorProperty;
                 delete properties.vectorProperty;
             }
 

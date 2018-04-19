@@ -45,6 +45,13 @@ module powerbi.extensibility.visual {
            <img src="https://dl.dropbox.com/s/5io6dvr1l8gcgtp/mapbox-logo-color.png"></img>
         `
 
+        export const MissingChoroplethSettings = `
+            <h4>
+                Set Vector Tile Url, Source Layer Name and Vector Property properties in the Choropleth section of the settings.
+            </h4>
+           <img src="https://dl.dropbox.com/s/5io6dvr1l8gcgtp/mapbox-logo-color.png"></img>
+        `
+
         export const MissingCluster = `
             <h4>
                 Add a cluster field to use a cluster layer.
