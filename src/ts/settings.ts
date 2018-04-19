@@ -102,6 +102,11 @@ module powerbi.extensibility.visual {
         static readonly US_COUNTIES_TILE_URL = "mapbox://mapbox.pbi-us-counties-v1";
         static readonly US_POSTCODES_TILE_URL = "mapbox://mapbox.pbi-us-postcodes-v1";
 
+        static readonly GLOBAL_COUNTRIES_SOURCE_LAYER = "pbi-countries";
+        static readonly US_STATES_SOURCE_LAYER = "pbi-us-states";
+        static readonly US_COUNTIES_SOURCE_LAYER = "pbi-us-counties";
+        static readonly US_POSTCODES_SOURCE_LAYER = "pbi-us-postcodes";
+
         static readonly PREDEFINED_VECTOR_PROPERTY = "name";
 
         public show: boolean = false;
@@ -112,9 +117,9 @@ module powerbi.extensibility.visual {
         public maxZoom: number = 22;
         public data: string = ChoroplethSettings.US_STATES_TILE_URL;  // Let US states be the default
 
-        public vectorTileUrl: string = 'mapbox://';
-        public sourceLayer: string = '';
-        public vectorProperty: string = '';
+        public vectorTileUrl: string = ChoroplethSettings.US_STATES_TILE_URL;
+        public sourceLayer: string = 'pbi-us-states';
+        public vectorProperty: string = ChoroplethSettings.PREDEFINED_VECTOR_PROPERTY;
 
         public display(): boolean {
             return this.show &&
@@ -136,6 +141,28 @@ module powerbi.extensibility.visual {
             }
 
             return { instances };
+        }
+
+        public static fillPredefinedProperties(choroSettings) {
+            if (choroSettings.data !== 'custom') {
+                switch (choroSettings.data) {
+                    case ChoroplethSettings.GLOBAL_COUNTRIES_TILE_URL:
+                        choroSettings.sourceLayer = ChoroplethSettings.GLOBAL_COUNTRIES_SOURCE_LAYER;
+                        break;
+                    case ChoroplethSettings.US_STATES_TILE_URL:
+                        choroSettings.sourceLayer = ChoroplethSettings.US_STATES_SOURCE_LAYER;
+                        break;
+                    case ChoroplethSettings.US_COUNTIES_TILE_URL:
+                        choroSettings.sourceLayer = ChoroplethSettings.US_COUNTIES_SOURCE_LAYER;
+                        break;
+                    case ChoroplethSettings.US_POSTCODES_TILE_URL:
+                        choroSettings.sourceLayer = ChoroplethSettings.US_POSTCODES_SOURCE_LAYER;
+                        break;
+                }
+
+                choroSettings.vectorTileUrl = choroSettings.data;
+                choroSettings.vectorProperty = ChoroplethSettings.PREDEFINED_VECTOR_PROPERTY;
+            }
         }
     }
 }

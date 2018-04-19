@@ -40,7 +40,7 @@ module powerbi.extensibility.visual {
         getSource(settings, map) {
             const choroSettings = settings.choropleth;
             if (choroSettings.show) {
-                Choropleth.fillPredefinedProperties(choroSettings);
+                ChoroplethSettings.fillPredefinedProperties(choroSettings);
                 if (this.vectorTileUrl != choroSettings.vectorTileUrl) {
                     if (this.vectorTileUrl) {
                         this.removeLayer();
@@ -65,7 +65,7 @@ module powerbi.extensibility.visual {
                 // If it is, we'll create the vector tile source from the URL.  If not, we'll make sure the source doesn't exist.
                 const fillColorLimits = this.source.getLimits();
 
-                Choropleth.fillPredefinedProperties(choroSettings);
+                ChoroplethSettings.fillPredefinedProperties(choroSettings);
 
                 let isGradient = mapboxUtils.shouldUseGradient(roleMap.color, fillColorLimits);
                 let fillClassCount = mapboxUtils.getClassCount(fillColorLimits);
@@ -91,28 +91,6 @@ module powerbi.extensibility.visual {
                 map.setPaintProperty(Choropleth.ID, 'fill-outline-color', 'rgba(0,0,0,0.05)');
                 map.setFilter(Choropleth.ID, filter);
                 map.setLayerZoomRange(Choropleth.ID, choroSettings.minZoom, choroSettings.maxZoom);
-            }
-        }
-
-        private static fillPredefinedProperties(choroSettings) {
-            if (choroSettings.data !== 'custom') {
-                switch (choroSettings.data) {
-                    case ChoroplethSettings.GLOBAL_COUNTRIES_TILE_URL:
-                        choroSettings.sourceLayer = 'pbi-countries';
-                        break;
-                    case ChoroplethSettings.US_STATES_TILE_URL:
-                        choroSettings.sourceLayer = 'pbi-us-states';
-                        break;
-                    case ChoroplethSettings.US_COUNTIES_TILE_URL:
-                        choroSettings.sourceLayer = 'pbi-us-counties';
-                        break;
-                    case ChoroplethSettings.US_POSTCODES_TILE_URL:
-                        choroSettings.sourceLayer = 'pbi-us-postcodes';
-                        break;
-                }
-
-                choroSettings.vectorTileUrl = choroSettings.data;
-                choroSettings.vectorProperty = ChoroplethSettings.PREDEFINED_VECTOR_PROPERTY;
             }
         }
     }
