@@ -549,30 +549,6 @@
           "displayName": "Choropleth",
           "type": { "bool": true }
         },
-        "vectorTileUrl": {
-          "type": {
-            "text": true
-          },
-          "displayName": "Vector Tile Url",
-          "displayNameKey": "vectorTileUrl",
-          "description": "The URL of the vector tileset. Example for US states: mapbox://mapbox.us_census_states_2015"
-        },
-        "sourceLayer": {
-          "type": {
-            "text": true
-          },
-          "displayName": "Source Layer Name",
-          "displayNameKey": "sourceLayer",
-          "description": "The id of the vector layer to use for data join"
-        },
-        "vectorProperty": {
-          "type": {
-            "text": true
-          },
-          "displayName": "Vector Property",
-          "displayNameKey": "vectorProperty",
-          "description": "The property name in the vector layer to use for data join"
-        },
         "minColor": {
           "displayName": "Min Color",
           "displayNameKey": "minColor",
@@ -624,6 +600,64 @@
           "type": {
               "numeric": true
             }
+        },
+        "data": {
+          "type": {
+            "enumeration": [
+              {
+                "value": "mapbox://mapbox.pbi-countries-v1",
+                "displayName": "Global Countries",
+                "displayNameKey": "globalCountries"
+              },
+              {
+                "value": "mapbox://mapbox.pbi-us-states-v1",
+                "displayName": "US States",
+                "displayNameKey": "usaStates"
+              },
+              {
+                "value": "mapbox://mapbox.pbi-us-counties-v1",
+                "displayName": "US Counties",
+                "displayNameKey": "usaCounties"
+              },
+              {
+                "value": "mapbox://mapbox.pbi-us-postcodes-v1",
+                "displayName": "US Postcodes (5-digit)",
+                "displayNameKey": "usaPostcodes5digit"
+              },
+              {
+                "value": "custom",
+                "displayName": "Custom...",
+                "displayNameKey": "custom"
+              }
+            ]
+          },
+          "displayName": "Data",
+          "displayNameKey": "choroplethData",
+          "description": "Built-in Mapbox boundaries or a custom one"
+        },
+        "vectorTileUrl": {
+          "type": {
+            "text": true
+          },
+          "displayName": "Vector Tile Url",
+          "displayNameKey": "vectorTileUrl",
+          "description": "The URL of the vector tileset. Example for US states: mapbox://mapbox.us_census_states_2015"
+        },
+        "sourceLayer": {
+          "type": {
+            "text": true
+          },
+          "displayName": "Source Layer Name",
+          "displayNameKey": "sourceLayer",
+          "description": "The id of the vector layer to use for data join"
+        },
+        "vectorProperty": {
+          "type": {
+            "text": true
+          },
+          "displayName": "Vector Property",
+          "displayNameKey": "vectorProperty",
+          "description": "The property name in the vector layer to use for data join"
         }
       }
     }

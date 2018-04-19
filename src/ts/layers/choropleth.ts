@@ -38,12 +38,14 @@ module powerbi.extensibility.visual {
         }
 
         getSource(settings, map) {
-            if (settings.choropleth.show) {
-                if (this.vectorTileUrl != settings.choropleth.vectorTileUrl) {
+            const choroSettings = settings.choropleth;
+            if (choroSettings.show) {
+                ChoroplethSettings.fillPredefinedProperties(choroSettings);
+                if (this.vectorTileUrl != choroSettings.vectorTileUrl) {
                     if (this.vectorTileUrl) {
-                        this.removeLayer()
+                        this.removeLayer();
                     }
-                    this.vectorTileUrl = settings.choropleth.vectorTileUrl;
+                    this.vectorTileUrl = choroSettings.vectorTileUrl;
                 }
             }
             return super.getSource(settings, map);
@@ -52,23 +54,30 @@ module powerbi.extensibility.visual {
         applySettings(settings, roleMap) {
             super.applySettings(settings, roleMap);
             const map = this.parent.getMap();
+            const choroSettings = settings.choropleth;
+
             if (map.getLayer(Choropleth.ID)) {
-                map.setLayoutProperty(Choropleth.ID, 'visibility', settings.choropleth.display() ? 'visible' : 'none');
+                map.setLayoutProperty(Choropleth.ID, 'visibility', choroSettings.display() ? 'visible' : 'none');
             }
-            if (settings.choropleth.display()) {
+
+            if (choroSettings.display()) {
                 // The choropleth layer is different since it is a vector tile source, not geojson.  We can't modify it in-place.
                 // If it is, we'll create the vector tile source from the URL.  If not, we'll make sure the source doesn't exist.
                 const fillColorLimits = this.source.getLimits();
 
+                ChoroplethSettings.fillPredefinedProperties(choroSettings);
+
                 let isGradient = mapboxUtils.shouldUseGradient(roleMap.color, fillColorLimits);
                 let fillClassCount = mapboxUtils.getClassCount(fillColorLimits);
                 let fillDomain: any[] = mapboxUtils.getNaturalBreaks(fillColorLimits, fillClassCount);
-                let colorStops = chroma.scale([settings.choropleth.minColor,settings.choropleth.medColor, settings.choropleth.maxColor]).domain(fillDomain);
+                const choroColorSettings = [choroSettings.minColor, choroSettings.medColor, choroSettings.maxColor];
+                let colorStops = chroma.scale(choroColorSettings).domain(fillDomain);
+
                 // We use the old property function syntax here because the data-join technique is faster to parse still than expressions with this method
-                let colors = {type: "categorical", property: settings.choropleth.vectorProperty, default: "rgba(0,0,0,0)", stops: []};
-                let outlineColors = {type: "categorical", property: settings.choropleth.vectorProperty, default: "rgba(0,0,0,0)", stops: []};
-                let filter = ['in', settings.choropleth.vectorProperty]
-                const choroplethData = this.source.getData(map, settings)
+                let colors = {type: "categorical", property: choroSettings.vectorProperty, default: "rgba(0,0,0,0)", stops: []};
+                let outlineColors = {type: "categorical", property: choroSettings.vectorProperty, default: "rgba(0,0,0,0)", stops: []};
+                let filter = ['in', choroSettings.vectorProperty];
+                const choroplethData = this.source.getData(map, settings);
                 choroplethData.map( row => {
                     let color : any = colorStops(row[roleMap.color.displayName]);
                     let outlineColor : any = colorStops(row[roleMap.color.displayName])
@@ -81,9 +90,7 @@ module powerbi.extensibility.visual {
                 map.setPaintProperty(Choropleth.ID, 'fill-color', colors);
                 map.setPaintProperty(Choropleth.ID, 'fill-outline-color', 'rgba(0,0,0,0.05)');
                 map.setFilter(Choropleth.ID, filter);
-                map.setLayerZoomRange(Choropleth.ID, settings.choropleth.minZoom, settings.choropleth.maxZoom);
-                
- 
+                map.setLayerZoomRange(Choropleth.ID, choroSettings.minZoom, choroSettings.maxZoom);
             }
         }
     }
