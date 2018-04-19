@@ -2,31 +2,17 @@ module powerbi.extensibility.visual {
     declare var debug: any;
     declare var turf: any;
 
-    class Features {
-        rawData: any[] = null;
-        choroplethData: any[] = null;
-        clusterData: any[] = null;
-        bounds: any[] = null;
-    }
-
-    class Layers {
-        heatmap: Heatmap = null;
-        cluster: Cluster = null;
-        circle: Circle = null;
-        choropleth: Choropleth = null;
-    }
-
     export class MapboxMap implements IVisual {
         private map: mapboxgl.Map;
         private mapDiv: HTMLDivElement;
         private errorDiv: HTMLDivElement;
         private autoZoomControl: AutoZoomControl;
-        private features: any[];
+        private bounds: any[] = null;
         private settings: MapboxSettings;
         private mapStyle: string = "";
         private updatedHandler: Function = () => { }
         private tooltipServiceWrapper: ITooltipServiceWrapper;
-        private layers: Layers;
+        private layers: Layer[] = [];
         private roleMap: any;
         private previousZoom: number;
 
@@ -54,39 +40,39 @@ module powerbi.extensibility.visual {
 
             this.tooltipServiceWrapper = createTooltipServiceWrapper(options.host.tooltipService, options.element);
 
-            this.layers = new Layers();
-            this.layers.heatmap = new Heatmap(this);
-            this.layers.cluster = new Cluster(this, () => {
-                return this.roleMap.cluster
-            });
-            this.layers.circle = new Circle(this, options.host.colorPalette);
-            this.layers.choropleth = new Choropleth(this);
+            this.layers = []
+            this.layers.push(new Heatmap(this))
+            this.layers.push(new Cluster(this, () => {
+                return this.roleMap.cluster.displayName;
+            }))
+            this.layers.push(new Circle(this, options.host.colorPalette))
+            this.layers.push(new Choropleth(this))
 
         }
 
-        onUpdate(map, features, settings, zoom, updatedHandler: Function) {
+        onUpdate(map, settings, zoom, updatedHandler: Function) {
             try {
-                if (!map.getSource('data')) {
-                    return;
-                }
-
-                if (features.clusterData) {
-                    let source: any = map.getSource('clusterData');
-                    source.setData(turf.helpers.featureCollection(features.clusterData));
-                }
-
-                if (features.rawData) {
-                    let source: any = map.getSource('data');
-                    source.setData(turf.helpers.featureCollection(features.rawData));
-                }
-
-                this.layers.heatmap.applySettings(features, settings, this.roleMap);
-                this.layers.cluster.applySettings(features, settings, this.roleMap);
-                this.layers.circle.applySettings(features, settings, this.roleMap);
-                this.layers.choropleth.applySettings(features, settings, this.roleMap);
+                this.layers.map( layer => {
+                    layer.applySettings(settings, this.roleMap);
+                });
 
                 if (zoom) {
-                    mapboxUtils.zoomToData(map, features, this.autoZoomControl.isPinned());
+                    const bounds = this.layers.map( layer => {
+                        return layer.getBounds(settings);
+                    }).reduce( (acc, bounds) => {
+                        if (!bounds) {
+                            return acc;
+                        }
+                        if (!acc) {
+                            return bounds
+                        }
+                        const combined = turf.helpers.featureCollection([
+                            turf.bboxPolygon(acc),
+                            turf.bboxPolygon(bounds)
+                        ]);
+                        return turf.bbox(combined)
+                    });
+                    mapboxUtils.zoomToData(map, bounds, this.autoZoomControl.isPinned());
                 }
             } finally {
                 updatedHandler();
@@ -100,32 +86,6 @@ module powerbi.extensibility.visual {
         */
         public enumerateObjectInstances(options: EnumerateVisualObjectInstancesOptions): VisualObjectInstanceEnumeration {
             return MapboxSettings.enumerateObjectInstances(this.settings || MapboxSettings.getDefault(), options);
-        }
-
-        // We might need to transform the raw data coming from PowerBI
-        // for clustered display we want to use the cluster
-        // for choropleth we need to aggregate per location as
-        // we mustn't have more than one values for a location
-        private getFeatures(): Features {
-            let ret: Features = new Features();
-
-            if (this.features.length > 0 && this.features[0].geometry.coordinates[0] != null) {
-                ret.rawData = this.features;
-            }
-
-            if (this.settings.cluster.show) {
-                ret.clusterData = this.layers.cluster.getData(this.settings);
-            }
-
-            if (this.settings.choropleth.show) {
-                ret.choroplethData = this.features.map(f => f.properties);
-                const source: any = this.map.getSource('choropleth-source');
-                if (source && source.tileBounds) {
-                    ret.bounds = source.tileBounds.bounds
-                }
-            }
-
-            return ret;
         }
 
         public on(event: string, fn: Function) {
@@ -166,57 +126,18 @@ module powerbi.extensibility.visual {
                     accessToken: this.settings.api.accessToken,
                 }), 'top-left');
             }*/
-
-            this.map.on('style.load', (e) => {
-
-                let style = e.target;
-
-                // For default styles place data under waterway-label layer
-                let firstSymbolId = 'waterway-label';
-
-                if (this.settings.api.style == 'mapbox://styles/mapbox/satellite-v9?optimize=true' ||
-                    this.settings.api.style == 'custom') {
-                    //For custom style find the lowest symbol layer to place data underneath
-                    firstSymbolId = ''
-                    let layers = this.map.getStyle().layers;
-                    for (var i = 0; i < layers.length; i++) {
-                        if (layers[i].type === 'symbol') {
-                            firstSymbolId = layers[i].id;
-                            break;
-                        }
-                    }
-                }
-
-                this.map.addSource('data', {
-                    type: 'geojson',
-                    data: turf.helpers.featureCollection([]),
-                    buffer: 0
-                });
-
-                this.map.addSource('clusterData', {
-                    type: 'geojson',
-                    data: turf.helpers.featureCollection([]),
-                    buffer: 0
-                });
-
-                this.layers.heatmap.addLayer(firstSymbolId)
-                this.layers.cluster.addLayer(this.settings, firstSymbolId)
-                this.layers.circle.addLayer(firstSymbolId);
-                this.layers.choropleth.addLayer(firstSymbolId);
-
-                this.onUpdate(this.map, this.getFeatures(), this.settings, false, this.updatedHandler)
-            });
-
             this.map.on('load', () => {
-                this.onUpdate(this.map, this.getFeatures(), this.settings, true, this.updatedHandler)
+                this.onUpdate(this.map, this.settings, true, this.updatedHandler)
                 mapboxUtils.addClick(this.map);
             });
             this.map.on('zoom', () => {
-                if (this.previousZoom != Math.floor(this.map.getZoom())) {
-                    this.previousZoom = Math.floor(this.map.getZoom());
-                    if (this.settings.cluster.show) {
-                        this.onUpdate(this.map, this.getFeatures(), this.settings, false, this.updatedHandler);
-                    }
+                const newZoom = Math.floor(this.map.getZoom())
+                if (this.previousZoom != newZoom) {
+                    this.previousZoom = newZoom;
+                    this.layers.map( layer => {
+                        layer.handleZoom(this.settings);
+                        layer.applySettings(this.settings, this.roleMap);
+                    });
                 }
             });
         }
@@ -269,6 +190,14 @@ module powerbi.extensibility.visual {
                 this.errorDiv.innerHTML = Templates.MissingLocationOrColor;
                 return false;
             }
+            else if (this.settings.choropleth.show && (
+                !this.settings.choropleth.vectorTileUrl ||
+                !this.settings.choropleth.sourceLayer ||
+                !this.settings.choropleth.vectorProperty)
+            ) {
+                this.errorDiv.innerHTML = Templates.MissingChoroplethSettings;
+                return false;
+            }
             else if (this.settings.cluster.show && !roles.cluster) {
                 this.errorDiv.innerHTML = Templates.MissingCluster;
                 return false;
@@ -304,6 +233,43 @@ module powerbi.extensibility.visual {
             }))
         }
 
+        public updateLayers(dataView : DataView) {
+            // Placeholder to indicate whether data changed or paint prop changed
+            // For now this is always true
+            let dataChanged = true;
+            const features = mapboxConverter.convert(dataView);
+            let datasources :  Map<any, boolean> = new Map<any, boolean>()
+            this.layers.map( layer => {
+                const source = layer.getSource(this.settings, this.map);
+                if (source) {
+                    datasources.set(source, true)
+                }
+            })
+
+            for (let datasource of datasources.keys()) {
+                datasource.update(this.map, features, this.roleMap, this.settings);
+            };
+
+
+            // TODO has to do this async as choropleth datasource may not yet be added
+            // and bounds are not filled
+            //this.bounds = turf.bbox(turf.helpers.featureCollection(features));
+            //this.bounds = this.layers.choropleth.getBounds(this.settings, this.bounds);
+            //if (this.bounds && this.bounds.length > 0 && this.bounds[0] == null) {
+            //this.bounds = null
+            //}
+
+            this.tooltipServiceWrapper.addTooltip(this.map,
+                ['circle', 'cluster', 'uncluster'],
+                (tooltipEvent: TooltipEventArgs<number>) => {
+                    const tooltipData = MapboxMap.getTooltipData(tooltipEvent.data)
+                    return tooltipData;
+                }
+            );
+
+            this.onUpdate(this.map, this.settings, false, this.updatedHandler);
+        }
+
         @mapboxUtils.logExceptions()
         public update(options: VisualUpdateOptions) {
             const dataView: DataView = options.dataViews[0];
@@ -324,44 +290,29 @@ module powerbi.extensibility.visual {
                 this.addMap();
             }
 
-            // Placeholder to indicate whether data changed or paint prop changed
-            // For now this is always true
-            let dataChanged = true;
-            this.features = mapboxConverter.convert(dataView);
-
-
-            if (this.settings.cluster.show) {
-                this.layers.cluster.update(this.features);
-            }
-
             if (mapboxgl.accessToken != this.settings.api.accessToken) {
                 mapboxgl.accessToken = this.settings.api.accessToken;
             }
 
-            let styleChanged = false;
+
             let style = this.settings.api.style == 'custom' ? this.settings.api.styleUrl : this.settings.api.style;
-            if (this.mapStyle != style) {
-                this.mapStyle = style;
-                styleChanged = true;
-                this.map.setStyle(this.mapStyle);
-            }
+            if (this.mapStyle == '' || !this.map.isStyleLoaded() || this.mapStyle != style) {
 
-            // Check is category field is set
-            this.layers.circle.updateColorColumn(dataView.table.columns);
-            this.layers.choropleth.updateColorColumn(dataView.table.columns);
-
-            this.tooltipServiceWrapper.addTooltip(this.map,
-                ['circle', 'cluster', 'uncluster'],
-                (tooltipEvent: TooltipEventArgs<number>) => {
-                    const tooltipData = MapboxMap.getTooltipData(tooltipEvent.data)
-                    return tooltipData;
+                // This should run only once but it runs with different dataView
+                // param every time so we need to set a different event handler on every
+                // style change and deregister it when it ran.
+                const delayedUpdate = (e) => {
+                    this.updateLayers(dataView)
+                    this.map.off('style.load', delayedUpdate);
                 }
-            );
-
-            // If the map is loaded and style has not changed in this update
-            // then we should update right now.
-            if (!styleChanged) {
-                this.onUpdate(this.map, this.getFeatures(), this.settings, dataChanged || layerVisibilityChanged, this.updatedHandler);
+                this.map.on('style.load', delayedUpdate);
+                if (this.mapStyle != style) {
+                    this.mapStyle = style;
+                    const ret = this.map.setStyle(this.mapStyle);
+                }
+            } else {
+                this.updateLayers(dataView)
+                return;
             }
         }
 

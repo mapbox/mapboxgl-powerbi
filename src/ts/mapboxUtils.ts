@@ -1,12 +1,13 @@
 module powerbi.extensibility.visual {
     declare var turf : any;
     export module mapboxUtils {
-        export function zoomToData(map, features, autoZoomPinned) {
-            let bounds : any = features.bounds;
-            if (!bounds && features.rawData) {
-                bounds = turf.bbox(turf.helpers.featureCollection(features.rawData));
-            }
+        export interface Limits {
+            min: number;
+            max: number;
+            values: number[];
+        }
 
+        export function zoomToData(map, bounds, autoZoomPinned) {
             if (bounds && !autoZoomPinned) {
                 map.fitBounds(bounds, {
                     padding: 10,
@@ -45,7 +46,7 @@ module powerbi.extensibility.visual {
             let ret = {}
             metadata.columns.map(column => {
                 Object.keys(column.roles).map(role => {
-                    ret[role] = column.displayName
+                    ret[role] = column
                 });
             });
             return ret;
@@ -64,14 +65,20 @@ module powerbi.extensibility.visual {
         }
 
         export function addClick(map: mapboxgl.Map) {
-            // map.off('click');
-            if (map.listens('click')) { return; }
+            if (!map) { return }
+            if (map.listens('click')) { return }
+
+            // map.queryRenderedFeatures fails
+            // when option.layers contains an id which is not on the map
+            const currentLayers = new Set(map.getStyle().layers.map(layer => layer.id))
+            const layersSupportClick = ['cluster', 'circle', 'uncluster']
+            const layers = layersSupportClick.filter(layer => currentLayers.has(layer))
 
             var onClick : Function = debounce(function(e) {
                 let minpoint = new Array(e.point['x'] - 5, e.point['y'] - 5)
                 let maxpoint = new Array(e.point['x'] + 5, e.point['y'] + 5)
                 let features : any = map.queryRenderedFeatures([minpoint, maxpoint], {
-                    layers: ['cluster', 'circle', 'uncluster']
+                    layers
                 });
 
                 if (!features.length) {return}
@@ -104,33 +111,35 @@ module powerbi.extensibility.visual {
             return layer;
         }
 
-        export function getLimits(data, myproperty) {
+        export function getLimits(data, myproperty) : Limits {
 
             let min = null;
             let max = null;
             let values = [];
 
-            if (data[0]['type']) {
-                // data are geojson
-                turf.meta.propEach(turf.helpers.featureCollection(data), function(currentProperties, featureIndex) {
-                    if (currentProperties[myproperty]) {
-                        const value = currentProperties[myproperty];
-                        if (!min || value < min) { min = value }
-                        if (!max || value > max) { max = value }
-                        pushIfNotExist(values, value)
-                    }
-                })
-            }
-            else {
-                // data are non-geojson objects for a choropleth
-                data.forEach(f => {
-                    if (f[myproperty]) {
-                        const value = f[myproperty];
-                        if (!min || value < min) { min = value }
-                        if (!max || value > max) { max = value }
-                        pushIfNotExist(values, value)
-                    }
-                })          
+            if (data && data.length > 0 && myproperty != '') {
+                if (data[0]['type']) {
+                    // data are geojson
+                    turf.meta.propEach(turf.helpers.featureCollection(data), function(currentProperties, featureIndex) {
+                        if (currentProperties[myproperty]) {
+                            const value = currentProperties[myproperty];
+                            if (!min || value < min) { min = value }
+                            if (!max || value > max) { max = value }
+                            pushIfNotExist(values, value)
+                        }
+                    })
+                }
+                else {
+                    // data are non-geojson objects for a choropleth
+                    data.forEach(f => {
+                        if (f[myproperty]) {
+                            const value = f[myproperty];
+                            if (!min || value < min) { min = value }
+                            if (!max || value > max) { max = value }
+                            pushIfNotExist(values, value)
+                        }
+                    })
+                }
             }
 
             // Min and max must not be equal becuse of the interpolation.
