@@ -128,7 +128,7 @@ module powerbi.extensibility.visual {
             }*/
             this.map.on('load', () => {
                 this.onUpdate(this.map, this.settings, true, this.updatedHandler)
-                mapboxUtils.addClick(this.map);
+                this.addClick();
             });
             this.map.on('zoom', () => {
                 const newZoom = Math.floor(this.map.getZoom())
@@ -148,6 +148,13 @@ module powerbi.extensibility.visual {
                 this.map = null;
                 this.mapStyle = "";
             }
+        }
+
+        private addClick() {
+            if (!this.map) { return }
+            if (this.map.listens('click')) { return }
+            const onClick = mapboxUtils.createClickHandler(this.map)
+            this.map.on('click', onClick);
         }
 
         private validateOptions(options: VisualUpdateOptions) {

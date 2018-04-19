@@ -64,10 +64,7 @@ module powerbi.extensibility.visual {
             }
         }
 
-        export function addClick(map: mapboxgl.Map) {
-            if (!map) { return }
-            if (map.listens('click')) { return }
-
+        export function createClickHandler(map: mapboxgl.Map) {
             // map.queryRenderedFeatures fails
             // when option.layers contains an id which is not on the map
             const currentLayers = new Set(map.getStyle().layers.map(layer => layer.id))
@@ -97,7 +94,7 @@ module powerbi.extensibility.visual {
 
             }, 22, false);
 
-            map.on('click', onClick);
+            return onClick
         };
 
         export function decorateLayer(layer) {
