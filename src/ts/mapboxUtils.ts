@@ -82,13 +82,19 @@ module powerbi.extensibility.visual {
                     layers
                 });
 
-                if (!features.length) {return}
+                if (features
+                    && features.length
+                    && features[0]
+                    && features[0].geometry
+                    && features[0].geometry.coordinates
+                ) {
+                    map.easeTo({
+                        center: features[0].geometry.coordinates,
+                        zoom: map.getZoom() + 1,
+                        duration: 1000
+                    });
+                }
 
-                map.easeTo({
-                    center: features[0].geometry.coordinates,
-                    zoom: map.getZoom() + 1,
-                    duration: 1000
-                });
             }, 22, false);
 
             map.on('click', onClick);
