@@ -112,7 +112,7 @@ module powerbi.extensibility.visual {
                         url.slice(0,26) == 'https://a.tiles.mapbox.com' || 
                         url.slice(0,26) == 'https://b.tiles.mapbox.com' ||
                         url.slice(0,26) == 'https://c.tiles.mapbox.com') {
-                        //Add Python Plugin identifier for Mapbox API traffic
+                        //Add PowerBI Plugin identifier for Mapbox API traffic
                         return {
                            url: [url.slice(0, url.indexOf("?")+1), "pluginName=PowerBI&", url.slice(url.indexOf("?")+1)].join('')
                          }
