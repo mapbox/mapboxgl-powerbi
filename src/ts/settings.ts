@@ -120,6 +120,11 @@ module powerbi.extensibility.visual {
         public vectorTileUrl: string = ChoroplethSettings.US_STATES_TILE_URL;
         public sourceLayer: string = 'pbi-us-states';
         public vectorProperty: string = ChoroplethSettings.PREDEFINED_VECTOR_PROPERTY;
+        public opacity: number = 100;
+        public outlineColor: string = "#000000";
+        public outlineWidth: number = 1;
+        public outlineOpacity: number = 100;
+
 
         public display(): boolean {
             return this.show &&
@@ -138,6 +143,39 @@ module powerbi.extensibility.visual {
                 delete properties.vectorTileUrl;
                 delete properties.sourceLayer;
                 delete properties.vectorProperty;
+            }
+
+            instances[0].validValues = {
+                minZoom: {
+                    numberRange: {
+                        min: 0,
+                        max: 22,
+                    }
+                },
+                maxZoom: {
+                    numberRange: {
+                        min: 0,
+                        max: 22,
+                    }
+                },
+                opacity: {
+                    numberRange: {
+                        min: 0,
+                        max: 100,
+                    }
+                },
+                outlineOpacity: {
+                    numberRange: {
+                        min: 0,
+                        max: 100,
+                    }
+                },
+                outlineWidth: {
+                    numberRange: {
+                        min: 0,
+                        max: 1000,
+                    }
+                }
             }
 
             return { instances };
