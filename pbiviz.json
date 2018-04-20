@@ -2,14 +2,14 @@
   "visual": {
     "name": "mapboxGLMap",
     "displayName": "Mapbox Visual",
-    "guid": "PBI_CV_EB3A4088_75C5_4746_9D8B_255A7B7ECD6C_2",
+    "guid": "PBI_CV_EB3A4088_75C5_4746_9D8B_255A7B7ECD6C_3",
     "visualClassName": "MapboxMap",
     "version": "1.1.0",
     "description": "Visualze massive location data with custom map styles, using circle, heatmap, and cluster layers.",
     "supportUrl": "www.mapbox.com/help",
     "gitHubUrl": "https://github.com/mapbox/mapboxgl-powerbi"
   },
-  "apiVersion": "1.10.0",
+  "apiVersion": "1.11.0",
   "author": {
     "name": "Mapbox",
     "email": "ryan.baumann@mapbox.com"
@@ -22,7 +22,6 @@
     "src/js/supercluster.min.js",
     "src/js/turf-bundle-min.js",
     "node_modules/chroma-js/chroma.min.js",
-    "node_modules/mapbox-gl-supported/index.js",
     "src/js/mapboxglAdaptor.js",
     "node_modules/powerbi-visuals-utils-dataviewutils/lib/index.js"
   ],
