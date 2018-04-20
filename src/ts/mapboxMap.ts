@@ -110,7 +110,7 @@ module powerbi.extensibility.visual {
                 transformRequest: (url, resourceType) => {
                     if ( url.slice(0,22) == 'https://api.mapbox.com' || 
                         url.slice(0,26) == 'https://a.tiles.mapbox.com' || 
-                        url.slice(0,26) == 'https://a.tiles.mapbox.com' ||
+                        url.slice(0,26) == 'https://b.tiles.mapbox.com' ||
                         url.slice(0,26) == 'https://c.tiles.mapbox.com') {
                         //Add Python Plugin identifier for Mapbox API traffic
                         return {
