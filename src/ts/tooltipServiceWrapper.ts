@@ -92,8 +92,6 @@ module powerbi.extensibility.visual {
             });
             return ret;
         }
-        
-
 
         public hide(): void {
             this.visualHostTooltipService.hide({ immediately: true, isTouchEvent: false });
@@ -104,9 +102,10 @@ module powerbi.extensibility.visual {
             let tooltipEventArgs : TooltipEventArgs<T> = null;
             try {
                 if (e.features && e.features.length > 0) {
-
                     tooltipEventArgs = {
-                        data: e.features.map( feature => {
+                        // Take only the first three element until we figure out how
+                        // to add pager to powerbi native tooltips
+                        data: e.features.slice(0, 3).map( feature => {
                             return Object.keys(feature.properties).map( prop => {
                                 return {
                                     key: prop,
