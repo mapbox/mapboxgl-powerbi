@@ -2,14 +2,18 @@ module powerbi.extensibility.visual {
     declare var turf : any;
 
     export class Cluster extends Layer {
-        private static ID = 'cluster'
-        private static LabelID = 'cluster-label'
-        private static UnclusterID = 'uncluster'
-        
+        private static ID = 'cluster';
+        private static LabelID = 'cluster-label';
+        private static UnclusterID = 'uncluster';
+
         constructor(map: MapboxMap, getClusterField) {
             super(map)
             this.id = Cluster.ID
             this.source = data.Sources.Cluster.withGetter(getClusterField)
+        }
+
+        getLayerIDs() {
+            return [ Cluster.ID, Cluster.LabelID, Cluster.UnclusterID ];
         }
 
         show(settings) {
@@ -93,6 +97,10 @@ module powerbi.extensibility.visual {
                     map.setLayoutProperty(Cluster.LabelID, 'text-field', `{${settings.cluster.aggregation}}`);
                 }
             }
+        }
+
+        hasTooltip() {
+            return true;
         }
     }
 }

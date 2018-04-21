@@ -54,7 +54,7 @@
       "name": "tooltips",
       "kind": "GroupingOrMeasure",
       "displayName": "Tooltips",
-      "description": "Values to display in circle tooltips"
+      "description": "Values to display in tooltips"
     }
   ],
   "dataViewMappings": [
@@ -549,6 +549,40 @@
           "displayName": "Choropleth",
           "type": { "bool": true }
         },
+        "data": {
+          "type": {
+            "enumeration": [
+              {
+                "value": "mapbox://mapbox.pbi-countries-v1",
+                "displayName": "Global Countries",
+                "displayNameKey": "globalCountries"
+              },
+              {
+                "value": "mapbox://mapbox.pbi-us-states-v1",
+                "displayName": "US States",
+                "displayNameKey": "usaStates"
+              },
+              {
+                "value": "mapbox://mapbox.pbi-us-counties-v1",
+                "displayName": "US Counties",
+                "displayNameKey": "usaCounties"
+              },
+              {
+                "value": "mapbox://mapbox.pbi-us-postcodes-v1",
+                "displayName": "US Postcodes (5-digit)",
+                "displayNameKey": "usaPostcodes5digit"
+              },
+              {
+                "value": "custom",
+                "displayName": "Custom...",
+                "displayNameKey": "custom"
+              }
+            ]
+          },
+          "displayName": "Data",
+          "displayNameKey": "choroplethData",
+          "description": "Built-in Mapbox boundaries or a custom one"
+        },
         "minColor": {
           "displayName": "Min Color",
           "displayNameKey": "minColor",
@@ -600,40 +634,6 @@
           "type": {
               "integer": true
             }
-        },
-        "data": {
-          "type": {
-            "enumeration": [
-              {
-                "value": "mapbox://mapbox.pbi-countries-v1",
-                "displayName": "Global Countries",
-                "displayNameKey": "globalCountries"
-              },
-              {
-                "value": "mapbox://mapbox.pbi-us-states-v1",
-                "displayName": "US States",
-                "displayNameKey": "usaStates"
-              },
-              {
-                "value": "mapbox://mapbox.pbi-us-counties-v1",
-                "displayName": "US Counties",
-                "displayNameKey": "usaCounties"
-              },
-              {
-                "value": "mapbox://mapbox.pbi-us-postcodes-v1",
-                "displayName": "US Postcodes (5-digit)",
-                "displayNameKey": "usaPostcodes5digit"
-              },
-              {
-                "value": "custom",
-                "displayName": "Custom...",
-                "displayNameKey": "custom"
-              }
-            ]
-          },
-          "displayName": "Data",
-          "displayNameKey": "choroplethData",
-          "description": "Built-in Mapbox boundaries or a custom one"
         },
         "vectorTileUrl": {
           "type": {

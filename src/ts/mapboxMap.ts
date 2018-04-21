@@ -261,7 +261,7 @@ module powerbi.extensibility.visual {
             const features = mapboxConverter.convert(dataView);
             let datasources :  Map<any, boolean> = new Map<any, boolean>()
             this.layers.map( layer => {
-                const source = layer.getSource(this.settings, this.map);
+                const source = layer.getSource(this.settings);
                 if (source) {
                     datasources.set(source, true)
                 }
@@ -280,13 +280,17 @@ module powerbi.extensibility.visual {
             //this.bounds = null
             //}
 
-            this.tooltipServiceWrapper.addTooltip(this.map,
-                ['circle', 'cluster', 'uncluster'],
-                (tooltipEvent: TooltipEventArgs<number>) => {
-                    const tooltipData = MapboxMap.getTooltipData(tooltipEvent.data)
-                    return tooltipData;
+            this.layers.map(layer => {
+                if (layer.hasTooltip()) {
+                    this.tooltipServiceWrapper.addTooltip(
+                        this.map,
+                        layer.getLayerIDs(),
+                        (tooltipEvent: TooltipEventArgs<number>) => {
+                            return layer.handleTooltip(tooltipEvent, this.roleMap, this.settings);
+                        }
+                    );
                 }
-            );
+            });
 
             this.onUpdate(this.map, this.settings, false, this.updatedHandler);
         }

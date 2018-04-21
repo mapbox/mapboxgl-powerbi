@@ -13,6 +13,10 @@ module powerbi.extensibility.visual {
             this.source = data.Sources.Point
         }
 
+        getLayerIDs() {
+            return [ Circle.ID ];
+        }
+
         addLayer(settings, beforeLayerId) {
             const map = this.parent.getMap();
             const circleLayer = mapboxUtils.decorateLayer({
@@ -48,6 +52,10 @@ module powerbi.extensibility.visual {
                 map.setPaintProperty(Circle.ID, 'circle-stroke-opacity', settings.circle.strokeOpacity / 100);
                 map.setPaintProperty(Circle.ID, 'circle-stroke-color', settings.circle.strokeColor);
             }
+        }
+
+        hasTooltip() {
+            return true;
         }
 
         private static getColors(colorLimits: mapboxUtils.Limits, isGradient: boolean, settings: any, colorPalette: IColorPalette, colorField: any) {

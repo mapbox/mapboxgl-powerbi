@@ -8,6 +8,10 @@ module powerbi.extensibility.visual {
             this.source = data.Sources.Point
         }
 
+        getLayerIDs() {
+            return [ Heatmap.ID ];
+        }
+
         addLayer(settings, beforeLayerId) {
             const map = this.parent.getMap();
             const heatmapLayer = mapboxUtils.decorateLayer({
