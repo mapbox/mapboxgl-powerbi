@@ -292,8 +292,8 @@ module powerbi.extensibility.visual {
                 ['choropleth'],
                 (tooltipEvent: TooltipEventArgs<number>) => {
                     const tooltipData = MapboxMap.getTooltipData(tooltipEvent.data);
-                    const choroVectorData = tooltipData.find(ed => {
-                        return ed.displayName === this.settings.choropleth.vectorProperty;
+                    const choroVectorData = tooltipData.find(td => {
+                        return td.displayName === this.settings.choropleth.vectorProperty;
                     });
                     if (!choroVectorData) {
                         // Error! Could not found choropleth data joining on selected vector property
@@ -325,9 +325,10 @@ module powerbi.extensibility.visual {
                     }
 
                     return Object.keys(dataUnderLocation).map(key => {
+                        const value = dataUnderLocation[key] ? dataUnderLocation[key].toString() : 'null';
                         return {
                             displayName: key,
-                            value: dataUnderLocation[key].toString()
+                            value
                         };
                     });
                 }
