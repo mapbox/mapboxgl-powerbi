@@ -283,8 +283,53 @@ module powerbi.extensibility.visual {
             this.tooltipServiceWrapper.addTooltip(this.map,
                 ['circle', 'cluster', 'uncluster'],
                 (tooltipEvent: TooltipEventArgs<number>) => {
-                    const tooltipData = MapboxMap.getTooltipData(tooltipEvent.data)
+                    const tooltipData = MapboxMap.getTooltipData(tooltipEvent.data);
                     return tooltipData;
+                }
+            );
+
+            this.tooltipServiceWrapper.addTooltip(this.map,
+                ['choropleth'],
+                (tooltipEvent: TooltipEventArgs<number>) => {
+                    const tooltipData = MapboxMap.getTooltipData(tooltipEvent.data);
+                    const choroVectorData = tooltipData.find(ed => {
+                        return ed.displayName === this.settings.choropleth.vectorProperty;
+                    });
+                    if (!choroVectorData) {
+                        // Error! Could not found choropleth data joining on selected vector property
+                        return tooltipData;
+                    }
+
+                    const choroplethLayer = this.layers.find(layer => {
+                        return layer.getId() === 'choropleth';
+                    });
+                    if (!choroplethLayer) {
+                        // Error! Choropleth layer was not found
+                        return tooltipData;
+                    }
+
+                    const choroplethSource = choroplethLayer.getSource(this.settings, this.map);
+                    if (!choroplethSource) {
+                        // Error! No datasource found for choropleth layer
+                        return tooltipData;
+                    }
+
+                    const choroplethData = choroplethSource.getData(this.settings, this.map);
+                    const locationProperty = this.roleMap.location.displayName;
+                    const dataUnderLocation = choroplethData.find(cd => {
+                        return cd[locationProperty] === choroVectorData.value;
+                    });
+
+                    if (!dataUnderLocation) {
+                        return tooltipData;
+                    }
+
+                    return Object.keys(dataUnderLocation).map(key => {
+                        return {
+                            displayName: key,
+                            value: dataUnderLocation[key].toString()
+                        };
+                    });
                 }
             );
 

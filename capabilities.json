@@ -54,7 +54,7 @@
       "name": "tooltips",
       "kind": "GroupingOrMeasure",
       "displayName": "Tooltips",
-      "description": "Values to display in circle tooltips"
+      "description": "Values to display in tooltips"
     }
   ],
   "dataViewMappings": [
