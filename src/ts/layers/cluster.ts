@@ -13,7 +13,7 @@ module powerbi.extensibility.visual {
         }
 
         getLayerIDs() {
-            return [Cluster.ID, Cluster.LabelID, Cluster.UnclusterID];
+            return [ Cluster.ID, Cluster.LabelID, Cluster.UnclusterID ];
         }
 
         show(settings) {

@@ -1,7 +1,8 @@
 module powerbi.extensibility.visual {
 
     export class Choropleth extends Layer {
-        private static ID = 'choropleth';
+        private static ID = 'choropleth'
+        private static OutlineID = 'choropleth-outline'
         private vectorTileUrl: string = "";
 
         constructor(map: MapboxMap) {
@@ -11,7 +12,7 @@ module powerbi.extensibility.visual {
         }
 
         getLayerIDs() {
-            return [Choropleth.ID];
+            return [ Choropleth.ID, Choropleth.OutlineID ];
         }
 
         addLayer(settings, beforeLayerId) {
@@ -22,12 +23,20 @@ module powerbi.extensibility.visual {
                 source: 'choropleth-source',
                 "source-layer": settings.choropleth.sourceLayer
             });
-            map.addLayer(choroplethLayer, beforeLayerId);
+            const outlineLayer = mapboxUtils.decorateLayer({
+                id: Choropleth.OutlineID,
+                type: 'line',
+                source: 'choropleth-source',
+                "source-layer": settings.choropleth.sourceLayer
+            });
+            map.addLayer(outlineLayer, beforeLayerId);
+            map.addLayer(choroplethLayer, Choropleth.OutlineID);
         }
 
         removeLayer() {
             const map = this.parent.getMap();
             map.removeLayer(Choropleth.ID);
+            map.removeLayer(Choropleth.OutlineID);
             this.source.removeFromMap(map, Choropleth.ID);
         }
 
@@ -109,13 +118,19 @@ module powerbi.extensibility.visual {
 
                 if (validStops) {
                     map.setPaintProperty(Choropleth.ID, 'fill-color', colors);
-                    map.setPaintProperty(Choropleth.ID, 'fill-outline-color', 'rgba(0,0,0,0.05)');
                     map.setFilter(Choropleth.ID, filter);
-                    map.setLayerZoomRange(Choropleth.ID, choroSettings.minZoom, choroSettings.maxZoom);
                 } else {
                     // Default color should represent error to the user, that's all we have for now
                     map.setPaintProperty(Choropleth.ID, 'fill-color', defaultColor);
                 }
+
+                map.setPaintProperty(Choropleth.ID, 'fill-outline-color', 'rgba(0,0,0,0.05)');
+                map.setPaintProperty(Choropleth.ID, 'fill-opacity', settings.choropleth.opacity / 100);
+
+                map.setPaintProperty(Choropleth.OutlineID, 'line-color', settings.choropleth.outlineColor);
+                map.setPaintProperty(Choropleth.OutlineID, 'line-width', settings.choropleth.outlineWidth);
+                map.setPaintProperty(Choropleth.OutlineID, 'line-opacity', settings.choropleth.outlineOpacity / 100);
+                map.setLayerZoomRange(Choropleth.ID, choroSettings.minZoom, choroSettings.maxZoom);
             }
         }
 

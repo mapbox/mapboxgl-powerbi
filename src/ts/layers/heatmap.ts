@@ -9,7 +9,7 @@ module powerbi.extensibility.visual {
         }
 
         getLayerIDs() {
-            return [Heatmap.ID];
+            return [ Heatmap.ID ];
         }
 
         addLayer(settings, beforeLayerId) {

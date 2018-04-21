@@ -14,7 +14,7 @@ module powerbi.extensibility.visual {
         }
 
         getLayerIDs() {
-            return [Circle.ID];
+            return [ Circle.ID ];
         }
 
         addLayer(settings, beforeLayerId) {
