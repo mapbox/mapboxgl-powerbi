@@ -25,6 +25,8 @@ module powerbi.extensibility.visual {
             return this.id
         }
 
+        abstract getLayerIDs()
+
         applySettings(settings, roleMap) {
             const map = this.parent.getMap();
             if (settings[this.id].show) {
@@ -63,9 +65,9 @@ module powerbi.extensibility.visual {
             return layer != null;
         }
 
-        getSource(settings, map) {
+        getSource(settings) {
             if (settings[this.id].show) {
-                return this.source.ensure(map, this.id, settings)
+                return this.source.ensure(this.parent.getMap(), this.id, settings);
             }
             return null;
         }
@@ -76,6 +78,33 @@ module powerbi.extensibility.visual {
             }
         }
 
+        hasTooltip() {
+            return false;
+        }
+
+        handleTooltip(tooltipEvent: TooltipEventArgs<number>, roleMap, settings) {
+            const tooltipData = Layer.getTooltipData(tooltipEvent.data);
+            return tooltipData;
+        }
+
+        static getTooltipData(value: any): VisualTooltipDataItem[] {
+            if (!value) {
+                return [];
+            }
+
+            // Flatten the multiple properties or multiple datapoints
+            return [].concat.apply([], value.map(properties => {
+                // This mapping is needed to copy the value with the toString
+                // call as otherwise some caching logic causes to be the same
+                // tooltip displayed for all datapoints.
+                return properties.map(prop => {
+                    return {
+                        displayName: prop.key,
+                        value: prop.value.toString(),
+                    };
+                });
+            }));
+        }
     }
 }
 

@@ -261,7 +261,7 @@ module powerbi.extensibility.visual {
             const features = mapboxConverter.convert(dataView);
             let datasources :  Map<any, boolean> = new Map<any, boolean>()
             this.layers.map( layer => {
-                const source = layer.getSource(this.settings, this.map);
+                const source = layer.getSource(this.settings);
                 if (source) {
                     datasources.set(source, true)
                 }
@@ -280,59 +280,16 @@ module powerbi.extensibility.visual {
             //this.bounds = null
             //}
 
-            this.tooltipServiceWrapper.addTooltip(this.map,
-                ['circle', 'cluster', 'uncluster'],
-                (tooltipEvent: TooltipEventArgs<number>) => {
-                    const tooltipData = MapboxMap.getTooltipData(tooltipEvent.data);
-                    return tooltipData;
+            this.layers.map(layer => {
+                if (layer.hasTooltip()) {
+                    this.tooltipServiceWrapper.addTooltip(this.map,
+                        layer.getLayerIDs(),
+                        (tooltipEvent: TooltipEventArgs<number>) => {
+                            return layer.handleTooltip(tooltipEvent, this.roleMap, this.settings);
+                        }
+                    );
                 }
-            );
-
-            this.tooltipServiceWrapper.addTooltip(this.map,
-                ['choropleth'],
-                (tooltipEvent: TooltipEventArgs<number>) => {
-                    const tooltipData = MapboxMap.getTooltipData(tooltipEvent.data);
-                    const choroVectorData = tooltipData.find(td => {
-                        return td.displayName === this.settings.choropleth.vectorProperty;
-                    });
-                    if (!choroVectorData) {
-                        // Error! Could not found choropleth data joining on selected vector property
-                        return tooltipData;
-                    }
-
-                    const choroplethLayer = this.layers.find(layer => {
-                        return layer.getId() === 'choropleth';
-                    });
-                    if (!choroplethLayer) {
-                        // Error! Choropleth layer was not found
-                        return tooltipData;
-                    }
-
-                    const choroplethSource = choroplethLayer.getSource(this.settings, this.map);
-                    if (!choroplethSource) {
-                        // Error! No datasource found for choropleth layer
-                        return tooltipData;
-                    }
-
-                    const choroplethData = choroplethSource.getData(this.settings, this.map);
-                    const locationProperty = this.roleMap.location.displayName;
-                    const dataUnderLocation = choroplethData.find(cd => {
-                        return cd[locationProperty] === choroVectorData.value;
-                    });
-
-                    if (!dataUnderLocation) {
-                        return tooltipData;
-                    }
-
-                    return Object.keys(dataUnderLocation).map(key => {
-                        const value = dataUnderLocation[key] ? dataUnderLocation[key].toString() : 'null';
-                        return {
-                            displayName: key,
-                            value
-                        };
-                    });
-                }
-            );
+            });
 
             this.onUpdate(this.map, this.settings, false, this.updatedHandler);
         }

@@ -1,13 +1,17 @@
 module powerbi.extensibility.visual {
 
     export class Choropleth extends Layer {
-        private static ID = 'choropleth'
+        private static ID = 'choropleth';
         private vectorTileUrl: string = "";
 
         constructor(map: MapboxMap) {
-            super(map)
+            super(map);
             this.id = Choropleth.ID;
             this.source = data.Sources.Choropleth;
+        }
+
+        getLayerIDs() {
+            return [Choropleth.ID];
         }
 
         addLayer(settings, beforeLayerId) {
@@ -37,7 +41,7 @@ module powerbi.extensibility.visual {
             return null
         }
 
-        getSource(settings, map) {
+        getSource(settings) {
             const choroSettings = settings.choropleth;
             if (choroSettings.show) {
                 ChoroplethSettings.fillPredefinedProperties(choroSettings);
@@ -48,7 +52,7 @@ module powerbi.extensibility.visual {
                     this.vectorTileUrl = choroSettings.vectorTileUrl;
                 }
             }
-            return super.getSource(settings, map);
+            return super.getSource(settings);
         }
 
         applySettings(settings, roleMap) {
@@ -79,8 +83,8 @@ module powerbi.extensibility.visual {
                 let filter = ['in', choroSettings.vectorProperty];
                 const choroplethData = this.source.getData(map, settings);
                 choroplethData.map( row => {
-                    let color : any = colorStops(row[roleMap.color.displayName]);
-                    let outlineColor : any = colorStops(row[roleMap.color.displayName])
+                    let color: any = colorStops(row[roleMap.color.displayName]);
+                    let outlineColor: any = colorStops(row[roleMap.color.displayName]);
                     outlineColor = outlineColor.darken(2);
                     colors.stops.push([row[roleMap.location.displayName], color.toString()]);
                     filter.push(row[roleMap.location.displayName]);
@@ -92,6 +96,45 @@ module powerbi.extensibility.visual {
                 map.setFilter(Choropleth.ID, filter);
                 map.setLayerZoomRange(Choropleth.ID, choroSettings.minZoom, choroSettings.maxZoom);
             }
+        }
+
+        hasTooltip() {
+            return true;
+        }
+
+        handleTooltip(tooltipEvent, roleMap, settings) {
+            const tooltipData = super.handleTooltip(tooltipEvent, roleMap, settings);
+            const choroVectorData = tooltipData.find(td => {
+                return td.displayName === settings.choropleth.vectorProperty;
+            });
+            if (!choroVectorData) {
+                // Error! Could not found choropleth data joining on selected vector property
+                return tooltipData;
+            }
+
+            const choroplethSource = this.getSource(settings);
+            if (!choroplethSource) {
+                // Error! No datasource found for choropleth layer
+                return tooltipData;
+            }
+
+            const choroplethData = choroplethSource.getData(settings, this.parent.getMap());
+            const locationProperty = roleMap.location.displayName;
+            const dataUnderLocation = choroplethData.find(cd => {
+                return cd[locationProperty] === choroVectorData.value;
+            });
+
+            if (!dataUnderLocation) {
+                return tooltipData;
+            }
+
+            return Object.keys(dataUnderLocation).map(key => {
+                const value = dataUnderLocation[key] ? dataUnderLocation[key].toString() : 'null';
+                return {
+                    displayName: key,
+                    value
+                };
+            });
         }
     }
 }
