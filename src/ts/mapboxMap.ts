@@ -108,9 +108,19 @@ module powerbi.extensibility.visual {
             const mapOptions = {
                 container: this.mapDiv,
                 transformRequest: (url, resourceType) => {
-                    return {
-                        url: [url.slice(0, url.indexOf("?") + 1), "pluginName=PowerBI&", url.slice(url.indexOf("?") + 1)].join('')
-                    }
+                    if ( url.slice(0,22) == 'https://api.mapbox.com' || 
+                        url.slice(0,26) == 'https://a.tiles.mapbox.com' || 
+                        url.slice(0,26) == 'https://b.tiles.mapbox.com' ||
+                        url.slice(0,26) == 'https://c.tiles.mapbox.com') {
+                        //Add PowerBI Plugin identifier for Mapbox API traffic
+                        return {
+                           url: [url.slice(0, url.indexOf("?")+1), "pluginName=PowerBI&", url.slice(url.indexOf("?")+1)].join('')
+                         }
+                     }
+                     else {
+                         //Do not transform URL for non Mapbox GET requests
+                         return {url: url}
+                     }
                 }
             }
 
