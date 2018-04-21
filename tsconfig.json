@@ -3,7 +3,7 @@
     "allowJs": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
-    "target": "es5",
+    "target": "es6",
     "sourceMap": true,
     "typeRoots": [
       "src/types"
@@ -14,11 +14,23 @@
     "typings"
   ],
   "files": [
-    ".api/v1.10.0/PowerBI-visuals.d.ts",
+    ".api/v1.11.0/PowerBI-visuals.d.ts",
+    "src/ts/datasources/datasource.ts",
+    "src/ts/datasources/point.ts",
+    "src/ts/datasources/cluster.ts",
+    "src/ts/datasources/choropleth.ts",
+    "src/ts/datasources/sources.ts",
+    "src/ts/layers/layer.ts",
+    "src/ts/layers/circle.ts",
+    "src/ts/layers/cluster.ts",
+    "src/ts/layers/heatmap.ts",
+    "src/ts/layers/choropleth.ts",
+    "src/ts/templates.ts",
     "src/ts/settings.ts",
     "src/ts/mapboxUtils.ts",
-    "src/ts/cluster.ts",
     "src/ts/mapboxConverter.ts",
-    "src/ts/mapboxMap.ts"
+    "src/ts/autoZoomControl.ts",
+    "src/ts/mapboxMap.ts",
+    "src/ts/tooltipServiceWrapper.ts"
   ]
 }

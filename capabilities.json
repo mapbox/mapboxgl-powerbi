@@ -1,6 +1,12 @@
 {
   "dataRoles": [
     {
+      "name": "location",
+      "kind": "Grouping",
+      "displayName": "Location",
+      "description": "Location"
+    },
+    {
       "name": "latitude",
       "kind": "GroupingOrMeasure",
       "displayName": "Latitude",
@@ -186,7 +192,7 @@
       "description": "Circle display settings",
       "properties": {
         "show": {
-          "displayName": "Choropleth",
+          "displayName": "Circle",
           "type": { "bool": true }
         },
         "radius": {
@@ -309,7 +315,7 @@
       "description": "Heatmap display settings",
       "properties": {
         "show": {
-          "displayName": "Choropleth",
+          "displayName": "Heatmap",
           "type": { "bool": true }
         },
         "radius": {
@@ -403,29 +409,29 @@
           "type": {
             "enumeration": [
               {
-                "value": "count",
+                "value": "Count",
                 "displayName": "Count",
-                "displayNameKey": "count"
+                "displayNameKey": "Count"
               },
               {
-                "value": "sum",
+                "value": "Sum",
                 "displayName": "Sum",
-                "displayNameKey": "sum"
+                "displayNameKey": "Sum"
               },
               {
-                "value": "avg",
+                "value": "Average",
                 "displayName": "Average",
-                "displayNameKey": "avg"
+                "displayNameKey": "Average"
               },
               {
-                "value": "min",
+                "value": "Minimum",
                 "displayName": "Minimum",
-                "displayNameKey": "min"
+                "displayNameKey": "Minimum"
               },
               {
-                "value": "max",
+                "value": "Maximum",
                 "displayName": "Maximum",
-                "displayNameKey": "max"
+                "displayNameKey": "Maximum"
               }
             ]
           },
@@ -541,36 +547,24 @@
       "properties": {
         "show": {
           "displayName": "Choropleth",
-          "type": { "bool": false }
-        },
-        "vectorTileUrl": {
-          "type": {
-            "text": true
-          },
-          "displayName": "Vector Tile Url",
-          "displayNameKey": "vectorTileUrl",
-          "description": "The URL of the vector tileset. Example for US states: mapbox://mapbox.us_census_states_2015"
-        },
-        "sourceLayer": {
-          "type": {
-            "text": true
-          },
-          "displayName": "Source Layer Name",
-          "displayNameKey": "sourceLayer",
-          "description": "The id of the vector layer to use for data join"
-        },
-        "vectorProperty": {
-          "type": {
-            "text": true
-          },
-          "displayName": "Vector Property",
-          "displayNameKey": "vectorProperty",
-          "description": "The property name in the vector layer to use for data join"
+          "type": { "bool": true }
         },
         "minColor": {
           "displayName": "Min Color",
           "displayNameKey": "minColor",
           "description": "Defines the color for the minimum value of the color field.",
+          "type": {
+            "fill": {
+              "solid": {
+                "color": true
+              }
+            }
+          }
+        },
+        "medColor": {
+          "displayName": "Med Color",
+          "displayNameKey": "color",
+          "description": "Intermediate color for choropleth color ramp. ",
           "type": {
             "fill": {
               "solid": {
@@ -606,6 +600,64 @@
           "type": {
               "numeric": true
             }
+        },
+        "data": {
+          "type": {
+            "enumeration": [
+              {
+                "value": "mapbox://mapbox.pbi-countries-v1",
+                "displayName": "Global Countries",
+                "displayNameKey": "globalCountries"
+              },
+              {
+                "value": "mapbox://mapbox.pbi-us-states-v1",
+                "displayName": "US States",
+                "displayNameKey": "usaStates"
+              },
+              {
+                "value": "mapbox://mapbox.pbi-us-counties-v1",
+                "displayName": "US Counties",
+                "displayNameKey": "usaCounties"
+              },
+              {
+                "value": "mapbox://mapbox.pbi-us-postcodes-v1",
+                "displayName": "US Postcodes (5-digit)",
+                "displayNameKey": "usaPostcodes5digit"
+              },
+              {
+                "value": "custom",
+                "displayName": "Custom...",
+                "displayNameKey": "custom"
+              }
+            ]
+          },
+          "displayName": "Data",
+          "displayNameKey": "choroplethData",
+          "description": "Built-in Mapbox boundaries or a custom one"
+        },
+        "vectorTileUrl": {
+          "type": {
+            "text": true
+          },
+          "displayName": "Vector Tile Url",
+          "displayNameKey": "vectorTileUrl",
+          "description": "The URL of the vector tileset. Example for US states: mapbox://mapbox.us_census_states_2015"
+        },
+        "sourceLayer": {
+          "type": {
+            "text": true
+          },
+          "displayName": "Source Layer Name",
+          "displayNameKey": "sourceLayer",
+          "description": "The id of the vector layer to use for data join"
+        },
+        "vectorProperty": {
+          "type": {
+            "text": true
+          },
+          "displayName": "Vector Property",
+          "displayNameKey": "vectorProperty",
+          "description": "The property name in the vector layer to use for data join"
         }
       }
     }

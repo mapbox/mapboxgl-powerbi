@@ -60,6 +60,7 @@ typings/
 
 # Compiled files
 src/ts/*.js*
+src/ts/**/*.js*
 .tmp
 dist/
 
