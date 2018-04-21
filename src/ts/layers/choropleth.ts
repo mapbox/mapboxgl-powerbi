@@ -119,6 +119,7 @@ module powerbi.extensibility.visual {
                 if (validStops) {
                     map.setPaintProperty(Choropleth.ID, 'fill-color', colors);
                     map.setFilter(Choropleth.ID, filter);
+                    map.setFilter(Choropleth.OutlineID, filter);
                 } else {
                     // Default color should represent error to the user, that's all we have for now
                     map.setPaintProperty(Choropleth.ID, 'fill-color', defaultColor);
