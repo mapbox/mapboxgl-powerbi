@@ -45,6 +45,9 @@ module powerbi.extensibility.visual {
             const choroSettings = settings.choropleth;
             if (choroSettings.show) {
                 ChoroplethSettings.fillPredefinedProperties(choroSettings);
+
+                // The choropleth layer is different since it is a vector tile source, not geojson.  We can't modify it in-place.
+                // If it is, we'll create the vector tile source from the URL.  If not, we'll make sure the source doesn't exist.
                 if (this.vectorTileUrl != choroSettings.vectorTileUrl) {
                     if (this.vectorTileUrl) {
                         this.removeLayer();
@@ -65,8 +68,6 @@ module powerbi.extensibility.visual {
             }
 
             if (choroSettings.display()) {
-                // The choropleth layer is different since it is a vector tile source, not geojson.  We can't modify it in-place.
-                // If it is, we'll create the vector tile source from the URL.  If not, we'll make sure the source doesn't exist.
                 const fillColorLimits = this.source.getLimits();
 
                 ChoroplethSettings.fillPredefinedProperties(choroSettings);
@@ -78,23 +79,43 @@ module powerbi.extensibility.visual {
                 let colorStops = chroma.scale(choroColorSettings).domain(fillDomain);
 
                 // We use the old property function syntax here because the data-join technique is faster to parse still than expressions with this method
-                let colors = {type: "categorical", property: choroSettings.vectorProperty, default: "rgba(0,0,0,0)", stops: []};
-                let outlineColors = {type: "categorical", property: choroSettings.vectorProperty, default: "rgba(0,0,0,0)", stops: []};
+                const defaultColor = 'rgba(0,0,0,0)';
+                let colors = {type: "categorical", property: choroSettings.vectorProperty, default: defaultColor, stops: []};
+                let outlineColors = {type: "categorical", property: choroSettings.vectorProperty, default: defaultColor, stops: []};
                 let filter = ['in', choroSettings.vectorProperty];
                 const choroplethData = this.source.getData(map, settings);
-                choroplethData.map( row => {
+
+                let existingStops = {};
+                let validStops = true;
+
+                for (let row of choroplethData) {
+                    const location = row[roleMap.location.displayName];
                     let color: any = colorStops(row[roleMap.color.displayName]);
                     let outlineColor: any = colorStops(row[roleMap.color.displayName]);
                     outlineColor = outlineColor.darken(2);
-                    colors.stops.push([row[roleMap.location.displayName], color.toString()]);
-                    filter.push(row[roleMap.location.displayName]);
-                    outlineColors.stops.push([row[roleMap.location.displayName], outlineColor.toString()]);
-                });
 
-                map.setPaintProperty(Choropleth.ID, 'fill-color', colors);
-                map.setPaintProperty(Choropleth.ID, 'fill-outline-color', 'rgba(0,0,0,0.05)');
-                map.setFilter(Choropleth.ID, filter);
-                map.setLayerZoomRange(Choropleth.ID, choroSettings.minZoom, choroSettings.maxZoom);
+                    if (existingStops[location]) {
+                        // Duplicate stop found. In case there are many rows, Mapbox generates so many errors on the
+                        // console, that it can make the entire Power BI plugin unresponsive. This is why we validate
+                        // the stops here, and won't let invalid stops to be passed to Mapbox.
+                        validStops = false;
+                        break;
+                    }
+                    existingStops[location] = true;
+                    colors.stops.push([location, color.toString()]);
+                    filter.push(location);
+                    outlineColors.stops.push([location, outlineColor.toString()]);
+                }
+
+                if (validStops) {
+                    map.setPaintProperty(Choropleth.ID, 'fill-color', colors);
+                    map.setPaintProperty(Choropleth.ID, 'fill-outline-color', 'rgba(0,0,0,0.05)');
+                    map.setFilter(Choropleth.ID, filter);
+                    map.setLayerZoomRange(Choropleth.ID, choroSettings.minZoom, choroSettings.maxZoom);
+                } else {
+                    // Default color should represent error to the user, that's all we have for now
+                    map.setPaintProperty(Choropleth.ID, 'fill-color', defaultColor);
+                }
             }
         }
 
