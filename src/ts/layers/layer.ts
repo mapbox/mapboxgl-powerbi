@@ -67,7 +67,8 @@ module powerbi.extensibility.visual {
 
         getSource(settings) {
             if (settings[this.id].show) {
-                return this.source.ensure(this.parent.getMap(), this.id, settings);
+                this.source.ensure(this.parent.getMap(), this.id, settings);
+                return this.source;
             }
             return null;
         }

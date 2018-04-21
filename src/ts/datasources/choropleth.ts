@@ -21,13 +21,12 @@ module powerbi.extensibility.visual.data {
             map.removeSource('choropleth-source');
         }
 
-        ensure(map, layerId, settings) {
+        ensure(map, layerId, settings): void {
             super.ensure(map, layerId, settings)
             const source: any = map.getSource('choropleth-source');
             if (!source) {
                 this.addToMap(map, settings);
             }
-            return this;
         }
 
         getLimits() {

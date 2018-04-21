@@ -23,9 +23,8 @@ module powerbi.extensibility.visual.data {
             }
         }
 
-        ensure(map, layerId, settings) {
+        ensure(map, layerId, settings): void {
             this.references[layerId] = true;
-            return this;
         }
 
         update(map, features, roleMap, settings) {}

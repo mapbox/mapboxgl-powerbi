@@ -35,13 +35,12 @@ module powerbi.extensibility.visual.data {
             return this.limits
         }
 
-        ensure(map, layerId, settings) {
+        ensure(map, layerId, settings): void {
             super.ensure(map, layerId, settings)
             const source: any = map.getSource('clusterData');
             if (!source) {
                 this.addToMap(map, settings);
             }
-            return this;
         }
 
         update(map, features, roleMap, settings) {

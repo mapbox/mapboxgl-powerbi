@@ -26,16 +26,15 @@ module powerbi.extensibility.visual.data {
             return {
                 color: this.colorLimits,
                 size: this.sizeLimits,
-            }
+            };
         }
 
-        ensure(map, layerId, settings) {
+        ensure(map, layerId, settings): void {
             super.ensure(map, layerId, settings)
             const source: any = map.getSource('data');
             if (!source) {
                 this.addToMap(map, settings);
             }
-            return this;
         }
 
         update(map, features, roleMap, settings) {
@@ -47,7 +46,6 @@ module powerbi.extensibility.visual.data {
             this.sizeLimits = mapboxUtils.getLimits(features, roleMap.size ? roleMap.size.displayName : '');
             this.bounds = turf.bbox(featureCollection);
         }
-
     }
 }
 
