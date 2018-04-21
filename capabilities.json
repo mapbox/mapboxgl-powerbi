@@ -62,7 +62,7 @@
       "table": {
         "rows": {
           "dataReductionAlgorithm": {
-            "top": {
+            "sample": {
               "count": 30000
             }
           },
