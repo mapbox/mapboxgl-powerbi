@@ -24,7 +24,12 @@ module powerbi.extensibility.visual {
                     case 'choropleth': {
                         return settings[options.objectName].enumerateObjectInstances(instanceEnumeration);
                     }
+                    case 'colorSelector': {
+                        console.log("Whaaaaat: ", instanceEnumeration);
+                        return instanceEnumeration;
+                    }
                     default: {
+                        console.log(options.objectName, ": ", instanceEnumeration);
                         return instanceEnumeration;
                     }
                 }
@@ -201,6 +206,28 @@ module powerbi.extensibility.visual {
                 choroSettings.vectorTileUrl = choroSettings.data;
                 choroSettings.vectorProperty = ChoroplethSettings.PREDEFINED_VECTOR_PROPERTY;
             }
+        }
+
+        public static getValue<T>(category: string, index: number, objectName: string, propertyName: string, defaultValue: T): T {
+            return defaultValue;
+        }
+
+        public static getCategoricalObjectValue<T>(category: DataViewCategoryColumn, index: number, objectName: string, propertyName: string, defaultValue: T): T {
+            let categoryObjects = category.objects;
+
+            if(categoryObjects) {
+                let categoryObject: DataViewObject = categoryObjects[index];
+                if(categoryObject) {
+                    let object = categoryObject[objectName];
+                    if(object) {
+                        let property: T = object[propertyName];
+                        if(property !== undefined) {
+                            return property;
+                        }
+                    }
+                }
+            }
+            return defaultValue;
         }
     }
 }

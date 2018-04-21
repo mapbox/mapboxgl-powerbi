@@ -15,6 +15,8 @@ module powerbi.extensibility.visual {
         private layers: Layer[] = [];
         private roleMap: any;
         private previousZoom: number;
+        private dataPoints: any[];
+        private host: any;
 
         constructor(options: VisualConstructorOptions) {
             // Map initialization
@@ -47,6 +49,10 @@ module powerbi.extensibility.visual {
             }))
             this.layers.push(new Circle(this, options.host.colorPalette))
             this.layers.push(new Choropleth(this))
+
+            this.dataPoints = []
+            this.host = options.host;
+
 
         }
 
@@ -85,7 +91,26 @@ module powerbi.extensibility.visual {
         * validation and return other values/defaults
         */
         public enumerateObjectInstances(options: EnumerateVisualObjectInstancesOptions): VisualObjectInstanceEnumeration {
-            return MapboxSettings.enumerateObjectInstances(this.settings || MapboxSettings.getDefault(), options);
+            if (options.objectName == 'colorSelector') {
+                let objectEnumeration: VisualObjectInstance[] = [];
+                for (let point of this.dataPoints) {
+                    objectEnumeration.push({
+                        objectName: options.objectName,
+                        displayName: point.category,
+                        properties: {
+                            fill: {
+                                solid: {
+                                    color: point.color
+                                }
+                            }
+                        },
+                        selector: point.selectionId.getSelector(),
+                    });
+                }
+                return objectEnumeration;
+            } else {
+                return MapboxSettings.enumerateObjectInstances(this.settings || MapboxSettings.getDefault(), options) as VisualObjectInstanceEnumerationObject;
+            }
         }
 
         public on(event: string, fn: Function) {
@@ -284,6 +309,11 @@ module powerbi.extensibility.visual {
         @mapboxUtils.logExceptions()
         public update(options: VisualUpdateOptions) {
             const dataView: DataView = options.dataViews[0];
+            console.log("DataView: ", dataView);
+            console.log("Options: ", options);
+            debugger;
+            console.log("Categorical: ", dataView.categorical);
+            console.log("Objects: ", dataView.categorical.categories[0].objects);
 
             this.roleMap = mapboxUtils.getRoleMap(dataView.metadata);
 
@@ -303,6 +333,65 @@ module powerbi.extensibility.visual {
 
             if (mapboxgl.accessToken != this.settings.api.accessToken) {
                 mapboxgl.accessToken = this.settings.api.accessToken;
+            }
+
+            
+            try {
+                const getSelectionIds = (dataView: DataView, host: IVisualHost): ISelectionId[] => {
+                    return dataView.table.identity.map((identity: DataViewScopeIdentity) => {
+                        const categoryColumn: DataViewCategoryColumn = {
+                            source: dataView.table.columns[0],
+                            values: null,
+                            identity: [identity]
+                        };
+
+                        return host.createSelectionIdBuilder()
+                            .withCategory(categoryColumn, 0)
+                            .createSelectionId();
+                    });
+                }
+
+                let ids = getSelectionIds(options.dataViews[0], this.host);
+                //console.log('Visual update', 'rows:', options.dataViews[0].table.rows, 'selectionIds:', ids);
+
+            this.dataPoints = [];
+            console.log("Rows: ", options.dataViews[0].table.rows);
+                //options.dataViews[0].table.rows.map( (row, i) => {
+                //let defaultColor: Fill = {
+                //solid: {
+                ////color: colorPalette.getColor(point).value
+                //color: 'blue'
+                //}
+                //}
+                //
+                //this.dataPoints.push({
+                //category: row[1],
+                //value: row[0],
+                //color: ChoroplethSettings.getValue<Fill>(row[1].toString(), i, 'colorSelector', 'fill', defaultColor).solid.color,
+                //selectionId: ids[i]
+                //});
+                //})
+
+                const category = dataView.categorical.categories[0];
+for (let i = 0, len = Math.max(category.values.length, 0); i < len; i++) {
+    let defaultColor: Fill = {
+        solid: {
+            color: this.host.colorPalette.getColor(category.values[i]).value
+        }
+    }
+
+    this.dataPoints.push({
+        category: category.values[i],
+        value: 0,
+        color: ChoroplethSettings.getCategoricalObjectValue<Fill>(category, i, 'colorSelector', 'fill', defaultColor).solid.color,
+        selectionId: this.host.createSelectionIdBuilder()
+            .withCategory(category, i)
+            .createSelectionId()
+    });
+}
+
+            } catch (err) {
+                console.log("Error: ", err);
             }
 
 

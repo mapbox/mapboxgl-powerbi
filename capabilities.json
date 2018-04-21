@@ -696,6 +696,21 @@
           }
         }
       }
+    },
+    "colorSelector": {
+      "displayName": "Data Colors",
+      "properties": {
+        "fill": {
+          "displayName": "Color",
+          "type": {
+            "fill": {
+              "solid": {
+                "color": true
+              }
+            }
+          }
+        }
+      }
     }
   }
 }
