@@ -32,6 +32,21 @@ module powerbi.extensibility.visual {
             this.handleTouchDelay = handleTouchDelay;
             this.rootElement = rootElement;
         }
+
+        public debounce = function(func, wait) {
+            var timeout;
+            return function() {
+                var context = this, args = arguments;
+                var later = function() {
+                    timeout = null;
+                    func.apply(context, args);
+                };
+                var callNow = !timeout;
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+                if (callNow) func.apply(context, args);
+            };
+        };
         
         public addTooltip<T>(
             map,
@@ -45,14 +60,14 @@ module powerbi.extensibility.visual {
             
             let rootNode = this.rootElement;
 
-            const hideTooltip = (e) => {
+            const hideTooltip = this.debounce((e) => {
                 this.visualHostTooltipService.hide({
                     isTouchEvent: false,
                     immediately: false,
                 });
-            }
+            }, 12);
 
-            const showTooltip = (e) => {
+            const showTooltip = this.debounce((e) => {
                 let tooltipEventArgs = this.makeTooltipEventArgs<T>(e);
                 if (!tooltipEventArgs)
                     return;
@@ -70,7 +85,7 @@ module powerbi.extensibility.visual {
                     dataItems: tooltipInfo,
                     identities: [],
                 });
-            }
+            }, 12)
 
             layers.map( layerId => {
                 map.off('mouseleave', layerId, hideTooltip);
