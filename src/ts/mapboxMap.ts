@@ -197,10 +197,10 @@ module powerbi.extensibility.visual {
                 return acc;
             }, {});
 
-            if (!mapboxgl.supported()) {
+            /*if (!mapboxgl.supported()) {
                 this.errorDiv.innerHTML = Templates.WebGLUnsupported;
                 return false;
-            }
+            }*/
 
             if ((this.settings.circle.show || this.settings.cluster.show || this.settings.heatmap.show) && !(roles.latitude && roles.longitude)) {
                 this.errorDiv.innerHTML = Templates.MissingGeo;
