@@ -590,7 +590,7 @@
           "displayNameKey": "minZoom",
           "description": "Minimum zoom level layer is visibile at.",
           "type": {
-              "numeric": true
+              "integer": true
             }
         },
         "maxZoom": {
@@ -598,7 +598,7 @@
           "displayNameKey": "maxZoom",
           "description": "Maximum zoom level layer is visibile at.",
           "type": {
-              "numeric": true
+              "integer": true
             }
         },
         "data": {
@@ -658,6 +658,42 @@
           "displayName": "Vector Property",
           "displayNameKey": "vectorProperty",
           "description": "The property name in the vector layer to use for data join"
+        },
+        "opacity": {
+          "displayName": "Opacity",
+          "displayNameKey": "opacity",
+          "description": "The global opacity in percentage at which the layer will be drawn.",
+          "type": {
+            "integer": true
+          }
+        },
+        "outlineColor": {
+          "displayName": "Outline Color",
+          "displayNameKey": "outlineColor",
+          "description": "The outline color of the filled areas.",
+          "type": {
+            "fill": {
+              "solid": {
+                "color": true
+              }
+            }
+          }
+        },
+        "outlineWidth": {
+          "displayName": "Outline Width",
+          "displayNameKey": "outlineWidth",
+          "description": "The width of the outline of the filled areas.",
+          "type": {
+            "integer": true
+          }
+        },
+        "outlineOpacity": {
+          "displayName": "Outline Opacity",
+          "displayNameKey": "outlineOpacity",
+          "description": "The global opacity in percentage at which the outline will be drawn.",
+          "type": {
+            "integer": true
+          }
         }
       }
     }
