@@ -8,6 +8,7 @@ module powerbi.extensibility.visual {
         }
 
         export function zoomToData(map, bounds, autoZoomPinned) {
+            console.log(bounds)
             if (bounds && !autoZoomPinned) {
                 map.fitBounds(bounds, {
                     padding: 10,
