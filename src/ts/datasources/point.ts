@@ -48,4 +48,3 @@ module powerbi.extensibility.visual.data {
         }
     }
 }
-
