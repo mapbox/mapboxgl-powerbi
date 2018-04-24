@@ -183,6 +183,30 @@
             "text": true
           },
           "suppressFormatPainterCopy": true
+        },
+        "zoom": {
+          "displayName": "Zoom",
+          "displayNameKey": "zoom",
+          "description": "Starting zoom level for map",
+          "type": {
+            "numeric": true
+          }
+        },
+          "startLong": {
+            "displayName": "Longitude",
+            "displayNameKey": "startLong",
+            "description": "Starting longitude level for map",
+            "type": {
+              "numeric": true
+            }
+        },
+        "startLat": {
+          "displayName": "Latitude",
+          "displayNameKey": "startLat",
+          "description": "Starting latitude level for map",
+          "type": {
+            "numeric": true
+          }
         }
       }
     },

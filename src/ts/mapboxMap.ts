@@ -107,6 +107,8 @@ module powerbi.extensibility.visual {
 
             const mapOptions = {
                 container: this.mapDiv,
+                zoom: this.settings.api.zoom,
+                center: [this.settings.api.startLong, this.settings.api.startLat],
                 transformRequest: (url, resourceType) => {
                     if ( url.slice(0,22) == 'https://api.mapbox.com' || 
                         url.slice(0,26) == 'https://a.tiles.mapbox.com' || 
@@ -128,7 +130,6 @@ module powerbi.extensibility.visual {
             this.map = new mapboxgl.Map(mapOptions);
             this.map.addControl(new mapboxgl.NavigationControl());
             this.map.addControl(this.autoZoomControl);
-
 
             // Future option to enable search bar / geocoder
             /*if (document.getElementsByClassName('mapbox-gl-geocoder').length == 0) {
