@@ -35,6 +35,9 @@ module powerbi.extensibility.visual {
         public accessToken: string = "";
         public style: string = "mapbox:\/\/styles\/mapbox\/dark-v9?optimize=true";
         public styleUrl: string = "";
+        public zoom : number = 0;
+        public startLong : number = 0;
+        public startLat : number = 0;
 
         public enumerateObjectInstances(objectEnumeration) {
             let instances = objectEnumeration.instances;

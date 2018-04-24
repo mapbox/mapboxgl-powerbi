@@ -14,13 +14,6 @@
     display: none;
 }
 
-.mapboxgl-canvas-container.mapboxgl-interactive,
-.mapboxgl-ctrl-nav-compass {
-    cursor: -webkit-grab;
-    cursor: -moz-grab;
-    cursor: grab;
-}
-
 .mapboxgl-canvas-container.mapboxgl-interactive:active,
 .mapboxgl-ctrl-nav-compass:active {
     cursor: -webkit-grabbing;

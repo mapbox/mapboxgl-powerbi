@@ -17,85 +17,95 @@ module powerbi.extensibility.visual {
 
     const DefaultHandleTouchDelay = 1000;
 
-    export function createTooltipServiceWrapper(tooltipService: ITooltipService, rootElement: Element, handleTouchDelay: number = DefaultHandleTouchDelay): ITooltipServiceWrapper {
+    export function createTooltipServiceWrapper(tooltipService: ITooltipService, rootElement: HTMLElement, handleTouchDelay: number = DefaultHandleTouchDelay): ITooltipServiceWrapper {
         return new TooltipServiceWrapper(tooltipService, rootElement, handleTouchDelay);
     }
     
     class TooltipServiceWrapper implements ITooltipServiceWrapper {
         private handleTouchTimeoutId: number;
         private visualHostTooltipService: ITooltipService;
-        private rootElement: Element;
+        private rootElement: HTMLElement;
         private handleTouchDelay: number;
         
-        constructor(tooltipService: ITooltipService, rootElement: Element, handleTouchDelay: number) {
+        constructor(tooltipService: ITooltipService, rootElement: HTMLElement, handleTouchDelay: number) {
             this.visualHostTooltipService = tooltipService;
             this.handleTouchDelay = handleTouchDelay;
             this.rootElement = rootElement;
         }
 
         public debounce = function(func, wait) {
-            var timeout;
+            let timeout;
             return function() {
-                var context = this, args = arguments;
-                var later = function() {
+                let context = this, args = arguments;
+                let later = function() {
                     timeout = null;
                     func.apply(context, args);
                 };
-                var callNow = !timeout;
+                let callNow = !timeout;
                 clearTimeout(timeout);
                 timeout = setTimeout(later, wait);
                 if (callNow) func.apply(context, args);
             };
         };
-        
+
         public addTooltip<T>(
             map,
             layers,
             getTooltipInfoDelegate: (args: TooltipEventArgs<T>) => VisualTooltipDataItem[],
             reloadTooltipDataOnMouseMove?: boolean): void {
-            
-            if (!map || !this.visualHostTooltipService.enabled()) {
-                return;
-            }
-            
-            let rootNode = this.rootElement;
 
-            const hideTooltip = this.debounce((e) => {
-                this.visualHostTooltipService.hide({
-                    isTouchEvent: false,
-                    immediately: false,
-                });
-            }, 12);
-
-            const showTooltip = this.debounce((e) => {
-                let tooltipEventArgs = this.makeTooltipEventArgs<T>(e);
-                if (!tooltipEventArgs)
+                if (!map || !this.visualHostTooltipService.enabled()) {
                     return;
-                
-                let tooltipInfo: VisualTooltipDataItem[];
-                if (reloadTooltipDataOnMouseMove || true) {
-                    tooltipInfo = getTooltipInfoDelegate(tooltipEventArgs);
-                    if (tooltipInfo == null)
-                        return;
                 }
-                
-                this.visualHostTooltipService.show({
-                    coordinates: tooltipEventArgs.coordinates,
-                    isTouchEvent: false,
-                    dataItems: tooltipInfo,
-                    identities: [],
+
+                let rootNode = this.rootElement;
+
+                // Multiple following assignments are because browsers only
+                // pick up assigments if they understand the assigned value
+                // and ignore all other case.
+                rootNode.style.cursor = '-webkit-grab';
+                rootNode.style.cursor = 'grab';
+
+                const hideTooltip = (e) => {
+                    rootNode.style.cursor = '-webkit-grab';
+                    rootNode.style.cursor = 'grab';
+                    this.visualHostTooltipService.hide({
+                        isTouchEvent: false,
+                        immediately: false
+                    });
+                };
+
+                const showTooltip = this.debounce((e) => {
+                    rootNode.style.cursor = 'pointer';
+                    let tooltipEventArgs = this.makeTooltipEventArgs<T>(e);
+                    if (!tooltipEventArgs)
+                        return;
+
+                    let tooltipInfo: VisualTooltipDataItem[];
+                    if (reloadTooltipDataOnMouseMove || true) {
+                        tooltipInfo = getTooltipInfoDelegate(tooltipEventArgs);
+                        if (tooltipInfo == null)
+                            return;
+                    }
+
+                    this.visualHostTooltipService.show({
+                        coordinates: tooltipEventArgs.coordinates,
+                        isTouchEvent: false,
+                        dataItems: tooltipInfo,
+                        identities: [],
+                    });
+                }, 12)
+
+                layers.map( layerId => {
+                    map.off('mouseleave', layerId, hideTooltip);
+                    map.on('mouseleave', layerId, hideTooltip);
+
+                    map.off('mousemove', layerId, showTooltip);
+                    map.on('mousemove', layerId, showTooltip);
+
+                    map.off('touch', layerId, showTooltip);
+                    map.on('touch', layerId, showTooltip);
                 });
-            }, 12)
-
-            layers.map( layerId => {
-                map.off('mouseleave', layerId, hideTooltip);
-                map.on('mouseleave', layerId, hideTooltip);
-                map.off('touchend', layerId, hideTooltip);
-                map.on('touchend', layerId, hideTooltip);
-
-                map.off('mousemove', layerId, showTooltip);
-                map.on('mousemove', layerId, showTooltip);
-            });
         }
 
         private getDisplayNameMap(metadata) {
