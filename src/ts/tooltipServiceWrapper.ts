@@ -66,14 +66,14 @@ module powerbi.extensibility.visual {
                 rootNode.style.cursor = '-webkit-grab';
                 rootNode.style.cursor = 'grab';
 
-                const hideTooltip = this.debounce((e) => {
+                const hideTooltip = (e) => {
                     rootNode.style.cursor = '-webkit-grab';
                     rootNode.style.cursor = 'grab';
                     this.visualHostTooltipService.hide({
                         isTouchEvent: false,
                         immediately: false
                     });
-                }, 12);
+                };
 
                 const showTooltip = this.debounce((e) => {
                     rootNode.style.cursor = 'pointer';
@@ -99,11 +99,12 @@ module powerbi.extensibility.visual {
                 layers.map( layerId => {
                     map.off('mouseleave', layerId, hideTooltip);
                     map.on('mouseleave', layerId, hideTooltip);
-                    map.off('touchend', layerId, hideTooltip);
-                    map.on('touchend', layerId, hideTooltip);
 
                     map.off('mousemove', layerId, showTooltip);
                     map.on('mousemove', layerId, showTooltip);
+
+                    map.off('touch', layerId, showTooltip);
+                    map.on('touch', layerId, showTooltip);
                 });
         }
 
