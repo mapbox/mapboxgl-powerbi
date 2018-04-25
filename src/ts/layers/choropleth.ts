@@ -4,6 +4,8 @@ module powerbi.extensibility.visual {
         private static ID = 'choropleth'
         private static OutlineID = 'choropleth-outline'
         private vectorTileUrl: string = "";
+        private sourceLayer: string = "";
+        private vectorProperty: string = "";
 
         constructor(map: MapboxMap) {
             super(map);
@@ -57,11 +59,15 @@ module powerbi.extensibility.visual {
 
                 // The choropleth layer is different since it is a vector tile source, not geojson.  We can't modify it in-place.
                 // If it is, we'll create the vector tile source from the URL.  If not, we'll make sure the source doesn't exist.
-                if (this.vectorTileUrl != choroSettings.vectorTileUrl) {
-                    if (this.vectorTileUrl) {
+                if (this.vectorTileUrl  != choroSettings.vectorTileUrl ||
+                    this.sourceLayer    != choroSettings.sourceLayer   ||
+                    this.vectorProperty != choroSettings.vectorProperty ) {
+                    if (this.vectorTileUrl && this.sourceLayer && this.vectorProperty) {
                         this.removeLayer();
                     }
                     this.vectorTileUrl = choroSettings.vectorTileUrl;
+                    this.sourceLayer = choroSettings.sourceLayer;
+                    this.vectorProperty = choroSettings.vectorProperty;
                 }
             }
             return super.getSource(settings);
