@@ -1,6 +1,6 @@
 module powerbi.extensibility.visual {
     import DataViewObjectsParser = powerbi.extensibility.utils.dataview.DataViewObjectsParser;
-    declare var mapbox : any;
+    declare var mapbox: any;
     export interface MapboxData {
         features: any[];
     }
@@ -15,12 +15,14 @@ module powerbi.extensibility.visual {
         public static enumerateObjectInstances(
             dataViewObjectParser: DataViewObjectsParser,
             options: EnumerateVisualObjectInstancesOptions): VisualObjectInstanceEnumeration {
-                let settings : MapboxSettings = <MapboxSettings>dataViewObjectParser;
+
+                let settings: MapboxSettings = <MapboxSettings>dataViewObjectParser;
                 let instanceEnumeration = DataViewObjectsParser.enumerateObjectInstances(dataViewObjectParser, options);
 
                 switch (options.objectName) {
-                    case 'api': {
-                        return settings.api.enumerateObjectInstances(instanceEnumeration);
+                    case 'api':
+                    case 'choropleth': {
+                        return settings[options.objectName].enumerateObjectInstances(instanceEnumeration);
                     }
                     default: {
                         return instanceEnumeration;
@@ -33,6 +35,9 @@ module powerbi.extensibility.visual {
         public accessToken: string = "";
         public style: string = "mapbox:\/\/styles\/mapbox\/dark-v9?optimize=true";
         public styleUrl: string = "";
+        public zoom : number = 0;
+        public startLong : number = 0;
+        public startLat : number = 0;
 
         public enumerateObjectInstances(objectEnumeration) {
             let instances = objectEnumeration.instances;
@@ -80,7 +85,7 @@ module powerbi.extensibility.visual {
 
     export class ClusterSettings {
         public show: boolean = false;
-        public aggregation: string = "count";
+        public aggregation: string = "Count";
         public clusterRadius: number = 50;
         public clusterMaxZoom: number = 12;
         public minColor: string = "#ffffcc";
@@ -95,20 +100,110 @@ module powerbi.extensibility.visual {
     }
 
     export class ChoroplethSettings {
+        static readonly GLOBAL_COUNTRIES_TILE_URL = "mapbox://mapbox.pbi-countries-v1";
+        static readonly US_STATES_TILE_URL = "mapbox://mapbox.pbi-us-states-v1";
+        static readonly US_COUNTIES_TILE_URL = "mapbox://mapbox.pbi-us-counties-v1";
+        static readonly US_POSTCODES_TILE_URL = "mapbox://mapbox.pbi-us-postcodes-v1";
+
+        static readonly GLOBAL_COUNTRIES_SOURCE_LAYER = "pbi-countries";
+        static readonly US_STATES_SOURCE_LAYER = "pbi-us-states";
+        static readonly US_COUNTIES_SOURCE_LAYER = "pbi-us-counties";
+        static readonly US_POSTCODES_SOURCE_LAYER = "pbi-us-postcodes";
+
+        static readonly PREDEFINED_VECTOR_PROPERTY = "name";
+
         public show: boolean = false;
-        public vectorTileUrl: string = 'mapbox://'
-        public sourceLayer: string = '';
-        public vectorProperty: string = '';
-        public minColor: string = "red";
-        public maxColor: string = "green";
+        public minColor: string = "#0571b0";
+        public medColor: string = "#f7f7f7";
+        public maxColor: string = "#ca0020";
         public minZoom: number = 0;
         public maxZoom: number = 22;
+        public data: string = ChoroplethSettings.US_STATES_TILE_URL;  // Let US states be the default
+
+        public vectorTileUrl: string = ChoroplethSettings.US_STATES_TILE_URL;
+        public sourceLayer: string = 'pbi-us-states';
+        public vectorProperty: string = ChoroplethSettings.PREDEFINED_VECTOR_PROPERTY;
+        public opacity: number = 100;
+        public outlineColor: string = "#000000";
+        public outlineWidth: number = 1;
+        public outlineOpacity: number = 100;
+
 
         public display(): boolean {
             return this.show &&
                 this.vectorProperty != "" &&
                 this.sourceLayer != "" &&
                 this.vectorTileUrl != ""
+        }
+
+        public enumerateObjectInstances(objectEnumeration) {
+            let instances = objectEnumeration.instances;
+            let properties = instances[0].properties;
+
+            if (properties.data !== 'custom') {
+                // Hide custom vector tile URL, source layer and vector property controls, since a
+                // predefined boundary is selected
+                delete properties.vectorTileUrl;
+                delete properties.sourceLayer;
+                delete properties.vectorProperty;
+            }
+
+            instances[0].validValues = {
+                minZoom: {
+                    numberRange: {
+                        min: 0,
+                        max: 22,
+                    }
+                },
+                maxZoom: {
+                    numberRange: {
+                        min: 0,
+                        max: 22,
+                    }
+                },
+                opacity: {
+                    numberRange: {
+                        min: 0,
+                        max: 100,
+                    }
+                },
+                outlineOpacity: {
+                    numberRange: {
+                        min: 0,
+                        max: 100,
+                    }
+                },
+                outlineWidth: {
+                    numberRange: {
+                        min: 0,
+                        max: 1000,
+                    }
+                }
+            }
+
+            return { instances };
+        }
+
+        public static fillPredefinedProperties(choroSettings) {
+            if (choroSettings.data !== 'custom') {
+                switch (choroSettings.data) {
+                    case ChoroplethSettings.GLOBAL_COUNTRIES_TILE_URL:
+                        choroSettings.sourceLayer = ChoroplethSettings.GLOBAL_COUNTRIES_SOURCE_LAYER;
+                        break;
+                    case ChoroplethSettings.US_STATES_TILE_URL:
+                        choroSettings.sourceLayer = ChoroplethSettings.US_STATES_SOURCE_LAYER;
+                        break;
+                    case ChoroplethSettings.US_COUNTIES_TILE_URL:
+                        choroSettings.sourceLayer = ChoroplethSettings.US_COUNTIES_SOURCE_LAYER;
+                        break;
+                    case ChoroplethSettings.US_POSTCODES_TILE_URL:
+                        choroSettings.sourceLayer = ChoroplethSettings.US_POSTCODES_SOURCE_LAYER;
+                        break;
+                }
+
+                choroSettings.vectorTileUrl = choroSettings.data;
+                choroSettings.vectorProperty = ChoroplethSettings.PREDEFINED_VECTOR_PROPERTY;
+            }
         }
     }
 }

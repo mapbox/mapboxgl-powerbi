@@ -1,6 +1,12 @@
 {
   "dataRoles": [
     {
+      "name": "location",
+      "kind": "Grouping",
+      "displayName": "Location",
+      "description": "Location"
+    },
+    {
       "name": "latitude",
       "kind": "GroupingOrMeasure",
       "displayName": "Latitude",
@@ -48,7 +54,7 @@
       "name": "tooltips",
       "kind": "GroupingOrMeasure",
       "displayName": "Tooltips",
-      "description": "Values to display in circle tooltips"
+      "description": "Values to display in tooltips"
     }
   ],
   "dataViewMappings": [
@@ -56,7 +62,7 @@
       "table": {
         "rows": {
           "dataReductionAlgorithm": {
-            "top": {
+            "sample": {
               "count": 30000
             }
           },
@@ -177,6 +183,30 @@
             "text": true
           },
           "suppressFormatPainterCopy": true
+        },
+        "zoom": {
+          "displayName": "Zoom",
+          "displayNameKey": "zoom",
+          "description": "Starting zoom level for map",
+          "type": {
+            "numeric": true
+          }
+        },
+          "startLong": {
+            "displayName": "Longitude",
+            "displayNameKey": "startLong",
+            "description": "Starting longitude level for map",
+            "type": {
+              "numeric": true
+            }
+        },
+        "startLat": {
+          "displayName": "Latitude",
+          "displayNameKey": "startLat",
+          "description": "Starting latitude level for map",
+          "type": {
+            "numeric": true
+          }
         }
       }
     },
@@ -186,7 +216,7 @@
       "description": "Circle display settings",
       "properties": {
         "show": {
-          "displayName": "Choropleth",
+          "displayName": "Circle",
           "type": { "bool": true }
         },
         "radius": {
@@ -309,7 +339,7 @@
       "description": "Heatmap display settings",
       "properties": {
         "show": {
-          "displayName": "Choropleth",
+          "displayName": "Heatmap",
           "type": { "bool": true }
         },
         "radius": {
@@ -403,29 +433,29 @@
           "type": {
             "enumeration": [
               {
-                "value": "count",
+                "value": "Count",
                 "displayName": "Count",
-                "displayNameKey": "count"
+                "displayNameKey": "Count"
               },
               {
-                "value": "sum",
+                "value": "Sum",
                 "displayName": "Sum",
-                "displayNameKey": "sum"
+                "displayNameKey": "Sum"
               },
               {
-                "value": "avg",
+                "value": "Average",
                 "displayName": "Average",
-                "displayNameKey": "avg"
+                "displayNameKey": "Average"
               },
               {
-                "value": "min",
+                "value": "Minimum",
                 "displayName": "Minimum",
-                "displayNameKey": "min"
+                "displayNameKey": "Minimum"
               },
               {
-                "value": "max",
+                "value": "Maximum",
                 "displayName": "Maximum",
-                "displayNameKey": "max"
+                "displayNameKey": "Maximum"
               }
             ]
           },
@@ -541,36 +571,58 @@
       "properties": {
         "show": {
           "displayName": "Choropleth",
-          "type": { "bool": false }
+          "type": { "bool": true }
         },
-        "vectorTileUrl": {
+        "data": {
           "type": {
-            "text": true
+            "enumeration": [
+              {
+                "value": "mapbox://mapbox.pbi-countries-v1",
+                "displayName": "Global Countries",
+                "displayNameKey": "globalCountries"
+              },
+              {
+                "value": "mapbox://mapbox.pbi-us-states-v1",
+                "displayName": "US States",
+                "displayNameKey": "usaStates"
+              },
+              {
+                "value": "mapbox://mapbox.pbi-us-counties-v1",
+                "displayName": "US Counties",
+                "displayNameKey": "usaCounties"
+              },
+              {
+                "value": "mapbox://mapbox.pbi-us-postcodes-v1",
+                "displayName": "US Postcodes (5-digit)",
+                "displayNameKey": "usaPostcodes5digit"
+              },
+              {
+                "value": "custom",
+                "displayName": "Custom...",
+                "displayNameKey": "custom"
+              }
+            ]
           },
-          "displayName": "Vector Tile Url",
-          "displayNameKey": "vectorTileUrl",
-          "description": "The URL of the vector tileset. Example for US states: mapbox://mapbox.us_census_states_2015"
-        },
-        "sourceLayer": {
-          "type": {
-            "text": true
-          },
-          "displayName": "Source Layer Name",
-          "displayNameKey": "sourceLayer",
-          "description": "The id of the vector layer to use for data join"
-        },
-        "vectorProperty": {
-          "type": {
-            "text": true
-          },
-          "displayName": "Vector Property",
-          "displayNameKey": "vectorProperty",
-          "description": "The property name in the vector layer to use for data join"
+          "displayName": "Data",
+          "displayNameKey": "choroplethData",
+          "description": "Built-in Mapbox boundaries or a custom one"
         },
         "minColor": {
           "displayName": "Min Color",
           "displayNameKey": "minColor",
           "description": "Defines the color for the minimum value of the color field.",
+          "type": {
+            "fill": {
+              "solid": {
+                "color": true
+              }
+            }
+          }
+        },
+        "medColor": {
+          "displayName": "Med Color",
+          "displayNameKey": "color",
+          "description": "Intermediate color for choropleth color ramp. ",
           "type": {
             "fill": {
               "solid": {
@@ -596,7 +648,7 @@
           "displayNameKey": "minZoom",
           "description": "Minimum zoom level layer is visibile at.",
           "type": {
-              "numeric": true
+              "integer": true
             }
         },
         "maxZoom": {
@@ -604,8 +656,68 @@
           "displayNameKey": "maxZoom",
           "description": "Maximum zoom level layer is visibile at.",
           "type": {
-              "numeric": true
+              "integer": true
             }
+        },
+        "vectorTileUrl": {
+          "type": {
+            "text": true
+          },
+          "displayName": "Vector Tile Url",
+          "displayNameKey": "vectorTileUrl",
+          "description": "The URL of the vector tileset. Example for US states: mapbox://mapbox.us_census_states_2015"
+        },
+        "sourceLayer": {
+          "type": {
+            "text": true
+          },
+          "displayName": "Source Layer Name",
+          "displayNameKey": "sourceLayer",
+          "description": "The id of the vector layer to use for data join"
+        },
+        "vectorProperty": {
+          "type": {
+            "text": true
+          },
+          "displayName": "Vector Property",
+          "displayNameKey": "vectorProperty",
+          "description": "The property name in the vector layer to use for data join"
+        },
+        "opacity": {
+          "displayName": "Opacity",
+          "displayNameKey": "opacity",
+          "description": "The global opacity in percentage at which the layer will be drawn.",
+          "type": {
+            "integer": true
+          }
+        },
+        "outlineColor": {
+          "displayName": "Outline Color",
+          "displayNameKey": "outlineColor",
+          "description": "The outline color of the filled areas.",
+          "type": {
+            "fill": {
+              "solid": {
+                "color": true
+              }
+            }
+          }
+        },
+        "outlineWidth": {
+          "displayName": "Outline Width",
+          "displayNameKey": "outlineWidth",
+          "description": "The width of the outline of the filled areas.",
+          "type": {
+            "integer": true
+          }
+        },
+        "outlineOpacity": {
+          "displayName": "Outline Opacity",
+          "displayNameKey": "outlineOpacity",
+          "description": "The global opacity in percentage at which the outline will be drawn.",
+          "type": {
+            "integer": true
+          }
         }
       }
     }

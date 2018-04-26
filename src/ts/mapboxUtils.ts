@@ -1,7 +1,56 @@
 module powerbi.extensibility.visual {
     declare var turf : any;
     export module mapboxUtils {
-        const NUMBER_OF_COLORVALUES = 12;
+        export interface Limits {
+            min: number;
+            max: number;
+            values: number[];
+        }
+
+        export function zoomToData(map, bounds, autoZoomPinned) {
+            if (bounds && !autoZoomPinned) {
+                map.fitBounds(bounds, {
+                    padding: 10,
+                    maxZoom: 15,
+                });
+            }
+        }
+
+        export function shouldUseGradient(colorColumn, colorLimits: { min: any; max: any; values: any; }) {
+            if (colorColumn != null && colorColumn.isMeasure) {
+                return true
+            }
+
+            if (colorLimits == null || colorLimits.values == null || colorLimits.values.length == null) {
+                return false
+            }
+
+            return false
+        }
+
+        export function getClassCount(limits: { min: number; max: number; values: number[]; }) {
+            const MAX_BOUND_COUNT = 6;
+            // For example if you want 5 classes, you have to enter 6 bounds
+            // (1 bound is the minimum value, 1 bound is the maximum value,
+            // the rest are class separators)
+            const classCount = Math.min(limits.values.length, MAX_BOUND_COUNT) - 1;
+            return classCount;
+        }
+
+        export function getNaturalBreaks(limits: { min: any; max: any; values: any[]; }, classCount: number) {
+            const stops: any[] = chroma.limits(limits.values, 'q', classCount);
+            return stops;
+        }
+
+        export function getRoleMap(metadata) {
+            let ret = {}
+            metadata.columns.map(column => {
+                Object.keys(column.roles).map(role => {
+                    ret[role] = column
+                });
+            });
+            return ret;
+        }
 
         export function positionInArray(array, element: any) {
             return array.findIndex( value => {
@@ -15,106 +64,38 @@ module powerbi.extensibility.visual {
             }
         }
 
-        export function getColorFromIndex(index: number) {
-            return index % NUMBER_OF_COLORVALUES
-        }
+        export function createClickHandler(mapVisual: MapboxMap) {
+            var onClick : Function = debounce(function(e) {
+                const map = mapVisual.getMap()
 
-        export function shouldUseGradient(category, colorLimits: { min: any; max: any; values: any; }) {
-            if (category != null && category.isMeasure) {
-                return true
-            }
+                // map.queryRenderedFeatures fails
+                // when option.layers contains an id which is not on the map
+                const layers = mapVisual.getExistingLayers().map(layer => layer.getId())
 
-            if (colorLimits == null || colorLimits.values == null || colorLimits.values.length == null) {
-                return false
-            }
+                const radius = 5
+                let minpoint = new Array(e.point['x'] - radius, e.point['y'] - radius)
+                let maxpoint = new Array(e.point['x'] + radius, e.point['y'] + radius)
+                let features : any = map.queryRenderedFeatures([minpoint, maxpoint], {
+                    layers
+                });
 
-            if (colorLimits.values.length >= NUMBER_OF_COLORVALUES) {
-                return true
-            }
-
-            return false
-        }
-
-        export function addPopup(map: mapboxgl.Map, popup: mapboxgl.Popup, settings ) {
-            // Don't add the popup if it already exists
-                if (map.listens('mousemove')) { map.off('mousemove') }
-
-                function jsUcfirst(string) {
-                    return string.charAt(0).toUpperCase() + string.slice(1);
+                if (features
+                    && features.length
+                    && features[0]
+                    && features[0].geometry
+                    && features[0].geometry.coordinates
+                ) {
+                    map.easeTo({
+                        center: features[0].geometry.coordinates,
+                        zoom: map.getZoom() + 1,
+                        duration: 1000
+                    });
                 }
 
-                var onMouseMove : Function = debounce(function(e) {
-                    let minpoint = new Array(e.point['x'] - 5, e.point['y'] - 5)
-                    let maxpoint = new Array(e.point['x'] + 5, e.point['y'] + 5)
+            }, 22, false);
 
-                    try {
-                        let features : any = map.queryRenderedFeatures([minpoint, maxpoint], {
-                            layers: ['cluster', 'circle', 'uncluster']
-                        });
-                        map.getCanvas().style.cursor = 'pointer';
-                        if (features[0].properties.tooltip) {
-                            let tooltip = "<div>"
-                            //Add tooltips for up to 5 items under the mouse cursor (improves performance while zoomed out)
-                            let tooltips = features.slice(0,5).map( feature => {
-                                let tooltipItem = "";
-                                try {
-                                    const tooltipObj = JSON.parse(feature.properties.tooltip);
-                                    tooltipItem += `<li><b>Longitude:</b> ` + Math.round(feature.geometry.coordinates[0]*100000)/100000 + `</li>`;
-                                    tooltipItem += `<li><b>Latitude:</b> ` + Math.round(feature.geometry.coordinates[1]*100000)/100000 + `</li>`;
-                                    if (tooltipObj.title) {
-                                        let agg = jsUcfirst(settings.cluster.aggregation);
-                                        let title = tooltipObj.title;
-                                        tooltipItem += `<li><b>` + agg + ` of ` + title + `:</b> ` + tooltipObj.content[agg] + `</li>`;
-                                    }
-                                    else {
-                                        tooltipItem += Object.keys(tooltipObj.content).map( key => {
-                                            return `<li><b>${key}:</b> ${tooltipObj.content[key]}</li>`
-                                        }).join('');
-                                    }
-                                } catch (_err) {
-                                    // Pass, if we couldn't parse the JSON just skip.
-                                } finally {
-                                    return tooltipItem;
-                                }
-                            })
-                            tooltip += tooltips.join('<hr />')
-                            tooltip += "</div>"
-                            popup.setLngLat(map.unproject(e.point))
-                                .setHTML(tooltip)
-                                .addTo(map);
-                            }
-                        } catch (err) {
-                            map.getCanvas().style.cursor = '';
-                            popup.remove();
-                            return
-                        }
-                    }, 22, false);
-
-                    map.on('mousemove', onMouseMove);
-                }
-
-                export function addClick(map: mapboxgl.Map) {
-                    // map.off('click');
-                    if (map.listens('click')) { return; }
-
-                    var onClick : Function = debounce(function(e) {
-                        let minpoint = new Array(e.point['x'] - 5, e.point['y'] - 5)
-                        let maxpoint = new Array(e.point['x'] + 5, e.point['y'] + 5)
-                        let features : any = map.queryRenderedFeatures([minpoint, maxpoint], {
-                            layers: ['cluster', 'circle', 'uncluster']
-                        });
-
-                        if (!features.length) {return}
-
-                        map.easeTo({
-                            center: features[0].geometry.coordinates,
-                            zoom: map.getZoom() + 1,
-                            duration: 1000
-                        });
-                    }, 22, false);
-
-                    map.on('click', onClick);
-                };
+            return onClick
+        };
 
         export function decorateLayer(layer) {
             switch (layer.type) {
@@ -134,19 +115,37 @@ module powerbi.extensibility.visual {
             return layer;
         }
 
-        export function getLimits(data, myproperty) {
+        export function getLimits(data, myproperty) : Limits {
 
             let min = null;
             let max = null;
             let values = [];
-            turf.meta.propEach(turf.helpers.featureCollection(data), function(currentProperties, featureIndex) {
-                if (currentProperties[myproperty]) {
-                    const value = currentProperties[myproperty];
-                    if (!min || value < min) { min = value }
-                    if (!max || value > max) { max = value }
-                    pushIfNotExist(values, value)
+
+            if (data && data.length > 0 && myproperty != '') {
+                if (data[0]['type']) {
+                    // data are geojson
+                    turf.meta.propEach(turf.helpers.featureCollection(data), function(currentProperties, featureIndex) {
+                        if (currentProperties[myproperty]) {
+                            const value = currentProperties[myproperty];
+                            if (!min || value < min) { min = value }
+                            if (!max || value > max) { max = value }
+                            pushIfNotExist(values, value)
+                        }
+                    })
                 }
-            })
+                else {
+                    // data are non-geojson objects for a choropleth
+                    data.forEach(f => {
+                        if (f[myproperty]) {
+                            const value = f[myproperty];
+                            if (!min || value < min) { min = value }
+                            if (!max || value > max) { max = value }
+                            pushIfNotExist(values, value)
+                        }
+                    })
+                }
+            }
+
             // Min and max must not be equal becuse of the interpolation.
             // let's make sure with the substraction
             if (min == max) {
@@ -191,6 +190,7 @@ module powerbi.extensibility.visual {
 
             return returnFunction
         };
+
     }
 }
 
