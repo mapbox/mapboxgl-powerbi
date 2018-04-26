@@ -1,7 +1,7 @@
 {
-  "name": "powerBI-mapboxgl",
-  "version": "0.0.1",
-  "description": "PowerBI visualization with mapboxgl",
+  "name": "mapboxgl-powerbi",
+  "version": "0.1.1",
+  "description": "Mapbox Visual for Power BI",
   "main": "index.js",
   "scripts": {
     "pbi": "pbiviz",
@@ -10,7 +10,7 @@
     "pretest": "pbiviz package --resources --no-minify --no-pbiviz --no-plugin",
     "test": "karma start",
     "start": "pbiviz start",
-    "turf": "browserify ./src/modules/turf/turf-build.js -s turf --debug --plugin [minifyify --output src/js/turf-bundle-min.js] > src/js/turf-bundle-min.js"
+    "turf-build": "browserify ./src/build/turf-build.js -s turf --debug --plugin [minifyify --output src/js/turf-bundle-min.js] > src/js/turf-bundle-min.js"
   },
   "author": "Ryan Baumann",
   "license": "MIT",
@@ -21,7 +21,6 @@
     "@turf/meta": "^6.0.1",
     "@types/geojson": "^1.0.6",
     "@types/mapbox-gl": "^0.44.3",
-    "babel-preset-es2015": "^6.24.1",
     "chroma-js": "^1.3.4",
     "mapbox-gl": "^0.45.0-beta.1",
     "powerbi-client": "^2.3.4",
@@ -29,6 +28,7 @@
     "powerbi-visuals-utils-dataviewutils": "^1.2.0",
     "powerbi-visuals-utils-testutils": "^1.1.0",
     "powerbi-visuals-utils-typeutils": "^1.1.0",
+    "supercluster": "^3.0.2",
     "typed-rest-client": "^1.0.5"
   },
   "devDependencies": {
