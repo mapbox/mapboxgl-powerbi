@@ -29,13 +29,13 @@ module powerbi.extensibility.visual {
         }
 
 
-        applySettings(settings, roleMap) {
-            super.applySettings(settings, roleMap);
+        applySettings(settings, roleMap, colorMap) {
+            super.applySettings(settings, roleMap, colorMap);
             const map = this.parent.getMap();
             if (settings.heatmap.show) {
                 map.setLayerZoomRange(Heatmap.ID, settings.heatmap.minZoom, settings.heatmap.maxZoom);
                 map.setPaintProperty(Heatmap.ID, 'heatmap-radius', [ "interpolate", ["exponential", 1.2], ["zoom"],
-                    0, settings.heatmap.radius, 14, settings.heatmap.radius*25
+                    0, settings.heatmap.radius, 14, settings.heatmap.radius * 25
                     ]);
                 map.setPaintProperty(Heatmap.ID, 'heatmap-intensity', settings.heatmap.intensity);
                 map.setPaintProperty(Heatmap.ID, 'heatmap-opacity', settings.heatmap.opacity / 100);

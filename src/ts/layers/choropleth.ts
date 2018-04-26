@@ -67,8 +67,8 @@ module powerbi.extensibility.visual {
             return super.getSource(settings);
         }
 
-        applySettings(settings, roleMap) {
-            super.applySettings(settings, roleMap);
+        applySettings(settings, roleMap, colorMap) {
+            super.applySettings(settings, roleMap, colorMap);
             const map = this.parent.getMap();
             const choroSettings = settings.choropleth;
 
@@ -95,45 +95,41 @@ module powerbi.extensibility.visual {
                 const choroplethData = this.source.getData(map, settings);
 
                 let existingStops = {};
-                let validStops = true;
 
                 for (let row of choroplethData) {
-                    let skipRow = false;
                     const location = row[roleMap.location.displayName];
 
-                    if (location == null || location == undefined) {
-                        //Stop value cannot be undefined or null; don't add this row to the stops
-                        skipRow = true;
-                    }
-
-                    if (!skipRow) {
-                        let color: any = colorStops(row[roleMap.color.displayName]);
-                        let outlineColor: any = colorStops(row[roleMap.color.displayName]);
+                    if (location != null) {
+                        const colorValue = row[roleMap.color.displayName];
+                        let color: any = colorStops(colorValue);
+                        let outlineColor: any = colorStops(colorValue);
                         outlineColor = outlineColor.darken(2);
 
                         if (existingStops[location]) {
                             // Duplicate stop found. In case there are many rows, Mapbox generates so many errors on the
                             // console, that it can make the entire Power BI plugin unresponsive. This is why we validate
                             // the stops here, and won't let invalid stops to be passed to Mapbox.
-                            validStops = false;
-                            break;
+
+                            // We don't treat this case as error. As for example for US counties there are more than 1 with the same name. 
+                            continue;
                         }
 
                         existingStops[location] = true;
-                        colors.stops.push([location, color.toString()]);
+
+                        let colorString = color.toString();
+                        if (colorMap && colorMap[colorValue]) {
+                            colorString = colorMap[colorValue];
+                        }
+
+                        colors.stops.push([location, colorString]);
                         filter.push(location);
                         outlineColors.stops.push([location, outlineColor.toString()]);
                     }
                 }
 
-                if (validStops) {
-                    map.setPaintProperty(Choropleth.ID, 'fill-color', colors);
-                    map.setFilter(Choropleth.ID, filter);
-                    map.setFilter(Choropleth.OutlineID, filter);
-                } else {
-                    // Default color should represent error to the user, that's all we have for now
-                    map.setPaintProperty(Choropleth.ID, 'fill-color', defaultColor);
-                }
+                map.setPaintProperty(Choropleth.ID, 'fill-color', colors);
+                map.setFilter(Choropleth.ID, filter);
+                map.setFilter(Choropleth.OutlineID, filter);
 
                 map.setPaintProperty(Choropleth.ID, 'fill-outline-color', 'rgba(0,0,0,0.05)');
                 map.setPaintProperty(Choropleth.ID, 'fill-opacity', settings.choropleth.opacity / 100);

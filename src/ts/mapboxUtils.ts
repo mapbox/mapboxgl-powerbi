@@ -158,6 +158,24 @@ module powerbi.extensibility.visual {
             }
         }
 
+        export function getCategoricalObjectValue<T>(category: DataViewCategoryColumn, index: number, objectName: string, propertyName: string, defaultValue: T): T {
+            let categoryObjects = category.objects;
+
+            if (categoryObjects) {
+                let categoryObject: DataViewObject = categoryObjects[index];
+                if (categoryObject) {
+                    let object = categoryObject[objectName];
+                    if (object) {
+                        let property: T = object[propertyName];
+                        if (property !== undefined) {
+                            return property;
+                        }
+                    }
+                }
+            }
+            return defaultValue;
+        }
+
         "use strict";
         export function logExceptions(): MethodDecorator {
             return function (target: Object, propertyKey: string, descriptor: TypedPropertyDescriptor<Function>)
@@ -179,7 +197,7 @@ module powerbi.extensibility.visual {
             let timeout;
             let returnFunction : any = function() {
                 const context = this, args = arguments;
-                var callNow = immediate && !timeout;
+                let callNow = immediate && !timeout;
                 clearTimeout(timeout);
                 timeout = setTimeout(() => {
                     timeout = null;

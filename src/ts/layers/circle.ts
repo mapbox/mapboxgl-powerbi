@@ -33,8 +33,8 @@ module powerbi.extensibility.visual {
             this.source.removeFromMap(map, Circle.ID);
         }
 
-        applySettings(settings, roleMap) {
-            super.applySettings(settings, roleMap);
+        applySettings(settings, roleMap, colorMap) {
+            super.applySettings(settings, roleMap, colorMap);
             const map = this.parent.getMap();
             const limits = this.source.getLimits();
             if (settings.circle.show) {

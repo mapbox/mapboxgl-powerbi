@@ -27,7 +27,7 @@ module powerbi.extensibility.visual {
 
         abstract getLayerIDs()
 
-        applySettings(settings, roleMap) {
+        applySettings(settings, roleMap, colorMap) {
             const map = this.parent.getMap();
             if (settings[this.id].show) {
                 if (!this.layerExists()) {
@@ -36,10 +36,10 @@ module powerbi.extensibility.visual {
 
                     if (settings.api.style == 'mapbox://styles/mapbox/satellite-v9?optimize=true' ||
                         settings.api.style == 'custom') {
-                        //For custom style find the lowest symbol layer to place data underneath
+                        // For custom style find the lowest symbol layer to place data underneath
                         firstSymbolId = ''
                         let layers = map.getStyle().layers;
-                        for (var i = 0; i < layers.length; i++) {
+                        for (let i = 0; i < layers.length; i++) {
                             if (layers[i].type === 'symbol') {
                                 firstSymbolId = layers[i].id;
                                 break;
