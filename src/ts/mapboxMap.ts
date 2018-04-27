@@ -66,7 +66,11 @@ module powerbi.extensibility.visual {
                     });
                     mapboxUtils.zoomToData(map, bounds, this.autoZoomControl.isPinned());
                 }
-            } finally {
+            }
+            catch (error) {
+                console.error("OnUpdate failed:", error)
+            }
+            finally {
                 updatedHandler();
             }
         }
