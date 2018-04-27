@@ -12,7 +12,7 @@ module powerbi.extensibility.visual {
             layers,
             getTooltipInfoDelegate: (args: TooltipEventArgs<T>) => VisualTooltipDataItem[],
             reloadTooltipDataOnMouseMove?: boolean): void;
-        hide(): void;
+        hide(immediately?: boolean): void;
     }
 
     const DefaultHandleTouchDelay = 1000;
@@ -20,13 +20,13 @@ module powerbi.extensibility.visual {
     export function createTooltipServiceWrapper(tooltipService: ITooltipService, rootElement: HTMLElement, handleTouchDelay: number = DefaultHandleTouchDelay): ITooltipServiceWrapper {
         return new TooltipServiceWrapper(tooltipService, rootElement, handleTouchDelay);
     }
-    
+
     class TooltipServiceWrapper implements ITooltipServiceWrapper {
         private handleTouchTimeoutId: number;
         private visualHostTooltipService: ITooltipService;
         private rootElement: HTMLElement;
         private handleTouchDelay: number;
-        
+
         constructor(tooltipService: ITooltipService, rootElement: HTMLElement, handleTouchDelay: number) {
             this.visualHostTooltipService = tooltipService;
             this.handleTouchDelay = handleTouchDelay;
@@ -118,7 +118,7 @@ module powerbi.extensibility.visual {
             return ret;
         }
 
-        public hide(): void {
+        public hide(immediately = false): void {
             this.visualHostTooltipService.hide({ immediately: true, isTouchEvent: false });
         }
 
