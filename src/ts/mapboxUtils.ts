@@ -64,6 +64,25 @@ module powerbi.extensibility.visual {
             }
         }
 
+        function getCenter(feature) {
+            if (feature && feature.geometry)
+            {
+                if (feature.geometry.type == 'Point') {
+                    return feature.geometry.coordinates
+                }
+
+                const bbox = turf.bbox(feature)
+
+                const pointCollection = turf.helpers.featureCollection([
+                    turf.helpers.point( [bbox[0], bbox[1]]),
+                    turf.helpers.point( [bbox[2], bbox[3]]),
+                ]);
+
+                const center = turf.center(pointCollection);
+                return center.geometry.coordinates
+            }
+        }
+
         export function createClickHandler(mapVisual: MapboxMap) {
             var onClick : Function = debounce(function(e) {
                 const map = mapVisual.getMap()
@@ -86,7 +105,7 @@ module powerbi.extensibility.visual {
                     && features[0].geometry.coordinates
                 ) {
                     map.easeTo({
-                        center: features[0].geometry.coordinates,
+                        center: getCenter(features[0]),
                         zoom: map.getZoom() + 1,
                         duration: 1000
                     });
