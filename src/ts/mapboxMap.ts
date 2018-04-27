@@ -138,7 +138,6 @@ module powerbi.extensibility.visual {
                 }), 'top-left');
             }*/
             this.map.on('load', () => {
-                this.onUpdate(this.map, this.settings, true, this.updatedHandler)
                 this.addClick();
             });
             this.map.on('zoom', () => {
