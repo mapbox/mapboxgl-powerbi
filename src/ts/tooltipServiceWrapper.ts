@@ -67,12 +67,7 @@ module powerbi.extensibility.visual {
                 rootNode.style.cursor = 'grab';
 
                 const hideTooltip = (e) => {
-                    rootNode.style.cursor = '-webkit-grab';
-                    rootNode.style.cursor = 'grab';
-                    this.visualHostTooltipService.hide({
-                        isTouchEvent: false,
-                        immediately: false
-                    });
+                    this.hide()
                 };
 
                 const showTooltip = this.debounce((e) => {
@@ -119,7 +114,14 @@ module powerbi.extensibility.visual {
         }
 
         public hide(immediately = false): void {
-            this.visualHostTooltipService.hide({ immediately: true, isTouchEvent: false });
+            const rootNode = this.rootElement;
+
+            rootNode.style.cursor = '-webkit-grab';
+            rootNode.style.cursor = 'grab';
+            this.visualHostTooltipService.hide({
+                isTouchEvent: false,
+                immediately
+            });
         }
 
         private makeTooltipEventArgs<T>(e: any): TooltipEventArgs<T> {
