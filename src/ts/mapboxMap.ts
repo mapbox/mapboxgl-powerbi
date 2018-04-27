@@ -110,8 +110,8 @@ module powerbi.extensibility.visual {
                 zoom: this.settings.api.zoom,
                 center: [this.settings.api.startLong, this.settings.api.startLat],
                 transformRequest: (url, resourceType) => {
-                    if ( url.slice(0,22) == 'https://api.mapbox.com' || 
-                        url.slice(0,26) == 'https://a.tiles.mapbox.com' || 
+                    if ( url.slice(0,22) == 'https://api.mapbox.com' ||
+                        url.slice(0,26) == 'https://a.tiles.mapbox.com' ||
                         url.slice(0,26) == 'https://b.tiles.mapbox.com' ||
                         url.slice(0,26) == 'https://c.tiles.mapbox.com') {
                         //Add PowerBI Plugin identifier for Mapbox API traffic
@@ -248,6 +248,10 @@ module powerbi.extensibility.visual {
                     }
                 });
             }))
+        }
+
+        public hideTooltip(): void {
+            this.tooltipServiceWrapper.hide(true)
         }
 
         public updateLayers(dataView : DataView) {
