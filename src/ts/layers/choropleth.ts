@@ -87,7 +87,6 @@ module powerbi.extensibility.visual {
 
                 ChoroplethSettings.fillPredefinedProperties(choroSettings);
 
-                let isGradient = mapboxUtils.shouldUseGradient(roleMap.color, fillColorLimits);
                 let fillClassCount = mapboxUtils.getClassCount(fillColorLimits);
                 let fillDomain: any[] = mapboxUtils.getNaturalBreaks(fillColorLimits, fillClassCount);
                 const choroColorSettings = [choroSettings.minColor, choroSettings.medColor, choroSettings.maxColor];
@@ -104,32 +103,29 @@ module powerbi.extensibility.visual {
                 let validStops = true;
 
                 for (let row of choroplethData) {
-                    let skipRow = false;
                     const location = row[roleMap.location.displayName];
 
                     if (location == null || location == undefined) {
-                        //Stop value cannot be undefined or null; don't add this row to the stops
-                        skipRow = true;
+                        // Stop value cannot be undefined or null; don't add this row to the stops
+                        continue;
                     }
 
-                    if (!skipRow) {
-                        let color: any = colorStops(row[roleMap.color.displayName]);
-                        let outlineColor: any = colorStops(row[roleMap.color.displayName]);
-                        outlineColor = outlineColor.darken(2);
+                    let color: any = colorStops(row[roleMap.color.displayName]);
+                    let outlineColor: any = colorStops(row[roleMap.color.displayName]);
+                    outlineColor = outlineColor.darken(2);
 
-                        if (existingStops[location]) {
-                            // Duplicate stop found. In case there are many rows, Mapbox generates so many errors on the
-                            // console, that it can make the entire Power BI plugin unresponsive. This is why we validate
-                            // the stops here, and won't let invalid stops to be passed to Mapbox.
-                            validStops = false;
-                            break;
-                        }
-
-                        existingStops[location] = true;
-                        colors.stops.push([location, color.toString()]);
-                        filter.push(location);
-                        outlineColors.stops.push([location, outlineColor.toString()]);
+                    if (existingStops[location]) {
+                        // Duplicate stop found. In case there are many rows, Mapbox generates so many errors on the
+                        // console, that it can make the entire Power BI plugin unresponsive. This is why we validate
+                        // the stops here, and won't let invalid stops to be passed to Mapbox.
+                        validStops = false;
+                        break;
                     }
+
+                    existingStops[location] = true;
+                    colors.stops.push([location, color.toString()]);
+                    filter.push(location);
+                    outlineColors.stops.push([location, outlineColor.toString()]);
                 }
 
                 if (validStops) {
