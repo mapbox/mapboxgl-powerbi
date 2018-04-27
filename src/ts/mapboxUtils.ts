@@ -104,6 +104,7 @@ module powerbi.extensibility.visual {
                     && features[0].geometry
                     && features[0].geometry.coordinates
                 ) {
+                    mapVisual.hideTooltip()
                     map.easeTo({
                         center: getCenter(features[0]),
                         zoom: map.getZoom() + 1,
