@@ -254,6 +254,10 @@ module powerbi.extensibility.visual {
             }))
         }
 
+        public hideTooltip(): void {
+            this.tooltipServiceWrapper.hide(true)
+        }
+
         public updateLayers(dataView : DataView) {
             // Placeholder to indicate whether data changed or paint prop changed
             // For now this is always true

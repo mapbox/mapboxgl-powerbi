@@ -12,7 +12,7 @@ module powerbi.extensibility.visual {
             layers,
             getTooltipInfoDelegate: (args: TooltipEventArgs<T>) => VisualTooltipDataItem[],
             reloadTooltipDataOnMouseMove?: boolean): void;
-        hide(): void;
+        hide(immediately?: boolean): void;
     }
 
     const DefaultHandleTouchDelay = 1000;
@@ -20,13 +20,13 @@ module powerbi.extensibility.visual {
     export function createTooltipServiceWrapper(tooltipService: ITooltipService, rootElement: HTMLElement, handleTouchDelay: number = DefaultHandleTouchDelay): ITooltipServiceWrapper {
         return new TooltipServiceWrapper(tooltipService, rootElement, handleTouchDelay);
     }
-    
+
     class TooltipServiceWrapper implements ITooltipServiceWrapper {
         private handleTouchTimeoutId: number;
         private visualHostTooltipService: ITooltipService;
         private rootElement: HTMLElement;
         private handleTouchDelay: number;
-        
+
         constructor(tooltipService: ITooltipService, rootElement: HTMLElement, handleTouchDelay: number) {
             this.visualHostTooltipService = tooltipService;
             this.handleTouchDelay = handleTouchDelay;
@@ -67,12 +67,7 @@ module powerbi.extensibility.visual {
                 rootNode.style.cursor = 'grab';
 
                 const hideTooltip = (e) => {
-                    rootNode.style.cursor = '-webkit-grab';
-                    rootNode.style.cursor = 'grab';
-                    this.visualHostTooltipService.hide({
-                        isTouchEvent: false,
-                        immediately: false
-                    });
+                    this.hide()
                 };
 
                 const showTooltip = this.debounce((e) => {
@@ -118,8 +113,15 @@ module powerbi.extensibility.visual {
             return ret;
         }
 
-        public hide(): void {
-            this.visualHostTooltipService.hide({ immediately: true, isTouchEvent: false });
+        public hide(immediately = false): void {
+            const rootNode = this.rootElement;
+
+            rootNode.style.cursor = '-webkit-grab';
+            rootNode.style.cursor = 'grab';
+            this.visualHostTooltipService.hide({
+                isTouchEvent: false,
+                immediately
+            });
         }
 
         private makeTooltipEventArgs<T>(e: any): TooltipEventArgs<T> {
