@@ -71,6 +71,16 @@
                         "for": {
                             "in": "color"
                         }
+                    },
+                    {
+                        "for": {
+                            "in": "latitude"
+                        }
+                    },
+                    {
+                        "for": {
+                            "in": "longitude"
+                        }
                     }
                 ]
             },
