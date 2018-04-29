@@ -41,7 +41,7 @@ module powerbi.extensibility.visual {
                 const sizes = Circle.getSizes(limits.size, map, settings, roleMap.size);
 
                 let isGradient = mapboxUtils.shouldUseGradient(roleMap.color, limits.color);
-                let colors = Circle.getColors(limits.color, isGradient, settings, this.palette, roleMap.color);
+                let colors = Circle.getColors(limits.color, isGradient, settings, this.palette, roleMap.color, colorMap);
 
                 map.setPaintProperty(Circle.ID, 'circle-radius', sizes);
                 map.setPaintProperty(Circle.ID, 'circle-color', colors);
@@ -58,7 +58,7 @@ module powerbi.extensibility.visual {
             return true;
         }
 
-        private static getColors(colorLimits: mapboxUtils.Limits, isGradient: boolean, settings: any, colorPalette: IColorPalette, colorField: any) {
+        private static getColors(colorLimits: mapboxUtils.Limits, isGradient: boolean, settings: any, colorPalette: IColorPalette, colorField: any, colorMap) {
             if (!colorField || colorLimits == null || colorLimits.min == null || colorLimits.max == null || colorLimits.values.length <= 0) {
                 return settings.circle.minColor;
             }
@@ -68,7 +68,7 @@ module powerbi.extensibility.visual {
                 const classCount = mapboxUtils.getClassCount(colorLimits);
 
                 const domain: any[] = mapboxUtils.getNaturalBreaks(colorLimits, classCount);
-                const colors = chroma.scale([settings.circle.minColor,settings.circle.medColor, settings.circle.maxColor]).colors(domain.length)
+                const colors = chroma.scale([settings.circle.minColor, settings.circle.medColor, settings.circle.maxColor]).colors(domain.length)
 
                 const style = ["interpolate", ["linear"], ["to-number", ['get', colorField.displayName]]]
                 domain.map((colorStop, idx) => {
@@ -84,10 +84,13 @@ module powerbi.extensibility.visual {
             let colors = ['match', ['to-string', ['get', colorField.displayName]]];
             colorLimits.values.map( (value, idx) => {
                 colors.push(value.toString());
-                const color = colorPalette.getColor(idx.toString()).value;
+                let color = colorPalette.getColor(idx.toString()).value;
+                if (colorMap[value]) {
+                    color = colorMap[value];
+                }
                 colors.push(color);
             });
-            
+
             // Add transparent as default so that we only see regions
             // for which we have data values
             colors.push('rgba(255,0,0,255)');
