@@ -73,10 +73,11 @@ module powerbi.extensibility.visual {
             return null;
         }
 
-        handleZoom(settings) {
+        handleZoom(settings) : boolean {
             if (settings[this.id].show) {
-                this.source.handleZoom(this.parent.getMap(), settings);
+                return this.source.handleZoom(this.parent.getMap(), settings);
             }
+            return false;
         }
 
         hasTooltip() {

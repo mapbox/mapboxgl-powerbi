@@ -30,7 +30,9 @@ module powerbi.extensibility.visual.data {
         update(map, features, roleMap, settings) {}
         getBounds() : any[] { return this.bounds }
         getLimits() : any { return null }
-        handleZoom(map, settings) {}
+        handleZoom(map, settings) : boolean {
+            return false;
+        }
         getData(map, settings) : any[] { return null }
     }
 }

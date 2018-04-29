@@ -179,8 +179,9 @@ module powerbi.extensibility.visual {
                 if (this.previousZoom != newZoom) {
                     this.previousZoom = newZoom;
                     this.layers.map( layer => {
-                        layer.handleZoom(this.settings);
-                        layer.applySettings(this.settings, this.roleMap, this.colorMap);
+                        if (layer.handleZoom(this.settings)) {
+                            layer.applySettings(this.settings, this.roleMap, this.colorMap);
+                        }
                     });
                 }
             });
@@ -341,7 +342,6 @@ module powerbi.extensibility.visual {
         public updateLayers(dataView: DataView) {
             // Placeholder to indicate whether data changed or paint prop changed
             // For now this is always true
-            let dataChanged = true;
             const features = mapboxConverter.convert(dataView);
 
             try {
@@ -356,9 +356,8 @@ module powerbi.extensibility.visual {
                         categories[value] = true;
                     }
                 });
-                console.log("Categories: ", categories);
 
-                //this.dataPoints = this.fillDataPointsLikeInExample(cat);
+                // this.dataPoints = this.fillDataPointsLikeInExample(cat);
                 this.dataPoints = this.fillDataPointsOwn(categories, cat);
 
             } catch (err) {
