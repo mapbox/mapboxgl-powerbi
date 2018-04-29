@@ -68,6 +68,7 @@
         "no-string-based-set-immediate": true,
         "no-string-based-set-interval": true,
         "no-string-based-set-timeout": true,
+        "no-unused-variable": true,
         "non-literal-require": true,
         "possible-timing-attack": true,
         "react-anchor-blank-noopener": true,

@@ -3,4 +3,5 @@ module.exports = {
     helpers: require('@turf/helpers'),
     meta: require('@turf/meta'),
     bbox: require('@turf/bbox').default,
+    center: require('@turf/center').default,
 };

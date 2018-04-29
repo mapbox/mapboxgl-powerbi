@@ -1,9 +1,0 @@
-{
-  "globalDependencies": {
-    "d3": "registry:dt/d3#0.0.0+20160907005744",
-    "jasmine": "registry:dt/jasmine#2.5.0+20161025102649",
-    "jasmine-jquery": "registry:dt/jasmine-jquery#0.0.0+20160317120654",
-    "jquery": "registry:dt/jquery#1.10.0+20160929162922",
-    "lodash": "registry:dt/lodash#4.14.0+20161028154038"
-  }
-}

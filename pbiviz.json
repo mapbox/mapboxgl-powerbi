@@ -18,8 +18,8 @@
     "icon": "assets/icon.png"
   },
   "externalJS": [
-    "src/modules/mapbox-gl/mapbox-gl.js",
-    "src/js/supercluster.min.js",
+    "node_modules/mapbox-gl/dist/mapbox-gl.js",
+    "node_modules/supercluster/dist/supercluster.min.js",
     "src/js/turf-bundle-min.js",
     "node_modules/chroma-js/chroma.min.js",
     "src/js/mapboxglAdaptor.js",
