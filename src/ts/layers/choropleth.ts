@@ -6,11 +6,13 @@ module powerbi.extensibility.visual {
         private vectorTileUrl: string = "";
         private sourceLayer: string = "";
         private vectorProperty: string = "";
+        private palette: IColorPalette;
 
-        constructor(map: MapboxMap) {
+        constructor(map: MapboxMap, palette: IColorPalette) {
             super(map);
             this.id = Choropleth.ID;
             this.source = data.Sources.Choropleth;
+            this.palette = palette;
         }
 
         getLayerIDs() {
@@ -86,11 +88,25 @@ module powerbi.extensibility.visual {
                 const fillColorLimits = this.source.getLimits();
 
                 ChoroplethSettings.fillPredefinedProperties(choroSettings);
-
                 let fillClassCount = mapboxUtils.getClassCount(fillColorLimits);
-                let fillDomain: any[] = mapboxUtils.getNaturalBreaks(fillColorLimits, fillClassCount);
                 const choroColorSettings = [choroSettings.minColor, choroSettings.medColor, choroSettings.maxColor];
-                let colorStops = chroma.scale(choroColorSettings).domain(fillDomain);
+                let isGradient = mapboxUtils.shouldUseGradient(roleMap.color, fillColorLimits.color);
+                                
+                let getColorStop = null;
+                if (isGradient) {
+                    let fillDomain: any[] = mapboxUtils.getNaturalBreaks(fillColorLimits, fillClassCount);
+                    getColorStop = chroma.scale(choroColorSettings).domain(fillDomain);                    
+                }
+                else {
+                    let colorStops = {};
+                    fillColorLimits.values.map( (value, idx) => {
+                        const color = chroma(this.palette.getColor(idx.toString()).value);
+                        colorStops[value] = color;                    
+                    });
+                    getColorStop = (value) => {
+                        return colorStops[value]
+                    }
+                }
 
                 // We use the old property function syntax here because the data-join technique is faster to parse still than expressions with this method
                 const defaultColor = 'rgba(0,0,0,0)';
@@ -99,27 +115,26 @@ module powerbi.extensibility.visual {
                 let filter = ['in', choroSettings.vectorProperty];
                 const choroplethData = this.source.getData(map, settings);
 
-                let existingStops = {};
-                let validStops = true;
+                let existingStops = {};                
 
                 for (let row of choroplethData) {
                     const location = row[roleMap.location.displayName];
 
-                    if (location == null || location == undefined) {
+                    let color: any = getColorStop(row[roleMap.color.displayName]);
+                    let outlineColor: any = getColorStop(row[roleMap.color.displayName]);
+
+                    if (!location || !color || !outlineColor) {
                         // Stop value cannot be undefined or null; don't add this row to the stops
                         continue;
                     }
-
-                    let color: any = colorStops(row[roleMap.color.displayName]);
-                    let outlineColor: any = colorStops(row[roleMap.color.displayName]);
+                
                     outlineColor = outlineColor.darken(2);
 
                     if (existingStops[location]) {
                         // Duplicate stop found. In case there are many rows, Mapbox generates so many errors on the
                         // console, that it can make the entire Power BI plugin unresponsive. This is why we validate
-                        // the stops here, and won't let invalid stops to be passed to Mapbox.
-                        validStops = false;
-                        break;
+                        // the stops here, and won't let invalid stops to be passed to Mapbox.                        
+                        continue;
                     }
 
                     existingStops[location] = true;
@@ -127,15 +142,10 @@ module powerbi.extensibility.visual {
                     filter.push(location);
                     outlineColors.stops.push([location, outlineColor.toString()]);
                 }
-
-                if (validStops) {
-                    map.setPaintProperty(Choropleth.ID, 'fill-color', colors);
-                    map.setFilter(Choropleth.ID, filter);
-                    map.setFilter(Choropleth.OutlineID, filter);
-                } else {
-                    // Default color should represent error to the user, that's all we have for now
-                    map.setPaintProperty(Choropleth.ID, 'fill-color', defaultColor);
-                }
+                                
+                map.setPaintProperty(Choropleth.ID, 'fill-color', colors);
+                map.setFilter(Choropleth.ID, filter);
+                map.setFilter(Choropleth.OutlineID, filter);                
 
                 map.setPaintProperty(Choropleth.ID, 'fill-outline-color', 'rgba(0,0,0,0.05)');
                 map.setPaintProperty(Choropleth.ID, 'fill-opacity', settings.choropleth.opacity / 100);
@@ -178,7 +188,10 @@ module powerbi.extensibility.visual {
             }
 
             return Object.keys(dataUnderLocation).map(key => {
-                const value = dataUnderLocation[key] ? dataUnderLocation[key].toString() : 'null';
+                let value = 'null';
+                if (dataUnderLocation[key] !== null && dataUnderLocation[key] !== undefined) {
+                    value = dataUnderLocation[key].toString();
+                }
                 return {
                     displayName: key,
                     value

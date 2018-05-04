@@ -107,7 +107,7 @@ module powerbi.extensibility.visual {
                 return this.roleMap.cluster.displayName;
             }))
             this.layers.push(new Circle(this, this.colorPalette))
-            this.layers.push(new Choropleth(this))
+            this.layers.push(new Choropleth(this, this.colorPalette));
 
             const mapOptions = {
                 container: this.mapDiv,
