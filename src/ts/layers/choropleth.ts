@@ -115,7 +115,8 @@ module powerbi.extensibility.visual {
                 let filter = ['in', choroSettings.vectorProperty];
                 const choroplethData = this.source.getData(map, settings);
 
-                let existingStops = {};                
+                let existingStops = {};
+                let validStops = true;
 
                 for (let row of choroplethData) {
                     const location = row[roleMap.location.displayName];
@@ -133,8 +134,9 @@ module powerbi.extensibility.visual {
                     if (existingStops[location]) {
                         // Duplicate stop found. In case there are many rows, Mapbox generates so many errors on the
                         // console, that it can make the entire Power BI plugin unresponsive. This is why we validate
-                        // the stops here, and won't let invalid stops to be passed to Mapbox.                        
-                        continue;
+                        // the stops here, and won't let invalid stops to be passed to Mapbox.
+                        validStops = false;
+                        break;
                     }
 
                     existingStops[location] = true;
@@ -142,10 +144,15 @@ module powerbi.extensibility.visual {
                     filter.push(location);
                     outlineColors.stops.push([location, outlineColor.toString()]);
                 }
-                                
-                map.setPaintProperty(Choropleth.ID, 'fill-color', colors);
-                map.setFilter(Choropleth.ID, filter);
-                map.setFilter(Choropleth.OutlineID, filter);                
+
+                if (validStops) {
+                    map.setPaintProperty(Choropleth.ID, 'fill-color', colors);
+                    map.setFilter(Choropleth.ID, filter);
+                    map.setFilter(Choropleth.OutlineID, filter);
+                } else {
+                    // Default color should represent error to the user, that's all we have for now
+                    map.setPaintProperty(Choropleth.ID, 'fill-color', defaultColor);
+                }
 
                 map.setPaintProperty(Choropleth.ID, 'fill-outline-color', 'rgba(0,0,0,0.05)');
                 map.setPaintProperty(Choropleth.ID, 'fill-opacity', settings.choropleth.opacity / 100);
