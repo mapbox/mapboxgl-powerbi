@@ -32,7 +32,7 @@ module powerbi.extensibility.visual {
 
         export const MissingGeo = `
             <h4>
-                Add longitude & latitude fields to see your Mapbox viz.
+                Add longitude & latitude OR location & color fields to see your data on the map.
             </h4>
             <img style="padding-bottom: 20px;" src="https://dl.dropbox.com/s/aobsdsrzn0ewc2t/add-long-lat.png"></img><br>
             <img src="https://dl.dropbox.com/s/5io6dvr1l8gcgtp/mapbox-logo-color.png"></img>
