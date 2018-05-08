@@ -156,7 +156,7 @@ module powerbi.extensibility.visual {
                 else {
                     // data are non-geojson objects for a choropleth
                     data.forEach(f => {
-                        if (f[myproperty]) {
+                        if (f[myproperty] !== undefined && f[myproperty] !== null) {
                             const value = f[myproperty];
                             if (!min || value < min) { min = value }
                             if (!max || value > max) { max = value }
