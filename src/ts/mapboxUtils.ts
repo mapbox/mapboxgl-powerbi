@@ -18,6 +18,7 @@ module powerbi.extensibility.visual {
 
         export function shouldUseGradient(colorColumn, colorLimits: { min: any; max: any; values: any; }) {
             if (colorColumn != null && colorColumn.isMeasure) {
+                console.log(colorColumn)
                 return true
             }
 

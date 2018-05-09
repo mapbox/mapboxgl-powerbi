@@ -30,6 +30,12 @@ module powerbi.extensibility.visual {
             const outlineLayer = mapboxUtils.decorateLayer({
                 id: Choropleth.OutlineID,
                 type: 'line',
+                layout: {
+                    "line-join": "round"
+                },
+                paint: {
+                    "line-width": 0
+                },
                 source: 'choropleth-source',
                 "source-layer": settings.choropleth.sourceLayer
             });
@@ -91,7 +97,7 @@ module powerbi.extensibility.visual {
                 let fillClassCount = mapboxUtils.getClassCount(fillColorLimits);
                 const choroColorSettings = [choroSettings.minColor, choroSettings.medColor, choroSettings.maxColor];
                 let isGradient = mapboxUtils.shouldUseGradient(roleMap.color, fillColorLimits.color);
-                                
+
                 let getColorStop = null;
                 if (isGradient) {
                     let fillDomain: any[] = mapboxUtils.getNaturalBreaks(fillColorLimits, fillClassCount);
@@ -135,6 +141,7 @@ module powerbi.extensibility.visual {
                         // Duplicate stop found. In case there are many rows, Mapbox generates so many errors on the
                         // console, that it can make the entire Power BI plugin unresponsive. This is why we validate
                         // the stops here, and won't let invalid stops to be passed to Mapbox.
+                        console.log('invalidStops')
                         validStops = false;
                         break;
                     }
