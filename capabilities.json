@@ -126,14 +126,14 @@
           "type": {
             "enumeration": [
               {
-                "value": "mapbox:\/\/styles\/mapbox\/dark-v9?optimize=true",
-                "displayName": "Dark",
-                "displayNameKey": "dark_v9"
-              },
-                            {
                 "value": "mapbox:\/\/styles\/mapbox\/light-v9?optimize=true",
                 "displayName": "Light",
                 "displayNameKey": "light_v9"
+              },
+              {
+                "value": "mapbox:\/\/styles\/mapbox\/dark-v9?optimize=true",
+                "displayName": "Dark",
+                "displayNameKey": "dark_v9"
               },
               {
                 "value": "mapbox:\/\/styles\/mapbox\/streets-v10?optimize=true",
@@ -178,7 +178,7 @@
         "styleUrl": {
           "displayName": "Style URL",
           "displayNameKey": "styleUrl",
-          "description": "Mapbox URL for custom style",
+          "description": "Mapbox URL to a custom style you created on your Mapbox account.  See https://www.mapbox.com/help/studio-manual/ for a guide on creating map styles in Mapbox Studio",
           "type": {
             "text": true
           },
@@ -587,25 +587,20 @@
                 "displayNameKey": "usaStates"
               },
               {
-                "value": "mapbox://mapbox.pbi-us-counties-v1",
-                "displayName": "US Counties",
-                "displayNameKey": "usaCounties"
-              },
-              {
                 "value": "mapbox://mapbox.pbi-us-postcodes-v1",
-                "displayName": "US Postcodes (5-digit)",
+                "displayName": "US Postcodes ZCTA",
                 "displayNameKey": "usaPostcodes5digit"
               },
               {
                 "value": "custom",
-                "displayName": "Custom...",
+                "displayName": "Custom Tileset",
                 "displayNameKey": "custom"
               }
             ]
           },
           "displayName": "Data",
           "displayNameKey": "choroplethData",
-          "description": "Built-in Mapbox boundaries or a custom one"
+          "description": "Select a boundary tileset.  Select from Global Countries, USA States, and USA Postcodes; or create your own boundaries by uploading shapes to your Mapbox account.  See https://www.mapbox.com/help/studio-manual-uploads/ for a tutorial on how to upload your own boundaries.  Email help@mapbox.com to ask about access to global administrative and postal boundaries."
         },
         "minColor": {
           "displayName": "Min Color",

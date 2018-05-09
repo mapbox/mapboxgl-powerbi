@@ -117,7 +117,8 @@ module powerbi.extensibility.visual {
                     if ( url.slice(0,22) == 'https://api.mapbox.com' ||
                         url.slice(0,26) == 'https://a.tiles.mapbox.com' ||
                         url.slice(0,26) == 'https://b.tiles.mapbox.com' ||
-                        url.slice(0,26) == 'https://c.tiles.mapbox.com') {
+                        url.slice(0,26) == 'https://c.tiles.mapbox.com' ||
+                        url.slice(0,26) == 'https://d.tiles.mapbox.com' ) {
                         //Add PowerBI Plugin identifier for Mapbox API traffic
                         return {
                            url: [url.slice(0, url.indexOf("?")+1), "pluginName=PowerBI&", url.slice(url.indexOf("?")+1)].join('')
@@ -135,15 +136,6 @@ module powerbi.extensibility.visual {
             this.map.addControl(new mapboxgl.NavigationControl());
             this.map.addControl(this.autoZoomControl);
 
-            // Future option to enable search bar / geocoder
-            /*if (document.getElementsByClassName('mapbox-gl-geocoder').length == 0) {
-                this.map.addControl(new mapbox_geocoder({
-                    accessToken: this.settings.api.accessToken,
-                }), 'top-left');
-            }*/
-            this.map.on('load', () => {
-                this.addClick();
-            });
             this.map.on('zoom', () => {
                 const newZoom = Math.floor(this.map.getZoom())
                 if (this.previousZoom != newZoom) {
@@ -202,7 +194,7 @@ module powerbi.extensibility.visual {
                 return acc;
             }, {});
 
-            if ((this.settings.circle.show || this.settings.cluster.show || this.settings.heatmap.show) && !(roles.latitude && roles.longitude)) {
+            if ((this.settings.circle.show || this.settings.cluster.show || this.settings.heatmap.show) && (!(roles.latitude && roles.longitude))) {
                 this.errorDiv.innerHTML = Templates.MissingGeo;
                 return false;
             }
@@ -274,15 +266,6 @@ module powerbi.extensibility.visual {
             for (let datasource of datasources.keys()) {
                 datasource.update(this.map, features, this.roleMap, this.settings);
             };
-
-
-            // TODO has to do this async as choropleth datasource may not yet be added
-            // and bounds are not filled
-            //this.bounds = turf.bbox(turf.helpers.featureCollection(features));
-            //this.bounds = this.layers.choropleth.getBounds(this.settings, this.bounds);
-            //if (this.bounds && this.bounds.length > 0 && this.bounds[0] == null) {
-            //this.bounds = null
-            //}
 
             this.layers.map(layer => {
                 if (layer.hasTooltip()) {
