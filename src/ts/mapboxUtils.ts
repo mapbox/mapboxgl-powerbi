@@ -84,7 +84,7 @@ module powerbi.extensibility.visual {
         }
 
         export function createClickHandler(mapVisual: MapboxMap) {
-            var onClick : Function = debounce(function(e) {
+            var onClick : Function = function(e) {
                 const map = mapVisual.getMap()
 
                 // map.queryRenderedFeatures fails
@@ -111,8 +111,7 @@ module powerbi.extensibility.visual {
                         duration: 1000
                     });
                 }
-
-            }, 22, false);
+            }
 
             return onClick
         };
@@ -194,23 +193,6 @@ module powerbi.extensibility.visual {
                 }
             }
         }
-
-        const debounce = (func, wait, immediate) => {
-            let timeout;
-            let returnFunction : any = function() {
-                const context = this, args = arguments;
-                var callNow = immediate && !timeout;
-                clearTimeout(timeout);
-                timeout = setTimeout(() => {
-                    timeout = null;
-                    if (!immediate) func.apply(context, args);
-                }, wait);
-                if (callNow) func.apply(context, args);
-            };
-
-            return returnFunction
-        };
-
     }
 }
 

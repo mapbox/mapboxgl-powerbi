@@ -136,15 +136,6 @@ module powerbi.extensibility.visual {
             this.map.addControl(new mapboxgl.NavigationControl());
             this.map.addControl(this.autoZoomControl);
 
-            // Future option to enable search bar / geocoder
-            /*if (document.getElementsByClassName('mapbox-gl-geocoder').length == 0) {
-                this.map.addControl(new mapbox_geocoder({
-                    accessToken: this.settings.api.accessToken,
-                }), 'top-left');
-            }*/
-            this.map.on('load', () => {
-                this.addClick();
-            });
             this.map.on('zoom', () => {
                 const newZoom = Math.floor(this.map.getZoom())
                 if (this.previousZoom != newZoom) {
@@ -203,7 +194,7 @@ module powerbi.extensibility.visual {
                 return acc;
             }, {});
 
-            if ((this.settings.circle.show || this.settings.cluster.show || this.settings.heatmap.show) && !(roles.latitude && roles.longitude)) {
+            if ((this.settings.circle.show || this.settings.cluster.show || this.settings.heatmap.show) && (!(roles.latitude && roles.longitude) || !(roles.location && roles.color))) {
                 this.errorDiv.innerHTML = Templates.MissingGeo;
                 return false;
             }

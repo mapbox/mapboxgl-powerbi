@@ -33,15 +33,15 @@ module powerbi.extensibility.visual {
             this.rootElement = rootElement;
         }
 
-        public debounce = function(func, wait) {
+        public debounce = function(func, wait, immediate) {
             let timeout;
             return function() {
                 let context = this, args = arguments;
                 let later = function() {
                     timeout = null;
-                    func.apply(context, args);
+                    if (!immediate) func.apply(context, args);
                 };
-                let callNow = !timeout;
+                let callNow = immediate && !timeout;
                 clearTimeout(timeout);
                 timeout = setTimeout(later, wait);
                 if (callNow) func.apply(context, args);
@@ -89,7 +89,7 @@ module powerbi.extensibility.visual {
                         dataItems: tooltipInfo,
                         identities: [],
                     });
-                }, 12)
+                }, 12, true)
 
                 layers.map( layerId => {
                     map.off('mouseleave', layerId, hideTooltip);
@@ -97,9 +97,6 @@ module powerbi.extensibility.visual {
 
                     map.off('mousemove', layerId, showTooltip);
                     map.on('mousemove', layerId, showTooltip);
-
-                    map.off('touch', layerId, showTooltip);
-                    map.on('touch', layerId, showTooltip);
                 });
         }
 
