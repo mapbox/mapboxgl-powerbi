@@ -33,7 +33,7 @@ module powerbi.extensibility.visual {
 
     export class APISettings {
         public accessToken: string = "";
-        public style: string = "mapbox:\/\/styles\/mapbox\/dark-v9?optimize=true";
+        public style: string = "mapbox:\/\/styles\/mapbox\/light-v9?optimize=true";
         public styleUrl: string = "";
         public zoom : number = 0;
         public startLong : number = 0;
@@ -113,15 +113,15 @@ module powerbi.extensibility.visual {
         static readonly PREDEFINED_VECTOR_PROPERTY = "name";
 
         public show: boolean = false;
-        public minColor: string = "#0571b0";
-        public medColor: string = "#f7f7f7";
-        public maxColor: string = "#ca0020";
+        public minColor: string = "#edf8b1";
+        public medColor: string = "#7fcdbb";
+        public maxColor: string = "#2c7fb8";
         public minZoom: number = 0;
         public maxZoom: number = 22;
         public data: string = ChoroplethSettings.US_STATES_TILE_URL;  // Let US states be the default
 
-        public vectorTileUrl: string = ChoroplethSettings.US_STATES_TILE_URL;
-        public sourceLayer: string = 'pbi-us-states';
+        public vectorTileUrl: string = ChoroplethSettings.GLOBAL_COUNTRIES_TILE_URL;
+        public sourceLayer: string = ChoroplethSettings.GLOBAL_COUNTRIES_SOURCE_LAYER;
         public vectorProperty: string = ChoroplethSettings.PREDEFINED_VECTOR_PROPERTY;
         public opacity: number = 80;
         public outlineColor: string = "#bdbdbd";

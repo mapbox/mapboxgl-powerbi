@@ -194,7 +194,7 @@ module powerbi.extensibility.visual {
                 return acc;
             }, {});
 
-            if ((this.settings.circle.show || this.settings.cluster.show || this.settings.heatmap.show) && (!(roles.latitude && roles.longitude) || !(roles.location && roles.color))) {
+            if ((this.settings.circle.show || this.settings.cluster.show || this.settings.heatmap.show) && (!(roles.latitude && roles.longitude))) {
                 this.errorDiv.innerHTML = Templates.MissingGeo;
                 return false;
             }
