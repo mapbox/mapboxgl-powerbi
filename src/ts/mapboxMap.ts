@@ -194,12 +194,24 @@ module powerbi.extensibility.visual {
                 return acc;
             }, {});
 
+            /*if (!this.settings.choropleth.show && roles.location && roles.color) {
+                // Turn Choropleth layer on if location and color data are available
+                this.settings.choropleth.show = true;
+                this.settings.circle.show = false;
+                this.settings.heatmap.show = false;
+                this.settings.cluster.show = false;
+            }
+
+            if (this.settings.choropleth.show && !roles.location && !roles.color) {
+                // Turn Choropleth layer off if location and color data are available
+                this.settings.choropleth.show = false;
+            }*/
+
             if ((this.settings.circle.show || this.settings.cluster.show || this.settings.heatmap.show) && (!(roles.latitude && roles.longitude))) {
                 this.errorDiv.innerHTML = Templates.MissingGeo;
                 return false;
             }
             else if (this.settings.choropleth.show && ((!roles.location || !roles.color) || (roles.latitude || roles.longitude || roles.size))) {
-
                 this.errorDiv.innerHTML = Templates.MissingLocationOrColor;
                 return false;
             }
