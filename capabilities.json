@@ -57,8 +57,21 @@
       "description": "Values to display in tooltips"
     }
   ],
+    "drilldown": {
+    "roles": ["location"]
+  },
   "dataViewMappings": [
     {
+      "conditions": [
+        {
+          "location": {
+            "max": 1
+          },
+          "color": {
+            "max": 1
+          }
+        }
+      ],
         "categorical": {
             "categories": {
                 "dataReductionAlgorithm": {
