@@ -16,18 +16,18 @@ module powerbi.extensibility.visual {
             dataViewObjectParser: DataViewObjectsParser,
             options: EnumerateVisualObjectInstancesOptions): VisualObjectInstanceEnumeration {
 
-            let settings: MapboxSettings = <MapboxSettings>dataViewObjectParser;
-            let instanceEnumeration = DataViewObjectsParser.enumerateObjectInstances(dataViewObjectParser, options);
+                let settings: MapboxSettings = <MapboxSettings>dataViewObjectParser;
+                let instanceEnumeration = DataViewObjectsParser.enumerateObjectInstances(dataViewObjectParser, options);
 
-            switch (options.objectName) {
-                case 'api':
-                case 'choropleth': {
-                    return settings[options.objectName].enumerateObjectInstances(instanceEnumeration);
+                switch (options.objectName) {
+                    case 'api':
+                    case 'choropleth': {
+                        return settings[options.objectName].enumerateObjectInstances(instanceEnumeration);
+                    }
+                    default: {
+                        return instanceEnumeration;
+                    }
                 }
-                default: {
-                    return instanceEnumeration;
-                }
-            }
         }
     }
 
@@ -35,10 +35,10 @@ module powerbi.extensibility.visual {
         public accessToken: string = "";
         public style: string = "mapbox:\/\/styles\/mapbox\/light-v9?optimize=true";
         public styleUrl: string = "";
-        public zoom: number = 0;
-        public startLong: number = 0;
-        public startLat: number = 0;
-        public autozoom: boolean = true;
+        public zoom : number = 0;
+        public startLong : number = 0;
+        public startLat : number = 0;
+        public autozoom : boolean = true;
 
         public enumerateObjectInstances(objectEnumeration) {
             let instances = objectEnumeration.instances;

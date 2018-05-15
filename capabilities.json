@@ -213,7 +213,7 @@
           "displayNameKey": "autozoom",
           "description": "Toggle autozoom on/off",
           "type": {
-            "boolean": true
+            "bool": true
           }
         }
       }

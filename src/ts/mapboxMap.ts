@@ -44,14 +44,14 @@ module powerbi.extensibility.visual {
 
         onUpdate(map, settings, zoom, updatedHandler: Function) {
             try {
-                this.layers.map( layer => {
+                this.layers.map(layer => {
                     layer.applySettings(settings, this.roleMap);
                 });
 
                 if (zoom) {
-                    const bounds = this.layers.map( layer => {
+                    const bounds = this.layers.map(layer => {
                         return layer.getBounds(settings);
-                    }).reduce( (acc, bounds) => {
+                    }).reduce((acc, bounds) => {
                         if (!bounds) {
                             return acc;
                         }
@@ -114,20 +114,20 @@ module powerbi.extensibility.visual {
                 zoom: this.settings.api.zoom,
                 center: [this.settings.api.startLong, this.settings.api.startLat],
                 transformRequest: (url, resourceType) => {
-                    if ( url.slice(0,22) == 'https://api.mapbox.com' ||
-                        url.slice(0,26) == 'https://a.tiles.mapbox.com' ||
-                        url.slice(0,26) == 'https://b.tiles.mapbox.com' ||
-                        url.slice(0,26) == 'https://c.tiles.mapbox.com' ||
-                        url.slice(0,26) == 'https://d.tiles.mapbox.com' ) {
+                    if (url.slice(0, 22) == 'https://api.mapbox.com' ||
+                        url.slice(0, 26) == 'https://a.tiles.mapbox.com' ||
+                        url.slice(0, 26) == 'https://b.tiles.mapbox.com' ||
+                        url.slice(0, 26) == 'https://c.tiles.mapbox.com' ||
+                        url.slice(0, 26) == 'https://d.tiles.mapbox.com') {
                         //Add PowerBI Plugin identifier for Mapbox API traffic
                         return {
-                           url: [url.slice(0, url.indexOf("?")+1), "pluginName=PowerBI&", url.slice(url.indexOf("?")+1)].join('')
-                         }
-                     }
-                     else {
-                         //Do not transform URL for non Mapbox GET requests
-                         return {url: url}
-                     }
+                            url: [url.slice(0, url.indexOf("?") + 1), "pluginName=PowerBI&", url.slice(url.indexOf("?") + 1)].join('')
+                        }
+                    }
+                    else {
+                        //Do not transform URL for non Mapbox GET requests
+                        return { url: url }
+                    }
                 }
             }
 
@@ -140,7 +140,7 @@ module powerbi.extensibility.visual {
                 const newZoom = Math.floor(this.map.getZoom())
                 if (this.previousZoom != newZoom) {
                     this.previousZoom = newZoom;
-                    this.layers.map( layer => {
+                    this.layers.map(layer => {
                         layer.handleZoom(this.settings);
                         layer.applySettings(this.settings, this.roleMap);
                     });
@@ -193,19 +193,6 @@ module powerbi.extensibility.visual {
                 }
                 return acc;
             }, {});
-
-            /*if (!this.settings.choropleth.show && roles.location && roles.color) {
-                // Turn Choropleth layer on if location and color data are available
-                this.settings.choropleth.show = true;
-                this.settings.circle.show = false;
-                this.settings.heatmap.show = false;
-                this.settings.cluster.show = false;
-            }
-
-            if (this.settings.choropleth.show && !roles.location && !roles.color) {
-                // Turn Choropleth layer off if location and color data are available
-                this.settings.choropleth.show = false;
-            }*/
 
             if ((this.settings.circle.show || this.settings.cluster.show || this.settings.heatmap.show) && (!(roles.latitude && roles.longitude))) {
                 this.errorDiv.innerHTML = Templates.MissingGeo;
@@ -262,13 +249,13 @@ module powerbi.extensibility.visual {
             this.tooltipServiceWrapper.hide(true)
         }
 
-        public updateLayers(dataView : DataView) {
+        public updateLayers(dataView: DataView) {
             // Placeholder to indicate whether data changed or paint prop changed
             // For now this is always true
             let dataChanged = true;
             const features = mapboxConverter.convert(dataView);
-            let datasources :  Map<any, boolean> = new Map<any, boolean>()
-            this.layers.map( layer => {
+            let datasources: Map<any, boolean> = new Map<any, boolean>()
+            this.layers.map(layer => {
                 const source = layer.getSource(this.settings);
                 if (source) {
                     datasources.set(source, true)
@@ -312,12 +299,12 @@ module powerbi.extensibility.visual {
 
             if (!this.map) {
                 this.addMap();
+                this.autoZoomControl.addClickHandler(function() { this.settings.api.autozoom = !this.autoZoomControl.isPinned() });
             }
 
             if (mapboxgl.accessToken != this.settings.api.accessToken) {
                 mapboxgl.accessToken = this.settings.api.accessToken;
             }
-
 
             let style = this.settings.api.style == 'custom' ? this.settings.api.styleUrl : this.settings.api.style;
             if (this.mapStyle == '' || !this.map.isStyleLoaded() || this.mapStyle != style) {
