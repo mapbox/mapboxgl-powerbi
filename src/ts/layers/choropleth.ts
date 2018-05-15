@@ -194,7 +194,7 @@ module powerbi.extensibility.visual {
             const choroplethData = choroplethSource.getData(settings, this.parent.getMap());
             const locationProperty = roleMap.location.displayName;
             const dataUnderLocation = choroplethData.find(cd => {
-                return cd[locationProperty] === choroVectorData.value;
+                return cd[locationProperty] == choroVectorData.value;
             });
 
             if (!dataUnderLocation) {
