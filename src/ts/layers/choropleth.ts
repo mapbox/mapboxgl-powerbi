@@ -50,26 +50,32 @@ module powerbi.extensibility.visual {
             this.source.removeFromMap(map, Choropleth.ID);
         }
 
-
-        getBounds(): any[] {
+        getBounds(settings): any[] {
             const map = this.parent.getMap();
-            let source : any;
-            let bounds : any[];
+            let source: any;
+            let bounds: any[];
+
             if (map.getSource('choropleth-source') && map.isSourceLoaded('choropleth-source')) {
                 source = map.getSource('choropleth-source');
                 bounds = source.bounds;
+                return bounds
             }
             else {
-                let sourceLoaded = function (e) {
+                let sourceLoaded = async function (e) {
                     if (e.sourceId === 'choropleth-source') {
                         source = map.getSource('choropleth-source');
                         map.off('sourcedata', sourceLoaded);
                         bounds = source.bounds;
+                        if (settings.api.autozoom) {
+                            map.fitBounds(bounds, {
+                                padding: 20,
+                                maxZoom: 15,
+                            });
+                        }
                     }
                 }
                 map.on('sourcedata', sourceLoaded);
             }
-            return bounds
         }
 
         getSource(settings) {
