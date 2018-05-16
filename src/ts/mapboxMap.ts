@@ -16,7 +16,6 @@ module powerbi.extensibility.visual {
         private roleMap: any;
         private previousZoom: number;
         private colorPalette: IColorPalette;
-        private previousPin: boolean;
 
         constructor(options: VisualConstructorOptions) {
             // Map initialization
@@ -317,7 +316,7 @@ module powerbi.extensibility.visual {
                 // param every time so we need to set a different event handler on every
                 // style change and deregister it when it ran.
                 const delayedUpdate = (e) => {
-                    this.updateLayers(dataView)
+                    this.updateLayers(dataView);
                     this.map.off('style.load', delayedUpdate);
                 }
                 this.map.on('style.load', delayedUpdate);

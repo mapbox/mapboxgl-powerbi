@@ -16,7 +16,7 @@ module powerbi.extensibility.visual {
         }
 
         getLayerIDs() {
-            return [ Choropleth.ID, Choropleth.OutlineID ];
+            return [Choropleth.ID, Choropleth.OutlineID];
         }
 
         addLayer(settings, beforeLayerId) {
@@ -51,13 +51,25 @@ module powerbi.extensibility.visual {
         }
 
 
-        getBounds() : any[] {
+        getBounds(): any[] {
             const map = this.parent.getMap();
-            const source: any = map.getSource('choropleth-source');
-            if (source && source.bounds) {
-                return source.bounds
+            let source : any;
+            let bounds : any[];
+            if (map.getSource('choropleth-source') && map.isSourceLoaded('choropleth-source')) {
+                source = map.getSource('choropleth-source');
+                bounds = source.bounds;
             }
-            return null
+            else {
+                let sourceLoaded = function (e) {
+                    if (e.sourceId === 'choropleth-source') {
+                        source = map.getSource('choropleth-source');
+                        map.off('sourcedata', sourceLoaded);
+                        bounds = source.bounds;
+                    }
+                }
+                map.on('sourcedata', sourceLoaded);
+            }
+            return bounds
         }
 
         getSource(settings) {
@@ -67,9 +79,9 @@ module powerbi.extensibility.visual {
 
                 // The choropleth layer is different since it is a vector tile source, not geojson.  We can't modify it in-place.
                 // If it is, we'll create the vector tile source from the URL.  If not, we'll make sure the source doesn't exist.
-                if (this.vectorTileUrl  != choroSettings.vectorTileUrl ||
-                    this.sourceLayer    != choroSettings.sourceLayer   ||
-                    this.vectorProperty != choroSettings.vectorProperty ) {
+                if (this.vectorTileUrl != choroSettings.vectorTileUrl ||
+                    this.sourceLayer != choroSettings.sourceLayer ||
+                    this.vectorProperty != choroSettings.vectorProperty) {
                     if (this.vectorTileUrl && this.sourceLayer && this.vectorProperty) {
                         this.removeLayer();
                     }
@@ -101,13 +113,13 @@ module powerbi.extensibility.visual {
                 let getColorStop = null;
                 if (isGradient) {
                     let fillDomain: any[] = mapboxUtils.getNaturalBreaks(fillColorLimits, fillClassCount);
-                    getColorStop = chroma.scale(choroColorSettings).domain(fillDomain);                    
+                    getColorStop = chroma.scale(choroColorSettings).domain(fillDomain);
                 }
                 else {
                     let colorStops = {};
-                    fillColorLimits.values.map( (value, idx) => {
+                    fillColorLimits.values.map((value, idx) => {
                         const color = chroma(this.palette.getColor(idx.toString()).value);
-                        colorStops[value] = color;                 
+                        colorStops[value] = color;
                     });
                     getColorStop = (value) => {
                         return colorStops[value]
@@ -116,8 +128,8 @@ module powerbi.extensibility.visual {
 
                 // We use the old property function syntax here because the data-join technique is faster to parse still than expressions with this method
                 const defaultColor = 'rgba(0,0,0,0)';
-                let colors = {type: "categorical", property: choroSettings.vectorProperty, default: defaultColor, stops: []};
-                let outlineColors = {type: "categorical", property: choroSettings.vectorProperty, default: defaultColor, stops: []};
+                let colors = { type: "categorical", property: choroSettings.vectorProperty, default: defaultColor, stops: [] };
+                let outlineColors = { type: "categorical", property: choroSettings.vectorProperty, default: defaultColor, stops: [] };
                 let filter = ['in', choroSettings.vectorProperty];
                 const choroplethData = this.source.getData(map, settings);
 
@@ -134,7 +146,7 @@ module powerbi.extensibility.visual {
                         // Stop value cannot be undefined or null; don't add this row to the stops
                         continue;
                     }
-                
+
                     outlineColor = outlineColor.darken(2);
 
                     if (existingStops[location]) {
