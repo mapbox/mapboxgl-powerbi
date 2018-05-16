@@ -8,12 +8,14 @@ module powerbi.extensibility.visual {
         }
 
         export function zoomToData(map, bounds, autoZoomPinned) {
+            
             if (bounds && !autoZoomPinned) {
                 map.fitBounds(bounds, {
-                    padding: 10,
+                    padding: 20,
                     maxZoom: 15,
                 });
             }
+            
         }
 
         export function shouldUseGradient(colorColumn, colorLimits: { min: any; max: any; values: any; }) {

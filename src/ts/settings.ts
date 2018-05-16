@@ -38,6 +38,7 @@ module powerbi.extensibility.visual {
         public zoom : number = 0;
         public startLong : number = 0;
         public startLat : number = 0;
+        public autozoom : boolean = true;
 
         public enumerateObjectInstances(objectEnumeration) {
             let instances = objectEnumeration.instances;
@@ -75,7 +76,7 @@ module powerbi.extensibility.visual {
         public show: boolean = false;
         public radius: number = 5;
         public intensity: number = 0.5;
-        public opacity: number = 80;
+        public opacity: number = 100;
         public minColor: string = "#0571b0";
         public medColor: string = "#f7f7f7";
         public maxColor: string = "#ca0020";

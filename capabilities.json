@@ -14,7 +14,7 @@
       "preferredTypes": [
         {
           "geography": {
-              "latitude": true
+            "latitude": true
           }
         }
       ]
@@ -27,11 +27,11 @@
       "preferredTypes": [
         {
           "geography": {
-              "longitude": true
+            "longitude": true
           }
         }
       ]
-    },    
+    },
     {
       "name": "color",
       "kind": "GroupingOrMeasure",
@@ -192,13 +192,13 @@
             "numeric": true
           }
         },
-          "startLong": {
-            "displayName": "Longitude",
-            "displayNameKey": "startLong",
-            "description": "Starting longitude level for map",
-            "type": {
-              "numeric": true
-            }
+        "startLong": {
+          "displayName": "Longitude",
+          "displayNameKey": "startLong",
+          "description": "Starting longitude level for map",
+          "type": {
+            "numeric": true
+          }
         },
         "startLat": {
           "displayName": "Latitude",
@@ -206,6 +206,14 @@
           "description": "Starting latitude level for map",
           "type": {
             "numeric": true
+          }
+        },
+        "autozoom": {
+          "displayName": "Auto Zoom",
+          "displayNameKey": "autozoom",
+          "description": "Toggle autozoom on/off",
+          "type": {
+            "bool": true
           }
         }
       }
@@ -217,7 +225,9 @@
       "properties": {
         "show": {
           "displayName": "Circle",
-          "type": { "bool": true }
+          "type": {
+            "bool": true
+          }
         },
         "radius": {
           "displayName": "Radius",
@@ -320,16 +330,16 @@
           "displayNameKey": "minZoom",
           "description": "Minimum zoom level layer is visibile at.",
           "type": {
-              "numeric": true
-            }
+            "numeric": true
+          }
         },
         "maxZoom": {
           "displayName": "Max Zoom",
           "displayNameKey": "maxZoom",
           "description": "Maximum zoom level layer is visibile at.",
           "type": {
-              "numeric": true
-            }
+            "numeric": true
+          }
         }
       }
     },
@@ -340,7 +350,9 @@
       "properties": {
         "show": {
           "displayName": "Heatmap",
-          "type": { "bool": true }
+          "type": {
+            "bool": true
+          }
         },
         "radius": {
           "displayName": "Radius",
@@ -407,16 +419,16 @@
           "displayNameKey": "minZoom",
           "description": "Minimum zoom level layer is visibile at.",
           "type": {
-              "numeric": true
-            }
+            "numeric": true
+          }
         },
         "maxZoom": {
           "displayName": "Max Zoom",
           "displayNameKey": "maxZoom",
           "description": "Maximum zoom level layer is visibile at.",
           "type": {
-              "numeric": true
-            }
+            "numeric": true
+          }
         }
       }
     },
@@ -427,7 +439,9 @@
       "properties": {
         "show": {
           "displayName": "Cluster",
-          "type": { "bool": true }
+          "type": {
+            "bool": true
+          }
         },
         "aggregation": {
           "type": {
@@ -551,16 +565,16 @@
           "displayNameKey": "minZoom",
           "description": "Minimum zoom level layer is visibile at.",
           "type": {
-              "numeric": true
-            }
+            "numeric": true
+          }
         },
         "maxZoom": {
           "displayName": "Max Zoom",
           "displayNameKey": "maxZoom",
           "description": "Maximum zoom level layer is visibile at.",
           "type": {
-              "numeric": true
-            }
+            "numeric": true
+          }
         }
       }
     },
@@ -571,7 +585,9 @@
       "properties": {
         "show": {
           "displayName": "Choropleth",
-          "type": { "bool": true }
+          "type": {
+            "bool": true
+          }
         },
         "data": {
           "type": {
@@ -643,16 +659,16 @@
           "displayNameKey": "minZoom",
           "description": "Minimum zoom level layer is visibile at.",
           "type": {
-              "integer": true
-            }
+            "integer": true
+          }
         },
         "maxZoom": {
           "displayName": "Max Zoom",
           "displayNameKey": "maxZoom",
           "description": "Maximum zoom level layer is visibile at.",
           "type": {
-              "integer": true
-            }
+            "integer": true
+          }
         },
         "vectorTileUrl": {
           "type": {
