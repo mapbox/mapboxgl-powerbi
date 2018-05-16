@@ -34,8 +34,10 @@ module powerbi.extensibility.visual {
             return this.toggled;
         }
 
-        public addClickHandler(fn: () => any) {
-            this.zoomPinButton.addEventListener('click', fn)
+        public setPin(state) {
+            this.toggled = state;
+            this.zoomPinButton.className = this.getButtonClass();
+            this.zoomPinButton.title = this.getButtonTitle();
         }
 
         private createButton(className: string, ariaLabel: string, fn: () => any) {

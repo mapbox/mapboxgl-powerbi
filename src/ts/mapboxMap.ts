@@ -16,6 +16,7 @@ module powerbi.extensibility.visual {
         private roleMap: any;
         private previousZoom: number;
         private colorPalette: IColorPalette;
+        private previousPin: boolean;
 
         constructor(options: VisualConstructorOptions) {
             // Map initialization
@@ -299,7 +300,10 @@ module powerbi.extensibility.visual {
 
             if (!this.map) {
                 this.addMap();
-                this.autoZoomControl.addClickHandler(function() { this.settings.api.autozoom = !this.autoZoomControl.isPinned() });
+            }
+
+            if (this.autoZoomControl.isPinned() == this.settings.api.autozoom) {
+                this.autoZoomControl.setPin(!this.settings.api.autozoom);
             }
 
             if (mapboxgl.accessToken != this.settings.api.accessToken) {
