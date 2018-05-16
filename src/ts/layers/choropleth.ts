@@ -61,7 +61,8 @@ module powerbi.extensibility.visual {
                 return bounds
             }
             else {
-                let sourceLoaded = async function (e) {
+                // If the source isn't loaded, fit bounds after source loads
+                let sourceLoaded = function (e) {
                     if (e.sourceId === 'choropleth-source') {
                         source = map.getSource('choropleth-source');
                         map.off('sourcedata', sourceLoaded);
