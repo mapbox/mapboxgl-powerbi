@@ -4296,9 +4296,9 @@ map-stream@~0.1.0:
   version "0.1.0"
   resolved "https://registry.yarnpkg.com/map-stream/-/map-stream-0.1.0.tgz#e56aa94c4c8055a16404a0674b78f215f7c8e194"
 
-mapbox-gl@^0.45.0-beta.1:
-  version "0.45.0-beta.1"
-  resolved "https://registry.yarnpkg.com/mapbox-gl/-/mapbox-gl-0.45.0-beta.1.tgz#af196dcbf42a5deab8cc396d0a205ef87fd07753"
+mapbox-gl@^0.45.0:
+  version "0.45.0"
+  resolved "https://registry.yarnpkg.com/mapbox-gl/-/mapbox-gl-0.45.0.tgz#af71cc824f0d7e51ccd5c505eaae411bc0910ccd"
   dependencies:
     "@mapbox/gl-matrix" "^0.0.1"
     "@mapbox/jsonlint-lines-primitives" "^2.0.1"

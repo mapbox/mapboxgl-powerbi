@@ -141,6 +141,7 @@ module powerbi.extensibility.visual {
                 const choroplethData = this.source.getData(map, settings);
 
                 let existingStops = {};
+                let validStops = true;
 
                 for (let row of choroplethData) {
                     const location = row[roleMap.location.displayName];
@@ -160,7 +161,7 @@ module powerbi.extensibility.visual {
                         // the stops here, and won't let invalid stops to be passed to Mapbox.
                         validStops = false;
                         break;
-					}
+                    }
 
 
                     existingStops[location] = true;
@@ -169,7 +170,11 @@ module powerbi.extensibility.visual {
                     outlineColors.stops.push([location, outlineColor.toString()]);
                 }
 
-                map.setPaintProperty(Choropleth.ID, 'fill-color', colors);
+                if (validStops) {
+                    map.setPaintProperty(Choropleth.ID, 'fill-color', colors);
+                } else {
+                    map.setPaintProperty(Choropleth.ID, 'fill-color', 'rgb(0, 0, 0)');
+                }
                 map.setFilter(Choropleth.ID, filter);
                 map.setFilter(Choropleth.OutlineID, filter);
 
