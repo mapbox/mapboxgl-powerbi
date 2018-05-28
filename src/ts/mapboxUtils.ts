@@ -8,21 +8,19 @@ module powerbi.extensibility.visual {
         }
 
         export function zoomToData(map, bounds, autoZoomPinned) {
+            
             if (bounds && !autoZoomPinned) {
                 map.fitBounds(bounds, {
-                    padding: 10,
+                    padding: 20,
                     maxZoom: 15,
                 });
             }
+            
         }
 
         export function shouldUseGradient(colorColumn, colorLimits: { min: any; max: any; values: any; }) {
-            if (colorColumn != null && colorColumn.isMeasure) {
+            if (colorColumn != null && colorLimits && colorLimits.min != null && colorLimits.min.toString() !== colorLimits.min) {
                 return true
-            }
-
-            if (colorLimits == null || colorLimits.values == null || colorLimits.values.length == null) {
-                return false
             }
 
             return false
@@ -84,7 +82,7 @@ module powerbi.extensibility.visual {
         }
 
         export function createClickHandler(mapVisual: MapboxMap) {
-            var onClick : Function = debounce(function(e) {
+            var onClick : Function = function(e) {
                 const map = mapVisual.getMap()
 
                 // map.queryRenderedFeatures fails
@@ -111,8 +109,7 @@ module powerbi.extensibility.visual {
                         duration: 1000
                     });
                 }
-
-            }, 22, false);
+            }
 
             return onClick
         };
@@ -156,7 +153,7 @@ module powerbi.extensibility.visual {
                 else {
                     // data are non-geojson objects for a choropleth
                     data.forEach(f => {
-                        if (f[myproperty]) {
+                        if (f[myproperty] !== undefined && f[myproperty] !== null) {
                             const value = f[myproperty];
                             if (!min || value < min) { min = value }
                             if (!max || value > max) { max = value }
@@ -212,23 +209,6 @@ module powerbi.extensibility.visual {
                 }
             }
         }
-
-        const debounce = (func, wait, immediate) => {
-            let timeout;
-            let returnFunction : any = function() {
-                const context = this, args = arguments;
-                let callNow = immediate && !timeout;
-                clearTimeout(timeout);
-                timeout = setTimeout(() => {
-                    timeout = null;
-                    if (!immediate) func.apply(context, args);
-                }, wait);
-                if (callNow) func.apply(context, args);
-            };
-
-            return returnFunction
-        };
-
     }
 }
 

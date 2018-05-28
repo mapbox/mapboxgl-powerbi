@@ -14,7 +14,7 @@
       "preferredTypes": [
         {
           "geography": {
-              "latitude": true
+            "latitude": true
           }
         }
       ]
@@ -27,11 +27,11 @@
       "preferredTypes": [
         {
           "geography": {
-              "longitude": true
+            "longitude": true
           }
         }
       ]
-    },    
+    },
     {
       "name": "color",
       "kind": "GroupingOrMeasure",
@@ -145,14 +145,14 @@
           "type": {
             "enumeration": [
               {
-                "value": "mapbox:\/\/styles\/mapbox\/dark-v9?optimize=true",
-                "displayName": "Dark",
-                "displayNameKey": "dark_v9"
-              },
-                            {
                 "value": "mapbox:\/\/styles\/mapbox\/light-v9?optimize=true",
                 "displayName": "Light",
                 "displayNameKey": "light_v9"
+              },
+              {
+                "value": "mapbox:\/\/styles\/mapbox\/dark-v9?optimize=true",
+                "displayName": "Dark",
+                "displayNameKey": "dark_v9"
               },
               {
                 "value": "mapbox:\/\/styles\/mapbox\/streets-v10?optimize=true",
@@ -197,7 +197,7 @@
         "styleUrl": {
           "displayName": "Style URL",
           "displayNameKey": "styleUrl",
-          "description": "Mapbox URL for custom style",
+          "description": "Mapbox URL to a custom style you created on your Mapbox account.  See https://www.mapbox.com/help/studio-manual/ for a guide on creating map styles in Mapbox Studio",
           "type": {
             "text": true
           },
@@ -211,13 +211,13 @@
             "numeric": true
           }
         },
-          "startLong": {
-            "displayName": "Longitude",
-            "displayNameKey": "startLong",
-            "description": "Starting longitude level for map",
-            "type": {
-              "numeric": true
-            }
+        "startLong": {
+          "displayName": "Longitude",
+          "displayNameKey": "startLong",
+          "description": "Starting longitude level for map",
+          "type": {
+            "numeric": true
+          }
         },
         "startLat": {
           "displayName": "Latitude",
@@ -225,6 +225,14 @@
           "description": "Starting latitude level for map",
           "type": {
             "numeric": true
+          }
+        },
+        "autozoom": {
+          "displayName": "Auto Zoom",
+          "displayNameKey": "autozoom",
+          "description": "Toggle autozoom on/off",
+          "type": {
+            "bool": true
           }
         }
       }
@@ -236,7 +244,9 @@
       "properties": {
         "show": {
           "displayName": "Circle",
-          "type": { "bool": true }
+          "type": {
+            "bool": true
+          }
         },
         "radius": {
           "displayName": "Radius",
@@ -339,16 +349,16 @@
           "displayNameKey": "minZoom",
           "description": "Minimum zoom level layer is visibile at.",
           "type": {
-              "numeric": true
-            }
+            "numeric": true
+          }
         },
         "maxZoom": {
           "displayName": "Max Zoom",
           "displayNameKey": "maxZoom",
           "description": "Maximum zoom level layer is visibile at.",
           "type": {
-              "numeric": true
-            }
+            "numeric": true
+          }
         }
       }
     },
@@ -359,7 +369,9 @@
       "properties": {
         "show": {
           "displayName": "Heatmap",
-          "type": { "bool": true }
+          "type": {
+            "bool": true
+          }
         },
         "radius": {
           "displayName": "Radius",
@@ -426,16 +438,16 @@
           "displayNameKey": "minZoom",
           "description": "Minimum zoom level layer is visibile at.",
           "type": {
-              "numeric": true
-            }
+            "numeric": true
+          }
         },
         "maxZoom": {
           "displayName": "Max Zoom",
           "displayNameKey": "maxZoom",
           "description": "Maximum zoom level layer is visibile at.",
           "type": {
-              "numeric": true
-            }
+            "numeric": true
+          }
         }
       }
     },
@@ -446,7 +458,9 @@
       "properties": {
         "show": {
           "displayName": "Cluster",
-          "type": { "bool": true }
+          "type": {
+            "bool": true
+          }
         },
         "aggregation": {
           "type": {
@@ -570,16 +584,16 @@
           "displayNameKey": "minZoom",
           "description": "Minimum zoom level layer is visibile at.",
           "type": {
-              "numeric": true
-            }
+            "numeric": true
+          }
         },
         "maxZoom": {
           "displayName": "Max Zoom",
           "displayNameKey": "maxZoom",
           "description": "Maximum zoom level layer is visibile at.",
           "type": {
-              "numeric": true
-            }
+            "numeric": true
+          }
         }
       }
     },
@@ -590,7 +604,9 @@
       "properties": {
         "show": {
           "displayName": "Choropleth",
-          "type": { "bool": true }
+          "type": {
+            "bool": true
+          }
         },
         "data": {
           "type": {
@@ -606,25 +622,20 @@
                 "displayNameKey": "usaStates"
               },
               {
-                "value": "mapbox://mapbox.pbi-us-counties-v1",
-                "displayName": "US Counties",
-                "displayNameKey": "usaCounties"
-              },
-              {
                 "value": "mapbox://mapbox.pbi-us-postcodes-v1",
-                "displayName": "US Postcodes (5-digit)",
+                "displayName": "US Postcodes ZCTA",
                 "displayNameKey": "usaPostcodes5digit"
               },
               {
                 "value": "custom",
-                "displayName": "Custom...",
+                "displayName": "Custom Tileset",
                 "displayNameKey": "custom"
               }
             ]
           },
           "displayName": "Data",
           "displayNameKey": "choroplethData",
-          "description": "Built-in Mapbox boundaries or a custom one"
+          "description": "Select a boundary tileset.  Select from Global Countries, USA States, and USA Postcodes; or create your own boundaries by uploading shapes to your Mapbox account.  See https://www.mapbox.com/help/studio-manual-uploads/ for a tutorial on how to upload your own boundaries.  Email help@mapbox.com to ask about access to global administrative and postal boundaries."
         },
         "minColor": {
           "displayName": "Min Color",
@@ -667,16 +678,16 @@
           "displayNameKey": "minZoom",
           "description": "Minimum zoom level layer is visibile at.",
           "type": {
-              "integer": true
-            }
+            "integer": true
+          }
         },
         "maxZoom": {
           "displayName": "Max Zoom",
           "displayNameKey": "maxZoom",
           "description": "Maximum zoom level layer is visibile at.",
           "type": {
-              "integer": true
-            }
+            "integer": true
+          }
         },
         "vectorTileUrl": {
           "type": {

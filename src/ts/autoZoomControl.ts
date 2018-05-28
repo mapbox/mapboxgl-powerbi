@@ -13,11 +13,11 @@ module powerbi.extensibility.visual {
             this.container.className = 'mapboxgl-ctrl mapboxgl-ctrl-group';
 
             this.zoomPinButton = this.createButton(this.getButtonClass(), this.getButtonTitle(),
-                                    () => {
-                                        this.toggled = !this.toggled;
-                                        this.zoomPinButton.className = this.getButtonClass();
-                                        this.zoomPinButton.title = this.getButtonTitle();
-                                    });
+                () => {
+                    this.toggled = !this.toggled;
+                    this.zoomPinButton.className = this.getButtonClass();
+                    this.zoomPinButton.title = this.getButtonTitle();
+                });
             return this.container;
         }
 
@@ -32,6 +32,12 @@ module powerbi.extensibility.visual {
 
         public isPinned() {
             return this.toggled;
+        }
+
+        public setPin(state) {
+            this.toggled = state;
+            this.zoomPinButton.className = this.getButtonClass();
+            this.zoomPinButton.title = this.getButtonTitle();
         }
 
         private createButton(className: string, ariaLabel: string, fn: () => any) {

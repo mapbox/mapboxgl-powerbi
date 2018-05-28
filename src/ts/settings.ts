@@ -33,11 +33,12 @@ module powerbi.extensibility.visual {
 
     export class APISettings {
         public accessToken: string = "";
-        public style: string = "mapbox:\/\/styles\/mapbox\/dark-v9?optimize=true";
+        public style: string = "mapbox:\/\/styles\/mapbox\/light-v9?optimize=true";
         public styleUrl: string = "";
         public zoom : number = 0;
         public startLong : number = 0;
         public startLat : number = 0;
+        public autozoom : boolean = true;
 
         public enumerateObjectInstances(objectEnumeration) {
             let instances = objectEnumeration.instances;
@@ -63,9 +64,9 @@ module powerbi.extensibility.visual {
         public medColor: string = "#41b6c4";
         public maxColor: string = "#253494";
         public blur: number = 0.0;
-        public opacity: number = 100;
+        public opacity: number = 80;
         public strokeWidth: number = 1;
-        public strokeColor: string = "black";
+        public strokeColor: string = "#bdbdbd";
         public strokeOpacity: number = 50;
         public minZoom: number = 0;
         public maxZoom: number = 22;
@@ -93,7 +94,7 @@ module powerbi.extensibility.visual {
         public radius: number = 10;
         public blur: number = 30;
         public strokeWidth: number = 1;
-        public strokeColor: string = "black";
+        public strokeColor: string = "#bdbdbd";
         public strokeOpacity: number = 50;
         public minZoom: number = 0;
         public maxZoom: number = 22;
@@ -113,20 +114,20 @@ module powerbi.extensibility.visual {
         static readonly PREDEFINED_VECTOR_PROPERTY = "name";
 
         public show: boolean = false;
-        public minColor: string = "#0571b0";
-        public medColor: string = "#f7f7f7";
-        public maxColor: string = "#ca0020";
+        public minColor: string = "#edf8b1";
+        public medColor: string = "#7fcdbb";
+        public maxColor: string = "#2c7fb8";
         public minZoom: number = 0;
         public maxZoom: number = 22;
         public data: string = ChoroplethSettings.US_STATES_TILE_URL;  // Let US states be the default
 
-        public vectorTileUrl: string = ChoroplethSettings.US_STATES_TILE_URL;
-        public sourceLayer: string = 'pbi-us-states';
+        public vectorTileUrl: string = ChoroplethSettings.GLOBAL_COUNTRIES_TILE_URL;
+        public sourceLayer: string = ChoroplethSettings.GLOBAL_COUNTRIES_SOURCE_LAYER;
         public vectorProperty: string = ChoroplethSettings.PREDEFINED_VECTOR_PROPERTY;
-        public opacity: number = 100;
-        public outlineColor: string = "#000000";
+        public opacity: number = 80;
+        public outlineColor: string = "#bdbdbd";
         public outlineWidth: number = 1;
-        public outlineOpacity: number = 100;
+        public outlineOpacity: number = 50;
 
 
         public display(): boolean {
@@ -192,9 +193,6 @@ module powerbi.extensibility.visual {
                         break;
                     case ChoroplethSettings.US_STATES_TILE_URL:
                         choroSettings.sourceLayer = ChoroplethSettings.US_STATES_SOURCE_LAYER;
-                        break;
-                    case ChoroplethSettings.US_COUNTIES_TILE_URL:
-                        choroSettings.sourceLayer = ChoroplethSettings.US_COUNTIES_SOURCE_LAYER;
                         break;
                     case ChoroplethSettings.US_POSTCODES_TILE_URL:
                         choroSettings.sourceLayer = ChoroplethSettings.US_POSTCODES_SOURCE_LAYER;
