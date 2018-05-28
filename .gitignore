@@ -67,3 +67,6 @@ dist/
 # Editor files
 *.swp
 .vscode
+
+# API build
+.api/
