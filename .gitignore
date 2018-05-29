@@ -67,3 +67,4 @@ dist/
 # Editor files
 *.swp
 .vscode
+.tmuxinator.yml

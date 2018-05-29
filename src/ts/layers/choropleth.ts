@@ -3,9 +3,7 @@ module powerbi.extensibility.visual {
     export class Choropleth extends Layer {
         private static ID = 'choropleth'
         private static OutlineID = 'choropleth-outline'
-        private vectorTileUrl: string = "";
-        private sourceLayer: string = "";
-        private vectorProperty: string = "";
+        private settings: ChoroplethSettings;
         private palette: IColorPalette;
 
         constructor(map: MapboxMap, palette: IColorPalette) {
@@ -83,18 +81,13 @@ module powerbi.extensibility.visual {
             const choroSettings = settings.choropleth;
             if (choroSettings.show) {
                 ChoroplethSettings.fillPredefinedProperties(choroSettings);
-
-                // The choropleth layer is different since it is a vector tile source, not geojson.  We can't modify it in-place.
-                // If it is, we'll create the vector tile source from the URL.  If not, we'll make sure the source doesn't exist.
-                if (this.vectorTileUrl != choroSettings.vectorTileUrl ||
-                    this.sourceLayer != choroSettings.sourceLayer ||
-                    this.vectorProperty != choroSettings.vectorProperty) {
-                    if (this.vectorTileUrl && this.sourceLayer && this.vectorProperty) {
-                        this.removeLayer();
+                if (choroSettings.hasChanged(this.settings)) {
+                    if (this.settings.vectorTileUrl1 &&
+                        this.settings.sourceLayer1 &&
+                        this.settings.vectorProperty1) {
+                            this.removeLayer();
                     }
-                    this.vectorTileUrl = choroSettings.vectorTileUrl;
-                    this.sourceLayer = choroSettings.sourceLayer;
-                    this.vectorProperty = choroSettings.vectorProperty;
+                    this.settings = choroSettings;
                 }
             }
             return super.getSource(settings);

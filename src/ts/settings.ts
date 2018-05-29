@@ -35,10 +35,10 @@ module powerbi.extensibility.visual {
         public accessToken: string = "";
         public style: string = "mapbox:\/\/styles\/mapbox\/light-v9?optimize=true";
         public styleUrl: string = "";
-        public zoom : number = 0;
-        public startLong : number = 0;
-        public startLat : number = 0;
-        public autozoom : boolean = true;
+        public zoom: number = 0;
+        public startLong:  number = 0;
+        public startLat: number = 0;
+        public autozoom: boolean = true;
 
         public enumerateObjectInstances(objectEnumeration) {
             let instances = objectEnumeration.instances;
@@ -119,11 +119,60 @@ module powerbi.extensibility.visual {
         public maxColor: string = "#2c7fb8";
         public minZoom: number = 0;
         public maxZoom: number = 22;
-        public data: string = ChoroplethSettings.US_STATES_TILE_URL;  // Let US states be the default
 
-        public vectorTileUrl: string = ChoroplethSettings.GLOBAL_COUNTRIES_TILE_URL;
-        public sourceLayer: string = ChoroplethSettings.GLOBAL_COUNTRIES_SOURCE_LAYER;
-        public vectorProperty: string = ChoroplethSettings.PREDEFINED_VECTOR_PROPERTY;
+        public maxLevel: number = 1
+        public level: string = '1'
+
+        public data1: string = ChoroplethSettings.US_STATES_TILE_URL;  // Let US states be the default
+        public vectorTileUrl1: string = ChoroplethSettings.GLOBAL_COUNTRIES_TILE_URL;
+        public sourceLayer1: string = ChoroplethSettings.GLOBAL_COUNTRIES_SOURCE_LAYER;
+        public vectorProperty1: string = ChoroplethSettings.PREDEFINED_VECTOR_PROPERTY;
+
+        public data2: string = ChoroplethSettings.US_STATES_TILE_URL;  // Let US states be the default
+        public vectorTileUrl2: string = ChoroplethSettings.GLOBAL_COUNTRIES_TILE_URL;
+        public sourceLayer2: string = ChoroplethSettings.GLOBAL_COUNTRIES_SOURCE_LAYER;
+        public vectorProperty2: string = ChoroplethSettings.PREDEFINED_VECTOR_PROPERTY;
+
+        public data3: string = ChoroplethSettings.US_STATES_TILE_URL;  // Let US states be the default
+        public vectorTileUrl3: string = ChoroplethSettings.GLOBAL_COUNTRIES_TILE_URL;
+        public sourceLayer3: string = ChoroplethSettings.GLOBAL_COUNTRIES_SOURCE_LAYER;
+        public vectorProperty3: string = ChoroplethSettings.PREDEFINED_VECTOR_PROPERTY;
+
+        public data4: string = ChoroplethSettings.US_STATES_TILE_URL;  // Let US states be the default
+        public vectorTileUrl4: string = ChoroplethSettings.GLOBAL_COUNTRIES_TILE_URL;
+        public sourceLayer4: string = ChoroplethSettings.GLOBAL_COUNTRIES_SOURCE_LAYER;
+        public vectorProperty4: string = ChoroplethSettings.PREDEFINED_VECTOR_PROPERTY;
+
+        public data5: string = ChoroplethSettings.US_STATES_TILE_URL;  // Let US states be the default
+        public vectorTileUrl5: string = ChoroplethSettings.GLOBAL_COUNTRIES_TILE_URL;
+        public sourceLayer5: string = ChoroplethSettings.GLOBAL_COUNTRIES_SOURCE_LAYER;
+        public vectorProperty5: string = ChoroplethSettings.PREDEFINED_VECTOR_PROPERTY;
+
+        public data6: string = ChoroplethSettings.US_STATES_TILE_URL;  // Let US states be the default
+        public vectorTileUrl6: string = ChoroplethSettings.GLOBAL_COUNTRIES_TILE_URL;
+        public sourceLayer6: string = ChoroplethSettings.GLOBAL_COUNTRIES_SOURCE_LAYER;
+        public vectorProperty6: string = ChoroplethSettings.PREDEFINED_VECTOR_PROPERTY;
+
+        public data7: string = ChoroplethSettings.US_STATES_TILE_URL;  // Let US states be the default
+        public vectorTileUrl7: string = ChoroplethSettings.GLOBAL_COUNTRIES_TILE_URL;
+        public sourceLayer7: string = ChoroplethSettings.GLOBAL_COUNTRIES_SOURCE_LAYER;
+        public vectorProperty7: string = ChoroplethSettings.PREDEFINED_VECTOR_PROPERTY;
+
+        public data8: string = ChoroplethSettings.US_STATES_TILE_URL;  // Let US states be the default
+        public vectorTileUrl8: string = ChoroplethSettings.GLOBAL_COUNTRIES_TILE_URL;
+        public sourceLayer8: string = ChoroplethSettings.GLOBAL_COUNTRIES_SOURCE_LAYER;
+        public vectorProperty8: string = ChoroplethSettings.PREDEFINED_VECTOR_PROPERTY;
+
+        public data9: string = ChoroplethSettings.US_STATES_TILE_URL;  // Let US states be the default
+        public vectorTileUrl9: string = ChoroplethSettings.GLOBAL_COUNTRIES_TILE_URL;
+        public sourceLayer9: string = ChoroplethSettings.GLOBAL_COUNTRIES_SOURCE_LAYER;
+        public vectorProperty9: string = ChoroplethSettings.PREDEFINED_VECTOR_PROPERTY;
+
+        public data10: string = ChoroplethSettings.US_STATES_TILE_URL;  // Let US states be the default
+        public vectorTileUrl10: string = ChoroplethSettings.GLOBAL_COUNTRIES_TILE_URL;
+        public sourceLayer10: string = ChoroplethSettings.GLOBAL_COUNTRIES_SOURCE_LAYER;
+        public vectorProperty10: string = ChoroplethSettings.PREDEFINED_VECTOR_PROPERTY;
+
         public opacity: number = 80;
         public outlineColor: string = "#bdbdbd";
         public outlineWidth: number = 1;
@@ -132,22 +181,20 @@ module powerbi.extensibility.visual {
 
         public display(): boolean {
             return this.show &&
-                this.vectorProperty != "" &&
-                this.sourceLayer != "" &&
-                this.vectorTileUrl != ""
+                this.vectorProperty1 != "" &&
+                this.sourceLayer1 != "" &&
+                this.vectorTileUrl1 != ""
+        }
+
+        private removeCustom(properties, id) {
+            delete properties[`vectorTileUrl${id}`];
+            delete properties[`sourceLayer${id}`];
+            delete properties[`vectorProperty${id}`];
         }
 
         public enumerateObjectInstances(objectEnumeration) {
             let instances = objectEnumeration.instances;
             let properties = instances[0].properties;
-
-            if (properties.data !== 'custom') {
-                // Hide custom vector tile URL, source layer and vector property controls, since a
-                // predefined boundary is selected
-                delete properties.vectorTileUrl;
-                delete properties.sourceLayer;
-                delete properties.vectorProperty;
-            }
 
             instances[0].validValues = {
                 minZoom: {
@@ -179,28 +226,73 @@ module powerbi.extensibility.visual {
                         min: 0,
                         max: 1000,
                     }
+                },
+                maxLevel: {
+                    numberRange: {
+                        min: 1,
+                        max: 10,
+                    }
+                },
+                level: []
+            }
+
+            for (let i of Array(properties.maxLevel).keys()) {
+                instances[0].validValues.level.push((i + 1).toString());
+            }
+
+            if (properties.level >  properties.maxLevel) {
+                properties.level = properties.maxLevel;
+            }
+
+            for (let i of Array(10).keys()) {
+                if (properties.level != i + 1) {
+                    delete properties[`data${i + 1}`];
+                    this.removeCustom(properties, i + 1);
+                } else {
+                    if (properties[`data${i + 1}`] !== 'custom') {
+                        this.removeCustom(properties, i + 1)
+                    }
                 }
             }
+            console.log("Valid levels :", instances[0].validValues.level);
 
             return { instances };
         }
 
-        public static fillPredefinedProperties(choroSettings) {
-            if (choroSettings.data !== 'custom') {
-                switch (choroSettings.data) {
-                    case ChoroplethSettings.GLOBAL_COUNTRIES_TILE_URL:
-                        choroSettings.sourceLayer = ChoroplethSettings.GLOBAL_COUNTRIES_SOURCE_LAYER;
-                        break;
-                    case ChoroplethSettings.US_STATES_TILE_URL:
-                        choroSettings.sourceLayer = ChoroplethSettings.US_STATES_SOURCE_LAYER;
-                        break;
-                    case ChoroplethSettings.US_POSTCODES_TILE_URL:
-                        choroSettings.sourceLayer = ChoroplethSettings.US_POSTCODES_SOURCE_LAYER;
-                        break;
-                }
+        public hasChanged(old) {
+            if (old.maxLevel != this.maxLevel) {
+                return true;
+            }
 
-                choroSettings.vectorTileUrl = choroSettings.data;
-                choroSettings.vectorProperty = ChoroplethSettings.PREDEFINED_VECTOR_PROPERTY;
+            for (let i of Array(this.maxLevel).keys()) {
+                if (old[`vectorTileUrl${i + 1}`] != this[`vectorTileUrl${i + 1}`] ||
+                    old[`sourceLayer${i + 1}`] != this[`sourceLayer${i + 1}`] ||
+                    old[`vectorProperty${i + 1}`] != this[`vectorProperty${i + 1}`]) {
+                        return true;
+                }
+            }
+            return false;
+
+        }
+
+        public static fillPredefinedProperties(choroSettings) {
+            for (let i of Array(choroSettings.maxLevel).keys()) {
+                if (choroSettings[`data${i + 1}`] !== 'custom') {
+                    switch (choroSettings[`data${i + 1}`]) {
+                        case ChoroplethSettings.GLOBAL_COUNTRIES_TILE_URL:
+                            choroSettings[`sourceLayer${i + 1}`] = ChoroplethSettings.GLOBAL_COUNTRIES_SOURCE_LAYER;
+                            break;
+                        case ChoroplethSettings.US_STATES_TILE_URL:
+                            choroSettings[`sourceLayer${i + 1}`] = ChoroplethSettings.US_STATES_SOURCE_LAYER;
+                            break;
+                        case ChoroplethSettings.US_POSTCODES_TILE_URL:
+                            choroSettings[`sourceLayer${i + 1}`] = ChoroplethSettings.US_POSTCODES_SOURCE_LAYER;
+                            break;
+                    }
+
+                    choroSettings[`vectorTileUrl${i + 1}`] = choroSettings[`data${i + 1}`];
+                    choroSettings[`vectorProperty${i + 1}`] = ChoroplethSettings.PREDEFINED_VECTOR_PROPERTY;
+                }
             }
         }
     }

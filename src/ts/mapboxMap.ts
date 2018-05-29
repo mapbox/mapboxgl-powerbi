@@ -7,7 +7,6 @@ module powerbi.extensibility.visual {
         private mapDiv: HTMLDivElement;
         private errorDiv: HTMLDivElement;
         private autoZoomControl: AutoZoomControl;
-        private bounds: any[] = null;
         private settings: MapboxSettings;
         private mapStyle: string = "";
         private updatedHandler: Function = () => { }
@@ -234,9 +233,9 @@ module powerbi.extensibility.visual {
                 return false;
             }
             else if (this.settings.choropleth.show && (
-                !this.settings.choropleth.vectorTileUrl ||
-                !this.settings.choropleth.sourceLayer ||
-                !this.settings.choropleth.vectorProperty)
+                !this.settings.choropleth.vectorTileUrl1 ||
+                !this.settings.choropleth.sourceLayer1 ||
+                !this.settings.choropleth.vectorProperty1)
             ) {
                 this.errorDiv.innerHTML = Templates.MissingChoroplethSettings;
                 return false;
@@ -367,9 +366,7 @@ module powerbi.extensibility.visual {
 
             this.roleMap = mapboxUtils.getRoleMap(dataView.metadata);
 
-            const oldSettings = this.settings;
             this.settings = MapboxSettings.parse<MapboxSettings>(dataView);
-            const layerVisibilityChanged = this.visibilityChanged(oldSettings, this.settings);
 
             if (!this.validateOptions(options)) {
                 this.errorDiv.style.display = 'block';
