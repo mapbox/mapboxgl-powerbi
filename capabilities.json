@@ -122,52 +122,71 @@
   ],
   "dataViewMappings": [
     {
-      "table": {
-        "rows": {
-          "dataReductionAlgorithm": {
-            "sample": {
-              "count": 30000
+        "categorical": {
+            "categories": {
+                "dataReductionAlgorithm": {
+                    "sample": {
+                        "count": 30000
+                    }
+                },
+                "select": [
+                    {
+                        "for": {
+                            "in": "color"
+                        }
+                    },
+                    {
+                        "for": {
+                            "in": "latitude"
+                        }
+                    },
+                    {
+                        "for": {
+                            "in": "longitude"
+                        }
+                    }
+                ]
+            },
+            "values": {
+                "select": [
+                    {
+                        "for": {
+                            "in": "location"
+                        }
+                    },
+                    {
+                        "for": {
+                            "in": "latitude"
+                        }
+                    },
+                    {
+                        "for": {
+                            "in": "longitude"
+                        }
+                    },
+                    {
+                        "for": {
+                            "in": "color"
+                        }
+                    },
+                    {
+                        "for": {
+                            "in": "size"
+                        }
+                    },
+                    {
+                        "for": {
+                            "in": "cluster"
+                        }
+                    },
+                    {
+                        "for": {
+                            "in": "tooltips"
+                        }
+                    }
+                ]
             }
-          },
-          "select": [
-            {
-              "for": {
-                "in": "size"
-              }
-            },
-            {
-              "for": {
-                "in": "color"
-              }
-            },
-            {
-              "for": {
-                "in": "latitude"
-              }
-            },
-            {
-              "for": {
-                "in": "longitude"
-              }
-            },
-            {
-              "for": {
-                "in": "location"
-              }
-            },
-            {
-              "for": {
-                "in": "cluster"
-              }
-            },
-            {
-              "for": {
-                "in": "tooltips"
-              }
-            }
-          ]
         }
-      }
     }
   ],
   "objects": {
@@ -794,6 +813,21 @@
           }
         }
       }
+    },
+    "colorSelector": {
+        "displayName": "Data Colors",
+        "properties": {
+            "fill": {
+                "displayName": "Color",
+                "type": {
+                    "fill": {
+                        "solid": {
+                            "color": true
+                        }
+                    }
+                }
+            }
+        }
     }
   }
 }

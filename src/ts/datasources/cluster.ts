@@ -52,11 +52,12 @@ module powerbi.extensibility.visual.data {
             this.bounds = turf.bbox(featureCollection);
         }
 
-        handleZoom(map, settings) {
+        handleZoom(map, settings) : boolean {
             const source: any = map.getSource('clusterData');
             const clusterData = this.getData(map, settings.cluster);
             source.setData(turf.helpers.featureCollection(clusterData));
             this.limits = mapboxUtils.getLimits(clusterData, settings.cluster.aggregation);
+            return true;
         }
 
 

@@ -14,7 +14,10 @@ module powerbi.extensibility.visual {
         private tooltipServiceWrapper: ITooltipServiceWrapper;
         private layers: Layer[] = [];
         private roleMap: any;
+        private colorMap: any;
         private previousZoom: number;
+        private dataPoints: any[];
+        private host: any;
         private colorPalette: IColorPalette;
 
         constructor(options: VisualConstructorOptions) {
@@ -32,20 +35,28 @@ module powerbi.extensibility.visual {
             // For anchor elements to work we need to manually
             // call launchUrl API method
             options.element.addEventListener("click", (e) => {
-                var link = <HTMLAnchorElement>e.target;
+                let link = <HTMLAnchorElement>e.target;
                 if (link && link.className == 'mapboxLink' && link.href) {
                     e.preventDefault();
                     options.host.launchUrl(link.href);
                 }
             });
+
+
+            this.dataPoints = [];
+            this.host = options.host;
+
             this.colorPalette = options.host.colorPalette
             this.tooltipServiceWrapper = createTooltipServiceWrapper(options.host.tooltipService, options.element);
+            this.colorMap = {
+            }
+
         }
 
         onUpdate(map, settings, zoom, updatedHandler: Function) {
             try {
                 this.layers.map(layer => {
-                    layer.applySettings(settings, this.roleMap);
+                    layer.applySettings(settings, this.roleMap, this.colorMap);
                 });
 
                 if (zoom) {
@@ -81,7 +92,26 @@ module powerbi.extensibility.visual {
         * validation and return other values/defaults
         */
         public enumerateObjectInstances(options: EnumerateVisualObjectInstancesOptions): VisualObjectInstanceEnumeration {
-            return MapboxSettings.enumerateObjectInstances(this.settings || MapboxSettings.getDefault(), options);
+            if (options.objectName == 'colorSelector') {
+                let objectEnumeration: VisualObjectInstance[] = [];
+                for (let point of this.dataPoints) {
+                    objectEnumeration.push({
+                        objectName: options.objectName,
+                        displayName: point.category,
+                        properties: {
+                            fill: {
+                                solid: {
+                                    color: point.color
+                                }
+                            }
+                        },
+                        selector: point.selectionId.getSelector(),
+                    });
+                }
+                return objectEnumeration;
+            } else {
+                return MapboxSettings.enumerateObjectInstances(this.settings || MapboxSettings.getDefault(), options);
+            }
         }
 
         public on(event: string, fn: Function) {
@@ -141,8 +171,9 @@ module powerbi.extensibility.visual {
                 if (this.previousZoom != newZoom) {
                     this.previousZoom = newZoom;
                     this.layers.map(layer => {
-                        layer.handleZoom(this.settings);
-                        layer.applySettings(this.settings, this.roleMap);
+                        if (layer.handleZoom(this.settings)) {
+                            layer.applySettings(this.settings, this.roleMap, this.colorMap);
+                        }
                     });
                 }
             });
@@ -245,6 +276,56 @@ module powerbi.extensibility.visual {
             }))
         }
 
+
+        fillDataPointsLikeInExample(category) {
+            let ret = [];
+            for (let i = 0, len = category.values.length; i < len; i++) {
+                let defaultColor: Fill = {
+                    solid: {
+                        color: this.host.colorPalette.getColor(category.values[i]).value
+                    }
+                }
+
+                ret.push({
+                    category: category.values[i],
+                    value: 0,
+                    color: mapboxUtils.getCategoricalObjectValue<Fill>(category, i, 'colorSelector', 'fill', defaultColor).solid.color,
+                    selectionId: this.host.createSelectionIdBuilder()
+                        .withCategory(category, i)
+                        .createSelectionId()
+                });
+            }
+            return ret;
+		}
+
+        fillDataPointsOwn(categories, cat) {
+            let ret = [];
+            Object.keys(categories).map( (category, i) => {
+                let colorValue = 'black';
+                let defaultColor: Fill = {
+                    solid: {
+                        color: 'black'
+                    }
+                }
+
+                if (cat.objects && cat.objects.length > i && cat.objects[i]) {
+                    colorValue = mapboxUtils.getCategoricalObjectValue<Fill>(cat, i, 'colorSelector', 'fill', defaultColor).solid.color;
+                    // colorValue = cat.objects[i].colorSelector.fill['solid']['color'];
+                    this.colorMap[category] = colorValue;
+                }
+
+                ret.push({
+                    category: category,
+                    value: this.colorMap[category],
+                    color: colorValue,
+                    selectionId: this.host.createSelectionIdBuilder()
+                        .withCategory(cat, i)
+                        .createSelectionId()
+                });
+            })
+            return ret;
+        }
+
         public hideTooltip(): void {
             this.tooltipServiceWrapper.hide(true)
         }
@@ -252,7 +333,6 @@ module powerbi.extensibility.visual {
         public updateLayers(dataView: DataView) {
             // Placeholder to indicate whether data changed or paint prop changed
             // For now this is always true
-            let dataChanged = true;
             const features = mapboxConverter.convert(dataView);
             let datasources: Map<any, boolean> = new Map<any, boolean>()
             this.layers.map(layer => {
@@ -308,6 +388,7 @@ module powerbi.extensibility.visual {
             if (mapboxgl.accessToken != this.settings.api.accessToken) {
                 mapboxgl.accessToken = this.settings.api.accessToken;
             }
+
 
             let style = this.settings.api.style == 'custom' ? this.settings.api.styleUrl : this.settings.api.style;
             if (this.mapStyle == '' || !this.map.isStyleLoaded() || this.mapStyle != style) {
