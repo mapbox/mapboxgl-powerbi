@@ -121,7 +121,8 @@ module powerbi.extensibility.visual {
         public maxZoom: number = 22;
 
         public maxLevel: number = 1
-        public level: string = '1'
+        public selectedLevel: string = '1'
+        public currentLevel: number = 1;
 
         public data1: string = ChoroplethSettings.US_STATES_TILE_URL;  // Let US states be the default
         public vectorTileUrl1: string = ChoroplethSettings.GLOBAL_COUNTRIES_TILE_URL;
@@ -233,19 +234,19 @@ module powerbi.extensibility.visual {
                         max: 10,
                     }
                 },
-                level: []
+                selectedLevel: []
             }
 
             for (let i of Array(properties.maxLevel).keys()) {
-                instances[0].validValues.level.push((i + 1).toString());
+                instances[0].validValues.selectedLevel.push((i + 1).toString());
             }
 
-            if (properties.level >  properties.maxLevel) {
-                properties.level = properties.maxLevel;
+            if (properties.selectedLevel >  properties.maxLevel) {
+                properties.selectedLevel = properties.maxLevel;
             }
 
             for (let i of Array(10).keys()) {
-                if (properties.level != i + 1) {
+                if (properties.selectedLevel != i + 1) {
                     delete properties[`data${i + 1}`];
                     this.removeCustom(properties, i + 1);
                 } else {
@@ -254,13 +255,16 @@ module powerbi.extensibility.visual {
                     }
                 }
             }
-            console.log("Valid levels :", instances[0].validValues.level);
 
             return { instances };
         }
 
         public hasChanged(old) {
-            if (old.maxLevel != this.maxLevel) {
+            if (!old || old.maxLevel != this.maxLevel) {
+                return true;
+            }
+
+            if (old.currentLevel != this.currentLevel) {
                 return true;
             }
 

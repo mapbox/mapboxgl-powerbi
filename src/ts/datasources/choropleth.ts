@@ -12,7 +12,7 @@ module powerbi.extensibility.visual.data {
         addSources(map, settings) {
             map.addSource('choropleth-source', {
                 type: 'vector',
-                url: settings.choropleth.vectorTileUrl,
+                url: settings.choropleth[`vectorTileUrl${settings.choropleth.currentLevel}`],
             });
             return map.getSource('choropleth-source');
         }

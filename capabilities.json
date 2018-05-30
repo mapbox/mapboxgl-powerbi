@@ -69,25 +69,6 @@
                 "select": [
                     {
                         "for": {
-                            "in": "color"
-                        }
-                    },
-                    {
-                        "for": {
-                            "in": "latitude"
-                        }
-                    },
-                    {
-                        "for": {
-                            "in": "longitude"
-                        }
-                    }
-                ]
-            },
-            "values": {
-                "select": [
-                    {
-                        "for": {
                             "in": "location"
                         }
                     },
@@ -126,6 +107,11 @@
         }
     }
   ],
+  "drilldown": {
+    "roles": [
+      "location"
+    ]
+  },
   "objects": {
     "api": {
       "displayName": "Viz Settings",
@@ -668,7 +654,7 @@
             "integer": true
           }
         },
-        "level": {
+        "selectedLevel": {
           "type": {
             "enumeration": [
               {
@@ -724,7 +710,7 @@
             ]
           },
           "displayName": "Level",
-          "displayNameKey": "choroplethLevel",
+          "displayNameKey": "selectedLevel",
           "description": "Select a level to join."
         },
         "data1": {

@@ -295,7 +295,7 @@ module powerbi.extensibility.visual {
                 });
             }
             return ret;
-		}
+        }
 
         fillDataPointsOwn(categories, cat) {
             let ret = [];
@@ -360,6 +360,29 @@ module powerbi.extensibility.visual {
             this.onUpdate(this.map, this.settings, true, this.updatedHandler);
         }
 
+        private updateCurrentLevel(settings, options) {
+            let temp = options.dataViews[0].metadata.columns;
+            let temp_indexes = []
+            let temp_ii = []
+            temp.map( (v, i) => {
+                if (v.roles['location']) {
+                    temp_indexes.push(v.displayName)
+                    temp_ii.push(i)
+                }
+            })
+
+            let cur_level;
+            let temp_sources = options.dataViews[0].matrix.rows.levels[0].sources.filter(s => temp_indexes.indexOf(s.identityExprs[0]['ref']) > -1)
+            if (temp_sources.length > 1) {
+                cur_level = temp_sources.length - 1
+            } else {
+                cur_level = temp_sources[0].index - temp_ii[0]
+            }
+            settings.currentLevel = cur_level + 1;
+
+            return cur_level + 1;
+        }
+
         @mapboxUtils.logExceptions()
         public update(options: VisualUpdateOptions) {
             const dataView: DataView = options.dataViews[0];
@@ -367,6 +390,8 @@ module powerbi.extensibility.visual {
             this.roleMap = mapboxUtils.getRoleMap(dataView.metadata);
 
             this.settings = MapboxSettings.parse<MapboxSettings>(dataView);
+
+            this.updateCurrentLevel(this.settings.choropleth, options);
 
             if (!this.validateOptions(options)) {
                 this.errorDiv.style.display = 'block';
