@@ -3,6 +3,8 @@ module powerbi.extensibility.visual {
     export class Choropleth extends Layer {
         private static ID = 'choropleth'
         private static OutlineID = 'choropleth-outline'
+        private static HighlightID = 'choropleth-highlight'
+
         private vectorTileUrl: string = "";
         private sourceLayer: string = "";
         private vectorProperty: string = "";
@@ -21,12 +23,14 @@ module powerbi.extensibility.visual {
 
         addLayer(settings, beforeLayerId) {
             const map = this.parent.getMap();
+
             const choroplethLayer = mapboxUtils.decorateLayer({
                 id: Choropleth.ID,
                 type: "fill",
                 source: 'choropleth-source',
                 "source-layer": settings.choropleth.sourceLayer
             });
+
             const outlineLayer = mapboxUtils.decorateLayer({
                 id: Choropleth.OutlineID,
                 type: 'line',
@@ -39,8 +43,30 @@ module powerbi.extensibility.visual {
                 source: 'choropleth-source',
                 "source-layer": settings.choropleth.sourceLayer
             });
+
+            const zeroFilter = ["==", this.vectorProperty, ""]
+            const highlightLayer = mapboxUtils.decorateLayer({
+                id: Choropleth.HighlightID,
+                type: 'fill',
+                source: 'choropleth-source',
+                "source-layer": settings.choropleth.sourceLayer,
+                paint: {
+                    "fill-color": "#627BC1",
+                    "fill-opacity": 1
+                },
+                filter: zeroFilter
+            });
+
             map.addLayer(outlineLayer, beforeLayerId);
             map.addLayer(choroplethLayer, Choropleth.OutlineID);
+            map.addLayer(highlightLayer, Choropleth.ID);
+
+            map.on("mousemove", Choropleth.ID, (e) => {
+                map.setFilter(Choropleth.HighlightID, ["==", this.vectorProperty, e.features[0].properties.name]);
+            });
+            map.on("mouseleave", Choropleth.ID, () => {
+                map.setFilter(Choropleth.HighlightID, zeroFilter);
+            });
         }
 
         removeLayer() {
