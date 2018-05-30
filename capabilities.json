@@ -122,8 +122,8 @@
   ],
   "dataViewMappings": [
     {
-      "table": {
-        "rows": {
+      "categorical": {
+        "categories": {
           "dataReductionAlgorithm": {
             "sample": {
               "count": 30000
