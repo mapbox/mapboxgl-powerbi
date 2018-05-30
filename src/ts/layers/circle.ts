@@ -30,7 +30,6 @@ module powerbi.extensibility.visual {
                 type: 'circle'
             });
 
-            console.log('this.sizes', this.sizes)
             const zeroFilter = ["==", "Latitude", ""]
             const highlightLayer = mapboxUtils.decorateLayer({
                 id: Circle.HighlightID,
