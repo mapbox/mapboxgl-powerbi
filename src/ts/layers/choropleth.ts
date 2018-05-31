@@ -51,7 +51,7 @@ module powerbi.extensibility.visual {
                 source: 'choropleth-source',
                 "source-layer": settings.choropleth.sourceLayer,
                 paint: {
-                    "fill-color": Constants.HIGHLIGHT_COLOR,
+                    "fill-color": constants.HIGHLIGHT_COLOR,
                     "fill-opacity": 1
                 },
                 filter: zeroFilter

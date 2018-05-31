@@ -39,9 +39,8 @@ module powerbi.extensibility.visual {
             map.addLayer(highlightLayer, beforeLayerId);
             map.addLayer(circleLayer, Circle.HighlightID);
 
-            map.setPaintProperty(Circle.HighlightID, 'circle-color', Constants.HIGHLIGHT_COLOR);
+            map.setPaintProperty(Circle.HighlightID, 'circle-color', constants.HIGHLIGHT_COLOR);
             map.setPaintProperty(Circle.HighlightID, 'circle-opacity', 0.5);
-
 
             // Enable highlighting on mouse hover
             map.on("mousemove", Circle.ID, mapboxUtils.debounce( (e) => {
