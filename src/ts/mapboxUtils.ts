@@ -8,14 +8,12 @@ module powerbi.extensibility.visual {
         }
 
         export function zoomToData(map, bounds, autoZoomPinned) {
-            
             if (bounds && !autoZoomPinned) {
                 map.fitBounds(bounds, {
                     padding: 20,
                     maxZoom: 15,
                 });
             }
-            
         }
 
         export function shouldUseGradient(colorColumn, colorLimits: { min: any; max: any; values: any; }) {
@@ -25,6 +23,22 @@ module powerbi.extensibility.visual {
 
             return false
         }
+
+        export function debounce(func, wait, immediate) {
+            let timeout;
+            return function() {
+                let context = this, args = arguments;
+                let later = function() {
+                    timeout = null;
+                    if (!immediate) func.apply(context, args);
+                };
+                let callNow = immediate && !timeout;
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+                if (callNow) func.apply(context, args);
+            };
+        };
+
 
         export function getClassCount(limits: { min: number; max: number; values: number[]; }) {
             const MAX_BOUND_COUNT = 6;

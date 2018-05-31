@@ -20,6 +20,8 @@ module powerbi.extensibility.visual {
 
         addLayer(settings, beforeLayerId, roleMap) {
             const map = this.parent.getMap();
+            const latitude = roleMap.latitude.displayName;
+            const longitude = roleMap.longitude.displayName;
 
             const circleLayer = mapboxUtils.decorateLayer({
                 id: Circle.ID,
@@ -27,34 +29,29 @@ module powerbi.extensibility.visual {
                 type: 'circle'
             });
 
-            const zeroFilter = ["==", "Latitude", ""]
+            const zeroFilter = ["==", latitude, ""]
             const highlightLayer = mapboxUtils.decorateLayer({
                 id: Circle.HighlightID,
                 type: 'circle',
                 source: 'data',
-                paint: {
-                    "circle-color": Constants.HIGHLIGHT_COLOR,
-                    "circle-opacity": 1,
-                },
                 filter: zeroFilter
             });
+            map.addLayer(highlightLayer, beforeLayerId);
+            map.addLayer(circleLayer, Circle.HighlightID);
 
-            map.addLayer(circleLayer, beforeLayerId);
-            map.addLayer(highlightLayer, Circle.ID);
+            map.setPaintProperty(Circle.HighlightID, 'circle-color', Constants.HIGHLIGHT_COLOR);
+            map.setPaintProperty(Circle.HighlightID, 'circle-opacity', 0.5);
+
 
             // Enable highlighting on mouse hover
-            map.on("mousemove", Circle.ID, (e) => {
+            map.on("mousemove", Circle.ID, mapboxUtils.debounce( (e) => {
                 const eventProps = e.features[0].properties;
-                if (roleMap.latitude && roleMap.longitude) {
-                    const latitude = roleMap.latitude.displayName;
-                    const longitude = roleMap.longitude.displayName;
-                    const lngLatFilter = ["all",
-                        ["==", latitude, eventProps[latitude]],
-                        ["==", longitude, eventProps[longitude]],
-                    ]
-                    map.setFilter(Circle.HighlightID, lngLatFilter);
-                }
-            });
+                const lngLatFilter = ["all",
+                    ["==", latitude, eventProps[latitude]],
+                    ["==", longitude, eventProps[longitude]],
+                ]
+                map.setFilter(Circle.HighlightID, lngLatFilter);
+            }, 12, true));
             map.on("mouseleave", Circle.ID, () => {
                 map.setFilter(Circle.HighlightID, zeroFilter);
             });
