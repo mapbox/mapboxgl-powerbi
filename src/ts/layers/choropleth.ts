@@ -57,13 +57,13 @@ module powerbi.extensibility.visual {
                 filter: zeroFilter
             });
 
-            map.addLayer(outlineLayer, beforeLayerId);
+            map.addLayer(highlightLayer, beforeLayerId);
+            map.addLayer(outlineLayer, Choropleth.HighlightID);
             map.addLayer(choroplethLayer, Choropleth.OutlineID);
-            map.addLayer(highlightLayer, Choropleth.ID);
 
-            map.on("mousemove", Choropleth.ID, (e) => {
+            map.on("mousemove", Choropleth.ID, mapboxUtils.debounce( (e) => {
                 map.setFilter(Choropleth.HighlightID, ["==", this.vectorProperty, e.features[0].properties.name]);
-            });
+            }, 12, true));
             map.on("mouseleave", Choropleth.ID, () => {
                 map.setFilter(Choropleth.HighlightID, zeroFilter);
             });
