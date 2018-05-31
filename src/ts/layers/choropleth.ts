@@ -22,11 +22,15 @@ module powerbi.extensibility.visual {
         addLayer(settings, beforeLayerId, roleMap) {
             const map = this.parent.getMap();
 
+            const choroSettings = settings.choropleth;
+            const sourceLayer = choroSettings[`sourceLayer${choroSettings.currentLevel}`];
+            const vectorProperty = choroSettings[`vectorProperty${choroSettings.currentLevel}`];
+
             const choroplethLayer = mapboxUtils.decorateLayer({
                 id: Choropleth.ID,
                 type: "fill",
                 source: 'choropleth-source',
-                "source-layer": settings.choropleth[`sourceLayer${settings.choropleth.currentLevel}`]
+                "source-layer": sourceLayer
             });
 
             const outlineLayer = mapboxUtils.decorateLayer({
@@ -39,21 +43,19 @@ module powerbi.extensibility.visual {
                     "line-width": 0
                 },
                 source: 'choropleth-source',
-                "source-layer": settings.choropleth[`sourceLayer${settings.choropleth.currentLevel}`]
+                "source-layer": sourceLayer
             });
 
-            const choroSettings = settings.choropleth;
-            const vectorProperty = choroSettings[`vectorProperty${choroSettings.currentLevel}`];
             const zeroFilter = ["==", vectorProperty, ""]
             const highlightLayer = mapboxUtils.decorateLayer({
                 id: Choropleth.HighlightID,
                 type: 'fill',
                 source: 'choropleth-source',
-                "source-layer": settings.choropleth.sourceLayer,
                 paint: {
                     "fill-color": constants.HIGHLIGHT_COLOR,
                     "fill-opacity": 1
                 },
+                "source-layer": sourceLayer,
                 filter: zeroFilter
             });
 
@@ -157,10 +159,10 @@ module powerbi.extensibility.visual {
 
                 // We use the old property function syntax here because the data-join technique is faster to parse still than expressions with this method
                 const defaultColor = 'rgba(0,0,0,0)';
-                const vectorProperty = choroSettings[`vectorProperty${choroSettings.currentLevel}`];
-                let colors = { type: "categorical", vectorProperty, default: defaultColor, stops: [] };
-                let outlineColors = { type: "categorical", vectorProperty, default: defaultColor, stops: [] };
-                let filter = ['in', vectorProperty];
+                const property = choroSettings[`vectorProperty${choroSettings.currentLevel}`];
+                let colors = { type: "categorical", property, default: defaultColor, stops: [] };
+                let outlineColors = { type: "categorical", property, default: defaultColor, stops: [] };
+                let filter = ['in', property];
                 const choroplethData = this.source.getData(map, settings);
 
                 let existingStops = {};
