@@ -33,7 +33,7 @@ module powerbi.extensibility.visual {
                 type: 'circle',
                 source: 'data',
                 paint: {
-                    "circle-color": "#627BC1",
+                    "circle-color": Constants.HIGHLIGHT_COLOR,
                     "circle-opacity": 1,
                 },
                 filter: zeroFilter
