@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "pbi": "pbiviz",
+    "pbicert": "pbiviz --create-cert",
     "pbicerti": "pbiviz --install-cert",
     "package": "pbiviz package --no-minify",
     "pretest": "pbiviz package --resources --no-minify --no-pbiviz --no-plugin",

@@ -107,10 +107,9 @@ module powerbi.extensibility.visual.data {
         }
 
         getData(map, settings) : any[] {
-            const worldBounds = [-180.0000, -90.0000, 180.0000, 90.0000];
             this.cluster.options.radius = settings.clusterRadius;
             this.cluster.options.maxZoom = settings.clusterMaxZoom;
-            return this.cluster.getClusters(worldBounds, Math.floor(map.getZoom()) ).
+            return this.cluster.getClusters(constants.WORLD_BOUNDS, Math.floor(map.getZoom()) ).
                 map( feature => {
                     // Remove built-in supercluster properties
                     // as they are not needed and are ruining our tooltips
@@ -121,7 +120,6 @@ module powerbi.extensibility.visual.data {
                     return feature;
                 });
         }
-
     }
 
     function roundToDecimals(value, decimals) {
@@ -129,4 +127,3 @@ module powerbi.extensibility.visual.data {
         return Math.round(value * tenPow) / tenPow
     }
 }
-

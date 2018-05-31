@@ -28,7 +28,7 @@ module powerbi.extensibility.visual {
             map.removeSource('clusterData');
         }
 
-        addLayer(settings, beforeLayerId) {
+        addLayer(settings, beforeLayerId, roleMap) {
             const map = this.parent.getMap();
             const clusterLayer = mapboxUtils.decorateLayer({
                 id: Cluster.ID,

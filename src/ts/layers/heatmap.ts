@@ -12,7 +12,7 @@ module powerbi.extensibility.visual {
             return [ Heatmap.ID ];
         }
 
-        addLayer(settings, beforeLayerId) {
+        addLayer(settings, beforeLayerId, roleMap) {
             const map = this.parent.getMap();
             const heatmapLayer = mapboxUtils.decorateLayer({
                 id: Heatmap.ID,
