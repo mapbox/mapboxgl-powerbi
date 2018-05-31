@@ -51,10 +51,6 @@ module powerbi.extensibility.visual {
                 id: Choropleth.HighlightID,
                 type: 'fill',
                 source: 'choropleth-source',
-                paint: {
-                    "fill-color": constants.HIGHLIGHT_COLOR,
-                    "fill-opacity": 1
-                },
                 "source-layer": sourceLayer,
                 filter: zeroFilter
             });
@@ -162,6 +158,7 @@ module powerbi.extensibility.visual {
                 const property = choroSettings[`vectorProperty${choroSettings.currentLevel}`];
                 let colors = { type: "categorical", property, default: defaultColor, stops: [] };
                 let outlineColors = { type: "categorical", property, default: defaultColor, stops: [] };
+                let highlightColors = { type: "categorical", property, default: defaultColor, stops: [] };
                 let filter = ['in', property];
                 const choroplethData = this.source.getData(map, settings);
 
@@ -191,12 +188,14 @@ module powerbi.extensibility.visual {
 
                     existingStops[location] = true;
                     colors.stops.push([location, color.toString()]);
+                    highlightColors.stops.push([location, chroma(color).darken().toString()]);
                     filter.push(location);
                     outlineColors.stops.push([location, outlineColor.toString()]);
                 }
 
                 if (validStops) {
                     map.setPaintProperty(Choropleth.ID, 'fill-color', colors);
+                    map.setPaintProperty(Choropleth.HighlightID, 'fill-color', highlightColors);
                 } else {
                     map.setPaintProperty(Choropleth.ID, 'fill-color', 'rgb(0, 0, 0)');
                 }
@@ -204,11 +203,13 @@ module powerbi.extensibility.visual {
                 map.setFilter(Choropleth.OutlineID, filter);
 
                 map.setPaintProperty(Choropleth.ID, 'fill-outline-color', 'rgba(0,0,0,0.05)');
-                map.setPaintProperty(Choropleth.ID, 'fill-opacity', settings.choropleth.opacity / 100);
+                map.setPaintProperty(Choropleth.ID, 'fill-opacity', choroSettings.opacity / 100);
+                map.setPaintProperty(Choropleth.HighlightID, 'fill-opacity', choroSettings.opacity / 100);
 
-                map.setPaintProperty(Choropleth.OutlineID, 'line-color', settings.choropleth.outlineColor);
-                map.setPaintProperty(Choropleth.OutlineID, 'line-width', settings.choropleth.outlineWidth);
-                map.setPaintProperty(Choropleth.OutlineID, 'line-opacity', settings.choropleth.outlineOpacity / 100);
+                map.setPaintProperty(Choropleth.OutlineID, 'line-color', choroSettings.outlineColor);
+                map.setPaintProperty(Choropleth.OutlineID, 'line-width', choroSettings.outlineWidth);
+                map.setPaintProperty(Choropleth.OutlineID, 'line-opacity', choroSettings.outlineOpacity / 100);
+
                 map.setLayerZoomRange(Choropleth.ID, choroSettings.minZoom, choroSettings.maxZoom);
             }
         }
