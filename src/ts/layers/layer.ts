@@ -46,7 +46,7 @@ module powerbi.extensibility.visual {
                             }
                         }
                     }
-                    this.addLayer(settings, firstSymbolId);
+                    this.addLayer(settings, firstSymbolId, roleMap);
                 }
             } else {
                 if (this.layerExists()) {
@@ -55,7 +55,7 @@ module powerbi.extensibility.visual {
             }
         }
 
-        addLayer(settings, beforeLayerId : string) {
+        addLayer(settings, beforeLayerId: string, roleMap) {
         }
         abstract removeLayer()
 

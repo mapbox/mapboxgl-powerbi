@@ -28,7 +28,7 @@ module powerbi.extensibility.visual {
         }
 
         export function convert(dataView: DataView) {
-            const { rows} = dataView.table;
+            const { rows } = dataView.table;
             const { columns } = dataView.metadata;
             return convertToFeatures(rows, columns);
         }

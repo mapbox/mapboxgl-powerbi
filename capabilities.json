@@ -4,7 +4,14 @@
       "name": "location",
       "kind": "Grouping",
       "displayName": "Location",
-      "description": "Location"
+      "description": "Geographic location identifier for Choropleth layer",
+      "preferredTypes": [
+        {
+          "geography": {
+              "stateorprovince": true
+          }
+        }
+      ]
     },
     {
       "name": "latitude",
@@ -12,6 +19,19 @@
       "displayName": "Latitude",
       "description": "Latitude geographic point dimension",
       "preferredTypes": [
+        {
+          "geography": {
+            "latitude": true
+          }
+        }
+      ],
+      "requiredTypes": [
+        {
+          "numeric": true
+        },
+        {
+          "integer": true
+        },
         {
           "geography": {
             "latitude": true
@@ -30,25 +50,68 @@
             "longitude": true
           }
         }
+      ],
+      "requiredTypes": [
+        {
+          "numeric": true
+        },
+        {
+          "integer": true
+        },
+        {
+          "geography": {
+            "longitude": true
+          }
+        }
       ]
     },
     {
       "name": "color",
       "kind": "GroupingOrMeasure",
       "displayName": "Color",
-      "description": "Measure or Dimension to color circles and heatmaps."
+      "description": "Measure or Dimension to color circles and heatmaps.  Can be numeric or text data type.",
+      "requiredTypes": [
+        {
+          "numeric": true
+        },
+        {
+          "integer": true
+        },
+        {
+          "text": true
+        },
+        {
+          "bool": true
+        }
+      ]
     },
     {
       "name": "size",
       "kind": "Measure",
       "displayName": "Size",
-      "description": "Measure to control circle radius size."
+      "description": "Measure to control circle radius size. Must be numeric data type.",
+      "requiredTypes": [
+        {
+          "numeric": true
+        },
+        {
+          "integer": true
+        }
+      ]
     },
     {
       "name": "cluster",
       "kind": "Measure",
       "displayName": "Cluster",
-      "description": "Measure to aggregate points for clustering"
+      "description": "Measure to aggregate points for clustering.  Must be numeric data type.",
+      "requiredTypes": [
+        {
+          "numeric": true
+        },
+        {
+          "integer": true
+        }
+      ]
     },
     {
       "name": "tooltips",

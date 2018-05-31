@@ -4,6 +4,8 @@ module powerbi.extensibility.visual {
         private static ID = 'choropleth'
         private static OutlineID = 'choropleth-outline'
         private settings: ChoroplethSettings;
+        private static HighlightID = 'choropleth-highlight'
+
         private palette: IColorPalette;
 
         constructor(map: MapboxMap, palette: IColorPalette) {
@@ -17,14 +19,16 @@ module powerbi.extensibility.visual {
             return [Choropleth.ID, Choropleth.OutlineID];
         }
 
-        addLayer(settings, beforeLayerId) {
+        addLayer(settings, beforeLayerId, roleMap) {
             const map = this.parent.getMap();
+
             const choroplethLayer = mapboxUtils.decorateLayer({
                 id: Choropleth.ID,
                 type: "fill",
                 source: 'choropleth-source',
                 "source-layer": settings.choropleth[`sourceLayer${settings.choropleth.currentLevel}`]
             });
+
             const outlineLayer = mapboxUtils.decorateLayer({
                 id: Choropleth.OutlineID,
                 type: 'line',
@@ -37,8 +41,30 @@ module powerbi.extensibility.visual {
                 source: 'choropleth-source',
                 "source-layer": settings.choropleth[`sourceLayer${settings.choropleth.currentLevel}`]
             });
-            map.addLayer(outlineLayer, beforeLayerId);
+
+            const zeroFilter = ["==", this.vectorProperty, ""]
+            const highlightLayer = mapboxUtils.decorateLayer({
+                id: Choropleth.HighlightID,
+                type: 'fill',
+                source: 'choropleth-source',
+                "source-layer": settings.choropleth.sourceLayer,
+                paint: {
+                    "fill-color": constants.HIGHLIGHT_COLOR,
+                    "fill-opacity": 1
+                },
+                filter: zeroFilter
+            });
+
+            map.addLayer(highlightLayer, beforeLayerId);
+            map.addLayer(outlineLayer, Choropleth.HighlightID);
             map.addLayer(choroplethLayer, Choropleth.OutlineID);
+
+            map.on("mousemove", Choropleth.ID, mapboxUtils.debounce( (e) => {
+                map.setFilter(Choropleth.HighlightID, ["==", this.vectorProperty, e.features[0].properties.name]);
+            }, 12, true));
+            map.on("mouseleave", Choropleth.ID, () => {
+                map.setFilter(Choropleth.HighlightID, zeroFilter);
+            });
         }
 
         removeLayer() {

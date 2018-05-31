@@ -68,3 +68,6 @@ dist/
 *.swp
 .vscode
 .tmuxinator.yml
+
+# API build
+.api/

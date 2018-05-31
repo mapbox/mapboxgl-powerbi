@@ -1,10 +1,11 @@
 module powerbi.extensibility.visual {
     declare var turf : any;
-    const NUMBER_OF_COLORVALUES = 12;
 
     export class Circle extends Layer {
         private palette: IColorPalette;
+
         private static ID = 'circle';
+        private static HighlightID = 'circle-highlight'
 
         constructor(map: MapboxMap, palette: IColorPalette) {
             super(map)
@@ -17,14 +18,42 @@ module powerbi.extensibility.visual {
             return [ Circle.ID ];
         }
 
-        addLayer(settings, beforeLayerId) {
+        addLayer(settings, beforeLayerId, roleMap) {
             const map = this.parent.getMap();
+            const latitude = roleMap.latitude.displayName;
+            const longitude = roleMap.longitude.displayName;
+
             const circleLayer = mapboxUtils.decorateLayer({
-                id: 'circle',
+                id: Circle.ID,
                 source: 'data',
                 type: 'circle'
             });
-            map.addLayer(circleLayer, beforeLayerId);
+
+            const zeroFilter = ["==", latitude, ""]
+            const highlightLayer = mapboxUtils.decorateLayer({
+                id: Circle.HighlightID,
+                type: 'circle',
+                source: 'data',
+                filter: zeroFilter
+            });
+            map.addLayer(highlightLayer, beforeLayerId);
+            map.addLayer(circleLayer, Circle.HighlightID);
+
+            map.setPaintProperty(Circle.HighlightID, 'circle-color', constants.HIGHLIGHT_COLOR);
+            map.setPaintProperty(Circle.HighlightID, 'circle-opacity', 0.5);
+
+            // Enable highlighting on mouse hover
+            map.on("mousemove", Circle.ID, mapboxUtils.debounce( (e) => {
+                const eventProps = e.features[0].properties;
+                const lngLatFilter = ["all",
+                    ["==", latitude, eventProps[latitude]],
+                    ["==", longitude, eventProps[longitude]],
+                ]
+                map.setFilter(Circle.HighlightID, lngLatFilter);
+            }, 12, true));
+            map.on("mouseleave", Circle.ID, () => {
+                map.setFilter(Circle.HighlightID, zeroFilter);
+            });
         }
 
         removeLayer() {
@@ -44,6 +73,7 @@ module powerbi.extensibility.visual {
                 let colors = Circle.getColors(limits.color, isGradient, settings, this.palette, roleMap.color, colorMap);
 
                 map.setPaintProperty(Circle.ID, 'circle-radius', sizes);
+                map.setPaintProperty(Circle.HighlightID, 'circle-radius', sizes);
                 map.setPaintProperty(Circle.ID, 'circle-color', colors);
                 map.setLayerZoomRange(Circle.ID, settings.circle.minZoom, settings.circle.maxZoom);
                 map.setPaintProperty(Circle.ID, 'circle-blur', settings.circle.blur / 100);
@@ -124,8 +154,6 @@ module powerbi.extensibility.visual {
                 ];
             }
         }
-
     }
-
 }
 
