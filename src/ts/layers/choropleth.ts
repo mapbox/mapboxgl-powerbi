@@ -21,7 +21,7 @@ module powerbi.extensibility.visual {
             return [Choropleth.ID, Choropleth.OutlineID];
         }
 
-        addLayer(settings, beforeLayerId) {
+        addLayer(settings, beforeLayerId, roleMap) {
             const map = this.parent.getMap();
 
             const choroplethLayer = mapboxUtils.decorateLayer({
