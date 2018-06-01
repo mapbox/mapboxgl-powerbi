@@ -95,39 +95,6 @@ module powerbi.extensibility.visual {
             }
         }
 
-        export function createClickHandler(mapVisual: MapboxMap) {
-            var onClick : Function = function(e) {
-                const map = mapVisual.getMap()
-
-                // map.queryRenderedFeatures fails
-                // when option.layers contains an id which is not on the map
-                const layers = mapVisual.getExistingLayers().map(layer => layer.getId())
-
-                const radius = 5
-                let minpoint = new Array(e.point['x'] - radius, e.point['y'] - radius)
-                let maxpoint = new Array(e.point['x'] + radius, e.point['y'] + radius)
-                let features : any = map.queryRenderedFeatures([minpoint, maxpoint], {
-                    layers
-                });
-
-                if (features
-                    && features.length
-                    && features[0]
-                    && features[0].geometry
-                    && features[0].geometry.coordinates
-                ) {
-                    mapVisual.hideTooltip()
-                    map.easeTo({
-                        center: getCenter(features[0]),
-                        zoom: map.getZoom() + 1,
-                        duration: 1000
-                    });
-                }
-            }
-
-            return onClick
-        };
-
         export function decorateLayer(layer) {
             switch (layer.type) {
                 case 'circle': {

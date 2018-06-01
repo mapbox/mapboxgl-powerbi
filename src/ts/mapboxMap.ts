@@ -187,13 +187,6 @@ module powerbi.extensibility.visual {
             }
         }
 
-        private addClick() {
-            if (!this.map) { return }
-            if (this.map.listens('click')) { return }
-            const onClick = mapboxUtils.createClickHandler(this)
-            this.map.on('click', onClick);
-        }
-
         getExistingLayers(): Layer[] {
             return this.layers.filter(layer => layer.layerExists())
         }
@@ -371,16 +364,16 @@ module powerbi.extensibility.visual {
                 }
             })
 
-            let cur_level;
             let temp_sources = options.dataViews[0].matrix.rows.levels[0].sources.filter(s => temp_indexes.indexOf(s.identityExprs[0]['ref']) > -1)
-            if (temp_sources.length > 1) {
-                cur_level = temp_sources.length - 1
-            } else {
-                cur_level = temp_sources[0].index - temp_ii[0]
+            if (temp_sources.length < 1) {
+                return;
             }
-            settings.currentLevel = cur_level + 1;
 
-            return cur_level + 1;
+            if (temp_sources.length > 1) {
+                settings.currentLevel = temp_sources.length
+            } else {
+                settings.currentLevel = temp_sources[0].index - temp_ii[0] + 1
+            }
         }
 
         @mapboxUtils.logExceptions()
