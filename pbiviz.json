@@ -23,7 +23,9 @@
     "src/js/turf-bundle-min.js",
     "node_modules/chroma-js/chroma.min.js",
     "src/js/mapboxglAdaptor.js",
-    "node_modules/powerbi-visuals-utils-dataviewutils/lib/index.js"
+    "node_modules/powerbi-visuals-utils-dataviewutils/lib/index.js",
+    "node_modules/powerbi-visuals-utils-typeutils/lib/index.js",
+    "node_modules/powerbi-visuals-utils-colorutils/lib/index.js"
   ],
   "style": "style/visual.less",
   "capabilities": "capabilities.json",

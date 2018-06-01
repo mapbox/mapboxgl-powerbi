@@ -5551,7 +5551,7 @@ powerbi-visuals-package-validator@^1.0.1:
     typescript "1.7.5"
     yargs "3.32.0"
 
-powerbi-visuals-tools@^1.10.1:
+powerbi-visuals-tools@^1.12.0:
   version "1.12.0"
   resolved "https://registry.yarnpkg.com/powerbi-visuals-tools/-/powerbi-visuals-tools-1.12.0.tgz#53835722bd8802d18f04b9997fb8809a0d642261"
   dependencies:
@@ -5570,6 +5570,13 @@ powerbi-visuals-tools@^1.10.1:
     typescript "2.3.3"
     uglify-js "2.6.2"
     uuid "3.0.0"
+
+powerbi-visuals-utils-colorutils@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/powerbi-visuals-utils-colorutils/-/powerbi-visuals-utils-colorutils-1.0.0.tgz#d7a119c6b1b884e436328b3851933d9884b68208"
+  dependencies:
+    powerbi-visuals-utils-dataviewutils "1.2.0"
+    powerbi-visuals-utils-typeutils "^1.1.0"
 
 powerbi-visuals-utils-dataviewutils@1.2.0, powerbi-visuals-utils-dataviewutils@^1.2.0:
   version "1.2.0"

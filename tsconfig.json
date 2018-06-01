@@ -32,6 +32,9 @@
     "src/ts/mapboxConverter.ts",
     "src/ts/autoZoomControl.ts",
     "src/ts/mapboxMap.ts",
-    "src/ts/tooltipServiceWrapper.ts"
+    "src/ts/tooltipServiceWrapper.ts",
+    "node_modules/powerbi-visuals-utils-dataviewutils/lib/index.d.ts",
+    "node_modules/powerbi-visuals-utils-typeutils/lib/index.d.ts",
+    "node_modules/powerbi-visuals-utils-colorutils/lib/index.d.ts"
   ]
 }
