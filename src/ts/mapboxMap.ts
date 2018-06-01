@@ -373,7 +373,10 @@ module powerbi.extensibility.visual {
 
             let cur_level;
             let temp_sources = options.dataViews[0].matrix.rows.levels[0].sources.filter(s => temp_indexes.indexOf(s.identityExprs[0]['ref']) > -1)
-            if (temp_sources.length > 1) {
+            if (temp_sources.length == 0) {
+                settings.currentLevel = 1;
+                return 1;
+            } else if (temp_sources.length > 1) {
                 cur_level = temp_sources.length - 1
             } else {
                 cur_level = temp_sources[0].index - temp_ii[0]
