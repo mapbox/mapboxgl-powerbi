@@ -18,6 +18,7 @@ module powerbi.extensibility.visual {
         private dataPoints: any[];
         private host: any;
         private colorPalette: IColorPalette;
+        private filter: Filter;
 
         constructor(options: VisualConstructorOptions) {
             // Map initialization
@@ -49,6 +50,8 @@ module powerbi.extensibility.visual {
             this.tooltipServiceWrapper = createTooltipServiceWrapper(options.host.tooltipService, options.element);
             this.colorMap = {
             }
+
+            this.filter = new Filter(this)
 
         }
 
@@ -125,6 +128,14 @@ module powerbi.extensibility.visual {
             return this.map;
         }
 
+        public getMapDiv() {
+            return this.mapDiv;
+        }
+
+        public getRoleMap() {
+            return this.roleMap;
+        }
+
         private addMap() {
             if (this.map) {
                 return
@@ -165,7 +176,7 @@ module powerbi.extensibility.visual {
             this.map.addControl(new mapboxgl.NavigationControl());
             this.map.addControl(this.autoZoomControl);
 
-            this.map.on('click', filter.createClickHandler(this));
+            this.filter.manageHandlers();
 
             this.map.on('zoom', () => {
                 const newZoom = Math.floor(this.map.getZoom())

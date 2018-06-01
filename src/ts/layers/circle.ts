@@ -56,6 +56,21 @@ module powerbi.extensibility.visual {
             });
         }
 
+        updateSelection(features, roleMap) {
+            const map = this.parent.getMap();
+            const latitude = roleMap.latitude.displayName;
+            const longitude = roleMap.longitude.displayName;
+
+            let lngLatFilter = [];
+            lngLatFilter.push("any");
+            features.map( feature => {
+                lngLatFilter.push(["all",
+                    ["==", latitude, feature.properties[latitude]],
+                    ["==", longitude, feature.properties[longitude]]]);
+            });
+            map.setFilter(Circle.HighlightID, lngLatFilter);
+        }
+
         removeLayer() {
             const map = this.parent.getMap();
             map.removeLayer(Circle.ID);
