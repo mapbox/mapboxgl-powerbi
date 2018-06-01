@@ -2,7 +2,17 @@ module powerbi.extensibility.visual {
     declare var debug: any;
     declare var turf: any;
 
+    // powerbi.extensibility.utils.color
+    import ColorHelper = powerbi.extensibility.utils.color.ColorHelper;
+
+    interface CategoryColor {
+        name: string,
+        selector: ISelectionId,
+        color: string;
+    }
+
     export class MapboxMap implements IVisual {
+
         private map: mapboxgl.Map;
         private mapDiv: HTMLDivElement;
         private errorDiv: HTMLDivElement;
@@ -19,6 +29,15 @@ module powerbi.extensibility.visual {
         private host: any;
         private colorPalette: IColorPalette;
 
+        public visualHost: IVisualHost;
+
+        public categoryColors: CategoryColor[] = []
+
+        private static LegendPropertyIdentifier: DataViewObjectPropertyIdentifier = {
+            objectName: "group",
+            propertyName: "fill"
+        };
+
         constructor(options: VisualConstructorOptions) {
             // Map initialization
             this.previousZoom = 0;
@@ -30,6 +49,7 @@ module powerbi.extensibility.visual {
             options.element.appendChild(this.errorDiv);
 
             this.autoZoomControl = new AutoZoomControl();
+            this.visualHost = options.host;
 
             // For anchor elements to work we need to manually
             // call launchUrl API method
@@ -54,6 +74,7 @@ module powerbi.extensibility.visual {
 
         onUpdate(map, settings, zoom, updatedHandler: Function) {
             try {
+                console.log('onUpdate')
                 this.layers.map(layer => {
                     layer.applySettings(settings, this.roleMap, this.colorMap);
                 });
@@ -91,25 +112,42 @@ module powerbi.extensibility.visual {
         * validation and return other values/defaults
         */
         public enumerateObjectInstances(options: EnumerateVisualObjectInstancesOptions): VisualObjectInstanceEnumeration {
-            if (options.objectName == 'colorSelector') {
-                let objectEnumeration: VisualObjectInstance[] = [];
-                for (let point of this.dataPoints) {
-                    objectEnumeration.push({
-                        objectName: options.objectName,
-                        displayName: point.category,
+            const instanceEnumeration: VisualObjectInstanceEnumeration = MapboxSettings.enumerateObjectInstances(this.settings || MapboxSettings.getDefault(), options);
+
+            if (options.objectName === MapboxMap.LegendPropertyIdentifier.objectName) {
+                this.enumerateColors(this.categoryColors, instanceEnumeration);
+            }
+
+            return instanceEnumeration || [];
+        }
+
+        private enumerateColors(categoryColors: CategoryColor[], instanceEnumeration: VisualObjectInstanceEnumeration): void {
+            if (categoryColors && categoryColors.length > 0) {
+                categoryColors.forEach((categoryColor: CategoryColor) => {
+                    const displayName: string = categoryColor.name.toString();
+                    const identity: powerbi.visuals.ISelectionId = categoryColor.selector as powerbi.visuals.ISelectionId;
+                    this.addAnInstanceToEnumeration(instanceEnumeration, {
+                        displayName,
+                        objectName: MapboxMap.LegendPropertyIdentifier.objectName,
+                        selector: ColorHelper.normalizeSelector(identity.getSelector(), false),
                         properties: {
-                            fill: {
-                                solid: {
-                                    color: point.color
-                                }
-                            }
-                        },
-                        selector: point.selectionId.getSelector(),
+                            fill: { solid: { color: categoryColor.color } }
+                        }
                     });
-                }
-                return objectEnumeration;
+                });
+            }
+        }
+
+        private addAnInstanceToEnumeration(
+            instanceEnumeration: VisualObjectInstanceEnumeration,
+            instance: VisualObjectInstance): void {
+
+            if ((instanceEnumeration as VisualObjectInstanceEnumerationObject).instances) {
+                (instanceEnumeration as VisualObjectInstanceEnumerationObject)
+                    .instances
+                    .push(instance);
             } else {
-                return MapboxSettings.enumerateObjectInstances(this.settings || MapboxSettings.getDefault(), options);
+                (instanceEnumeration as VisualObjectInstance[]).push(instance);
             }
         }
 
@@ -332,7 +370,10 @@ module powerbi.extensibility.visual {
         public updateLayers(dataView: DataView) {
             // Placeholder to indicate whether data changed or paint prop changed
             // For now this is always true
-            const features = mapboxConverter.convert(dataView);
+            console.log('dataView',dataView)
+            console.log('objects', dataView.categorical.categories[0].objects)
+            let dataChanged = true;
+            const features = mapboxConverter.convert(dataView, this.visualHost);
             let datasources: Map<any, boolean> = new Map<any, boolean>()
             this.layers.map(layer => {
                 const source = layer.getSource(this.settings);
@@ -359,6 +400,25 @@ module powerbi.extensibility.visual {
 
             this.onUpdate(this.map, this.settings, true, this.updatedHandler);
         }
+
+        private static ColorsPropertyIdentifier: DataViewObjectPropertyIdentifier = {
+            objectName: "group",
+            propertyName: "fill"
+        };
+
+        private getColor(
+            properties: DataViewObjectPropertyIdentifier,
+            defaultColor: string,
+            objects: DataViewObjects): string {
+
+            const colorHelper: ColorHelper = new ColorHelper(
+                this.colorPalette,
+                properties,
+                defaultColor);
+
+            return colorHelper.getColorForMeasure(objects, "");
+        }
+
 
         private updateCurrentLevel(settings, options) {
             let temp = options.dataViews[0].metadata.columns;
@@ -390,6 +450,18 @@ module powerbi.extensibility.visual {
             this.roleMap = mapboxUtils.getRoleMap(dataView.metadata);
 
             this.settings = MapboxSettings.parse<MapboxSettings>(dataView);
+            if (dataView.categorical.categories[0].objects) {
+                dataView.categorical.categories[0].objects.forEach( (obj, idx)  => {
+                    const color = this.getColor(
+                        MapboxMap.ColorsPropertyIdentifier,
+                        "#FF0000",
+                        obj);
+                    if (color && this.categoryColors && this.categoryColors.length > 0) {
+                        console.log('color',color)
+                        this.categoryColors[idx].color = color
+                    }
+                })
+            }
 
             this.updateCurrentLevel(this.settings.choropleth, options);
 

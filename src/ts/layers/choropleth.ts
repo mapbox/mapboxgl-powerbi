@@ -132,7 +132,7 @@ module powerbi.extensibility.visual {
             if (map.getLayer(Choropleth.ID)) {
                 map.setLayoutProperty(Choropleth.ID, 'visibility', choroSettings.display() ? 'visible' : 'none');
             }
-
+            const choroplethData = this.source.getData(map, settings);
             if (choroSettings.display()) {
                 const fillColorLimits = this.source.getLimits();
 
@@ -147,14 +147,32 @@ module powerbi.extensibility.visual {
                     getColorStop = chroma.scale(choroColorSettings).domain(fillDomain);
                 }
                 else {
-                    let colorStops = {};
-                    fillColorLimits.values.map((value, idx) => {
-                        const color = chroma(this.palette.getColor(idx.toString()).value);
-                        colorStops[value] = color;
+                    const categoryColors = this.parent.categoryColors
+                    const colorStops = {}
+                    categoryColors.forEach( categoryColor => {
+                        colorStops[categoryColor.name] = chroma(categoryColor.color)
+                    })
+                    console.log('prev categoryColors', categoryColors)
+                    categoryColors.length = 0
+
+                    fillColorLimits.values.forEach((value, idx) => {
+                        if (!colorStops[value]) {
+                            const color = chroma(this.palette.getColor(idx.toString()).value);
+                            colorStops[value] = color;
+                        }
+
+                        const categoryColor = {
+                            name: value,
+                            selector: choroplethData[idx]['selectionId'],
+                            color: colorStops[value].toString()
+                        }
+                        categoryColors.push(categoryColor)
+
                     });
                     getColorStop = (value) => {
                         return colorStops[value]
                     }
+                    console.log('new categoryColors', categoryColors)
                 }
 
                 // We use the old property function syntax here because the data-join technique is faster to parse still than expressions with this method
@@ -163,16 +181,16 @@ module powerbi.extensibility.visual {
                 let colors = { type: "categorical", property, default: defaultColor, stops: [] };
                 let outlineColors = { type: "categorical", property, default: defaultColor, stops: [] };
                 let filter = ['in', property];
-                const choroplethData = this.source.getData(map, settings);
+
 
                 let existingStops = {};
                 let validStops = true;
 
                 for (let row of choroplethData) {
                     const location = row[roleMap.location.displayName];
-
-                    let color: any = getColorStop(row[roleMap.color.displayName]);
-                    let outlineColor: any = getColorStop(row[roleMap.color.displayName]);
+                    const colorColumnValue = row[roleMap.color.displayName]
+                    let color: any = getColorStop(colorColumnValue);
+                    let outlineColor: any = getColorStop(colorColumnValue);
 
                     if (!location || !color || !outlineColor) {
                         // Stop value cannot be undefined or null; don't add this row to the stops
