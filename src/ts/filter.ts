@@ -106,12 +106,12 @@ module powerbi.extensibility.visual {
             // If bbox exists. use this value as the argument for `queryRenderedFeatures`
             if (bbox) {
                 const layers = this.mapVisual.getExistingLayers();
-                const roleMap = this.mapVisual.getRoleMap();
                 if (layers && layers.length > 0) {
-
+                    const settings = this.mapVisual.getSettings();
+                    const roleMap = this.mapVisual.getRoleMap();    
                     layers.map( layer => {
                         let features = map.queryRenderedFeatures(bbox, { layers: [ layer.getId() ] });
-                        layer.updateSelection(features, roleMap);
+                        layer.updateSelection(features, roleMap, settings);
                     });
 
                 }

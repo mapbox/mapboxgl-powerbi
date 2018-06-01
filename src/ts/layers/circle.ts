@@ -56,7 +56,7 @@ module powerbi.extensibility.visual {
             });
         }
 
-        updateSelection(features, roleMap) {
+        updateSelection(features, roleMap, settings) {
             const map = this.parent.getMap();
             const latitude = roleMap.latitude.displayName;
             const longitude = roleMap.longitude.displayName;

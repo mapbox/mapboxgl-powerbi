@@ -27,7 +27,7 @@ module powerbi.extensibility.visual {
 
         abstract getLayerIDs()
 
-        updateSelection(features, roleMap) {
+        updateSelection(features, roleMap, settings) {
         }
 
         applySettings(settings, roleMap, colorMap) {

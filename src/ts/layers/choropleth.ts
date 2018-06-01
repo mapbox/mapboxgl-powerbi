@@ -71,6 +71,19 @@ module powerbi.extensibility.visual {
             });
         }
 
+        updateSelection(features, roleMap, settings) {
+            const map = this.parent.getMap();
+            const choroSettings = settings.choropleth;
+            const vectorProperty = choroSettings[`vectorProperty${choroSettings.currentLevel}`];
+
+            let locationFilter = [];
+            locationFilter.push("any");
+            features.map( feature => {
+                locationFilter.push(["==", vectorProperty, feature.properties.name]);
+            });           
+            map.setFilter(Choropleth.HighlightID, locationFilter);
+        }
+
         removeLayer() {
             const map = this.parent.getMap();
             map.removeLayer(Choropleth.ID);

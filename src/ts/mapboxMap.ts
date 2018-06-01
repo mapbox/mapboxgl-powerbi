@@ -443,5 +443,9 @@ module powerbi.extensibility.visual {
         public destroy(): void {
             this.removeMap();
         }
+
+        public getSettings() {
+            return this.settings
+        }
     }
 }
