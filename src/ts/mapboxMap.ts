@@ -148,13 +148,13 @@ module powerbi.extensibility.visual {
                         url.slice(0, 26) == 'https://b.tiles.mapbox.com' ||
                         url.slice(0, 26) == 'https://c.tiles.mapbox.com' ||
                         url.slice(0, 26) == 'https://d.tiles.mapbox.com') {
-                        //Add PowerBI Plugin identifier for Mapbox API traffic
+                        // Add PowerBI Plugin identifier for Mapbox API traffic
                         return {
                             url: [url.slice(0, url.indexOf("?") + 1), "pluginName=PowerBI&", url.slice(url.indexOf("?") + 1)].join('')
                         }
                     }
                     else {
-                        //Do not transform URL for non Mapbox GET requests
+                        // Do not transform URL for non Mapbox GET requests
                         return { url: url }
                     }
                 }
@@ -164,6 +164,8 @@ module powerbi.extensibility.visual {
             this.map = new mapboxgl.Map(mapOptions);
             this.map.addControl(new mapboxgl.NavigationControl());
             this.map.addControl(this.autoZoomControl);
+
+            this.map.on('click', filter.createClickHandler(this));
 
             this.map.on('zoom', () => {
                 const newZoom = Math.floor(this.map.getZoom())

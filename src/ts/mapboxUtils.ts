@@ -76,25 +76,6 @@ module powerbi.extensibility.visual {
             }
         }
 
-        function getCenter(feature) {
-            if (feature && feature.geometry)
-            {
-                if (feature.geometry.type == 'Point') {
-                    return feature.geometry.coordinates
-                }
-
-                const bbox = turf.bbox(feature)
-
-                const pointCollection = turf.helpers.featureCollection([
-                    turf.helpers.point( [bbox[0], bbox[1]]),
-                    turf.helpers.point( [bbox[2], bbox[3]]),
-                ]);
-
-                const center = turf.center(pointCollection);
-                return center.geometry.coordinates
-            }
-        }
-
         export function decorateLayer(layer) {
             switch (layer.type) {
                 case 'circle': {
