@@ -1,6 +1,7 @@
 module powerbi.extensibility.visual {
     declare var debug: any;
     declare var turf: any;
+    declare var MapboxDraw : any;
 
     export class MapboxMap implements IVisual {
         private map: mapboxgl.Map;
@@ -16,6 +17,7 @@ module powerbi.extensibility.visual {
         private roleMap: any;
         private previousZoom: number;
         private colorPalette: IColorPalette;
+        private draw: any;
 
         constructor(options: VisualConstructorOptions) {
             // Map initialization
@@ -133,7 +135,14 @@ module powerbi.extensibility.visual {
 
             // If the map container doesn't exist yet, create it
             this.map = new mapboxgl.Map(mapOptions);
+            this.draw = new MapboxDraw({
+                displayControlsDefault: false,
+                controls: {
+                    'polygon': true
+                }
+            });
             this.map.addControl(new mapboxgl.NavigationControl());
+            this.map.addControl(this.draw, 'top-left');
             this.map.addControl(this.autoZoomControl);
 
             this.map.on('zoom', () => {
@@ -145,6 +154,41 @@ module powerbi.extensibility.visual {
                         layer.applySettings(this.settings, this.roleMap);
                     });
                 }
+            });
+
+            this.map.on('draw.create', (e) => {
+
+                // Get the feature the user has drawn
+                let selection_poly = e.features[0];
+                console.log(selection_poly);
+                let selectedFeatures : any[] = [];
+
+                // Create a bounding box from the user's polygon
+                var polygonBoundingBox = turf.bbox(selection_poly);
+                var southWest = this.map.project([polygonBoundingBox[0], polygonBoundingBox[1]]);
+                var northEast = this.map.project([polygonBoundingBox[2], polygonBoundingBox[3]]);
+
+                // Find features in a layer the user selected bbox
+                var bbox_features : any[] = this.map.queryRenderedFeatures([southWest, northEast], { 
+                    layers: ['choropleth'] //Update to use layers in user's map, tested with circle and choropleth
+                });
+
+                // Use turf.intersect to find features in the selection_polygon from the bbox query
+                bbox_features.reduce(function (bbox_features, feature) {
+                    if (feature.geometry.type === 'Point' && turf.booleanContains(selection_poly, feature)) {
+                        selectedFeatures.push(feature)
+                    }
+                    if ((feature.geometry.type === 'Polygon' || feature.geometry.type === 'Linestring') &&
+                       (turf.booleanOverlap(feature, selection_poly) || turf.booleanContains(selection_poly, feature))) {
+                        selectedFeatures.push(feature)
+                    }
+                });
+
+                // Here are the selected features we can use for filters, selects, etc
+                console.log(selectedFeatures);
+
+                // Remove all features from the map after selection
+                this.draw.deleteAll();
             });
         }
 
