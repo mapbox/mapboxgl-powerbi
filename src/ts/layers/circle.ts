@@ -39,9 +39,6 @@ module powerbi.extensibility.visual {
             map.addLayer(highlightLayer, beforeLayerId);
             map.addLayer(circleLayer, Circle.HighlightID);
 
-            map.setPaintProperty(Circle.HighlightID, 'circle-color', constants.HIGHLIGHT_COLOR);
-            map.setPaintProperty(Circle.HighlightID, 'circle-opacity', 0.5);
-
             // Enable highlighting on mouse hover
             map.on("mousemove", Circle.ID, mapboxUtils.debounce( (e) => {
                 const eventProps = e.features[0].properties;
@@ -69,8 +66,13 @@ module powerbi.extensibility.visual {
             if (settings.circle.show) {
                 const sizes = Circle.getSizes(limits.size, map, settings, roleMap.size);
 
-                let isGradient = mapboxUtils.shouldUseGradient(roleMap.color, limits.color);
-                let colors = Circle.getColors(limits.color, isGradient, settings, this.palette, roleMap.color, colorMap);
+                const isGradient = mapboxUtils.shouldUseGradient(roleMap.color, limits.color);
+                const colors = Circle.getColors(limits.color, isGradient, settings, this.palette, roleMap.color, colorMap);
+
+                let highlightColors = Circle.getHighlightColors(colors, isGradient)
+
+                map.setPaintProperty(Circle.HighlightID, 'circle-color', highlightColors);
+                map.setPaintProperty(Circle.HighlightID, 'circle-opacity', 1);
 
                 map.setPaintProperty(Circle.ID, 'circle-radius', sizes);
                 map.setPaintProperty(Circle.HighlightID, 'circle-radius', sizes);
@@ -128,11 +130,46 @@ module powerbi.extensibility.visual {
             return colors;
         }
 
+        private static getHighlightColors(colors, isGradient: boolean) {
+            let highlightColors = colors;
+            if (Array.isArray(colors)) {
+                highlightColors = colors.map((c, i) => {
+                    if (i < 1 || Array.isArray(c)) {
+                        return c;
+                    }
+
+                    if (isGradient) {
+                        if (i < 3 || i % 2 == 1) {
+                            return c;
+                        }
+                    } else {
+                        if (i < 2 || i % 2 == 0) {
+                            return c;
+                        }
+                    }
+
+                    // Try to darken, if it is a color
+                    try {
+                        return chroma(c).darken().toString();
+                    } catch (error) {
+                        return c;
+                    }
+                });
+            } else {
+                try {
+                    highlightColors = chroma(colors).darken().toString();
+                } catch (error) {
+                    // There is not more we can do, go on with the original color
+                }
+            }
+            return highlightColors;
+        }
+
         private static getSizes(sizeLimits: mapboxUtils.Limits, map: any, settings: any, sizeField: any) {
             if (sizeField && sizeLimits && sizeLimits.min != null && sizeLimits.max != null && sizeLimits.min != sizeLimits.max) {
                 const style: any[] = [
                     "interpolate", ["linear"],
-                    ["to-number", ['get',sizeField.displayName]]
+                    ["to-number", ['get', sizeField.displayName]]
                 ]
 
                 const classCount = mapboxUtils.getClassCount(sizeLimits);
