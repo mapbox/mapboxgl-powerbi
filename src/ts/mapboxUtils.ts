@@ -131,10 +131,11 @@ module powerbi.extensibility.visual {
             }
 
             // Min and max must not be equal becuse of the interpolation.
-            // let's make sure with the substraction
-            if (min == max) {
+            // let's make sure with the substraction if it is a number
+            if (min.toString() !== min && min == max) {
                 min = min - 1
             }
+
             return {
                 min,
                 max,
