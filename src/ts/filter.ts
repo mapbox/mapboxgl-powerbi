@@ -40,12 +40,37 @@ module powerbi.extensibility.visual {
             map.off('click', clickHandler);
             map.on('click', clickHandler);
 
-            map.on('dragstart', (e) => {
+            const mouseMoveHandler = mapboxUtils.debounce((e) => {
+                if (!this.mapVisual.hasSelection() && !this.selectionInProgress) {
+                    const layers = this.mapVisual.getExistingLayers();
+                    layers.map(layer => layer.hoverHighLight(e));
+                }
+            }, 12, true);
+
+            const mouseLeaveHandler = mapboxUtils.debounce((e) => {
+                if (!this.mapVisual.hasSelection() && !this.selectionInProgress) {
+                    const layers = this.mapVisual.getExistingLayers();
+                    layers.map(layer => layer.removeHighlight(this.mapVisual.getRoleMap()));
+                }
+            }, 12, true);
+
+            const hoverHighLightLayers = [Circle.ID, Choropleth.ID];
+            hoverHighLightLayers.map(hhLayer => {
+                map.off('mousemove', hhLayer, mouseMoveHandler);
+                map.on('mousemove', hhLayer, mouseMoveHandler);
+                map.off('mouseleave', hhLayer, mouseLeaveHandler);
+                map.on('mouseleave', hhLayer, mouseLeaveHandler);
+            });
+
+            const dragStartHandler = (e) => {
                 this.dragScreenX = e.originalEvent.screenX;
                 this.dragScreenY = e.originalEvent.screenY;
                 this.dragStartTime = Date.now();
-            })
-            map.on('dragend', (e) => {
+            }
+            map.off('dragstart', dragStartHandler);
+            map.on('dragstart', dragStartHandler);
+
+            const dragEndHandler = (e) => {
                 if (Date.now() - this.dragStartTime > 500) {
                     // Drag lasted long enough not to be handled as a click
                     return;
@@ -63,7 +88,9 @@ module powerbi.extensibility.visual {
                 // This drag event is considered to be click, so remove the highlight and selection
                 const layers = this.mapVisual.getExistingLayers();
                 this.removeHighlightAndSelection(layers);
-            })
+            }
+            map.off('dragend', dragEndHandler);
+            map.on('dragend', dragEndHandler);
         }
 
         // Return the xy coordinates of the mouse position
@@ -91,7 +118,11 @@ module powerbi.extensibility.visual {
 
         onMouseMove(e) {
             // Capture the ongoing xy coordinates
-            if (!(e.shiftKey && e.button === 0) || !this.selectionInProgress) return;
+            if (!(e.shiftKey && e.button === 0) || !this.selectionInProgress) {
+                // Selection is not in progress
+                return;
+            }
+
             let current = this.mousePos(e);
             const map = this.mapVisual.getMap();
             let canvas = map.getCanvasContainer();

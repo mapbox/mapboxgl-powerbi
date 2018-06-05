@@ -1,7 +1,7 @@
 module powerbi.extensibility.visual {
 
     export class Choropleth extends Layer {
-        private static ID = 'choropleth'
+        public static ID = 'choropleth'
         private static OutlineID = 'choropleth-outline'
         private settings: ChoroplethSettings;
         private static HighlightID = 'choropleth-highlight'
@@ -62,17 +62,14 @@ module powerbi.extensibility.visual {
             map.addLayer(highlightLayer, beforeLayerId);
             map.addLayer(outlineLayer, Choropleth.HighlightID);
             map.addLayer(choroplethLayer, Choropleth.OutlineID);
+        }
 
-            map.on("mousemove", Choropleth.ID, mapboxUtils.debounce( (e) => {
-                if (!this.parent.hasSelection() && !this.parent.isSelectionInProgress()) {
-                    map.setFilter(Choropleth.HighlightID, ["==", vectorProperty, e.features[0].properties.name]);
-                }
-            }, 12, true));
-            map.on("mouseleave", Choropleth.ID, () => {
-                if (!this.parent.hasSelection() && !this.parent.isSelectionInProgress()) {
-                    this.removeHighlight(roleMap)
-                }
-            });
+        hoverHighLight(e) {
+            const map = this.parent.getMap();
+
+            const choroSettings = this.settings;
+            const vectorProperty = choroSettings[`vectorProperty${choroSettings.currentLevel}`];
+            map.setFilter(Choropleth.HighlightID, ["==", vectorProperty, e.features[0].properties.name]);
         }
 
         removeHighlight(roleMap) {
