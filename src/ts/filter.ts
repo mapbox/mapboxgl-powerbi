@@ -185,9 +185,5 @@ module powerbi.extensibility.visual {
                 return center.geometry.coordinates
             }
         }
-
-        //
-        // export const WORLD_BOUNDS = [-180.0000, -90.0000, 180.0000, 90.0000];
-        // export const HIGHLIGHT_COLOR = "#627BC1";
     }
 }
