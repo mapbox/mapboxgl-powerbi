@@ -64,12 +64,12 @@ module powerbi.extensibility.visual {
             map.addLayer(choroplethLayer, Choropleth.OutlineID);
 
             map.on("mousemove", Choropleth.ID, mapboxUtils.debounce( (e) => {
-                if (!this.parent.hasSelection()) {
+                if (!this.parent.hasSelection() && !this.parent.isSelectionInProgress()) {
                     map.setFilter(Choropleth.HighlightID, ["==", vectorProperty, e.features[0].properties.name]);
                 }
             }, 12, true));
             map.on("mouseleave", Choropleth.ID, () => {
-                if (!this.parent.hasSelection()) {
+                if (!this.parent.hasSelection() && !this.parent.isSelectionInProgress()) {
                     this.removeHighlight(roleMap)
                 }
             });

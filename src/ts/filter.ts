@@ -5,6 +5,10 @@ module powerbi.extensibility.visual {
         private start: any;
         private mapVisual: MapboxMap;
         private selectionInProgress: boolean;
+        private selectionFinish: number;
+        private dragScreenX: number;
+        private dragScreenY: number;
+        private dragStartTime: number;
 
         constructor(mapVisual: MapboxMap) {
             this.mapVisual = mapVisual
@@ -16,6 +20,17 @@ module powerbi.extensibility.visual {
             document.addEventListener('keyup', (e) => this.onKeyUp(e));
         }
 
+        public isSelectionInProgress() {
+            return this.selectionInProgress;
+        }
+
+        public removeHighlightAndSelection(layers) {
+            layers.map( layer => {
+                layer.removeHighlight(this.mapVisual.getRoleMap());
+            });
+            this.mapVisual.clearSelection();
+        }
+
         public manageHandlers() {
 
             const map = this.mapVisual.getMap();
@@ -24,6 +39,31 @@ module powerbi.extensibility.visual {
             const clickHandler = this.createClickHandler(this.mapVisual)
             map.off('click', clickHandler);
             map.on('click', clickHandler);
+
+            map.on('dragstart', (e) => {
+                this.dragScreenX = e.originalEvent.screenX;
+                this.dragScreenY = e.originalEvent.screenY;
+                this.dragStartTime = Date.now();
+            })
+            map.on('dragend', (e) => {
+                if (Date.now() - this.dragStartTime > 500) {
+                    // Drag lasted long enough not to be handled as a click
+                    return;
+                }
+
+                const radius = 5;
+                if (this.dragScreenX - radius > e.originalEvent.screenX ||
+                    this.dragScreenX + radius < e.originalEvent.screenX ||
+                    this.dragScreenY - radius > e.originalEvent.screenY ||
+                    this.dragScreenY + radius < e.originalEvent.screenY) {
+                        // It was a real drag event
+                        return;
+                }
+
+                // This drag event is considered to be click, so remove the highlight and selection
+                const layers = this.mapVisual.getExistingLayers();
+                this.removeHighlightAndSelection(layers);
+            })
         }
 
         // Return the xy coordinates of the mouse position
@@ -32,8 +72,8 @@ module powerbi.extensibility.visual {
             let canvas = map.getCanvasContainer();
             let rect = canvas.getBoundingClientRect();
             return new mapboxgl.Point(
-                e.clientX - rect.left - canvas.clientLeft,
-                e.clientY - rect.top - canvas.clientTop
+                    e.clientX - rect.left - canvas.clientLeft,
+                    e.clientY - rect.top - canvas.clientTop
                 );
         }
 
@@ -107,9 +147,9 @@ module powerbi.extensibility.visual {
 
             // If bbox exists. use this value as the argument for `queryRenderedFeatures`
             if (bbox) {
+                this.selectionFinish = Date.now();
                 const layers = this.mapVisual.getExistingLayers();
                 if (layers && layers.length > 0) {
-                    const settings = this.mapVisual.getSettings();
                     const roleMap = this.mapVisual.getRoleMap();
                     const MAX_SELECTION_COUNT = 100;
                     layers.map( layer => {
@@ -129,18 +169,24 @@ module powerbi.extensibility.visual {
         }
 
         createClickHandler(mapVisual: MapboxMap) {
-            let onClick : Function = function(e) {
+            let onClick : Function = (e) => {
                 const originalEvent = e.originalEvent;
-                const layers = mapVisual.getExistingLayers();
-                layers.map( layer => {
-                    layer.removeHighlight(mapVisual.getRoleMap());
-                });
+                if (originalEvent.shiftKey && originalEvent.button === 0 || this.selectionInProgress) {
+                    // Selection is considered to be still in progress
+                    return
+                };
 
-                if (originalEvent.shiftKey && originalEvent.button === 0) { return };
+                const clickAfterSelection = Date.now() - this.selectionFinish;
+                if (clickAfterSelection < 300) {
+                    // Skip the click if selection is still in progress
+                    return;
+                }
+
                 const map = mapVisual.getMap();
                 // map.queryRenderedFeatures fails
                 // when option.layers contains an id which is not on the map
-                const layerIDs = mapVisual.getExistingLayers().map(layer => layer.getId());
+                const layers = mapVisual.getExistingLayers();
+                const layerIDs = layers.map(layer => layer.getId());
                 const radius = 5
                 let minpoint = new Array(e.point['x'] - radius, e.point['y'] - radius)
                 let maxpoint = new Array(e.point['x'] + radius, e.point['y'] + radius)
@@ -162,7 +208,7 @@ module powerbi.extensibility.visual {
                         duration: 1000
                     });
                 }
-                mapVisual.clearSelection();
+                this.removeHighlightAndSelection(layers);
             }
 
             return onClick

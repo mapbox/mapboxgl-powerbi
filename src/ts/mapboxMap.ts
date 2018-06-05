@@ -58,7 +58,6 @@ module powerbi.extensibility.visual {
             }
 
             this.filter = new Filter(this)
-
         }
 
         onUpdate(map, settings, zoom, updatedHandler: Function) {
@@ -160,6 +159,10 @@ module powerbi.extensibility.visual {
 
         public hasSelection() {
             return this.selectionManager.hasSelection();
+        }
+
+        public isSelectionInProgress() {
+            return this.filter.isSelectionInProgress();
         }
 
         private addMap() {
