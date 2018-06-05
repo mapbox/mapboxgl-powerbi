@@ -365,6 +365,27 @@ module powerbi.extensibility.visual {
             // Placeholder to indicate whether data changed or paint prop changed
             // For now this is always true
             const features = mapboxConverter.convert(dataView);
+
+            try {
+
+                this.dataPoints = [];
+
+                const cat = dataView.categorical.categories[0];
+                let categories = {};
+                features.map( feature => {
+                    const value = feature.properties[this.roleMap.color.displayName];
+                    if (!categories[value]) {
+                        categories[value] = true;
+                    }
+                });
+                console.log("Categories: ", categories);
+
+                this.dataPoints = this.fillDataPointsOwn(categories, cat);
+
+            } catch (err) {
+                console.log("Error: ", err);
+            }
+
             let datasources: Map<any, boolean> = new Map<any, boolean>()
             this.layers.map(layer => {
                 const source = layer.getSource(this.settings);
