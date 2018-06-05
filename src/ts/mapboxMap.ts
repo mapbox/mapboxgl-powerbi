@@ -2,6 +2,7 @@ module powerbi.extensibility.visual {
     declare var debug: any;
     declare var turf: any;
     declare var MapboxDraw : any;
+    declare var FreeDraw: any;
 
     export class MapboxMap implements IVisual {
         private map: mapboxgl.Map;
@@ -201,11 +202,152 @@ module powerbi.extensibility.visual {
 
             // If the map container doesn't exist yet, create it
             this.map = new mapboxgl.Map(mapOptions);
+
+            let lassoMode : any = {};
+            lassoMode.onSetup = function(opts) {
+                let state : any = {};
+                state.count = opts.count || 0;
+                state.toggled = false;
+                return state;
+            }
+
+            lassoMode.onClick = function(state, e) {
+                state.toggled = !state.toggled;
+                console.log('lasso mode is', state.toggled)
+            };
+
+            // Whenever a user clicks on a key while focused on the map, it will be sent here
+            lassoMode.onKeyUp = function(state, e) {
+                if (e.keyCode === 27) return this.changeMode('simple_select');
+            };
+
+            // This is the only required function for a mode.
+            // It decides which features currently in Draw's data store will be rendered on the map.
+            // All features passed to `display` will be rendered, so you can pass multiple display features per internal feature.
+            // See `styling-draw` in `API.md` for advice on making display features
+            lassoMode.toDisplayFeatures = function(state, geojson, display) {
+                display(geojson);
+            };
+
+            lassoMode.onMouseMove = function(state, e) {
+                if (state.toggled) {
+                    // `this.newFeature` takes geojson and makes a DrawFeature
+                    let point = this.newFeature({
+                        type: 'Feature',
+                        properties: {
+                          count: state.count
+                        },
+                        geometry: {
+                          type: 'Point',
+                          coordinates: [e.lngLat.lng, e.lngLat.lat]
+                        }
+                      });
+                      this.addFeature(point); // puts the point on the map
+                }
+            }
+
+            // import doubleClickZoom from '@mapbox/mapbox-gl-draw/src/lib/double_click_zoom';
+            // import Constants from '@mapbox/mapbox-gl-draw/src/constants';
+            // import DrawPolygon from '@mapbox/mapbox-gl-draw/src/modes/draw_polygon';
+            // import dragPan from '../src/lib/drag_pan';
+            // import simplify from "@turf/simplify";
+
+            console.log('MapboxDraw', MapboxDraw)
+            // let Constants = MapboxDraw.constants;
+            // console.log('constants', Constants)
+            console.log('modes', MapboxDraw.modes)
+            const FreeDraw = MapboxDraw.modes.draw_polygon;
+
+            FreeDraw.onSetup = function() {
+                const polygon = this.newFeature({
+                    type: Constants.geojsonTypes.FEATURE,
+                    properties: {},
+                    geometry: {
+                        type: Constants.geojsonTypes.POLYGON,
+                        coordinates: [[]]
+                    }
+                });
+
+                this.addFeature(polygon);
+
+                this.clearSelectedFeatures();
+                // doubleClickZoom.disable(this);
+                // dragPan.disable(this);
+                this.updateUIClasses({ mouse: Constants.cursors.ADD });
+                this.activateUIButton(Constants.types.POLYGON);
+                this.setActionableState({
+                    trash: true
+                });
+
+                return {
+                    polygon,
+                    currentVertexPosition: 0,
+                    dragMoving: false,
+                    toggled: false,
+                };
+            };
+
+            FreeDraw.onClick = function(state, e) {
+                state.toggled = !state.toggled;
+                console.log('lasso mode', state.toggled);
+                if (!state.toggled) {
+                    console.log('zoom value', this.map.getZoom())
+                    const factor = Math.min(Math.floor(this.map.getZoom()), 4);
+                    const tolerance = (3 / ((this.map.getZoom() - factor) * 150)) - 0.001 // https://www.desmos.com/calculator/b3zi8jqskw
+                    console.log('tolerance', tolerance)
+                    turf.simplify(state.polygon, {
+                        mutate: true,
+                        tolerance: tolerance,
+                        highQuality: true
+                    });
+
+                    this.fireUpdate();
+                    this.changeMode(Constants.modes.SIMPLE_SELECT, { featureIds: [state.polygon.id] });
+                }
+            }
+
+            FreeDraw.onMouseMove = FreeDraw.onTouchMove = function (state, e){
+                state.dragMoving = true;
+                if (state.toggled) {
+                    this.updateUIClasses({ mouse: Constants.cursors.ADD });
+                    state.polygon.updateCoordinate(`0.${state.currentVertexPosition}`, e.lngLat.lng, e.lngLat.lat);
+                    state.currentVertexPosition++;
+                    state.polygon.updateCoordinate(`0.${state.currentVertexPosition}`, e.lngLat.lng, e.lngLat.lat);
+                }
+            }
+
+            // FreeDraw.onMouseUp = function (state, e){
+            //     if (state.dragMoving) {
+            //         var tolerance = (3 / ((this.map.getZoom()-4) * 150)) - 0.001 // https://www.desmos.com/calculator/b3zi8jqskw
+            //         turf.simplify(state.polygon, {
+            //             mutate: true,
+            //             tolerance: tolerance,
+            //             highQuality: true
+            //         });
+
+            //         this.fireUpdate();
+            //         this.changeMode(Constants.modes.SIMPLE_SELECT, { featureIds: [state.polygon.id] });
+            //     }
+            // }
+
+            FreeDraw.fireUpdate = function() {
+                this.map.fire(Constants.events.UPDATE, {
+                    action: Constants.updateActions.MOVE,
+                    features: this.getSelected().map(f => f.toGeoJSON())
+                });
+            };
+
+            MapboxDraw.modes.draw_polygon = FreeDraw;
+
             this.draw = new MapboxDraw({
                 displayControlsDefault: false,
+                // defaultMode: 'lasso',
                 controls: {
                     'polygon': true
-                }
+                },
+                // modes: Object.assign({
+                //     lasso: lassoMode,
+                // }, MapboxDraw.modes)
             });
             this.map.addControl(new mapboxgl.NavigationControl());
             this.map.addControl(this.draw, 'top-left');
@@ -229,7 +371,7 @@ module powerbi.extensibility.visual {
 
                 // Get the feature the user has drawn
                 let selection_poly = e.features[0];
-                console.log(selection_poly);
+                console.log('selection poly', selection_poly);
                 let selectedFeatures : any[] = [];
 
                 // Create a bounding box from the user's polygon
