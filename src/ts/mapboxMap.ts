@@ -161,10 +161,6 @@ module powerbi.extensibility.visual {
             return this.selectionManager.hasSelection();
         }
 
-        public isSelectionInProgress() {
-            return this.filter.isSelectionInProgress();
-        }
-
         private addMap() {
             if (this.map) {
                 return

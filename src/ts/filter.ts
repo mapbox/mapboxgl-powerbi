@@ -20,10 +20,6 @@ module powerbi.extensibility.visual {
             document.addEventListener('keyup', (e) => this.onKeyUp(e));
         }
 
-        public isSelectionInProgress() {
-            return this.selectionInProgress;
-        }
-
         public removeHighlightAndSelection(layers) {
             layers.map( layer => {
                 layer.removeHighlight(this.mapVisual.getRoleMap());
