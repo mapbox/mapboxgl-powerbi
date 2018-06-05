@@ -70,22 +70,22 @@ module powerbi.extensibility.visual {
             }, 12, true));
             map.on("mouseleave", Choropleth.ID, () => {
                 if (!this.parent.hasSelection()) {
-                    this.removeHighlight(roleMap, settings)
+                    this.removeHighlight(roleMap)
                 }
             });
         }
 
-        removeHighlight(roleMap, settings) {
-            const choroSettings = settings.choropleth;
+        removeHighlight(roleMap) {
+            const choroSettings = this.settings;
             const vectorProperty = choroSettings[`vectorProperty${choroSettings.currentLevel}`];
             const zeroFilter = ["==", vectorProperty, ""]
             const map = this.parent.getMap();
             map.setFilter(Choropleth.HighlightID, zeroFilter);
         }
 
-        updateSelection(features, roleMap, settings) {
+        updateSelection(features, roleMap) {
             const map = this.parent.getMap();
-            const choroSettings = settings.choropleth;
+            const choroSettings = this.settings;
             const vectorProperty = choroSettings[`vectorProperty${choroSettings.currentLevel}`];
 
             let locationFilter = [];

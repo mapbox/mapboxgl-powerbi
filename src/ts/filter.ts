@@ -116,8 +116,7 @@ module powerbi.extensibility.visual {
                         }
                         layer.updateSelection(
                             features,
-                            roleMap,
-                            settings);
+                            roleMap);
                     });
 
                 }
@@ -131,7 +130,7 @@ module powerbi.extensibility.visual {
                 const originalEvent = e.originalEvent;
                 const layers = mapVisual.getExistingLayers();
                 layers.map( layer => {
-                    layer.removeHighlight(mapVisual.getRoleMap(), mapVisual.getSettings());
+                    layer.removeHighlight(mapVisual.getRoleMap());
                 });
 
                 if (originalEvent.shiftKey && originalEvent.button === 0) { return };

@@ -56,19 +56,19 @@ module powerbi.extensibility.visual {
 
             map.on("mouseleave", Circle.ID, () => {
                 if (!this.parent.hasSelection()) {
-                    this.removeHighlight(roleMap, null);
+                    this.removeHighlight(roleMap);
                 }
             });
         }
 
-        removeHighlight(roleMap, settings) {
+        removeHighlight(roleMap) {
             const latitude = roleMap.latitude.displayName;
             const map = this.parent.getMap();
             const zeroFilter = ["==", latitude, ""];
             map.setFilter(Circle.HighlightID, zeroFilter);
         }
 
-        updateSelection(features, roleMap, settings) {
+        updateSelection(features, roleMap) {
             const map = this.parent.getMap();
             const latitude = roleMap.latitude.displayName;
             const longitude = roleMap.longitude.displayName;
