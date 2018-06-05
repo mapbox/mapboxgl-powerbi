@@ -71,19 +71,17 @@ module powerbi.extensibility.visual {
             });
         }
 
-        updateSelection(features, roleMap, settings, category, host, selectionManager) {
+        updateSelection(features, roleMap, settings) {
             const map = this.parent.getMap();
             const choroSettings = settings.choropleth;
             const vectorProperty = choroSettings[`vectorProperty${choroSettings.currentLevel}`];
 
             let locationFilter = [];
             locationFilter.push("any");
-            selectionManager.clear();
+            this.parent.clearSelection();
             features.map( (feature, i) => {
                 locationFilter.push(["==", vectorProperty, feature.properties.name]);
-                let index = category.values.indexOf(feature.properties.name);
-                let selector = host.createSelectionIdBuilder().withCategory(category, index).createSelectionId();
-                selectionManager.select(selector, true)
+                this.parent.addSelection(feature.properties.name, true);
             });
             map.setFilter(Choropleth.HighlightID, locationFilter);
         }

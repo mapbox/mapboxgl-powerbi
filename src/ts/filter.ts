@@ -109,15 +109,16 @@ module powerbi.extensibility.visual {
                 if (layers && layers.length > 0) {
                     const settings = this.mapVisual.getSettings();
                     const roleMap = this.mapVisual.getRoleMap();
+                    const MAX_SELECTION_COUNT = 100;
                     layers.map( layer => {
                         let features = map.queryRenderedFeatures(bbox, { layers: [ layer.getId() ] });
+                        if (features.length > MAX_SELECTION_COUNT) {
+                            features = features.slice(0, MAX_SELECTION_COUNT);
+                        }
                         layer.updateSelection(
                             features,
                             roleMap,
-                            settings,
-                            this.mapVisual.category,
-                            this.mapVisual.host,
-                            this.mapVisual.getSelectionManager());
+                            settings);
                     });
 
                 }

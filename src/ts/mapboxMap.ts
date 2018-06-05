@@ -20,9 +20,9 @@ module powerbi.extensibility.visual {
         private colorPalette: IColorPalette;
         private filter: Filter;
 
-        public host: any;
-        public values: any;
-        public category: any;
+        private host: any;
+        private category: any;
+        private selectionCount: number;
 
         constructor(options: VisualConstructorOptions) {
             // Map initialization
@@ -142,8 +142,20 @@ module powerbi.extensibility.visual {
             return this.roleMap;
         }
 
-        public getSelectionManager() {
-            return this.selectionManager;
+        public clearSelection() {
+            this.selectionManager.clear();
+        }
+
+        public addSelection(value, search: boolean) {
+            let index = value;
+            if (search) {
+                index = this.category.values.indexOf(value);
+            }
+            if (index >= 0 && index < this.category.values.length) {
+                let selector = this.host.createSelectionIdBuilder()
+                    .withCategory(this.category, index).createSelectionId();
+                this.selectionManager.select(selector, true);
+            }
         }
 
         private addMap() {
