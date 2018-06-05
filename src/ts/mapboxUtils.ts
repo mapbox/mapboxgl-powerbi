@@ -17,7 +17,12 @@ module powerbi.extensibility.visual {
         }
 
         export function shouldUseGradient(colorColumn, colorLimits: { min: any; max: any; values: any; }) {
-            if (colorColumn != null && colorLimits && colorLimits.min != null && colorLimits.min.toString() !== colorLimits.min) {
+            if (colorColumn != null
+                && colorLimits
+                && colorLimits.min != null
+                && !isNaN(colorLimits.min)
+                && colorLimits.min.toString() !== colorLimits.min)
+            {
                 return true
             }
 
