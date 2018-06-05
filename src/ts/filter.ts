@@ -108,10 +108,16 @@ module powerbi.extensibility.visual {
                 const layers = this.mapVisual.getExistingLayers();
                 if (layers && layers.length > 0) {
                     const settings = this.mapVisual.getSettings();
-                    const roleMap = this.mapVisual.getRoleMap();    
+                    const roleMap = this.mapVisual.getRoleMap();
                     layers.map( layer => {
                         let features = map.queryRenderedFeatures(bbox, { layers: [ layer.getId() ] });
-                        layer.updateSelection(features, roleMap, settings);
+                        layer.updateSelection(
+                            features,
+                            roleMap,
+                            settings,
+                            this.mapVisual.category,
+                            this.mapVisual.host,
+                            this.mapVisual.getSelectionManager());
                     });
 
                 }

@@ -56,17 +56,23 @@ module powerbi.extensibility.visual {
             });
         }
 
-        updateSelection(features, roleMap, settings) {
+        updateSelection(features, roleMap, settings, category, host, selectionManager) {
             const map = this.parent.getMap();
             const latitude = roleMap.latitude.displayName;
             const longitude = roleMap.longitude.displayName;
 
             let lngLatFilter = [];
             lngLatFilter.push("any");
-            features.map( feature => {
+            selectionManager.clear();
+            const maxSelectedItems = 400;
+            features.map( (feature, index) => {
                 lngLatFilter.push(["all",
                     ["==", latitude, feature.properties[latitude]],
                     ["==", longitude, feature.properties[longitude]]]);
+                if (index < maxSelectedItems) {
+                    let selector = host.createSelectionIdBuilder().withCategory(category, feature.id).createSelectionId();
+                    selectionManager.select(selector, true)
+                }
             });
             map.setFilter(Circle.HighlightID, lngLatFilter);
         }

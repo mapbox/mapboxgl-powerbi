@@ -11,14 +11,18 @@ module powerbi.extensibility.visual {
         private mapStyle: string = "";
         private updatedHandler: Function = () => { }
         private tooltipServiceWrapper: ITooltipServiceWrapper;
+        private selectionManager: ISelectionManager;
         private layers: Layer[] = [];
         private roleMap: any;
         private colorMap: any;
         private previousZoom: number;
         private dataPoints: any[];
-        private host: any;
         private colorPalette: IColorPalette;
         private filter: Filter;
+
+        public host: any;
+        public values: any;
+        public category: any;
 
         constructor(options: VisualConstructorOptions) {
             // Map initialization
@@ -48,6 +52,8 @@ module powerbi.extensibility.visual {
 
             this.colorPalette = options.host.colorPalette
             this.tooltipServiceWrapper = createTooltipServiceWrapper(options.host.tooltipService, options.element);
+            this.selectionManager = options.host.createSelectionManager();
+            this.host = options.host;
             this.colorMap = {
             }
 
@@ -134,6 +140,10 @@ module powerbi.extensibility.visual {
 
         public getRoleMap() {
             return this.roleMap;
+        }
+
+        public getSelectionManager() {
+            return this.selectionManager;
         }
 
         private addMap() {
@@ -392,6 +402,8 @@ module powerbi.extensibility.visual {
         @mapboxUtils.logExceptions()
         public update(options: VisualUpdateOptions) {
             const dataView: DataView = options.dataViews[0];
+
+            this.category = dataView.categorical.categories[0];
 
             this.roleMap = mapboxUtils.getRoleMap(dataView.metadata);
 
