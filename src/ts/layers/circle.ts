@@ -44,16 +44,28 @@ module powerbi.extensibility.visual {
 
             // Enable highlighting on mouse hover
             map.on("mousemove", Circle.ID, mapboxUtils.debounce( (e) => {
-                const eventProps = e.features[0].properties;
-                const lngLatFilter = ["all",
-                    ["==", latitude, eventProps[latitude]],
-                    ["==", longitude, eventProps[longitude]],
-                ]
-                map.setFilter(Circle.HighlightID, lngLatFilter);
+                if (!this.parent.hasSelection()) {
+                    const eventProps = e.features[0].properties;
+                    const lngLatFilter = ["all",
+                        ["==", latitude, eventProps[latitude]],
+                        ["==", longitude, eventProps[longitude]],
+                    ]
+                    map.setFilter(Circle.HighlightID, lngLatFilter);
+                }
             }, 12, true));
+
             map.on("mouseleave", Circle.ID, () => {
-                map.setFilter(Circle.HighlightID, zeroFilter);
+                if (!this.parent.hasSelection()) {
+                    this.removeHighlight(roleMap, null);
+                }
             });
+        }
+
+        removeHighlight(roleMap, settings) {
+            const latitude = roleMap.latitude.displayName;
+            const map = this.parent.getMap();
+            const zeroFilter = ["==", latitude, ""];
+            map.setFilter(Circle.HighlightID, zeroFilter);
         }
 
         updateSelection(features, roleMap, settings) {

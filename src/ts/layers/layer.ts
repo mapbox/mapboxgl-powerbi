@@ -30,6 +30,10 @@ module powerbi.extensibility.visual {
         updateSelection(features, roleMap, settings) {
         }
 
+        removeHighlight(roleMap, settings) {
+
+        }
+
         applySettings(settings, roleMap, colorMap) {
             const map = this.parent.getMap();
             if (settings[this.id].show) {
