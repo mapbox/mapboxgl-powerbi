@@ -90,8 +90,11 @@ module powerbi.extensibility.visual {
 
         onKeyUp(e) {
             // Cancel selection when shift is released
-            if (e.keyCode === 16) this.finish(null);
-
+            if (e.keyCode === 16) {
+                setTimeout(() => {
+                    this.finish(null);
+                }, 300);
+            }
         }
 
         finish(bbox) {
