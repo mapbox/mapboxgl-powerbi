@@ -42,7 +42,6 @@ module powerbi.extensibility.visual {
             if (!(e.shiftKey && e.button === 0) || !this.mapVisual) return;
             const map = this.mapVisual.getMap();
             this.selectionInProgress = true;
-
             // Disable default drag zooming when the shift key is held down.
             map.dragPan.disable();
 
@@ -117,8 +116,7 @@ module powerbi.extensibility.visual {
                         }
                         layer.updateSelection(
                             features,
-                            roleMap,
-                            settings);
+                            roleMap);
                     });
 
                 }
@@ -130,18 +128,21 @@ module powerbi.extensibility.visual {
         createClickHandler(mapVisual: MapboxMap) {
             let onClick : Function = function(e) {
                 const originalEvent = e.originalEvent;
-                if (originalEvent.shiftKey && originalEvent.button === 0) { return };
-                const map = mapVisual.getMap()
+                const layers = mapVisual.getExistingLayers();
+                layers.map( layer => {
+                    layer.removeHighlight(mapVisual.getRoleMap());
+                });
 
+                if (originalEvent.shiftKey && originalEvent.button === 0) { return };
+                const map = mapVisual.getMap();
                 // map.queryRenderedFeatures fails
                 // when option.layers contains an id which is not on the map
-                const layers = mapVisual.getExistingLayers().map(layer => layer.getId())
-
+                const layerIDs = mapVisual.getExistingLayers().map(layer => layer.getId());
                 const radius = 5
                 let minpoint = new Array(e.point['x'] - radius, e.point['y'] - radius)
                 let maxpoint = new Array(e.point['x'] + radius, e.point['y'] + radius)
                 let features : any = map.queryRenderedFeatures([minpoint, maxpoint], {
-                    layers
+                    "layers": layerIDs
                 });
 
                 if (features
@@ -149,6 +150,7 @@ module powerbi.extensibility.visual {
                     && features[0]
                     && features[0].geometry
                     && features[0].geometry.coordinates
+                    && !mapVisual.hasSelection()
                 ) {
                     mapVisual.hideTooltip()
                     map.easeTo({
@@ -157,6 +159,7 @@ module powerbi.extensibility.visual {
                         duration: 1000
                     });
                 }
+                mapVisual.clearSelection();
             }
 
             return onClick

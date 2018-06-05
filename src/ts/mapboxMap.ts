@@ -158,6 +158,10 @@ module powerbi.extensibility.visual {
             }
         }
 
+        public hasSelection() {
+            return this.selectionManager.hasSelection();
+        }
+
         private addMap() {
             if (this.map) {
                 return
