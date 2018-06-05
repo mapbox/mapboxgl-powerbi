@@ -64,17 +64,45 @@ module powerbi.extensibility.visual {
             map.addLayer(choroplethLayer, Choropleth.OutlineID);
 
             map.on("mousemove", Choropleth.ID, mapboxUtils.debounce( (e) => {
-                map.setFilter(Choropleth.HighlightID, ["==", vectorProperty, e.features[0].properties.name]);
+                if (!this.parent.hasSelection()) {
+                    map.setFilter(Choropleth.HighlightID, ["==", vectorProperty, e.features[0].properties.name]);
+                }
             }, 12, true));
             map.on("mouseleave", Choropleth.ID, () => {
-                map.setFilter(Choropleth.HighlightID, zeroFilter);
+                if (!this.parent.hasSelection()) {
+                    this.removeHighlight(roleMap)
+                }
             });
+        }
+
+        removeHighlight(roleMap) {
+            const choroSettings = this.settings;
+            const vectorProperty = choroSettings[`vectorProperty${choroSettings.currentLevel}`];
+            const zeroFilter = ["==", vectorProperty, ""]
+            const map = this.parent.getMap();
+            map.setFilter(Choropleth.HighlightID, zeroFilter);
+        }
+
+        updateSelection(features, roleMap) {
+            const map = this.parent.getMap();
+            const choroSettings = this.settings;
+            const vectorProperty = choroSettings[`vectorProperty${choroSettings.currentLevel}`];
+
+            let locationFilter = [];
+            locationFilter.push("any");
+            this.parent.clearSelection();
+            features.map( (feature, i) => {
+                locationFilter.push(["==", vectorProperty, feature.properties.name]);
+                this.parent.addSelection(feature.properties.name, true);
+            });
+            map.setFilter(Choropleth.HighlightID, locationFilter);
         }
 
         removeLayer() {
             const map = this.parent.getMap();
             map.removeLayer(Choropleth.ID);
             map.removeLayer(Choropleth.OutlineID);
+            map.removeLayer(Choropleth.HighlightID);
             this.source.removeFromMap(map, Choropleth.ID);
         }
 

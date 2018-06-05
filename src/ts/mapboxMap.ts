@@ -11,13 +11,18 @@ module powerbi.extensibility.visual {
         private mapStyle: string = "";
         private updatedHandler: Function = () => { }
         private tooltipServiceWrapper: ITooltipServiceWrapper;
+        private selectionManager: ISelectionManager;
         private layers: Layer[] = [];
         private roleMap: any;
         private colorMap: any;
         private previousZoom: number;
         private dataPoints: any[];
-        private host: any;
         private colorPalette: IColorPalette;
+        private filter: Filter;
+
+        private host: any;
+        private category: any;
+        private selectionCount: number;
 
         constructor(options: VisualConstructorOptions) {
             // Map initialization
@@ -47,8 +52,12 @@ module powerbi.extensibility.visual {
 
             this.colorPalette = options.host.colorPalette
             this.tooltipServiceWrapper = createTooltipServiceWrapper(options.host.tooltipService, options.element);
+            this.selectionManager = options.host.createSelectionManager();
+            this.host = options.host;
             this.colorMap = {
             }
+
+            this.filter = new Filter(this)
 
         }
 
@@ -125,6 +134,34 @@ module powerbi.extensibility.visual {
             return this.map;
         }
 
+        public getMapDiv() {
+            return this.mapDiv;
+        }
+
+        public getRoleMap() {
+            return this.roleMap;
+        }
+
+        public clearSelection() {
+            this.selectionManager.clear();
+        }
+
+        public addSelection(value, search: boolean) {
+            let index = value;
+            if (search) {
+                index = this.category.values.indexOf(value);
+            }
+            if (index >= 0 && index < this.category.values.length) {
+                let selector = this.host.createSelectionIdBuilder()
+                    .withCategory(this.category, index).createSelectionId();
+                this.selectionManager.select(selector, true);
+            }
+        }
+
+        public hasSelection() {
+            return this.selectionManager.hasSelection();
+        }
+
         private addMap() {
             if (this.map) {
                 return
@@ -148,13 +185,13 @@ module powerbi.extensibility.visual {
                         url.slice(0, 26) == 'https://b.tiles.mapbox.com' ||
                         url.slice(0, 26) == 'https://c.tiles.mapbox.com' ||
                         url.slice(0, 26) == 'https://d.tiles.mapbox.com') {
-                        //Add PowerBI Plugin identifier for Mapbox API traffic
+                        // Add PowerBI Plugin identifier for Mapbox API traffic
                         return {
                             url: [url.slice(0, url.indexOf("?") + 1), "pluginName=PowerBI&", url.slice(url.indexOf("?") + 1)].join('')
                         }
                     }
                     else {
-                        //Do not transform URL for non Mapbox GET requests
+                        // Do not transform URL for non Mapbox GET requests
                         return { url: url }
                     }
                 }
@@ -164,6 +201,8 @@ module powerbi.extensibility.visual {
             this.map = new mapboxgl.Map(mapOptions);
             this.map.addControl(new mapboxgl.NavigationControl());
             this.map.addControl(this.autoZoomControl);
+
+            this.filter.manageHandlers();
 
             this.map.on('zoom', () => {
                 const newZoom = Math.floor(this.map.getZoom())
@@ -185,13 +224,6 @@ module powerbi.extensibility.visual {
                 this.mapStyle = "";
                 this.layers = []
             }
-        }
-
-        private addClick() {
-            if (!this.map) { return }
-            if (this.map.listens('click')) { return }
-            const onClick = mapboxUtils.createClickHandler(this)
-            this.map.on('click', onClick);
         }
 
         getExistingLayers(): Layer[] {
@@ -371,21 +403,23 @@ module powerbi.extensibility.visual {
                 }
             })
 
-            let cur_level;
             let temp_sources = options.dataViews[0].matrix.rows.levels[0].sources.filter(s => temp_indexes.indexOf(s.identityExprs[0]['ref']) > -1)
-            if (temp_sources.length > 1) {
-                cur_level = temp_sources.length - 1
-            } else {
-                cur_level = temp_sources[0].index - temp_ii[0]
+            if (temp_sources.length < 1) {
+                return;
             }
-            settings.currentLevel = cur_level + 1;
 
-            return cur_level + 1;
+            if (temp_sources.length > 1) {
+                settings.currentLevel = temp_sources.length
+            } else {
+                settings.currentLevel = temp_sources[0].index - temp_ii[0] + 1
+            }
         }
 
         @mapboxUtils.logExceptions()
         public update(options: VisualUpdateOptions) {
             const dataView: DataView = options.dataViews[0];
+
+            this.category = dataView.categorical.categories[0];
 
             this.roleMap = mapboxUtils.getRoleMap(dataView.metadata);
 
@@ -436,6 +470,10 @@ module powerbi.extensibility.visual {
         @mapboxUtils.logExceptions()
         public destroy(): void {
             this.removeMap();
+        }
+
+        public getSettings() {
+            return this.settings
         }
     }
 }

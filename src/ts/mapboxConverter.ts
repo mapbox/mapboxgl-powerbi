@@ -10,6 +10,7 @@ module powerbi.extensibility.visual {
                         // Useful for location visualizations
                         coordinates: [null, null]
                     },
+                    id: rowIndex,
                     properties: {
                     }
                 }

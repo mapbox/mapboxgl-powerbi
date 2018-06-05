@@ -44,16 +44,45 @@ module powerbi.extensibility.visual {
 
             // Enable highlighting on mouse hover
             map.on("mousemove", Circle.ID, mapboxUtils.debounce( (e) => {
-                const eventProps = e.features[0].properties;
-                const lngLatFilter = ["all",
-                    ["==", latitude, eventProps[latitude]],
-                    ["==", longitude, eventProps[longitude]],
-                ]
-                map.setFilter(Circle.HighlightID, lngLatFilter);
+                if (!this.parent.hasSelection()) {
+                    const eventProps = e.features[0].properties;
+                    const lngLatFilter = ["all",
+                        ["==", latitude, eventProps[latitude]],
+                        ["==", longitude, eventProps[longitude]],
+                    ]
+                    map.setFilter(Circle.HighlightID, lngLatFilter);
+                }
             }, 12, true));
+
             map.on("mouseleave", Circle.ID, () => {
-                map.setFilter(Circle.HighlightID, zeroFilter);
+                if (!this.parent.hasSelection()) {
+                    this.removeHighlight(roleMap);
+                }
             });
+        }
+
+        removeHighlight(roleMap) {
+            const latitude = roleMap.latitude.displayName;
+            const map = this.parent.getMap();
+            const zeroFilter = ["==", latitude, ""];
+            map.setFilter(Circle.HighlightID, zeroFilter);
+        }
+
+        updateSelection(features, roleMap) {
+            const map = this.parent.getMap();
+            const latitude = roleMap.latitude.displayName;
+            const longitude = roleMap.longitude.displayName;
+
+            let lngLatFilter = [];
+            lngLatFilter.push("any");
+            this.parent.clearSelection();
+            features.map( (feature, index) => {
+                lngLatFilter.push(["all",
+                    ["==", latitude, feature.properties[latitude]],
+                    ["==", longitude, feature.properties[longitude]]]);
+                this.parent.addSelection(feature.id, false);
+            });
+            map.setFilter(Circle.HighlightID, lngLatFilter);
         }
 
         removeLayer() {
