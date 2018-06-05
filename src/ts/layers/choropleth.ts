@@ -90,6 +90,7 @@ module powerbi.extensibility.visual {
             const map = this.parent.getMap();
             map.removeLayer(Choropleth.ID);
             map.removeLayer(Choropleth.OutlineID);
+            map.removeLayer(Choropleth.HighlightID);
             this.source.removeFromMap(map, Choropleth.ID);
         }
 
