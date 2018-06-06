@@ -30,6 +30,9 @@ module powerbi.extensibility.visual {
         updateSelection(features, roleMap) {
         }
 
+        hoverHighLight(e) {
+        }
+
         removeHighlight(roleMap) {
         }
 
