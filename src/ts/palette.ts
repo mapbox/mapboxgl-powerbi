@@ -1,14 +1,14 @@
 module powerbi.extensibility.visual {
 
-    interface DataPoint {
-        category: string,
+    interface GroupColor {
+        name: string,
         selectionId: any, // ISelectionId,
         color: string;
     }
 
     export class Palette {
         private mapVisual: MapboxMap;
-        private dataPoints: DataPoint[];
+        private groupColors: GroupColor[];
         private colorMap: any;
         private host: IVisualHost;
         private colorPalette: IColorPalette;
@@ -17,7 +17,7 @@ module powerbi.extensibility.visual {
             this.mapVisual = mapVisual
             this.host = host
             this.colorPalette = host.colorPalette
-            this.dataPoints = []
+            this.groupColors = []
             this.colorMap = {
             }
         }
@@ -32,18 +32,18 @@ module powerbi.extensibility.visual {
 
         public enumerateObjectInstances(options: EnumerateVisualObjectInstancesOptions) {
             let objectEnumeration: VisualObjectInstance[] = [];
-            for (let point of this.dataPoints) {
+            for (let group of this.groupColors) {
                 objectEnumeration.push({
                     objectName: options.objectName,
-                    displayName: point.category,
+                    displayName: group.name,
                     properties: {
                         fill: {
                             solid: {
-                                color: point.color
+                                color: group.color
                             }
                         }
                     },
-                    selector: point.selectionId.getSelector(),
+                    selector: group.selectionId.getSelector(),
                 });
             }
             return objectEnumeration;
@@ -51,27 +51,26 @@ module powerbi.extensibility.visual {
 
         public update(dataView: DataView, features: any) {
             try {
-                this.dataPoints = [];
+                this.groupColors = [];
                 const cat = dataView.categorical.categories[0];
-                let categories = {};
+                let groups = {};
                 features.map(feature => {
                     const roleMap = this.mapVisual.getRoleMap()
-                    const value = feature.properties[roleMap.color.displayName];
-                    if (!categories[value]) {
-                        categories[value] = true;
+                    const name = feature.properties[roleMap.color.displayName];
+                    if (!groups[name]) {
+                        groups[name] = true;
                     }
                 });
-                console.log("Categories: ", categories);
-                this.dataPoints = this.fillDataPointsOwn(categories, cat);
+                console.log("Groups: ", groups);
+                this.groupColors = this.createGroupColors(groups, cat);
             }
             catch (err) {
                 console.log("Error: ", err);
             }
         }
 
-        fillDataPointsOwn(categories, cat) {
-            let ret = [];
-            Object.keys(categories).map( (category, i) => {
+        createGroupColors(groups, cat) {
+            return Object.keys(groups).map( (group, i) => {
                 let colorValue = 'black';
                 let defaultColor: Fill = {
                     solid: {
@@ -81,21 +80,17 @@ module powerbi.extensibility.visual {
 
                 if (cat.objects && cat.objects.length > i && cat.objects[i]) {
                     colorValue = mapboxUtils.getCategoricalObjectValue<Fill>(cat, i, 'colorSelector', 'fill', defaultColor).solid.color;
-                    // colorValue = cat.objects[i].colorSelector.fill['solid']['color'];
-                    this.colorMap[category] = colorValue;
+                    this.colorMap[group] = colorValue;
                 }
 
-                ret.push({
-                    category: category,
-                    value: this.colorMap[category],
+                return {
+                    name: group,
                     color: colorValue,
                     selectionId: this.host.createSelectionIdBuilder()
                         .withCategory(cat, i)
                         .createSelectionId()
-                });
+                }
             })
-            return ret;
         }
-
     }
 }
