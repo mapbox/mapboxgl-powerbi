@@ -69,7 +69,7 @@ module powerbi.extensibility.visual {
                 this.groupColors = this.createGroupColors(groups, cat);
             }
             catch (err) {
-                console.log("Error: ", err);
+                console.log("Exception occured during group color creation: ", err);
             }
         }
 
