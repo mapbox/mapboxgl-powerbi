@@ -98,7 +98,7 @@ module powerbi.extensibility.visual {
             if (settings.circle.show) {
                 const sizes = Circle.getSizes(limits.size, map, settings, roleMap.size);
 
-                let isGradient = mapboxUtils.shouldUseGradient(roleMap.color, limits.color);
+                let isGradient = mapboxUtils.shouldUseGradient(roleMap.color);
                 let colors = Circle.getColors(limits.color, isGradient, settings, this.palette, roleMap.color);
 
                 map.setPaintProperty(Circle.ID, 'circle-radius', sizes);

@@ -52,16 +52,20 @@ module powerbi.extensibility.visual {
         public update(dataView: DataView, features: any) {
             try {
                 this.groupColors = [];
+                const roleMap = this.mapVisual.getRoleMap()
+                if (mapboxUtils.shouldUseGradient(roleMap.color)) {
+                    return;
+                }
+
                 const cat = dataView.categorical.categories[0];
+
                 let groups = {};
                 features.map(feature => {
-                    const roleMap = this.mapVisual.getRoleMap()
                     const name = feature.properties[roleMap.color.displayName];
                     if (!groups[name]) {
                         groups[name] = true;
                     }
                 });
-                console.log("Groups: ", groups);
                 this.groupColors = this.createGroupColors(groups, cat);
             }
             catch (err) {
