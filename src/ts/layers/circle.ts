@@ -4,7 +4,7 @@ module powerbi.extensibility.visual {
     export class Circle extends Layer {
         private palette: IColorPalette;
 
-        private static ID = 'circle';
+        public static ID = 'circle';
         private static HighlightID = 'circle-highlight'
 
         constructor(map: MapboxMap, palette: IColorPalette) {
@@ -41,24 +41,18 @@ module powerbi.extensibility.visual {
 
             map.setPaintProperty(Circle.HighlightID, 'circle-color', constants.HIGHLIGHT_COLOR);
             map.setPaintProperty(Circle.HighlightID, 'circle-opacity', 0.5);
+        }
 
-            // Enable highlighting on mouse hover
-            map.on("mousemove", Circle.ID, mapboxUtils.debounce( (e) => {
-                if (!this.parent.hasSelection()) {
-                    const eventProps = e.features[0].properties;
-                    const lngLatFilter = ["all",
-                        ["==", latitude, eventProps[latitude]],
-                        ["==", longitude, eventProps[longitude]],
-                    ]
-                    map.setFilter(Circle.HighlightID, lngLatFilter);
-                }
-            }, 12, true));
-
-            map.on("mouseleave", Circle.ID, () => {
-                if (!this.parent.hasSelection()) {
-                    this.removeHighlight(roleMap);
-                }
-            });
+        hoverHighLight(e) {
+            const roleMap = this.parent.getRoleMap();
+            const latitude = roleMap.latitude.displayName;
+            const longitude = roleMap.longitude.displayName;
+            const eventProps = e.features[0].properties;
+            const lngLatFilter = ["all",
+                ["==", latitude, eventProps[latitude]],
+                ["==", longitude, eventProps[longitude]],
+            ]
+            this.parent.getMap().setFilter(Circle.HighlightID, lngLatFilter);
         }
 
         removeHighlight(roleMap) {

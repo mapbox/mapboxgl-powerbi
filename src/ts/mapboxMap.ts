@@ -58,7 +58,6 @@ module powerbi.extensibility.visual {
             }
 
             this.filter = new Filter(this)
-
         }
 
         onUpdate(map, settings, zoom, updatedHandler: Function) {
