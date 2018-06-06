@@ -71,17 +71,14 @@ module powerbi.extensibility.visual {
 
         createGroupColors(groups, cat) {
             return Object.keys(groups).map( (group, i) => {
-                let colorValue = 'black';
                 let defaultColor: Fill = {
                     solid: {
-                        color: 'black'
+                        color: this.getColor(i.toString()).value
                     }
                 }
 
-                if (cat.objects && cat.objects.length > i && cat.objects[i]) {
-                    colorValue = mapboxUtils.getCategoricalObjectValue<Fill>(cat, i, 'colorSelector', 'fill', defaultColor).solid.color;
-                    this.colorMap[group] = colorValue;
-                }
+                const colorValue = mapboxUtils.getCategoricalObjectValue<Fill>(cat, i, 'colorSelector', 'fill', defaultColor).solid.color
+                this.colorMap[group] = colorValue
 
                 return {
                     name: group,
