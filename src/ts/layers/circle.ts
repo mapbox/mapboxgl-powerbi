@@ -88,6 +88,7 @@ module powerbi.extensibility.visual {
         removeLayer() {
             const map = this.parent.getMap();
             map.removeLayer(Circle.ID);
+            map.removeLayer(Circle.HighlightID);
             this.source.removeFromMap(map, Circle.ID);
         }
 
