@@ -22,7 +22,6 @@ module powerbi.extensibility.visual {
 
         private host: IVisualHost;
         private category: any;
-        private selectionCount: number;
         private draw: any;
 
         constructor(options: VisualConstructorOptions) {
