@@ -16,13 +16,11 @@ module powerbi.extensibility.visual {
         private selectionManager: ISelectionManager;
         private layers: Layer[] = [];
         private roleMap: any;
-        private colorMap: any;
         private previousZoom: number;
-        private dataPoints: any[];
-        private colorPalette: IColorPalette;
         private filter: Filter;
+        private palette: Palette;
 
-        private host: any;
+        private host: IVisualHost;
         private category: any;
         private selectionCount: number;
         private draw: any;
@@ -49,25 +47,19 @@ module powerbi.extensibility.visual {
                 }
             });
 
-
-            this.dataPoints = [];
             this.host = options.host;
 
-            this.colorPalette = options.host.colorPalette
             this.tooltipServiceWrapper = createTooltipServiceWrapper(options.host.tooltipService, options.element);
             this.selectionManager = options.host.createSelectionManager();
             this.host = options.host;
-            this.colorMap = {
-            }
-
             this.filter = new Filter(this)
-
+            this.palette = new Palette(this, options.host)
         }
 
         onUpdate(map, settings, zoom, updatedHandler: Function) {
             try {
                 this.layers.map(layer => {
-                    layer.applySettings(settings, this.roleMap, this.colorMap);
+                    layer.applySettings(settings, this.roleMap);
                 });
 
                 if (zoom) {
@@ -104,22 +96,7 @@ module powerbi.extensibility.visual {
         */
         public enumerateObjectInstances(options: EnumerateVisualObjectInstancesOptions): VisualObjectInstanceEnumeration {
             if (options.objectName == 'colorSelector') {
-                let objectEnumeration: VisualObjectInstance[] = [];
-                for (let point of this.dataPoints) {
-                    objectEnumeration.push({
-                        objectName: options.objectName,
-                        displayName: point.category,
-                        properties: {
-                            fill: {
-                                solid: {
-                                    color: point.color
-                                }
-                            }
-                        },
-                        selector: point.selectionId.getSelector(),
-                    });
-                }
-                return objectEnumeration;
+                return this.palette.enumerateObjectInstances(options);
             } else {
                 return MapboxSettings.enumerateObjectInstances(this.settings || MapboxSettings.getDefault(), options);
             }
@@ -175,8 +152,8 @@ module powerbi.extensibility.visual {
             this.layers.push(new Cluster(this, () => {
                 return this.roleMap.cluster.displayName;
             }))
-            this.layers.push(new Circle(this, this.colorPalette))
-            this.layers.push(new Choropleth(this, this.colorPalette));
+            this.layers.push(new Circle(this, this.palette))
+            this.layers.push(new Choropleth(this, this.palette));
 
             const mapOptions = {
                 container: this.mapDiv,
@@ -361,7 +338,7 @@ module powerbi.extensibility.visual {
                     this.previousZoom = newZoom;
                     this.layers.map(layer => {
                         if (layer.handleZoom(this.settings)) {
-                            layer.applySettings(this.settings, this.roleMap, this.colorMap);
+                            layer.applySettings(this.settings, this.roleMap);
                         }
                     });
                 }
@@ -493,56 +470,6 @@ module powerbi.extensibility.visual {
             }))
         }
 
-
-        fillDataPointsLikeInExample(category) {
-            let ret = [];
-            for (let i = 0, len = category.values.length; i < len; i++) {
-                let defaultColor: Fill = {
-                    solid: {
-                        color: this.host.colorPalette.getColor(category.values[i]).value
-                    }
-                }
-
-                ret.push({
-                    category: category.values[i],
-                    value: 0,
-                    color: mapboxUtils.getCategoricalObjectValue<Fill>(category, i, 'colorSelector', 'fill', defaultColor).solid.color,
-                    selectionId: this.host.createSelectionIdBuilder()
-                        .withCategory(category, i)
-                        .createSelectionId()
-                });
-            }
-            return ret;
-        }
-
-        fillDataPointsOwn(categories, cat) {
-            let ret = [];
-            Object.keys(categories).map( (category, i) => {
-                let colorValue = 'black';
-                let defaultColor: Fill = {
-                    solid: {
-                        color: 'black'
-                    }
-                }
-
-                if (cat.objects && cat.objects.length > i && cat.objects[i]) {
-                    colorValue = mapboxUtils.getCategoricalObjectValue<Fill>(cat, i, 'colorSelector', 'fill', defaultColor).solid.color;
-                    // colorValue = cat.objects[i].colorSelector.fill['solid']['color'];
-                    this.colorMap[category] = colorValue;
-                }
-
-                ret.push({
-                    category: category,
-                    value: this.colorMap[category],
-                    color: colorValue,
-                    selectionId: this.host.createSelectionIdBuilder()
-                        .withCategory(cat, i)
-                        .createSelectionId()
-                });
-            })
-            return ret;
-        }
-
         public hideTooltip(): void {
             this.tooltipServiceWrapper.hide(true)
         }
@@ -551,6 +478,9 @@ module powerbi.extensibility.visual {
             // Placeholder to indicate whether data changed or paint prop changed
             // For now this is always true
             const features = mapboxConverter.convert(dataView);
+
+            this.palette.update(dataView, features);
+
             let datasources: Map<any, boolean> = new Map<any, boolean>()
             this.layers.map(layer => {
                 const source = layer.getSource(this.settings);
@@ -604,6 +534,12 @@ module powerbi.extensibility.visual {
         @mapboxUtils.logExceptions()
         public update(options: VisualUpdateOptions) {
             const dataView: DataView = options.dataViews[0];
+
+            if (!dataView) {
+                console.error('No dataView received from powerBI api')
+                console.log('update options:', options)
+                return
+            }
 
             this.category = dataView.categorical.categories[0];
 

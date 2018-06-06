@@ -64,8 +64,8 @@ module powerbi.extensibility.visual {
             map.addLayer(clusterLabelLayer);
         }
 
-        applySettings(settings, roleMap, colorMap) {
-            super.applySettings(settings, roleMap, colorMap);
+        applySettings(settings, roleMap) {
+            super.applySettings(settings, roleMap);
             const map = this.parent.getMap();
             if (settings.cluster.show) {
                 map.setLayerZoomRange(Cluster.ID, settings.cluster.minZoom, settings.cluster.maxZoom);

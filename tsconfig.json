@@ -18,6 +18,7 @@
     "src/ts/constants.ts",
     "src/ts/MapboxDrawConstants.ts",
     "src/ts/filter.ts",
+    "src/ts/palette.ts",
     "src/ts/datasources/datasource.ts",
     "src/ts/datasources/point.ts",
     "src/ts/datasources/cluster.ts",

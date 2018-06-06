@@ -16,12 +16,8 @@ module powerbi.extensibility.visual {
             }
         }
 
-        export function shouldUseGradient(colorColumn, colorLimits: { min: any; max: any; values: any; }) {
-            if (colorColumn != null && colorLimits && colorLimits.min != null && colorLimits.min.toString() !== colorLimits.min) {
-                return true
-            }
-
-            return false
+        export function shouldUseGradient(colorColumn) {
+            return colorColumn.aggregates != null;
         }
 
         export function debounce(func, wait, immediate) {
@@ -125,11 +121,12 @@ module powerbi.extensibility.visual {
                 }
             }
 
-            // Min and max must not be equal becuse of the interpolation.
-            // let's make sure with the substraction
-            if (min == max) {
+            // Min and max must not be equal because of the interpolation.
+            // let's make sure with the substraction if it is a number
+            if (min && min.toString() !== min && min == max) {
                 min = min - 1
             }
+
             return {
                 min,
                 max,

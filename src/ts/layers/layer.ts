@@ -30,10 +30,13 @@ module powerbi.extensibility.visual {
         updateSelection(features, roleMap) {
         }
 
+        hoverHighLight(e) {
+        }
+
         removeHighlight(roleMap) {
         }
 
-        applySettings(settings, roleMap, colorMap) {
+        applySettings(settings, roleMap) {
             const map = this.parent.getMap();
             if (settings[this.id].show) {
                 if (!this.layerExists()) {

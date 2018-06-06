@@ -1,14 +1,14 @@
 module powerbi.extensibility.visual {
 
     export class Choropleth extends Layer {
-        private static ID = 'choropleth'
+        public static ID = 'choropleth'
         private static OutlineID = 'choropleth-outline'
         private settings: ChoroplethSettings;
         private static HighlightID = 'choropleth-highlight'
 
-        private palette: IColorPalette;
+        private palette: Palette;
 
-        constructor(map: MapboxMap, palette: IColorPalette) {
+        constructor(map: MapboxMap, palette: Palette) {
             super(map);
             this.id = Choropleth.ID;
             this.source = data.Sources.Choropleth;
@@ -62,17 +62,14 @@ module powerbi.extensibility.visual {
             map.addLayer(highlightLayer, beforeLayerId);
             map.addLayer(outlineLayer, Choropleth.HighlightID);
             map.addLayer(choroplethLayer, Choropleth.OutlineID);
+        }
 
-            map.on("mousemove", Choropleth.ID, mapboxUtils.debounce( (e) => {
-                if (!this.parent.hasSelection()) {
-                    map.setFilter(Choropleth.HighlightID, ["==", vectorProperty, e.features[0].properties.name]);
-                }
-            }, 12, true));
-            map.on("mouseleave", Choropleth.ID, () => {
-                if (!this.parent.hasSelection()) {
-                    this.removeHighlight(roleMap)
-                }
-            });
+        hoverHighLight(e) {
+            const map = this.parent.getMap();
+
+            const choroSettings = this.settings;
+            const vectorProperty = choroSettings[`vectorProperty${choroSettings.currentLevel}`];
+            map.setFilter(Choropleth.HighlightID, ["==", vectorProperty, e.features[0].properties.name]);
         }
 
         removeHighlight(roleMap) {
@@ -152,8 +149,8 @@ module powerbi.extensibility.visual {
             return super.getSource(settings);
         }
 
-        applySettings(settings, roleMap, colorMap) {
-            super.applySettings(settings, roleMap, colorMap);
+        applySettings(settings, roleMap) {
+            super.applySettings(settings, roleMap);
             const map = this.parent.getMap();
             const choroSettings = settings.choropleth;
 
@@ -167,7 +164,7 @@ module powerbi.extensibility.visual {
                 ChoroplethSettings.fillPredefinedProperties(choroSettings);
                 let fillClassCount = mapboxUtils.getClassCount(fillColorLimits);
                 const choroColorSettings = [choroSettings.minColor, choroSettings.medColor, choroSettings.maxColor];
-                let isGradient = mapboxUtils.shouldUseGradient(roleMap.color, fillColorLimits);
+                let isGradient = mapboxUtils.shouldUseGradient(roleMap.color);
 
                 let getColorStop = null;
                 if (isGradient) {
@@ -177,8 +174,14 @@ module powerbi.extensibility.visual {
                 else {
                     let colorStops = {};
                     fillColorLimits.values.map((value, idx) => {
-                        const color = chroma(this.palette.getColor(idx.toString()).value);
-                        colorStops[value] = color;
+                        const colorMap = this.palette.getColorMap()
+                        if (colorMap[value]) {
+                            colorStops[value] = colorMap[value];
+                        }
+                        else {
+                            const color = chroma(this.palette.getColor(idx.toString()).value);
+                            colorStops[value] = color;
+                        }
                     });
                     getColorStop = (value) => {
                         return colorStops[value]
@@ -225,11 +228,11 @@ module powerbi.extensibility.visual {
 
                 if (validStops) {
                     map.setPaintProperty(Choropleth.ID, 'fill-color', colors);
+                    map.setFilter(Choropleth.ID, filter);
+                    map.setFilter(Choropleth.OutlineID, filter);
                 } else {
                     map.setPaintProperty(Choropleth.ID, 'fill-color', 'rgb(0, 0, 0)');
                 }
-                map.setFilter(Choropleth.ID, filter);
-                map.setFilter(Choropleth.OutlineID, filter);
 
                 map.setPaintProperty(Choropleth.ID, 'fill-outline-color', 'rgba(0,0,0,0.05)');
                 map.setPaintProperty(Choropleth.ID, 'fill-opacity', settings.choropleth.opacity / 100);
@@ -248,7 +251,7 @@ module powerbi.extensibility.visual {
         handleTooltip(tooltipEvent, roleMap, settings) {
             const tooltipData = super.handleTooltip(tooltipEvent, roleMap, settings);
             const choroVectorData = tooltipData.find(td => {
-                return td.displayName === settings.choropleth.vectorProperty;
+                return td.displayName === settings.choropleth[`vectorProperty${settings.choropleth.currentLevel}`];
             });
             if (!choroVectorData) {
                 // Error! Could not found choropleth data joining on selected vector property
