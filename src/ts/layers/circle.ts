@@ -91,15 +91,15 @@ module powerbi.extensibility.visual {
             this.source.removeFromMap(map, Circle.ID);
         }
 
-        applySettings(settings, roleMap, colorMap) {
-            super.applySettings(settings, roleMap, colorMap);
+        applySettings(settings, roleMap) {
+            super.applySettings(settings, roleMap);
             const map = this.parent.getMap();
             const limits = this.source.getLimits();
             if (settings.circle.show) {
                 const sizes = Circle.getSizes(limits.size, map, settings, roleMap.size);
 
                 let isGradient = mapboxUtils.shouldUseGradient(roleMap.color, limits.color);
-                let colors = Circle.getColors(limits.color, isGradient, settings, this.palette, roleMap.color, colorMap);
+                let colors = Circle.getColors(limits.color, isGradient, settings, this.palette, roleMap.color);
 
                 map.setPaintProperty(Circle.ID, 'circle-radius', sizes);
                 map.setPaintProperty(Circle.HighlightID, 'circle-radius', sizes);
@@ -117,7 +117,7 @@ module powerbi.extensibility.visual {
             return true;
         }
 
-        private static getColors(colorLimits: mapboxUtils.Limits, isGradient: boolean, settings: any, colorPalette: Color, colorField: any, colorMap) {
+        private static getColors(colorLimits: mapboxUtils.Limits, isGradient: boolean, settings: any, colorPalette: Color, colorField: any) {
             if (!colorField || colorLimits == null || colorLimits.min == null || colorLimits.max == null || colorLimits.values.length <= 0) {
                 return settings.circle.minColor;
             }
@@ -144,6 +144,7 @@ module powerbi.extensibility.visual {
             colorLimits.values.map( (value, idx) => {
                 colors.push(value.toString());
                 let color = colorPalette.getColor(idx.toString()).value;
+                const colorMap = colorPalette.getColorMap()
                 if (colorMap[value]) {
                     color = colorMap[value];
                 }

@@ -29,8 +29,8 @@ module powerbi.extensibility.visual {
         }
 
 
-        applySettings(settings, roleMap, colorMap) {
-            super.applySettings(settings, roleMap, colorMap);
+        applySettings(settings, roleMap) {
+            super.applySettings(settings, roleMap);
             const map = this.parent.getMap();
             if (settings.heatmap.show) {
                 map.setLayerZoomRange(Heatmap.ID, settings.heatmap.minZoom, settings.heatmap.maxZoom);

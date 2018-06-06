@@ -56,7 +56,7 @@ module powerbi.extensibility.visual {
         onUpdate(map, settings, zoom, updatedHandler: Function) {
             try {
                 this.layers.map(layer => {
-                    layer.applySettings(settings, this.roleMap, this.color.getColorMap());
+                    layer.applySettings(settings, this.roleMap);
                 });
 
                 if (zoom) {
@@ -187,7 +187,7 @@ module powerbi.extensibility.visual {
                     this.previousZoom = newZoom;
                     this.layers.map(layer => {
                         if (layer.handleZoom(this.settings)) {
-                            layer.applySettings(this.settings, this.roleMap, this.color.getColorMap());
+                            layer.applySettings(this.settings, this.roleMap);
                         }
                     });
                 }

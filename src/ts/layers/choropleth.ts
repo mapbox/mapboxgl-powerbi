@@ -152,8 +152,8 @@ module powerbi.extensibility.visual {
             return super.getSource(settings);
         }
 
-        applySettings(settings, roleMap, colorMap) {
-            super.applySettings(settings, roleMap, colorMap);
+        applySettings(settings, roleMap) {
+            super.applySettings(settings, roleMap);
             const map = this.parent.getMap();
             const choroSettings = settings.choropleth;
 
@@ -177,6 +177,7 @@ module powerbi.extensibility.visual {
                 else {
                     let colorStops = {};
                     fillColorLimits.values.map((value, idx) => {
+                        const colorMap = this.palette.getColorMap()
                         if (colorMap[value]) {
                             colorStops[value] = colorMap[value];
                         }

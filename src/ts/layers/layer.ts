@@ -33,7 +33,7 @@ module powerbi.extensibility.visual {
         removeHighlight(roleMap) {
         }
 
-        applySettings(settings, roleMap, colorMap) {
+        applySettings(settings, roleMap) {
             const map = this.parent.getMap();
             if (settings[this.id].show) {
                 if (!this.layerExists()) {
