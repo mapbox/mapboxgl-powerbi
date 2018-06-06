@@ -1,6 +1,6 @@
 module powerbi.extensibility.visual {
 
-    export module Constants {
+    export module MapboxDrawConstants {
         export const classes = {
           CONTROL_BASE: 'mapboxgl-ctrl',
           CONTROL_PREFIX: 'mapboxgl-ctrl-',

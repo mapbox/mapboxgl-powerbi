@@ -260,10 +260,10 @@ module powerbi.extensibility.visual {
 
             FreeDraw.onSetup = function() {
                 const polygon = this.newFeature({
-                    type: Constants.geojsonTypes.FEATURE,
+                    type: MapboxDrawConstants.geojsonTypes.FEATURE,
                     properties: {},
                     geometry: {
-                        type: Constants.geojsonTypes.POLYGON,
+                        type: MapboxDrawConstants.geojsonTypes.POLYGON,
                         coordinates: [[]]
                     }
                 });
@@ -273,8 +273,8 @@ module powerbi.extensibility.visual {
                 this.clearSelectedFeatures();
                 // doubleClickZoom.disable(this);
                 // dragPan.disable(this);
-                this.updateUIClasses({ mouse: Constants.cursors.ADD });
-                this.activateUIButton(Constants.types.POLYGON);
+                this.updateUIClasses({ mouse: MapboxDrawConstants.cursors.ADD });
+                this.activateUIButton(MapboxDrawConstants.types.POLYGON);
                 this.setActionableState({
                     trash: true
                 });
@@ -302,14 +302,14 @@ module powerbi.extensibility.visual {
                     });
 
                     this.fireUpdate();
-                    this.changeMode(Constants.modes.SIMPLE_SELECT, { featureIds: [state.polygon.id] });
+                    this.changeMode(MapboxDrawConstants.modes.SIMPLE_SELECT, { featureIds: [state.polygon.id] });
                 }
             }
 
             FreeDraw.onMouseMove = FreeDraw.onTouchMove = function (state, e){
                 state.dragMoving = true;
                 if (state.toggled) {
-                    this.updateUIClasses({ mouse: Constants.cursors.ADD });
+                    this.updateUIClasses({ mouse: MapboxDrawConstants.cursors.ADD });
                     state.polygon.updateCoordinate(`0.${state.currentVertexPosition}`, e.lngLat.lng, e.lngLat.lat);
                     state.currentVertexPosition++;
                     state.polygon.updateCoordinate(`0.${state.currentVertexPosition}`, e.lngLat.lng, e.lngLat.lat);
@@ -326,13 +326,13 @@ module powerbi.extensibility.visual {
             //         });
 
             //         this.fireUpdate();
-            //         this.changeMode(Constants.modes.SIMPLE_SELECT, { featureIds: [state.polygon.id] });
+            //         this.changeMode(MapboxDrawConstants.modes.SIMPLE_SELECT, { featureIds: [state.polygon.id] });
             //     }
             // }
 
             FreeDraw.fireUpdate = function() {
-                this.map.fire(Constants.events.UPDATE, {
-                    action: Constants.updateActions.MOVE,
+                this.map.fire(MapboxDrawConstants.events.UPDATE, {
+                    action: MapboxDrawConstants.updateActions.MOVE,
                     features: this.getSelected().map(f => f.toGeoJSON())
                 });
             };
