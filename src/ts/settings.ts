@@ -10,6 +10,7 @@ module powerbi.extensibility.visual {
         public cluster: ClusterSettings = new ClusterSettings();
         public heatmap: HeatmapSettings = new HeatmapSettings();
         public circle: CircleSettings = new CircleSettings();
+        public wms: WMSSettings = new WMSSettings();
         public choropleth: ChoroplethSettings = new ChoroplethSettings();
 
         public static enumerateObjectInstances(
@@ -68,6 +69,13 @@ module powerbi.extensibility.visual {
         public strokeWidth: number = 1;
         public strokeColor: string = "#bdbdbd";
         public strokeOpacity: number = 50;
+        public minZoom: number = 0;
+        public maxZoom: number = 22;
+    }
+    export class WMSSettings {
+        public show: boolean = true;
+        public url: string = "testing";
+        public opacity: number = 80;
         public minZoom: number = 0;
         public maxZoom: number = 22;
     }
