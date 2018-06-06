@@ -9,6 +9,7 @@ module powerbi.extensibility.visual {
         private mapDiv: HTMLDivElement;
         private errorDiv: HTMLDivElement;
         private autoZoomControl: AutoZoomControl;
+        private lassoDrawControl: LassoDrawControl;
         private settings: MapboxSettings;
         private mapStyle: string = "";
         private updatedHandler: Function = () => { }
@@ -35,6 +36,7 @@ module powerbi.extensibility.visual {
             options.element.appendChild(this.errorDiv);
 
             this.autoZoomControl = new AutoZoomControl();
+            this.lassoDrawControl = new LassoDrawControl();
 
             // For anchor elements to work we need to manually
             // call launchUrl API method
@@ -327,6 +329,7 @@ module powerbi.extensibility.visual {
             });
             this.map.addControl(new mapboxgl.NavigationControl());
             this.map.addControl(this.draw, 'top-left');
+            this.map.addControl(this.lassoDrawControl, 'top-left');
             this.map.addControl(this.autoZoomControl);
 
             this.filter.manageHandlers();
