@@ -231,11 +231,11 @@ module powerbi.extensibility.visual {
 
                 if (validStops) {
                     map.setPaintProperty(Choropleth.ID, 'fill-color', colors);
+                    map.setFilter(Choropleth.ID, filter);
+                    map.setFilter(Choropleth.OutlineID, filter);
                 } else {
                     map.setPaintProperty(Choropleth.ID, 'fill-color', 'rgb(0, 0, 0)');
                 }
-                map.setFilter(Choropleth.ID, filter);
-                map.setFilter(Choropleth.OutlineID, filter);
 
                 map.setPaintProperty(Choropleth.ID, 'fill-outline-color', 'rgba(0,0,0,0.05)');
                 map.setPaintProperty(Choropleth.ID, 'fill-opacity', settings.choropleth.opacity / 100);
