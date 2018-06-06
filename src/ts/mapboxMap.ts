@@ -349,6 +349,12 @@ module powerbi.extensibility.visual {
         public update(options: VisualUpdateOptions) {
             const dataView: DataView = options.dataViews[0];
 
+            if (!dataView) {
+                console.error('No dataView received from powerBI api')
+                console.log('update options:', options)
+                return
+            }
+
             this.category = dataView.categorical.categories[0];
 
             this.roleMap = mapboxUtils.getRoleMap(dataView.metadata);
