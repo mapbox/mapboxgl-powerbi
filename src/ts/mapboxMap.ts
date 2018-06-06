@@ -14,13 +14,12 @@ module powerbi.extensibility.visual {
         private selectionManager: ISelectionManager;
         private layers: Layer[] = [];
         private roleMap: any;
-        private colorMap: any;
         private previousZoom: number;
-        private dataPoints: any[];
         private colorPalette: IColorPalette;
         private filter: Filter;
+        private color: Color;
 
-        private host: any;
+        private host: IVisualHost;
         private category: any;
         private selectionCount: number;
 
@@ -46,25 +45,20 @@ module powerbi.extensibility.visual {
                 }
             });
 
-
-            this.dataPoints = [];
             this.host = options.host;
 
             this.colorPalette = options.host.colorPalette
             this.tooltipServiceWrapper = createTooltipServiceWrapper(options.host.tooltipService, options.element);
             this.selectionManager = options.host.createSelectionManager();
             this.host = options.host;
-            this.colorMap = {
-            }
-
             this.filter = new Filter(this)
-
+            this.color = new Color(this, options.host)
         }
 
         onUpdate(map, settings, zoom, updatedHandler: Function) {
             try {
                 this.layers.map(layer => {
-                    layer.applySettings(settings, this.roleMap, this.colorMap);
+                    layer.applySettings(settings, this.roleMap, this.color.getColorMap());
                 });
 
                 if (zoom) {
@@ -101,22 +95,7 @@ module powerbi.extensibility.visual {
         */
         public enumerateObjectInstances(options: EnumerateVisualObjectInstancesOptions): VisualObjectInstanceEnumeration {
             if (options.objectName == 'colorSelector') {
-                let objectEnumeration: VisualObjectInstance[] = [];
-                for (let point of this.dataPoints) {
-                    objectEnumeration.push({
-                        objectName: options.objectName,
-                        displayName: point.category,
-                        properties: {
-                            fill: {
-                                solid: {
-                                    color: point.color
-                                }
-                            }
-                        },
-                        selector: point.selectionId.getSelector(),
-                    });
-                }
-                return objectEnumeration;
+                return this.color.enumerateObjectInstances(options);
             } else {
                 return MapboxSettings.enumerateObjectInstances(this.settings || MapboxSettings.getDefault(), options);
             }
@@ -210,7 +189,7 @@ module powerbi.extensibility.visual {
                     this.previousZoom = newZoom;
                     this.layers.map(layer => {
                         if (layer.handleZoom(this.settings)) {
-                            layer.applySettings(this.settings, this.roleMap, this.colorMap);
+                            layer.applySettings(this.settings, this.roleMap, this.color.getColorMap());
                         }
                     });
                 }
@@ -307,56 +286,6 @@ module powerbi.extensibility.visual {
             }))
         }
 
-
-        fillDataPointsLikeInExample(category) {
-            let ret = [];
-            for (let i = 0, len = category.values.length; i < len; i++) {
-                let defaultColor: Fill = {
-                    solid: {
-                        color: this.host.colorPalette.getColor(category.values[i]).value
-                    }
-                }
-
-                ret.push({
-                    category: category.values[i],
-                    value: 0,
-                    color: mapboxUtils.getCategoricalObjectValue<Fill>(category, i, 'colorSelector', 'fill', defaultColor).solid.color,
-                    selectionId: this.host.createSelectionIdBuilder()
-                        .withCategory(category, i)
-                        .createSelectionId()
-                });
-            }
-            return ret;
-        }
-
-        fillDataPointsOwn(categories, cat) {
-            let ret = [];
-            Object.keys(categories).map( (category, i) => {
-                let colorValue = 'black';
-                let defaultColor: Fill = {
-                    solid: {
-                        color: 'black'
-                    }
-                }
-
-                if (cat.objects && cat.objects.length > i && cat.objects[i]) {
-                    colorValue = mapboxUtils.getCategoricalObjectValue<Fill>(cat, i, 'colorSelector', 'fill', defaultColor).solid.color;
-                    // colorValue = cat.objects[i].colorSelector.fill['solid']['color'];
-                    this.colorMap[category] = colorValue;
-                }
-
-                ret.push({
-                    category: category,
-                    value: this.colorMap[category],
-                    color: colorValue,
-                    selectionId: this.host.createSelectionIdBuilder()
-                        .withCategory(cat, i)
-                        .createSelectionId()
-                });
-            })
-            return ret;
-        }
-
         public hideTooltip(): void {
             this.tooltipServiceWrapper.hide(true)
         }
@@ -366,25 +295,7 @@ module powerbi.extensibility.visual {
             // For now this is always true
             const features = mapboxConverter.convert(dataView);
 
-            try {
-
-                this.dataPoints = [];
-
-                const cat = dataView.categorical.categories[0];
-                let categories = {};
-                features.map( feature => {
-                    const value = feature.properties[this.roleMap.color.displayName];
-                    if (!categories[value]) {
-                        categories[value] = true;
-                    }
-                });
-                console.log("Categories: ", categories);
-
-                this.dataPoints = this.fillDataPointsOwn(categories, cat);
-
-            } catch (err) {
-                console.log("Error: ", err);
-            }
+            this.color.update(dataView, features);
 
             let datasources: Map<any, boolean> = new Map<any, boolean>()
             this.layers.map(layer => {
