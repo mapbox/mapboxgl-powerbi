@@ -11,10 +11,12 @@ module powerbi.extensibility.visual {
         private dataPoints: DataPoint[];
         private colorMap: any;
         private host: IVisualHost;
+        private colorPalette: IColorPalette;
 
         constructor(mapVisual: MapboxMap, host: IVisualHost) {
             this.mapVisual = mapVisual
             this.host = host
+            this.colorPalette = host.colorPalette
             this.dataPoints = []
             this.colorMap = {
             }
@@ -22,6 +24,10 @@ module powerbi.extensibility.visual {
 
         public getColorMap() {
             return this.colorMap
+        }
+
+        public getColor(id: string): IColorInfo {
+            return this.colorPalette.getColor(id);
         }
 
         public enumerateObjectInstances(options: EnumerateVisualObjectInstancesOptions) {

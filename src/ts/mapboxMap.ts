@@ -15,7 +15,6 @@ module powerbi.extensibility.visual {
         private layers: Layer[] = [];
         private roleMap: any;
         private previousZoom: number;
-        private colorPalette: IColorPalette;
         private filter: Filter;
         private color: Color;
 
@@ -47,7 +46,6 @@ module powerbi.extensibility.visual {
 
             this.host = options.host;
 
-            this.colorPalette = options.host.colorPalette
             this.tooltipServiceWrapper = createTooltipServiceWrapper(options.host.tooltipService, options.element);
             this.selectionManager = options.host.createSelectionManager();
             this.host = options.host;
@@ -151,8 +149,8 @@ module powerbi.extensibility.visual {
             this.layers.push(new Cluster(this, () => {
                 return this.roleMap.cluster.displayName;
             }))
-            this.layers.push(new Circle(this, this.colorPalette))
-            this.layers.push(new Choropleth(this, this.colorPalette));
+            this.layers.push(new Circle(this, this.color))
+            this.layers.push(new Choropleth(this, this.color));
 
             const mapOptions = {
                 container: this.mapDiv,

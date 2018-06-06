@@ -6,9 +6,9 @@ module powerbi.extensibility.visual {
         private settings: ChoroplethSettings;
         private static HighlightID = 'choropleth-highlight'
 
-        private palette: IColorPalette;
+        private palette: Color;
 
-        constructor(map: MapboxMap, palette: IColorPalette) {
+        constructor(map: MapboxMap, palette: Color) {
             super(map);
             this.id = Choropleth.ID;
             this.source = data.Sources.Choropleth;
