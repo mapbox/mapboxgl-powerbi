@@ -2,12 +2,12 @@ module powerbi.extensibility.visual {
     declare var turf : any;
 
     export class Circle extends Layer {
-        private palette: Color;
+        private palette: Palette;
 
         private static ID = 'circle';
         private static HighlightID = 'circle-highlight'
 
-        constructor(map: MapboxMap, palette: Color) {
+        constructor(map: MapboxMap, palette: Palette) {
             super(map)
             this.id = Circle.ID
             this.palette = palette
@@ -117,7 +117,7 @@ module powerbi.extensibility.visual {
             return true;
         }
 
-        private static getColors(colorLimits: mapboxUtils.Limits, isGradient: boolean, settings: any, colorPalette: Color, colorField: any) {
+        private static getColors(colorLimits: mapboxUtils.Limits, isGradient: boolean, settings: any, colorPalette: Palette, colorField: any) {
             if (!colorField || colorLimits == null || colorLimits.min == null || colorLimits.max == null || colorLimits.values.length <= 0) {
                 return settings.circle.minColor;
             }

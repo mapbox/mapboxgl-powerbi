@@ -6,7 +6,7 @@ module powerbi.extensibility.visual {
         color: string;
     }
 
-    export class Color {
+    export class Palette {
         private mapVisual: MapboxMap;
         private dataPoints: DataPoint[];
         private colorMap: any;

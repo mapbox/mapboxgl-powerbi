@@ -16,7 +16,7 @@ module powerbi.extensibility.visual {
         private roleMap: any;
         private previousZoom: number;
         private filter: Filter;
-        private color: Color;
+        private palette: Palette;
 
         private host: IVisualHost;
         private category: any;
@@ -50,7 +50,7 @@ module powerbi.extensibility.visual {
             this.selectionManager = options.host.createSelectionManager();
             this.host = options.host;
             this.filter = new Filter(this)
-            this.color = new Color(this, options.host)
+            this.palette = new Palette(this, options.host)
         }
 
         onUpdate(map, settings, zoom, updatedHandler: Function) {
@@ -93,7 +93,7 @@ module powerbi.extensibility.visual {
         */
         public enumerateObjectInstances(options: EnumerateVisualObjectInstancesOptions): VisualObjectInstanceEnumeration {
             if (options.objectName == 'colorSelector') {
-                return this.color.enumerateObjectInstances(options);
+                return this.palette.enumerateObjectInstances(options);
             } else {
                 return MapboxSettings.enumerateObjectInstances(this.settings || MapboxSettings.getDefault(), options);
             }
@@ -149,8 +149,8 @@ module powerbi.extensibility.visual {
             this.layers.push(new Cluster(this, () => {
                 return this.roleMap.cluster.displayName;
             }))
-            this.layers.push(new Circle(this, this.color))
-            this.layers.push(new Choropleth(this, this.color));
+            this.layers.push(new Circle(this, this.palette))
+            this.layers.push(new Choropleth(this, this.palette));
 
             const mapOptions = {
                 container: this.mapDiv,
@@ -293,7 +293,7 @@ module powerbi.extensibility.visual {
             // For now this is always true
             const features = mapboxConverter.convert(dataView);
 
-            this.color.update(dataView, features);
+            this.palette.update(dataView, features);
 
             let datasources: Map<any, boolean> = new Map<any, boolean>()
             this.layers.map(layer => {
