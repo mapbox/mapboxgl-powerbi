@@ -6,5 +6,5 @@ module.exports = {
     center: require('@turf/center').default,
     booleanContains: require('@turf/boolean-contains').default,
     booleanOverlap: require('@turf/boolean-overlap').default,
-    simplify: require('@turf/simplify'),
+    simplify: require('@turf/simplify').default,
 };
