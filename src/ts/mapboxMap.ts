@@ -225,7 +225,7 @@ module powerbi.extensibility.visual {
                 oldSettings.circle.show != newSettings.circle.show ||
                 oldSettings.cluster.show != newSettings.cluster.show ||
                 oldSettings.heatmap.show != newSettings.heatmap.show ||
-                oldSettings.wms.show != newSettings.wms.show)
+                oldSettings.raster.show != newSettings.raster.show)
         }
 
         private static getTooltipData(value: any): VisualTooltipDataItem[] {
@@ -258,7 +258,9 @@ module powerbi.extensibility.visual {
             const features = mapboxConverter.convert(dataView);
             let datasources: Map<any, boolean> = new Map<any, boolean>()
             this.layers.map(layer => {
-                console.log(layer)
+                // console.log('logging the settings...')
+                // console.log(layer)
+                // console.log(this.settings)
                 const source = layer.getSource(this.settings);
                 if (source) {
                     datasources.set(source, true)

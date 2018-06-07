@@ -2,27 +2,33 @@ module powerbi.extensibility.visual.data {
     declare var turf : any;
 
     export class Raster extends Datasource {
-        protected colorLimits: mapboxUtils.Limits;
-        protected sizeLimits: mapboxUtils.Limits;
+        // protected colorLimits: mapboxUtils.Limits;
+        // protected sizeLimits: mapboxUtils.Limits;
 
         constructor() {
             super()
             console.log('testing datasource')
         }
 
+        testing() {
+            console.log('this is a test')
+        }
+
         addSources(map, settings) {
-            console.log('testing addsources in datasource')
+            console.log('testing add source for raster')
             map.addSource('raster', {
-                'type': 'raster',
-                'tiles': [
+                type: 'raster',
+                tiles: [
                     'https://geodata.state.nj.us/imagerywms/Natural2015?bbox={bbox-epsg-3857}&format=image/png&service=WMS&version=1.1.1&request=GetMap&srs=EPSG:3857&width=256&height=256&layers=Natural2015'
                 ],
-                'tileSize': 256
+                tileSize: 256
             },);
+            console.log('returning the source for raster')
             return map.getSource('raster');
         }
 
         removeSources(map) {
+            console.log('removing source')
             map.removeSource('raster');
         }
 

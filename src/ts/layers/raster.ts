@@ -6,13 +6,13 @@ module powerbi.extensibility.visual {
 
         constructor(map: MapboxMap) {
             super(map)
-            this.id = Raster.ID
-            this.source = data.Sources.Point
-            console.log('testing layer')
+            this.id = 'raster'
+            this.source = data.Sources.Raster
+            console.log('testing layerrrr')
         }
 
         getLayerIDs() {
-            return [ Raster.ID ];
+            return [ 'raster' ];
         }
 
         addLayer(settings, beforeLayerId) {
@@ -28,8 +28,8 @@ module powerbi.extensibility.visual {
 
         removeLayer() {
             const map = this.parent.getMap();
-            map.removeLayer(Raster.ID);
-            this.source.removeFromMap(map, Raster.ID);
+            map.removeLayer('raster');
+            this.source.removeFromMap(map, 'raster');
         }
 
         applySettings(settings, roleMap) {

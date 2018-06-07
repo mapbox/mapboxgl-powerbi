@@ -16,10 +16,10 @@
   "files": [
     ".api/v1.12.0/PowerBI-visuals.d.ts",
     "src/ts/datasources/datasource.ts",
+    "src/ts/datasources/raster.ts",
     "src/ts/datasources/point.ts",
     "src/ts/datasources/cluster.ts",
     "src/ts/datasources/choropleth.ts",
-    "src/ts/datasources/raster.ts",
     "src/ts/datasources/sources.ts",
     "src/ts/layers/layer.ts",
     "src/ts/layers/circle.ts",

@@ -406,9 +406,9 @@
         }
       }
     },
-     "wms": {
+     "raster": {
       "displayName": "WMS",
-      "displayNameKey": "wms",
+      "displayNameKey": "raster",
       "description": "WMS Display Settings",
       "properties": {
         "show": {
