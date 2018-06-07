@@ -59,6 +59,8 @@ module powerbi.extensibility.visual {
                     layer.applySettings(settings, this.roleMap);
                 });
 
+                this.filter.removeHighlightAndSelection(this.layers);
+
                 if (zoom) {
                     const bounds = this.layers.map(layer => {
                         return layer.getBounds(settings);
@@ -355,19 +357,20 @@ module powerbi.extensibility.visual {
                 return
             }
 
-            this.category = dataView.categorical.categories[0];
-
-            this.roleMap = mapboxUtils.getRoleMap(dataView.metadata);
-
             this.settings = MapboxSettings.parse<MapboxSettings>(dataView);
-
-            this.updateCurrentLevel(this.settings.choropleth, options);
 
             if (!this.validateOptions(options)) {
                 this.errorDiv.style.display = 'block';
                 this.removeMap();
                 return false;
             }
+
+            this.category = dataView.categorical.categories[0];
+
+            this.roleMap = mapboxUtils.getRoleMap(dataView.metadata);
+
+            this.updateCurrentLevel(this.settings.choropleth, options);
+
 
             if (!this.map) {
                 this.addMap();

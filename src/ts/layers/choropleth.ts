@@ -65,14 +65,21 @@ module powerbi.extensibility.visual {
         }
 
         hoverHighLight(e) {
-            const map = this.parent.getMap();
+            if (!this.layerExists()) {
+                return;
+            }
 
+            const map = this.parent.getMap();
             const choroSettings = this.settings;
             const vectorProperty = choroSettings[`vectorProperty${choroSettings.currentLevel}`];
             map.setFilter(Choropleth.HighlightID, ["==", vectorProperty, e.features[0].properties.name]);
         }
 
         removeHighlight(roleMap) {
+            if (!this.layerExists()) {
+                return;
+            }
+
             const choroSettings = this.settings;
             const vectorProperty = choroSettings[`vectorProperty${choroSettings.currentLevel}`];
             const zeroFilter = ["==", vectorProperty, ""]
@@ -88,10 +95,22 @@ module powerbi.extensibility.visual {
             let locationFilter = [];
             locationFilter.push("any");
             this.parent.clearSelection();
-            features.map( (feature, i) => {
-                locationFilter.push(["==", vectorProperty, feature.properties.name]);
-                this.parent.addSelection(feature.properties.name, true);
-            });
+            let featureNameMap = {};
+            features
+                .filter((feature) => {
+                    // Dedupliacate features since features may appear multiple times in query results
+                    if (featureNameMap[feature.properties.name]) {
+                        return false;
+                    }
+                    
+                    featureNameMap[feature.properties.name] = true;
+                    return true;
+                })
+                .slice(0, constants.MAX_SELECTION_COUNT)
+                .map( (feature, i) => {
+                    locationFilter.push(["==", vectorProperty, feature.properties.name]);
+                    this.parent.addSelection(feature.properties.name, true);
+                });
             map.setFilter(Choropleth.HighlightID, locationFilter);
         }
 
@@ -174,14 +193,7 @@ module powerbi.extensibility.visual {
                 else {
                     let colorStops = {};
                     fillColorLimits.values.map((value, idx) => {
-                        const colorMap = this.palette.getColorMap()
-                        if (colorMap[value]) {
-                            colorStops[value] = colorMap[value];
-                        }
-                        else {
-                            const color = chroma(this.palette.getColor(idx.toString()).value);
-                            colorStops[value] = color;
-                        }
+                        colorStops[value] = chroma(this.palette.getColor(value, idx))
                     });
                     getColorStop = (value) => {
                         return colorStops[value]
@@ -210,8 +222,10 @@ module powerbi.extensibility.visual {
                         continue;
                     }
 
+                    const locationStr = location.toString();
 
-                    if (existingStops[location]) {
+
+                    if (existingStops[locationStr]) {
                         // Duplicate stop found. In case there are many rows, Mapbox generates so many errors on the
                         // console, that it can make the entire Power BI plugin unresponsive. This is why we validate
                         // the stops here, and won't let invalid stops to be passed to Mapbox.
@@ -220,10 +234,10 @@ module powerbi.extensibility.visual {
                     }
 
 
-                    existingStops[location] = true;
-                    colors.stops.push([location, color.toString()]);
-                    filter.push(location);
-                    outlineColors.stops.push([location, outlineColor.toString()]);
+                    existingStops[locationStr] = true;
+                    colors.stops.push([locationStr, color.toString()]);
+                    filter.push(locationStr);
+                    outlineColors.stops.push([locationStr, outlineColor.toString()]);
                 }
 
                 if (validStops) {
