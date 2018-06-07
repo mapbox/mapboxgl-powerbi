@@ -77,7 +77,9 @@ module powerbi.extensibility.visual {
             let lngLatFilter = [];
             lngLatFilter.push("any");
             this.parent.clearSelection();
-            features.map( (feature, index) => {
+            features
+                .slice(0, constants.MAX_SELECTION_COUNT)
+                .map( (feature, index) => {
                 lngLatFilter.push(["all",
                     ["==", latitude, feature.properties[latitude]],
                     ["==", longitude, feature.properties[longitude]]]);

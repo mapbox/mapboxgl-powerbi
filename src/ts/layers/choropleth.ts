@@ -95,10 +95,22 @@ module powerbi.extensibility.visual {
             let locationFilter = [];
             locationFilter.push("any");
             this.parent.clearSelection();
-            features.map( (feature, i) => {
-                locationFilter.push(["==", vectorProperty, feature.properties.name]);
-                this.parent.addSelection(feature.properties.name, true);
-            });
+            let featureNameMap = {};
+            features
+                .filter((feature) => {
+                    // Dedupliacate features since features may appear multiple times in query results
+                    if (featureNameMap[feature.properties.name]) {
+                        return false;
+                    }
+                    
+                    featureNameMap[feature.properties.name] = true;
+                    return true;
+                })
+                .slice(0, constants.MAX_SELECTION_COUNT)
+                .map( (feature, i) => {
+                    locationFilter.push(["==", vectorProperty, feature.properties.name]);
+                    this.parent.addSelection(feature.properties.name, true);
+                });
             map.setFilter(Choropleth.HighlightID, locationFilter);
         }
 
