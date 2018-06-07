@@ -59,6 +59,8 @@ module powerbi.extensibility.visual {
                     layer.applySettings(settings, this.roleMap);
                 });
 
+                this.filter.removeHighlightAndSelection(this.layers);
+
                 if (zoom) {
                     const bounds = this.layers.map(layer => {
                         return layer.getBounds(settings);

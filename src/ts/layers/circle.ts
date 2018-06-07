@@ -44,6 +44,10 @@ module powerbi.extensibility.visual {
         }
 
         hoverHighLight(e) {
+            if (!this.layerExists()) {
+                return;
+            }
+
             const roleMap = this.parent.getRoleMap();
             const latitude = roleMap.latitude.displayName;
             const longitude = roleMap.longitude.displayName;
@@ -56,6 +60,9 @@ module powerbi.extensibility.visual {
         }
 
         removeHighlight(roleMap) {
+            if (!this.layerExists()) {
+                return;
+            }
             const latitude = roleMap.latitude.displayName;
             const map = this.parent.getMap();
             const zeroFilter = ["==", latitude, ""];

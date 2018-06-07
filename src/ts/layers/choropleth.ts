@@ -65,14 +65,21 @@ module powerbi.extensibility.visual {
         }
 
         hoverHighLight(e) {
-            const map = this.parent.getMap();
+            if (!this.layerExists()) {
+                return;
+            }
 
+            const map = this.parent.getMap();
             const choroSettings = this.settings;
             const vectorProperty = choroSettings[`vectorProperty${choroSettings.currentLevel}`];
             map.setFilter(Choropleth.HighlightID, ["==", vectorProperty, e.features[0].properties.name]);
         }
 
         removeHighlight(roleMap) {
+            if (!this.layerExists()) {
+                return;
+            }
+
             const choroSettings = this.settings;
             const vectorProperty = choroSettings[`vectorProperty${choroSettings.currentLevel}`];
             const zeroFilter = ["==", vectorProperty, ""]
