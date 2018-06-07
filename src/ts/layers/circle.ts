@@ -143,13 +143,9 @@ module powerbi.extensibility.visual {
 
             // Set colors for categorical value
             let colors = ['match', ['to-string', ['get', colorField.displayName]]];
-            const colorMap = colorPalette.getColorMap()
             colorLimits.values.map( (value, idx) => {
                 colors.push(value.toString());
-                let color = colorPalette.getColor(idx.toString()).value;
-                if (colorMap[value]) {
-                    color = colorMap[value];
-                }
+                const color = colorPalette.getColor(value.toString(), idx);
                 colors.push(color);
             });
 

@@ -9,7 +9,7 @@ module powerbi.extensibility.visual {
     export class Palette {
         private mapVisual: MapboxMap;
         private groupColors: GroupColor[];
-        private colorMap: any;
+        private colorMap: { [group: string]: string };
         private host: IVisualHost;
         private colorPalette: IColorPalette;
 
@@ -22,12 +22,13 @@ module powerbi.extensibility.visual {
             }
         }
 
-        public getColorMap() {
-            return this.colorMap
-        }
-
-        public getColor(id: string): IColorInfo {
-            return this.colorPalette.getColor(id);
+        public getColor(id: string, idx: number): string {
+            if (this.colorMap[id]) {
+                    return this.colorMap[id];
+            }
+            else {
+                return this.colorPalette.getColor(idx.toString()).value
+            }
         }
 
         public enumerateObjectInstances(options: EnumerateVisualObjectInstancesOptions) {
@@ -75,12 +76,9 @@ module powerbi.extensibility.visual {
 
         createGroupColors(groups, cat) {
             return Object.keys(groups).map( (group, i) => {
-                const pbicolor = this.getColor(i.toString()).value
-                const color = this.colorMap[group] ? this.colorMap[group] : pbicolor
-
                 let defaultColor: Fill = {
                     solid: {
-                        color
+                        color: this.getColor(group, i)
                     }
                 }
 
