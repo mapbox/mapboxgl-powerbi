@@ -58,7 +58,7 @@ module powerbi.extensibility.visual {
     }
 
     export class CircleSettings {
-        public show: boolean = true;
+        public show: boolean = false;
         public radius: number = 3;
         public scaleFactor: number = 5;
         public minColor: string = "#ffffcc";
@@ -73,8 +73,8 @@ module powerbi.extensibility.visual {
         public maxZoom: number = 22;
     }
     export class WMSSettings {
-        public show: boolean = true;
-        public url: string = "testing";
+        public show: boolean = false;
+        public url: string = "https://geodata.state.nj.us/imagerywms/Natural2015?bbox={bbox-epsg-3857}&format=image/png&service=WMS&version=1.1.1&request=GetMap&srs=EPSG:3857&width=256&height=256&layers=Natural2015";
         public opacity: number = 80;
         public minZoom: number = 0;
         public maxZoom: number = 22;

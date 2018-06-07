@@ -4,6 +4,7 @@ module powerbi.extensibility.visual.data {
         Point: new Point(),
         Cluster: new Cluster(),
         Choropleth: new Choropleth(),
+        Raster: new Raster()
     }
 }
 

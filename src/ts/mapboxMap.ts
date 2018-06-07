@@ -103,6 +103,7 @@ module powerbi.extensibility.visual {
 
             this.layers = []
             this.layers.push(new Heatmap(this))
+            this.layers.push(new Raster(this))
             this.layers.push(new Cluster(this, () => {
                 return this.roleMap.cluster.displayName;
             }))
@@ -223,7 +224,8 @@ module powerbi.extensibility.visual {
                 oldSettings.choropleth.show != newSettings.choropleth.show ||
                 oldSettings.circle.show != newSettings.circle.show ||
                 oldSettings.cluster.show != newSettings.cluster.show ||
-                oldSettings.heatmap.show != newSettings.heatmap.show)
+                oldSettings.heatmap.show != newSettings.heatmap.show ||
+                oldSettings.wms.show != newSettings.wms.show)
         }
 
         private static getTooltipData(value: any): VisualTooltipDataItem[] {
@@ -256,6 +258,7 @@ module powerbi.extensibility.visual {
             const features = mapboxConverter.convert(dataView);
             let datasources: Map<any, boolean> = new Map<any, boolean>()
             this.layers.map(layer => {
+                console.log(layer)
                 const source = layer.getSource(this.settings);
                 if (source) {
                     datasources.set(source, true)
