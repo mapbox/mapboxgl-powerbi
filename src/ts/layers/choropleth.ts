@@ -217,8 +217,10 @@ module powerbi.extensibility.visual {
                         continue;
                     }
 
+                    const locationStr = location.toString();
 
-                    if (existingStops[location]) {
+
+                    if (existingStops[locationStr]) {
                         // Duplicate stop found. In case there are many rows, Mapbox generates so many errors on the
                         // console, that it can make the entire Power BI plugin unresponsive. This is why we validate
                         // the stops here, and won't let invalid stops to be passed to Mapbox.
@@ -227,10 +229,10 @@ module powerbi.extensibility.visual {
                     }
 
 
-                    existingStops[location] = true;
-                    colors.stops.push([location, color.toString()]);
-                    filter.push(location);
-                    outlineColors.stops.push([location, outlineColor.toString()]);
+                    existingStops[locationStr] = true;
+                    colors.stops.push([locationStr, color.toString()]);
+                    filter.push(locationStr);
+                    outlineColors.stops.push([locationStr, outlineColor.toString()]);
                 }
 
                 if (validStops) {
