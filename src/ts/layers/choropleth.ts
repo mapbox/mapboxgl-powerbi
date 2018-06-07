@@ -193,14 +193,7 @@ module powerbi.extensibility.visual {
                 else {
                     let colorStops = {};
                     fillColorLimits.values.map((value, idx) => {
-                        const colorMap = this.palette.getColorMap()
-                        if (colorMap[value]) {
-                            colorStops[value] = colorMap[value];
-                        }
-                        else {
-                            const color = chroma(this.palette.getColor(idx.toString()).value);
-                            colorStops[value] = color;
-                        }
+                        colorStops[value] = chroma(this.palette.getColor(value, idx))
                     });
                     getColorStop = (value) => {
                         return colorStops[value]
