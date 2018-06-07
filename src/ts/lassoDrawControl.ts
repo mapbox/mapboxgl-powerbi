@@ -5,6 +5,11 @@ module powerbi.extensibility.visual {
         private container: HTMLElement;
         private lassoDrawButton: HTMLElement;
         private toggled: boolean;
+        private draw: any;
+
+        constructor(draw: any) {
+            this.draw = draw;
+        }
 
         public onAdd(map) {
             this.toggled = false;
@@ -14,7 +19,11 @@ module powerbi.extensibility.visual {
 
             this.lassoDrawButton = this.createButton(this.getButtonClass(), this.getButtonTitle(),
                 () => {
-                    this.toggled = !this.toggled;
+                    // this.toggled = !this.toggled;
+                    // if (this.toggled && this.draw) {
+                    console.log('changing draw mode')
+                    this.draw.changeMode('lasso');
+                    // }
                     this.lassoDrawButton.className = this.getButtonClass();
                     this.lassoDrawButton.title = this.getButtonTitle();
                 });

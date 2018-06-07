@@ -23,7 +23,7 @@ module powerbi.extensibility.visual {
 
         private host: IVisualHost;
         private category: any;
-        private draw: any;
+        private draw: any;  // TODO: this should not be any
 
         constructor(options: VisualConstructorOptions) {
             // Map initialization
@@ -36,7 +36,7 @@ module powerbi.extensibility.visual {
             options.element.appendChild(this.errorDiv);
 
             this.autoZoomControl = new AutoZoomControl();
-            this.lassoDrawControl = new LassoDrawControl();
+            this.lassoDrawControl = null;
 
             // For anchor elements to work we need to manually
             // call launchUrl API method
@@ -234,9 +234,9 @@ module powerbi.extensibility.visual {
             // let Constants = MapboxDraw.constants;
             // console.log('constants', Constants)
             console.log('modes', MapboxDraw.modes)
-            const FreeDraw = MapboxDraw.modes.draw_polygon;
+            const LassoDraw = Object.assign({}, MapboxDraw.modes.draw_polygon);
 
-            FreeDraw.onSetup = function() {
+            LassoDraw.onSetup = function() {
                 const polygon = this.newFeature({
                     type: MapboxDrawConstants.geojsonTypes.FEATURE,
                     properties: {},
@@ -265,14 +265,14 @@ module powerbi.extensibility.visual {
                 };
             };
 
-            FreeDraw.onClick = function(state, e) {
+            LassoDraw.onClick = function(state, e) {
                 state.toggled = !state.toggled;
                 console.log('lasso mode', state.toggled);
                 if (!state.toggled) {
-                    console.log('zoom value', this.map.getZoom())
+                    // console.log('zoom value', this.map.getZoom())
                     const factor = Math.min(Math.floor(this.map.getZoom()), 4);
                     const tolerance = (3 / ((this.map.getZoom() - factor) * 150)) - 0.001 // https://www.desmos.com/calculator/b3zi8jqskw
-                    console.log('tolerance', tolerance)
+                    // console.log('tolerance', tolerance)
                     turf.simplify(state.polygon, {
                         mutate: true,
                         tolerance: tolerance,
@@ -284,7 +284,7 @@ module powerbi.extensibility.visual {
                 }
             }
 
-            FreeDraw.onMouseMove = FreeDraw.onTouchMove = function (state, e){
+            LassoDraw.onMouseMove = LassoDraw.onTouchMove = function (state, e){
                 state.dragMoving = true;
                 if (state.toggled) {
                     this.updateUIClasses({ mouse: MapboxDrawConstants.cursors.ADD });
@@ -294,7 +294,7 @@ module powerbi.extensibility.visual {
                 }
             }
 
-            // FreeDraw.onMouseUp = function (state, e){
+            // LassoDraw.onMouseUp = function (state, e){
             //     if (state.dragMoving) {
             //         var tolerance = (3 / ((this.map.getZoom()-4) * 150)) - 0.001 // https://www.desmos.com/calculator/b3zi8jqskw
             //         turf.simplify(state.polygon, {
@@ -308,25 +308,29 @@ module powerbi.extensibility.visual {
             //     }
             // }
 
-            FreeDraw.fireUpdate = function() {
+            LassoDraw.fireUpdate = function() {
                 this.map.fire(MapboxDrawConstants.events.UPDATE, {
                     action: MapboxDrawConstants.updateActions.MOVE,
                     features: this.getSelected().map(f => f.toGeoJSON())
                 });
             };
 
-            MapboxDraw.modes.draw_polygon = FreeDraw;
+            // MapboxDraw.modes.draw_polygon = LassoDraw;
 
             this.draw = new MapboxDraw({
                 displayControlsDefault: false,
-                // defaultMode: 'lasso',
+                defaultMode: 'draw_polygon',
                 controls: {
-                    'polygon': true
+                    'polygon': true,
                 },
-                // modes: Object.assign({
-                //     lasso: lassoMode,
-                // }, MapboxDraw.modes)
+                modes: Object.assign({
+                    lasso: LassoDraw,
+                }, MapboxDraw.modes)
             });
+            console.log('draw', this.draw)
+
+            this.lassoDrawControl = new LassoDrawControl(this.draw);
+
             this.map.addControl(new mapboxgl.NavigationControl());
             this.map.addControl(this.draw, 'top-left');
             this.map.addControl(this.lassoDrawControl, 'top-left');
@@ -348,10 +352,11 @@ module powerbi.extensibility.visual {
 
             this.map.on('draw.create', (e) => {
 
+                this.map.doubleClickZoom.disable();
+
                 // Get the feature the user has drawn
-                let selection_poly = e.features[0];
+                const selection_poly = e.features[0];
                 console.log('selection poly', selection_poly);
-                let selectedFeatures : any[] = [];
 
                 // Create a bounding box from the user's polygon
                 var polygonBoundingBox = turf.bbox(selection_poly);
@@ -359,23 +364,67 @@ module powerbi.extensibility.visual {
                 var northEast = this.map.project([polygonBoundingBox[2], polygonBoundingBox[3]]);
 
                 // Find features in a layer the user selected bbox
-                var bbox_features : any[] = this.map.queryRenderedFeatures([southWest, northEast], { 
-                    layers: ['choropleth'] //Update to use layers in user's map, tested with circle and choropleth
+                var bbox_features : any[] = this.map.queryRenderedFeatures([southWest, northEast], {
+                    // FIXME: list the proper layers here
+                    layers: [Choropleth.ID] //Update to use layers in user's map, tested with circle and choropleth
                 });
 
+                console.log('bbox features', bbox_features)
+
                 // Use turf.intersect to find features in the selection_polygon from the bbox query
-                bbox_features.reduce(function (bbox_features, feature) {
+                let selectedFeatures = bbox_features.reduce(function (acc, feature) {
                     if (feature.geometry.type === 'Point' && turf.booleanContains(selection_poly, feature)) {
-                        selectedFeatures.push(feature)
+                        console.log('point is contained by feature', feature)
+                        acc.push(feature)
+                        return acc;
                     }
                     if ((feature.geometry.type === 'Polygon' || feature.geometry.type === 'Linestring') &&
                        (turf.booleanOverlap(feature, selection_poly) || turf.booleanContains(selection_poly, feature))) {
-                        selectedFeatures.push(feature)
+                        acc.push(feature)
+                        return acc;
                     }
-                });
+
+                    const selection_multipoly = turf.helpers.multiPolygon([selection_poly.geometry.coordinates]);
+                    console.log('multipoly feature', feature)
+                    if (feature.geometry.type === 'MultiPolygon') {
+                        if (turf.booleanOverlap(feature, selection_multipoly) ||
+                            // turf.booleanContains(selection_multipoly, feature)
+                            false
+                            // turf.booleanOverlap(selection_multipoly, feature)
+                        ) {
+                                acc.push(feature);
+                                return acc;
+                        }
+
+                        // feature.geometry.coordinates.forEach(polygon => {
+                        //     if (turf.booleanContains(polygon, feature)) {
+                        //         acc.push(feature);
+                        //         return acc;
+                        //     }
+                        // });
+                    }
+
+                    console.log('feature not found', feature)
+                    return acc;
+                }, []);
 
                 // Here are the selected features we can use for filters, selects, etc
-                console.log(selectedFeatures);
+                console.log('selectedFeatures', selectedFeatures);
+
+                const layers = this.getExistingLayers();
+                if (layers && layers.length > 0) {
+                    const roleMap = this.getRoleMap();
+                    const MAX_SELECTION_COUNT = 100;
+                    if (selectedFeatures.length > MAX_SELECTION_COUNT) {
+                        selectedFeatures = selectedFeatures.slice(0, MAX_SELECTION_COUNT);
+                    }
+                    layers.map( layer => {
+                        console.log('updating selection on layer', layer)
+                        layer.updateSelection(
+                            selectedFeatures,
+                            roleMap);
+                    })
+                }
 
                 // Remove all features from the map after selection
                 this.draw.deleteAll();

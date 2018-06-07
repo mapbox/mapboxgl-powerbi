@@ -4,7 +4,7 @@ module powerbi.extensibility.visual {
     export class Circle extends Layer {
         private palette: Palette;
 
-        public static ID = 'circle';
+        public static readonly ID = 'circle';
         private static HighlightID = 'circle-highlight'
 
         constructor(map: MapboxMap, palette: Palette) {
