@@ -75,9 +75,12 @@ module powerbi.extensibility.visual {
 
         createGroupColors(groups, cat) {
             return Object.keys(groups).map( (group, i) => {
+                const pbicolor = this.getColor(i.toString()).value
+                const color = this.colorMap[group] ? this.colorMap[group] : pbicolor
+
                 let defaultColor: Fill = {
                     solid: {
-                        color: this.getColor(i.toString()).value
+                        color
                     }
                 }
 
