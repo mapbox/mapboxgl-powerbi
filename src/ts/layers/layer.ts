@@ -118,5 +118,3 @@ module powerbi.extensibility.visual {
         }
     }
 }
-
-

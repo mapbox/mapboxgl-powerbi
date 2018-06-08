@@ -1,7 +1,7 @@
 module powerbi.extensibility.visual {
 
     export class Choropleth extends Layer {
-        public static ID = 'choropleth'
+        public static readonly ID = 'choropleth'
         private static OutlineID = 'choropleth-outline'
         private settings: ChoroplethSettings;
         private static HighlightID = 'choropleth-highlight'
