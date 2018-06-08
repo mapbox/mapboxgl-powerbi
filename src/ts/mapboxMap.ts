@@ -9,7 +9,6 @@ module powerbi.extensibility.visual {
         private mapDiv: HTMLDivElement;
         private errorDiv: HTMLDivElement;
         private autoZoomControl: AutoZoomControl;
-        // private lassoDrawControl: LassoDrawControl;
         private settings: MapboxSettings;
         private mapStyle: string = "";
         private updatedHandler: Function = () => { }
@@ -36,7 +35,6 @@ module powerbi.extensibility.visual {
             options.element.appendChild(this.errorDiv);
 
             this.autoZoomControl = new AutoZoomControl();
-            // this.lassoDrawControl = null;
 
             // For anchor elements to work we need to manually
             // call launchUrl API method
@@ -196,11 +194,8 @@ module powerbi.extensibility.visual {
                 // }, MapboxDraw.modes)
             });
 
-            // this.lassoDrawControl = new LassoDrawControl(this.draw);
-
             this.map.addControl(new mapboxgl.NavigationControl());
             this.map.addControl(this.draw, 'top-left');
-            // this.map.addControl(this.lassoDrawControl, 'top-left');
             this.map.addControl(this.autoZoomControl);
 
             // Replace the line string draw icon to the lasso icon
@@ -226,11 +221,9 @@ module powerbi.extensibility.visual {
 
                 // Get the feature the user has drawn
                 const selection_poly = e.features[0];
-                console.log('selection poly', selection_poly);
 
-                const polygonSelect = function(sel_pol, feature) {
+                const selectFeature = function(sel_pol, feature) {
                     if (feature.geometry.type === 'Point' && turf.booleanContains(sel_pol, feature)) {
-                        // console.log('point is contained by feature', feature)
                         return true;
                     }
                     if ((feature.geometry.type === 'Polygon' || feature.geometry.type === 'Linestring') &&
@@ -257,55 +250,24 @@ module powerbi.extensibility.visual {
 
                 // Use turf.intersect to find features in the selection_polygon from the bbox query
                 let selectedFeatures = bbox_features.reduce(function (acc, feature) {
-                    // if (feature.geometry.type === 'Point' && turf.booleanContains(selection_poly, feature)) {
-                    //     // console.log('point is contained by feature', feature)
-                    //     acc.push(feature)
-                    //     return acc;
-                    // }
-                    // if ((feature.geometry.type === 'Polygon' || feature.geometry.type === 'Linestring') &&
-                    //    (turf.booleanOverlap(feature, selection_poly) || turf.booleanContains(selection_poly, feature) ||
-                    //     turf.booleanContains(feature, selection_poly)
-                    // )) {
-                    //     acc.push(feature)
-                    //     return acc;
-                    // }
-
-                    if (polygonSelect(selection_poly, feature)) {
+                    if (selectFeature(selection_poly, feature)) {
                         acc.push(feature);
                         return acc;
                     }
 
-                    // const selection_multipoly = turf.helpers.multiPolygon([selection_poly.geometry.coordinates]);
-                    // console.log('selection_multipoly', selection_multipoly)
-                    // console.log('multipoly feature', feature)
-                    // console.log('intersect', turf.lineIntersect(selection_poly, feature))
                     if (feature.geometry.type === 'MultiPolygon') {
-                        // if (turf.booleanOverlap(feature, selection_multipoly) ||
-                        //     // turf.booleanContains(selection_multipoly, feature)
-                        //     // false
-                        //     turf.booleanContains(selection_multipoly, feature) ||
-                        //     turf.booleanContains(feature, selection_multipoly)
-                        // ) {
-                        //         acc.push(feature);
-                        //         return acc;
-                        // }
-
                         for (let polygon of feature.geometry.coordinates) {
-                            // console.log('polygon', polygon)
-                            if (polygonSelect(selection_poly, turf.helpers.polygon(polygon))) {
+                            if (selectFeature(selection_poly, turf.helpers.polygon(polygon))) {
                                 acc.push(feature);
                                 return acc;
                             }
                         };
                     }
 
-                    console.log('feature not found', feature)
                     return acc;
                 }, []);
 
                 // Here are the selected features we can use for filters, selects, etc
-                console.log('selectedFeatures', selectedFeatures);
-
                 if (layers && layers.length > 0) {
                     const roleMap = this.getRoleMap();
                     const MAX_SELECTION_COUNT = 100;
@@ -313,7 +275,6 @@ module powerbi.extensibility.visual {
                         selectedFeatures = selectedFeatures.slice(0, MAX_SELECTION_COUNT);
                     }
                     layers.map( layer => {
-                        console.log('updating selection on layer', layer)
                         layer.updateSelection(
                             selectedFeatures,
                             roleMap);
@@ -482,7 +443,6 @@ module powerbi.extensibility.visual {
 
             if (!dataView) {
                 console.error('No dataView received from powerBI api')
-                console.log('update options:', options)
                 return
             }
 

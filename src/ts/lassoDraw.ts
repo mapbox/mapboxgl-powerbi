@@ -6,22 +6,9 @@ module powerbi.extensibility.visual {
     export module LassoDraw {
 
         export function create(filter: Filter) {
-            // import doubleClickZoom from '@mapbox/mapbox-gl-draw/src/lib/double_click_zoom';
-            // import Constants from '@mapbox/mapbox-gl-draw/src/constants';
-            // import DrawPolygon from '@mapbox/mapbox-gl-draw/src/modes/draw_polygon';
-            // import dragPan from '../src/lib/drag_pan';
-            // import simplify from "@turf/simplify";
-
-            // console.log('MapboxDraw', MapboxDraw)
-            // let Constants = MapboxDraw.constants;
-            // console.log('constants', Constants)
-            // console.log('modes', MapboxDraw.modes)
-
             let original_polygon_onClick = MapboxDraw.modes.draw_polygon.onClick;
             MapboxDraw.modes.draw_polygon.onClick = function(state, e) {
                 if (filter) {
-                    // console.log('setting selection in progress to', state.polygon.coordinates)
-                    // console.log('state', state)
                     filter.setSelectionInProgress(true);
                 }
                 return original_polygon_onClick.apply(this, arguments);
@@ -30,7 +17,6 @@ module powerbi.extensibility.visual {
             let original_polygon_onStop = MapboxDraw.modes.draw_polygon.onStop
             MapboxDraw.modes.draw_polygon.onStop = function(state) {
                 if (filter) {
-                    console.log('stopping selection in progress')
                     filter.setSelectionInProgress(false);
                 }
                 return original_polygon_onStop.apply(this, arguments);
@@ -51,9 +37,6 @@ module powerbi.extensibility.visual {
                 this.addFeature(polygon);
 
                 this.clearSelectedFeatures();
-                // doubleClickZoom.disable(this);
-                // dragPan.disable(this);
-                console.log('lasso draw onSetup')
                 this.updateUIClasses({ mouse: MapboxDrawConstants.cursors.ADD });
                 this.activateUIButton(MapboxDrawConstants.types.POLYGON);
                 this.setActionableState({
@@ -72,10 +55,12 @@ module powerbi.extensibility.visual {
                 state.toggled = !state.toggled;
 
                 if (!state.toggled) {
-                    // console.log('zoom value', this.map.getZoom())
                     const factor = Math.min(Math.floor(this.map.getZoom()), 4);
-                    const tolerance = (3 / ((this.map.getZoom() - factor) * 150)) - 0.001 // https://www.desmos.com/calculator/b3zi8jqskw
-                    // console.log('tolerance', tolerance)
+                    let tolerance = (3 / ((this.map.getZoom() - factor) * 150)) - 0.001 // https://www.desmos.com/calculator/b3zi8jqskw
+                    if (tolerance < 0) {
+                        // Tolerance cannot be negative
+                        tolerance = 0;
+                    }
                     turf.simplify(state.polygon, {
                         mutate: true,
                         tolerance: tolerance,
@@ -87,7 +72,6 @@ module powerbi.extensibility.visual {
                 }
 
                 if (filter) {
-                    console.log('setting selection in progress to', state.toggled)
                     filter.setSelectionInProgress(state.toggled);
                 }
             }
@@ -101,20 +85,6 @@ module powerbi.extensibility.visual {
                     state.polygon.updateCoordinate(`0.${state.currentVertexPosition}`, e.lngLat.lng, e.lngLat.lat);
                 }
             }
-
-            // LassoDraw.onMouseUp = function (state, e){
-            //     if (state.dragMoving) {
-            //         var tolerance = (3 / ((this.map.getZoom()-4) * 150)) - 0.001 // https://www.desmos.com/calculator/b3zi8jqskw
-            //         turf.simplify(state.polygon, {
-            //             mutate: true,
-            //             tolerance: tolerance,
-            //             highQuality: true
-            //         });
-
-            //         this.fireUpdate();
-            //         this.changeMode(MapboxDrawConstants.modes.SIMPLE_SELECT, { featureIds: [state.polygon.id] });
-            //     }
-            // }
 
             LassoDraw.fireUpdate = function() {
                 this.map.fire(MapboxDrawConstants.events.UPDATE, {
