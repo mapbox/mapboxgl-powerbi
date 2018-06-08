@@ -76,7 +76,6 @@ module powerbi.extensibility.visual {
 
             let lngLatFilter = [];
             lngLatFilter.push("any");
-            this.parent.clearSelection();
             let selectionIds = features
                 .slice(0, constants.MAX_SELECTION_COUNT)
                 .map( (feature, index) => {
