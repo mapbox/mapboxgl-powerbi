@@ -20,6 +20,18 @@ module powerbi.extensibility.visual {
             document.addEventListener('keyup', (e) => this.onKeyUp(e));
         }
 
+        public isSelectionInProgress() {
+            return this.selectionInProgress;
+        }
+
+        public setSelectionInProgress(inProgress) {
+            this.selectionInProgress = inProgress;
+
+            if (!inProgress) {
+                this.selectionFinish = Date.now();
+            }
+        }
+
         public removeHighlightAndSelection(layers) {
             layers.map( layer => {
                 layer.removeHighlight(this.mapVisual.getRoleMap());
@@ -67,7 +79,19 @@ module powerbi.extensibility.visual {
             map.on('dragstart', dragStartHandler);
 
             const dragEndHandler = (e) => {
-                if (Date.now() - this.dragStartTime > 500) {
+                if (this.selectionInProgress) {
+                    // Selection is still in progress, so there is nothing to do
+                    return;
+                }
+
+                const dragAfterSelection = Date.now() - this.selectionFinish;
+                if (dragAfterSelection < 300) {
+                    // Skip the click if selection is still in progress
+                    return;
+                }
+
+                const dragDuration = Date.now() - this.dragStartTime;
+                if (dragDuration > 500) {
                     // Drag lasted long enough not to be handled as a click
                     return;
                 }
@@ -146,7 +170,10 @@ module powerbi.extensibility.visual {
         onMouseUp(e) {
             // Capture xy coordinates
             if (this.selectionInProgress) {
-                this.finish([this.start, this.mousePos(e)]);
+                if (this.start) {
+                    this.finish([this.start, this.mousePos(e)]);
+                    return;
+                }
             }
         }
 
@@ -189,6 +216,7 @@ module powerbi.extensibility.visual {
             }
 
             map.dragPan.enable();
+            this.start = null;
         }
 
         createClickHandler(mapVisual: MapboxMap) {
@@ -199,6 +227,11 @@ module powerbi.extensibility.visual {
                     return
                 };
 
+                // This is kind of a hack, because we have multiple click handlers installed. For example
+                // one is installed here, but another one is installed in lassoDraw.ts, and it might
+                // happen that the click handler in lassoDraw.ts gets sooner notified than this one. And
+                // in those cases selectionInProgress is already false, but we definitely don't want to
+                // remove the selection as a response to that click which actually applied the selection.
                 const clickAfterSelection = Date.now() - this.selectionFinish;
                 if (clickAfterSelection < 300) {
                     // Skip the click if selection is still in progress
