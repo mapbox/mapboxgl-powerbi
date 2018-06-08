@@ -85,7 +85,7 @@ module powerbi.extensibility.visual {
                 }
 
                 const dragAfterSelection = Date.now() - this.selectionFinish;
-                if (dragAfterSelection < 16) {
+                if (dragAfterSelection < 300) {
                     // Skip the click if selection is still in progress
                     return;
                 }
@@ -227,8 +227,13 @@ module powerbi.extensibility.visual {
                     return
                 };
 
+                // This is kind of a hack, because we have multiple click handlers installed. For example
+                // one is installed here, but another one is installed in lassoDraw.ts, and it might
+                // happen that the click handler in lassoDraw.ts gets sooner notified than this one. And
+                // in those cases selectionInProgress is already false, but we definitely don't want to
+                // remove the selection as a response to that click which actually applied the selection.
                 const clickAfterSelection = Date.now() - this.selectionFinish;
-                if (clickAfterSelection < 16) {
+                if (clickAfterSelection < 300) {
                     // Skip the click if selection is still in progress
                     return;
                 }

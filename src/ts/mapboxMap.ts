@@ -261,13 +261,13 @@ module powerbi.extensibility.visual {
                     layers: layerIDs
                 });
 
-                // Use turf.intersect to find features in the selection_polygon from the bbox query
                 let selectedFeatures = bbox_features.reduce(function (acc, feature) {
                     if (selectFeature(selection_poly, feature)) {
                         acc.push(feature);
                         return acc;
                     }
 
+                    // Split the feature into polygons, if it is a MultiPolygon
                     if (feature.geometry.type === 'MultiPolygon') {
                         for (let polygon of feature.geometry.coordinates) {
                             if (selectFeature(selection_poly, turf.helpers.polygon(polygon))) {
@@ -283,9 +283,8 @@ module powerbi.extensibility.visual {
                 // Here are the selected features we can use for filters, selects, etc
                 if (layers && layers.length > 0) {
                     const roleMap = this.getRoleMap();
-                    const MAX_SELECTION_COUNT = 100;
-                    if (selectedFeatures.length > MAX_SELECTION_COUNT) {
-                        selectedFeatures = selectedFeatures.slice(0, MAX_SELECTION_COUNT);
+                    if (selectedFeatures.length > constants.MAX_SELECTION_COUNT) {
+                        selectedFeatures = selectedFeatures.slice(0, constants.MAX_SELECTION_COUNT);
                     }
                     layers.map( layer => {
                         layer.updateSelection(
