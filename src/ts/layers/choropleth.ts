@@ -72,7 +72,7 @@ module powerbi.extensibility.visual {
             const map = this.parent.getMap();
             const choroSettings = this.settings;
             const vectorProperty = choroSettings[`vectorProperty${choroSettings.currentLevel}`];
-            map.setFilter(Choropleth.HighlightID, ["==", vectorProperty, e.features[0].properties.name]);
+            map.setFilter(Choropleth.HighlightID, ["==", vectorProperty, e.features[0].properties[vectorProperty]]);
         }
 
         removeHighlight(roleMap) {
@@ -96,21 +96,24 @@ module powerbi.extensibility.visual {
             locationFilter.push("any");
             this.parent.clearSelection();
             let featureNameMap = {};
-            features
+            let selectionIds = features
                 .filter((feature) => {
                     // Dedupliacate features since features may appear multiple times in query results
-                    if (featureNameMap[feature.properties.name]) {
+                    if (featureNameMap[feature.properties[vectorProperty]]) {
                         return false;
                     }
-                    
-                    featureNameMap[feature.properties.name] = true;
+
+                    featureNameMap[feature.properties[vectorProperty]] = true;
                     return true;
                 })
                 .slice(0, constants.MAX_SELECTION_COUNT)
                 .map( (feature, i) => {
-                    locationFilter.push(["==", vectorProperty, feature.properties.name]);
-                    this.parent.addSelection(feature.properties.name, true);
+                    locationFilter.push(["==", vectorProperty, feature.properties[vectorProperty]]);
+                    return feature.properties[vectorProperty];
                 });
+
+            this.parent.addSelection(selectionIds, roleMap.location)
+
             map.setFilter(Choropleth.HighlightID, locationFilter);
         }
 
