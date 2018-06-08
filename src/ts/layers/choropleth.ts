@@ -267,8 +267,15 @@ module powerbi.extensibility.visual {
 
         handleTooltip(tooltipEvent, roleMap, settings) {
             const tooltipData = super.handleTooltip(tooltipEvent, roleMap, settings);
-            const choroVectorData = tooltipData.find(td => {
-                return td.displayName === settings.choropleth[`vectorProperty${settings.choropleth.currentLevel}`];
+            let choroVectorData = null;
+            tooltipData.map(td => {
+                if (choroVectorData) {
+                    return;
+                }
+
+                if (td.displayName === settings.choropleth[`vectorProperty${settings.choropleth.currentLevel}`]) {
+                    choroVectorData = td;
+                }
             });
             if (!choroVectorData) {
                 // Error! Could not found choropleth data joining on selected vector property
@@ -283,8 +290,15 @@ module powerbi.extensibility.visual {
 
             const choroplethData = choroplethSource.getData(settings, this.parent.getMap());
             const locationProperty = roleMap.location.displayName;
-            const dataUnderLocation = choroplethData.find(cd => {
-                return cd[locationProperty] == choroVectorData.value;
+            let dataUnderLocation = null;
+            choroplethData.map(cd => {
+                if (dataUnderLocation) {
+                    return;
+                }
+
+                if (cd[locationProperty] == choroVectorData.value) {
+                    dataUnderLocation = cd;
+                }
             });
 
             if (!dataUnderLocation) {

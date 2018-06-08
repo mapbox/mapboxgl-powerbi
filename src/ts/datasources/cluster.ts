@@ -8,7 +8,7 @@ module powerbi.extensibility.visual.data {
         public limits: mapboxUtils.Limits;
 
         constructor() {
-            super()
+            super('cluster')
             this.cluster = this.createCluster();
         }
 

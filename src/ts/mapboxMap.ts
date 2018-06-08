@@ -308,15 +308,16 @@ module powerbi.extensibility.visual {
 
             this.palette.update(dataView, features);
 
-            let datasources: Map<any, boolean> = new Map<any, boolean>()
+            let datasources = {}
             this.layers.map(layer => {
                 const source = layer.getSource(this.settings);
                 if (source) {
-                    datasources.set(source, true)
+                    datasources[source.ID] = source;
                 }
             })
 
-            for (let datasource of datasources.keys()) {
+            for (let id in datasources) {
+                let datasource = datasources[id];
                 datasource.update(this.map, features, this.roleMap, this.settings);
             };
 

@@ -237,7 +237,7 @@ module powerbi.extensibility.visual {
                 selectedLevel: []
             }
 
-            for (let i of Array(properties.maxLevel).keys()) {
+            for (let i = 0; i < properties.maxLevel; i++) {
                 instances[0].validValues.selectedLevel.push((i + 1).toString());
             }
 
@@ -245,7 +245,7 @@ module powerbi.extensibility.visual {
                 properties.selectedLevel = properties.maxLevel;
             }
 
-            for (let i of Array(10).keys()) {
+            for (let i = 0; i < 10; i++) {
                 if (properties.selectedLevel != i + 1) {
                     delete properties[`data${i + 1}`];
                     this.removeCustom(properties, i + 1);
@@ -268,7 +268,7 @@ module powerbi.extensibility.visual {
                 return true;
             }
 
-            for (let i of Array(this.maxLevel).keys()) {
+            for (let i = 0; i < this.maxLevel; i++) {
                 if (old[`vectorTileUrl${i + 1}`] != this[`vectorTileUrl${i + 1}`] ||
                     old[`sourceLayer${i + 1}`] != this[`sourceLayer${i + 1}`] ||
                     old[`vectorProperty${i + 1}`] != this[`vectorProperty${i + 1}`]) {
@@ -280,7 +280,7 @@ module powerbi.extensibility.visual {
         }
 
         public static fillPredefinedProperties(choroSettings) {
-            for (let i of Array(choroSettings.maxLevel).keys()) {
+            for (let i = 0; i < choroSettings.maxLevel; i++) {
                 if (choroSettings[`data${i + 1}`] !== 'custom') {
                     switch (choroSettings[`data${i + 1}`]) {
                         case ChoroplethSettings.GLOBAL_COUNTRIES_TILE_URL:
