@@ -2,7 +2,6 @@ module powerbi.extensibility.visual {
     declare var debug: any;
     declare var turf: any;
     declare var MapboxDraw : any;
-    declare var FreeDraw: any;
 
     export class MapboxMap implements IVisual {
         private map: mapboxgl.Map;
@@ -202,9 +201,6 @@ module powerbi.extensibility.visual {
                     'polygon': true,
                     'line_string': true     // Lasso is overriding the 'line_string' mode
                 },
-                // modes: Object.assign({
-                //     lasso: LassoDraw,
-                // }, MapboxDraw.modes)
             });
 
             this.map.addControl(new mapboxgl.NavigationControl());
