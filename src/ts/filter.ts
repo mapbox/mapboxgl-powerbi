@@ -258,11 +258,6 @@ module powerbi.extensibility.visual {
                     && !mapVisual.hasSelection()
                 ) {
                     mapVisual.hideTooltip()
-                    map.easeTo({
-                        center: this.getCenter(features[0]),
-                        zoom: map.getZoom() + 1,
-                        duration: 1000
-                    });
                 }
                 this.removeHighlightAndSelection(layers);
             }
