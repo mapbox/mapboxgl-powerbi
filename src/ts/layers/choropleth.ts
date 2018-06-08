@@ -94,7 +94,6 @@ module powerbi.extensibility.visual {
 
             let locationFilter = [];
             locationFilter.push("any");
-            this.parent.clearSelection();
             let featureNameMap = {};
             let selectionIds = features
                 .filter((feature) => {
