@@ -85,7 +85,7 @@ module powerbi.extensibility.visual {
                 }
 
                 const dragAfterSelection = Date.now() - this.selectionFinish;
-                if (dragAfterSelection < 300) {
+                if (dragAfterSelection < 16) {
                     // Skip the click if selection is still in progress
                     return;
                 }
@@ -232,7 +232,7 @@ module powerbi.extensibility.visual {
                 };
 
                 const clickAfterSelection = Date.now() - this.selectionFinish;
-                if (clickAfterSelection < 300) {
+                if (clickAfterSelection < 16) {
                     // Skip the click if selection is still in progress
                     return;
                 }
