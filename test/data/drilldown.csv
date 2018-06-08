@@ -1,0 +1,10 @@
+country,state,postcode,value
+Hungary,null,null,1
+Spain,null,null,2
+USA,California,94124,100
+USA,California,94125,10
+USA,California,94123,1000
+USA,California,94126,200
+USA,Texas,77301,2000
+USA,Texas,77303,400
+USA,Texas,77304,300

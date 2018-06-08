@@ -44,6 +44,10 @@ module powerbi.extensibility.visual {
         }
 
         hoverHighLight(e) {
+            if (!this.layerExists()) {
+                return;
+            }
+
             const roleMap = this.parent.getRoleMap();
             const latitude = roleMap.latitude.displayName;
             const longitude = roleMap.longitude.displayName;
@@ -56,6 +60,9 @@ module powerbi.extensibility.visual {
         }
 
         removeHighlight(roleMap) {
+            if (!this.layerExists()) {
+                return;
+            }
             const latitude = roleMap.latitude.displayName;
             const map = this.parent.getMap();
             const zeroFilter = ["==", latitude, ""];
@@ -70,12 +77,16 @@ module powerbi.extensibility.visual {
             let lngLatFilter = [];
             lngLatFilter.push("any");
             this.parent.clearSelection();
-            features.map( (feature, index) => {
-                lngLatFilter.push(["all",
-                    ["==", latitude, feature.properties[latitude]],
-                    ["==", longitude, feature.properties[longitude]]]);
-                this.parent.addSelection(feature.id, false);
+            let selectionIds = features
+                .slice(0, constants.MAX_SELECTION_COUNT)
+                .map( (feature, index) => {
+                    lngLatFilter.push(["all",
+                        ["==", latitude, feature.properties[latitude]],
+                        ["==", longitude, feature.properties[longitude]]]);
+                    return feature.id;
             });
+
+            this.parent.addSelection(selectionIds)
             map.setFilter(Circle.HighlightID, lngLatFilter);
         }
 
@@ -136,13 +147,9 @@ module powerbi.extensibility.visual {
 
             // Set colors for categorical value
             let colors = ['match', ['to-string', ['get', colorField.displayName]]];
-            const colorMap = colorPalette.getColorMap()
             colorLimits.values.map( (value, idx) => {
                 colors.push(value.toString());
-                let color = colorPalette.getColor(idx.toString()).value;
-                if (colorMap[value]) {
-                    color = colorMap[value];
-                }
+                const color = colorPalette.getColor(value.toString(), idx);
                 colors.push(color);
             });
 
