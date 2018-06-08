@@ -22,7 +22,7 @@ module powerbi.extensibility.visual {
                 return original_polygon_onStop.apply(this, arguments);
             }
 
-            const LassoDraw = Object.assign({}, MapboxDraw.modes.draw_polygon);
+            const LassoDraw: any = Object.assign({}, MapboxDraw.modes.draw_polygon);
 
             LassoDraw.onSetup = function() {
                 const polygon = this.newFeature({
