@@ -10,18 +10,15 @@ module powerbi.extensibility.visual.data {
             console.log('testing datasource')
         }
 
-        testing() {
-            console.log('this is a test')
-        }
-
         addSources(map, settings) {
             console.log('testing add source for raster')
+            console.log(settings)
             map.addSource('raster', {
                 type: 'raster',
                 tiles: [
-                    'https://geodata.state.nj.us/imagerywms/Natural2015?bbox={bbox-epsg-3857}&format=image/png&service=WMS&version=1.1.1&request=GetMap&srs=EPSG:3857&width=256&height=256&layers=Natural2015'
+                    settings.raster.url
                 ],
-                tileSize: 256
+                tileSize: 512
             },);
             console.log('returning the source for raster')
             return map.getSource('raster');

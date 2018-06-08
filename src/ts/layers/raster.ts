@@ -23,7 +23,9 @@ module powerbi.extensibility.visual {
                 source: 'raster',
                 type: 'raster'
             });
-            map.addLayer(rasterLayer, beforeLayerId);
+            console.log('before layer id')
+            console.log(beforeLayerId)
+            map.addLayer(rasterLayer, 'waterway-label');
         }
 
         removeLayer() {

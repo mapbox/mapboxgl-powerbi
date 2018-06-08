@@ -115,7 +115,7 @@ module powerbi.extensibility.visual {
                 zoom: this.settings.api.zoom,
                 center: [this.settings.api.startLong, this.settings.api.startLat],
                 transformRequest: (url, resourceType) => {
-                    if (url.slice(0, 22) == 'https://api.mapbox.com' ||
+                    if (url.slice(0, 25) == 'https://api.mapbox.com/v4' ||
                         url.slice(0, 26) == 'https://a.tiles.mapbox.com' ||
                         url.slice(0, 26) == 'https://b.tiles.mapbox.com' ||
                         url.slice(0, 26) == 'https://c.tiles.mapbox.com' ||
