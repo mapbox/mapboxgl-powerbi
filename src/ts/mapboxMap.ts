@@ -452,6 +452,7 @@ module powerbi.extensibility.visual {
 
             if (!dataView) {
                 console.error('No dataView received from powerBI api')
+                console.log('update options:', options)
                 return
             }
 
