@@ -20,6 +20,18 @@ module powerbi.extensibility.visual {
             document.addEventListener('keyup', (e) => this.onKeyUp(e));
         }
 
+        public isSelectionInProgress() {
+            return this.selectionInProgress;
+        }
+
+        public setSelectionInProgress(inProgress) {
+            this.selectionInProgress = inProgress;
+
+            if (!inProgress) {
+                this.selectionFinish = Date.now();
+            }
+        }
+
         public removeHighlightAndSelection(layers) {
             layers.map( layer => {
                 layer.removeHighlight(this.mapVisual.getRoleMap());
@@ -67,7 +79,19 @@ module powerbi.extensibility.visual {
             map.on('dragstart', dragStartHandler);
 
             const dragEndHandler = (e) => {
-                if (Date.now() - this.dragStartTime > 500) {
+                if (this.selectionInProgress) {
+                    // Selection is still in progress, so there is nothing to do
+                    return;
+                }
+
+                const dragAfterSelection = Date.now() - this.selectionFinish;
+                if (dragAfterSelection < 300) {
+                    // Skip the click if selection is still in progress
+                    return;
+                }
+
+                const dragDuration = Date.now() - this.dragStartTime;
+                if (dragDuration > 500) {
                     // Drag lasted long enough not to be handled as a click
                     return;
                 }
@@ -146,7 +170,10 @@ module powerbi.extensibility.visual {
         onMouseUp(e) {
             // Capture xy coordinates
             if (this.selectionInProgress) {
-                this.finish([this.start, this.mousePos(e)]);
+                if (this.start) {
+                    this.finish([this.start, this.mousePos(e)]);
+                    return;
+                }
             }
         }
 
@@ -193,6 +220,7 @@ module powerbi.extensibility.visual {
             }
 
             map.dragPan.enable();
+            this.start = null;
         }
 
         createClickHandler(mapVisual: MapboxMap) {
