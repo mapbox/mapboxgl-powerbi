@@ -6,7 +6,7 @@ module powerbi.extensibility.visual.data {
         protected sizeLimits: mapboxUtils.Limits;
 
         constructor() {
-            super()
+            super('point')
         }
 
         addSources(map, settings) {

@@ -3,9 +3,11 @@ module powerbi.extensibility.visual.data {
     export abstract class Datasource {
         protected bounds: any[];
         private references: Object;
+        public ID: string;
 
-        constructor() {
+        constructor(id) {
             this.references = {}
+            this.ID = id
         }
 
         abstract addSources(map, settings);

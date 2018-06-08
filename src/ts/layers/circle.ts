@@ -76,15 +76,16 @@ module powerbi.extensibility.visual {
 
             let lngLatFilter = [];
             lngLatFilter.push("any");
-            this.parent.clearSelection();
-            features
+            let selectionIds = features
                 .slice(0, constants.MAX_SELECTION_COUNT)
                 .map( (feature, index) => {
-                lngLatFilter.push(["all",
-                    ["==", latitude, feature.properties[latitude]],
-                    ["==", longitude, feature.properties[longitude]]]);
-                this.parent.addSelection(feature.id, false);
+                    lngLatFilter.push(["all",
+                        ["==", latitude, feature.properties[latitude]],
+                        ["==", longitude, feature.properties[longitude]]]);
+                    return feature.id;
             });
+
+            this.parent.addSelection(selectionIds)
             map.setFilter(Circle.HighlightID, lngLatFilter);
         }
 

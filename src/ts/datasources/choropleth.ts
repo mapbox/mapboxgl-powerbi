@@ -6,7 +6,7 @@ module powerbi.extensibility.visual.data {
         private fillColorLimits: mapboxUtils.Limits;
 
         constructor() {
-            super();
+            super('choropleth');
         }
 
         addSources(map, settings) {

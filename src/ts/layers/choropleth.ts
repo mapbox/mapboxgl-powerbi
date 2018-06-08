@@ -72,7 +72,7 @@ module powerbi.extensibility.visual {
             const map = this.parent.getMap();
             const choroSettings = this.settings;
             const vectorProperty = choroSettings[`vectorProperty${choroSettings.currentLevel}`];
-            map.setFilter(Choropleth.HighlightID, ["==", vectorProperty, e.features[0].properties.name]);
+            map.setFilter(Choropleth.HighlightID, ["==", vectorProperty, e.features[0].properties[vectorProperty]]);
         }
 
         removeHighlight(roleMap) {
@@ -94,23 +94,25 @@ module powerbi.extensibility.visual {
 
             let locationFilter = [];
             locationFilter.push("any");
-            this.parent.clearSelection();
             let featureNameMap = {};
-            features
+            let selectionIds = features
                 .filter((feature) => {
                     // Dedupliacate features since features may appear multiple times in query results
-                    if (featureNameMap[feature.properties.name]) {
+                    if (featureNameMap[feature.properties[vectorProperty]]) {
                         return false;
                     }
-                    
-                    featureNameMap[feature.properties.name] = true;
+
+                    featureNameMap[feature.properties[vectorProperty]] = true;
                     return true;
                 })
                 .slice(0, constants.MAX_SELECTION_COUNT)
                 .map( (feature, i) => {
-                    locationFilter.push(["==", vectorProperty, feature.properties.name]);
-                    this.parent.addSelection(feature.properties.name, true);
+                    locationFilter.push(["==", vectorProperty, feature.properties[vectorProperty]]);
+                    return feature.properties[vectorProperty];
                 });
+
+            this.parent.addSelection(selectionIds, roleMap.location)
+
             map.setFilter(Choropleth.HighlightID, locationFilter);
         }
 
@@ -264,8 +266,15 @@ module powerbi.extensibility.visual {
 
         handleTooltip(tooltipEvent, roleMap, settings) {
             const tooltipData = super.handleTooltip(tooltipEvent, roleMap, settings);
-            const choroVectorData = tooltipData.find(td => {
-                return td.displayName === settings.choropleth[`vectorProperty${settings.choropleth.currentLevel}`];
+            let choroVectorData = null;
+            tooltipData.map(td => {
+                if (choroVectorData) {
+                    return;
+                }
+
+                if (td.displayName === settings.choropleth[`vectorProperty${settings.choropleth.currentLevel}`]) {
+                    choroVectorData = td;
+                }
             });
             if (!choroVectorData) {
                 // Error! Could not found choropleth data joining on selected vector property
@@ -280,8 +289,15 @@ module powerbi.extensibility.visual {
 
             const choroplethData = choroplethSource.getData(settings, this.parent.getMap());
             const locationProperty = roleMap.location.displayName;
-            const dataUnderLocation = choroplethData.find(cd => {
-                return cd[locationProperty] == choroVectorData.value;
+            let dataUnderLocation = null;
+            choroplethData.map(cd => {
+                if (dataUnderLocation) {
+                    return;
+                }
+
+                if (cd[locationProperty] == choroVectorData.value) {
+                    dataUnderLocation = cd;
+                }
             });
 
             if (!dataUnderLocation) {

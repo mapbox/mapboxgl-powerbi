@@ -19,7 +19,7 @@ module powerbi.extensibility.visual {
         private palette: Palette;
 
         private host: IVisualHost;
-        private category: any;
+        private categories: any;
         private selectionCount: number;
 
         constructor(options: VisualConstructorOptions) {
@@ -58,8 +58,6 @@ module powerbi.extensibility.visual {
                 this.layers.map(layer => {
                     layer.applySettings(settings, this.roleMap);
                 });
-
-                this.filter.removeHighlightAndSelection(this.layers);
 
                 if (zoom) {
                     const bounds = this.layers.map(layer => {
@@ -125,16 +123,27 @@ module powerbi.extensibility.visual {
             this.selectionManager.clear();
         }
 
-        public addSelection(value, search: boolean) {
-            let index = value;
-            if (search) {
-                index = this.category.values.indexOf(value);
+        public addSelection(values, role?) {
+            let indexes = values;
+            let category = this.categories[0];
+            if (role) {
+                category = this.categories.find( cat => {
+                    return cat.source.displayName == role.displayName;
+                });
+
+                indexes = values.map( value => category.values.indexOf(value));
             }
-            if (index >= 0 && index < this.category.values.length) {
-                let selector = this.host.createSelectionIdBuilder()
-                    .withCategory(this.category, index).createSelectionId();
-                this.selectionManager.select(selector, true);
-            }
+
+            const selectors = indexes
+                .filter( index => {
+                    return (index >= 0 && index < category.values.length)
+                })
+                .map( index => {
+                    return this.host.createSelectionIdBuilder()
+                        .withCategory(category, index).createSelectionId();
+                })
+
+            this.selectionManager.select(selectors, false);
         }
 
         public hasSelection() {
@@ -297,15 +306,16 @@ module powerbi.extensibility.visual {
 
             this.palette.update(dataView, features);
 
-            let datasources: Map<any, boolean> = new Map<any, boolean>()
+            let datasources = {}
             this.layers.map(layer => {
                 const source = layer.getSource(this.settings);
                 if (source) {
-                    datasources.set(source, true)
+                    datasources[source.ID] = source;
                 }
             })
 
-            for (let datasource of datasources.keys()) {
+            for (let id in datasources) {
+                let datasource = datasources[id];
                 datasource.update(this.map, features, this.roleMap, this.settings);
             };
 
@@ -365,7 +375,7 @@ module powerbi.extensibility.visual {
                 return false;
             }
 
-            this.category = dataView.categorical.categories[0];
+            this.categories = dataView.categorical.categories;
 
             this.roleMap = mapboxUtils.getRoleMap(dataView.metadata);
 
@@ -386,7 +396,7 @@ module powerbi.extensibility.visual {
 
 
             let style = this.settings.api.style == 'custom' ? this.settings.api.styleUrl : this.settings.api.style;
-            if (this.mapStyle == '' || !this.map.isStyleLoaded() || this.mapStyle != style) {
+            if (this.mapStyle == '' || this.mapStyle != style) {
 
                 // This should run only once but it runs with different dataView
                 // param every time so we need to set a different event handler on every
@@ -398,7 +408,7 @@ module powerbi.extensibility.visual {
                 this.map.on('style.load', delayedUpdate);
                 if (this.mapStyle != style) {
                     this.mapStyle = style;
-                    const ret = this.map.setStyle(this.mapStyle);
+                    this.map.setStyle(this.mapStyle);
                 }
             } else {
                 this.updateLayers(dataView)
