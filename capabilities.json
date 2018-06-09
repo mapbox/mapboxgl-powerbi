@@ -67,7 +67,7 @@
     },
     {
       "name": "color",
-      "kind": "GroupingOrMeasure",
+      "kind": "Measure",
       "displayName": "Color",
       "description": "Measure or Dimension to color circles and heatmaps.  Can be numeric or text data type.",
       "requiredTypes": [
@@ -115,7 +115,7 @@
     },
     {
       "name": "tooltips",
-      "kind": "GroupingOrMeasure",
+      "kind": "Measure",
       "displayName": "Tooltips",
       "description": "Values to display in tooltips"
     }
