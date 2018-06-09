@@ -18,7 +18,7 @@
     "icon": "assets/icon.png"
   },
   "externalJS": [
-    "node_modules/mapbox-gl/dist/mapbox-gl.js",
+    "src/js/mapbox-gl.js",
     "node_modules/@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.js",
     "node_modules/supercluster/dist/supercluster.min.js",
     "src/js/turf-bundle-min.js",
