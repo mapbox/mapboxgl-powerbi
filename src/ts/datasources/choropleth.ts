@@ -1,5 +1,4 @@
 module powerbi.extensibility.visual.data {
-    declare var turf : any;
 
     export class Choropleth extends Datasource {
         private choroplethData: any[];

@@ -1,5 +1,4 @@
 module powerbi.extensibility.visual {
-    declare var turf : any;
 
     export class Circle extends Layer {
         private palette: Palette;

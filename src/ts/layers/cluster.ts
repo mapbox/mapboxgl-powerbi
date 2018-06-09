@@ -1,5 +1,4 @@
 module powerbi.extensibility.visual {
-    declare var turf : any;
 
     export class Cluster extends Layer {
         private static ID = 'cluster';
