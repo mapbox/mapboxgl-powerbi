@@ -238,28 +238,37 @@ module powerbi.extensibility.visual {
                     return;
                 }
 
-                const map = mapVisual.getMap();
-                // map.queryRenderedFeatures fails
-                // when option.layers contains an id which is not on the map
-                const layers = mapVisual.getExistingLayers();
-                const layerIDs = layers.map(layer => layer.getId());
                 const radius = 5
                 let minpoint = new Array(e.point['x'] - radius, e.point['y'] - radius)
                 let maxpoint = new Array(e.point['x'] + radius, e.point['y'] + radius)
-                let features : any = map.queryRenderedFeatures([minpoint, maxpoint], {
-                    "layers": layerIDs
+
+                const map = mapVisual.getMap();
+                const roleMap = this.mapVisual.getRoleMap();
+                const layers = mapVisual.getExistingLayers();
+
+                this.removeHighlightAndSelection(layers);
+
+                // map.queryRenderedFeatures fails
+                // when option.layers contains an id which is not on the map
+                layers.map(layer => {
+                    let features : any = map.queryRenderedFeatures([minpoint, maxpoint], {
+                        "layers": [ layer.getId() ]
+                    });
+
+                    if (features
+                        && features.length
+                        && features[0]
+                        && features[0].geometry
+                        && features[0].geometry.coordinates
+                        && !mapVisual.hasSelection()
+                    ) {
+                        mapVisual.hideTooltip()
+                        layer.updateSelection(
+                            features,
+                            roleMap);
+                    }
                 });
 
-                if (features
-                    && features.length
-                    && features[0]
-                    && features[0].geometry
-                    && features[0].geometry.coordinates
-                    && !mapVisual.hasSelection()
-                ) {
-                    mapVisual.hideTooltip()
-                }
-                this.removeHighlightAndSelection(layers);
             }
 
             return onClick
