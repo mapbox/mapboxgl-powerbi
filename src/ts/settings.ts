@@ -204,4 +204,9 @@ module powerbi.extensibility.visual {
             }
         }
     }
+
+    export class WMSSettings {
+        public show: boolean = false;
+        public minZoom: number = 0;
+    }
 }

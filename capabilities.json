@@ -794,6 +794,21 @@
           }
         }
       }
+    },
+    "WMS": {
+        "displayName": "WMS",
+        "displayNameKey": "wms",
+        "description": "web map service",
+        "properties":{
+          "minZoom": {
+              "displayName": "Min Zoom",
+              "displayNameKey": "minZoom",
+              "description": "Minimum zoom level layer is visibile at.",
+              "type": {
+                  "numeric": true
+                }
+            }
+        }
     }
   }
 }
