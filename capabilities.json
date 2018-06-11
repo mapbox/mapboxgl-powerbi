@@ -122,6 +122,28 @@
   ],
   "dataViewMappings": [
     {
+        "conditions": [
+            {
+                "location": {
+                    "max": 1
+                },
+                "latitude": {
+                    "max": 1
+                },
+                "longitude": {
+                    "max": 1
+                },
+                "color": {
+                    "max": 1
+                },
+                "size": {
+                    "max": 1
+                },
+                "cluster": {
+                    "max": 1
+                }
+            }
+        ],
         "categorical": {
             "categories": {
                 "dataReductionAlgorithm": {
