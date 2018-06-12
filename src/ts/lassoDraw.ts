@@ -57,16 +57,13 @@ module powerbi.extensibility.visual {
                 if (!state.toggled) {
                     const factor = Math.min(Math.floor(this.map.getZoom()), 4);
                     let tolerance = (3 / ((this.map.getZoom() - factor) * 150)) - 0.001 // https://www.desmos.com/calculator/b3zi8jqskw
-                    if (tolerance < 0) {
+                    if (tolerance < 0 || !(isFinite(tolerance))) {
                         // Tolerance cannot be negative
                         tolerance = 0;
                     }
                     turf.simplify(state.polygon, {
-                        mutate: true,
-                        tolerance: tolerance,
-                        highQuality: true
+                        tolerance: tolerance
                     });
-
                     this.fireUpdate();
                     this.changeMode(MapboxDrawConstants.modes.SIMPLE_SELECT, { featureIds: [state.polygon.id] });
                 }
