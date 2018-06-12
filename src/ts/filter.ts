@@ -238,7 +238,7 @@ module powerbi.extensibility.visual {
                     return;
                 }
 
-                const radius = 5
+                const radius = 0
                 let minpoint = new Array(e.point['x'] - radius, e.point['y'] - radius)
                 let maxpoint = new Array(e.point['x'] + radius, e.point['y'] + radius)
 
