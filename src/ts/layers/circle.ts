@@ -2,6 +2,7 @@ module powerbi.extensibility.visual {
 
     export class Circle extends Layer {
         private palette: Palette;
+        private settings: CircleSettings;
 
         public static readonly ID = 'circle';
         private static HighlightID = 'circle-highlight'
@@ -17,10 +18,14 @@ module powerbi.extensibility.visual {
             return [ Circle.ID ];
         }
 
+        getSource(settings) {
+            this.settings = settings.circle;
+            return super.getSource(settings);
+        }
+
         addLayer(settings, beforeLayerId, roleMap) {
             const map = this.parent.getMap();
             const latitude = roleMap.latitude.displayName;
-            const longitude = roleMap.longitude.displayName;
 
             const circleLayer = mapboxUtils.decorateLayer({
                 id: Circle.ID,
@@ -39,7 +44,9 @@ module powerbi.extensibility.visual {
             map.addLayer(circleLayer, Circle.HighlightID);
 
             map.setPaintProperty(Circle.HighlightID, 'circle-color', constants.HIGHLIGHT_COLOR);
-            map.setPaintProperty(Circle.HighlightID, 'circle-opacity', 0.5);
+            map.setPaintProperty(Circle.HighlightID, 'circle-opacity', 1);
+            map.setPaintProperty(Circle.HighlightID, 'circle-stroke-width', 1);
+            map.setPaintProperty(Circle.HighlightID, 'circle-stroke-color', 'black');
         }
 
         hoverHighLight(e) {
@@ -66,6 +73,9 @@ module powerbi.extensibility.visual {
             const map = this.parent.getMap();
             const zeroFilter = ["==", latitude, ""];
             map.setFilter(Circle.HighlightID, zeroFilter);
+            if (this.settings.opacity) {
+                map.setPaintProperty(Circle.ID, 'circle-opacity', this.settings.opacity / 100);
+            }
         }
 
         updateSelection(features, roleMap) {
@@ -84,8 +94,14 @@ module powerbi.extensibility.visual {
                     return feature.id;
             });
 
-            this.parent.addSelection(selectionIds)
             map.setFilter(Circle.HighlightID, lngLatFilter);
+            this.parent.addSelection(selectionIds)
+
+            let opacity = this.settings.opacity / 100;
+            if (this.parent.hasSelection()) {
+                opacity = opacity * 0.5
+            }
+            map.setPaintProperty(Circle.ID, 'circle-opacity', opacity);
         }
 
         removeLayer() {
