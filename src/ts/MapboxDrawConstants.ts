@@ -7,7 +7,7 @@ module powerbi.extensibility.visual {
           CONTROL_BUTTON: 'mapbox-gl-draw_ctrl-draw-btn',
           CONTROL_BUTTON_LINE: 'mapbox-gl-draw_line',
           CONTROL_BUTTON_POLYGON: 'mapbox-gl-draw_polygon',
-          CONTROL_BUTTON_LASSO: 'mapboxgl-ctrl-draw_lasso',
+          CONTROL_BUTTON_LASSO: 'mapbox-gl-draw_lasso',
           CONTROL_BUTTON_POINT: 'mapbox-gl-draw_point',
           CONTROL_BUTTON_TRASH: 'mapbox-gl-draw_trash',
           CONTROL_BUTTON_COMBINE_FEATURES: 'mapbox-gl-draw_combine',

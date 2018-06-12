@@ -139,7 +139,7 @@ module powerbi.extensibility.visual {
             try {
                 const drawLineGroup = document.getElementsByClassName(MapboxDrawConstants.classes.CONTROL_BUTTON_LINE);
                 const drawLineControl: any = drawLineGroup[0];
-                let buttonClassName = constants.MAPBOX_CTRL_ICON_CLASS;
+                let buttonClassName = MapboxDrawConstants.classes.CONTROL_BUTTON;
                 buttonClassName += ` ${MapboxDrawConstants.classes.CONTROL_BUTTON_LASSO}`;
                 drawLineControl.className = buttonClassName;
                 drawLineControl.title = 'Lasso tool (l)';
