@@ -62,7 +62,6 @@ typings/
 src/ts/*.js*
 src/ts/**/*.js*
 .tmp
-dist/
 
 # Editor files
 *.swp
