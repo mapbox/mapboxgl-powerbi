@@ -6,6 +6,10 @@ module powerbi.extensibility.visual {
     export module LassoDraw {
 
         export function create(filter: Filter) {
+
+            // Set up cooperation between Mapbox GL Draw tools and our filtering component (filter.ts) by
+            // "hooking" into Mapbox GL Draw functions, so that we can disable hover highlights during
+            // drawing and not to clear selection on draw finish, etc.
             let original_polygon_onClick = MapboxDraw.modes.draw_polygon.onClick;
             MapboxDraw.modes.draw_polygon.onClick = function(state, e) {
                 if (filter) {
@@ -42,6 +46,7 @@ module powerbi.extensibility.visual {
                 }
             }
 
+            // Lasso draw is based on polygon drawing tool, but some of its functions are going to be replaced
             const LassoDraw = {...MapboxDraw.modes.draw_polygon};
 
             // Toggle buttons
