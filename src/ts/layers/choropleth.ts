@@ -53,7 +53,7 @@ module powerbi.extensibility.visual {
                 type: 'fill',
                 source: 'choropleth-source',
                 paint: {
-                    "fill-color": constants.HIGHLIGHT_COLOR,
+                    "fill-color": choroSettings.highlightColor,
                     "fill-opacity": 1
                 },
                 "source-layer": sourceLayer,
@@ -284,7 +284,7 @@ module powerbi.extensibility.visual {
                     opacity = 0.5 * opacity;
                 }
                 map.setPaintProperty(Choropleth.ID, 'fill-opacity', opacity);
-
+                map.setPaintProperty(Choropleth.HighlightID, "fill-color", choroSettings.highlightColor)
                 map.setPaintProperty(Choropleth.OutlineID, 'line-color', settings.choropleth.outlineColor);
                 map.setPaintProperty(Choropleth.OutlineID, 'line-width', settings.choropleth.outlineWidth);
                 map.setPaintProperty(Choropleth.OutlineID, 'line-opacity', settings.choropleth.outlineOpacity / 100);

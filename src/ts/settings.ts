@@ -63,6 +63,7 @@ module powerbi.extensibility.visual {
         public minColor: string = "#ffffcc";
         public medColor: string = "#41b6c4";
         public maxColor: string = "#253494";
+        public highlightColor: string = "#253494";
         public blur: number = 0.0;
         public opacity: number = 80;
         public strokeWidth: number = 1;
@@ -117,6 +118,7 @@ module powerbi.extensibility.visual {
         public minColor: string = "#edf8b1";
         public medColor: string = "#7fcdbb";
         public maxColor: string = "#2c7fb8";
+        public highlightColor: string = "#2c7fb8";
         public minZoom: number = 0;
         public maxZoom: number = 22;
 

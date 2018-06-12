@@ -415,6 +415,18 @@
             }
           }
         },
+        "highlightColor": {
+          "displayName": "Highlight Color",
+          "displayNameKey": "highlightColor",
+          "description": "Defines the color a polyon will take when highlighted.",
+          "type": {
+            "fill": {
+              "solid": {
+                "color": true
+              }
+            }
+          }
+        },
         "minZoom": {
           "displayName": "Min Zoom",
           "displayNameKey": "minZoom",
@@ -707,6 +719,18 @@
           "displayName": "Max Color",
           "displayNameKey": "maxColor",
           "description": "Defines the color for the maximum value of the color field.",
+          "type": {
+            "fill": {
+              "solid": {
+                "color": true
+              }
+            }
+          }
+        },
+        "highlightColor": {
+          "displayName": "Highlight Color",
+          "displayNameKey": "highlightColor",
+          "description": "Defines the color a polyon will take when highlighted.",
           "type": {
             "fill": {
               "solid": {

@@ -43,7 +43,7 @@ module powerbi.extensibility.visual {
             map.addLayer(highlightLayer, beforeLayerId);
             map.addLayer(circleLayer, Circle.HighlightID);
 
-            map.setPaintProperty(Circle.HighlightID, 'circle-color', constants.HIGHLIGHT_COLOR);
+            map.setPaintProperty(Circle.HighlightID, 'circle-color', settings.circle.highlightColor);
             map.setPaintProperty(Circle.HighlightID, 'circle-opacity', 1);
             map.setPaintProperty(Circle.HighlightID, 'circle-stroke-width', 1);
             map.setPaintProperty(Circle.HighlightID, 'circle-stroke-color', 'black');
@@ -123,6 +123,7 @@ module powerbi.extensibility.visual {
 
                 map.setPaintProperty(Circle.ID, 'circle-radius', sizes);
                 map.setPaintProperty(Circle.HighlightID, 'circle-radius', sizes);
+                map.setPaintProperty(Circle.HighlightID, 'circle-color', settings.circle.highlightColor);
                 map.setPaintProperty(Circle.ID, 'circle-color', colors);
                 map.setLayerZoomRange(Circle.ID, settings.circle.minZoom, settings.circle.maxZoom);
                 map.setPaintProperty(Circle.ID, 'circle-blur', settings.circle.blur / 100);
