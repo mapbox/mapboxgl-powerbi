@@ -116,7 +116,6 @@ module powerbi.extensibility.visual {
             let locationFilter = [];
             locationFilter.push("any");
             let featureNameMap = {};
-            console.log('updating properties2')
             let selectionIds = features
                 .filter((feature) => {
                     // Dedupliacate features since features may appear multiple times in query results
@@ -203,7 +202,6 @@ module powerbi.extensibility.visual {
             super.applySettings(settings, roleMap);
             const map = this.parent.getMap();
             const choroSettings = settings.choropleth;
-            console.log("applying settings test")
 
             if (map.getLayer(Choropleth.ID)) {
                 map.setLayoutProperty(Choropleth.ID, 'visibility', choroSettings.display() ? 'visible' : 'none');
