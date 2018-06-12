@@ -57,11 +57,11 @@ module powerbi.extensibility.visual {
         };
 
         private getButtonClass() {
-            let buttonClassName = 'mapboxgl-ctrl-icon ';
+            let buttonClassName = constants.MAPBOX_CTRL_ICON_CLASS;
             if (this.toggled) {
-                return buttonClassName + 'mapboxgl-ctrl-zoom-pin-toggled';
+                return buttonClassName + ' mapboxgl-ctrl-zoom-pin-toggled';
             }
-            return buttonClassName + 'mapboxgl-ctrl-zoom-pin';
+            return buttonClassName + ' mapboxgl-ctrl-zoom-pin';
         }
 
         private getButtonTitle() {

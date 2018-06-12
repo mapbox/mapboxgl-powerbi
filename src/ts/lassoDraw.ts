@@ -6,6 +6,10 @@ module powerbi.extensibility.visual {
     export module LassoDraw {
 
         export function create(filter: Filter) {
+
+            // Set up cooperation between Mapbox GL Draw tools and our filtering component (filter.ts) by
+            // "hooking" into Mapbox GL Draw functions, so that we can disable hover highlights during
+            // drawing and not to clear selection on draw finish, etc.
             let original_polygon_onClick = MapboxDraw.modes.draw_polygon.onClick;
             MapboxDraw.modes.draw_polygon.onClick = function(state, e) {
                 if (filter) {
@@ -19,12 +23,49 @@ module powerbi.extensibility.visual {
                 if (filter) {
                     filter.setSelectionInProgress(false);
                 }
+
+                if (this.untoggleButton) {
+                    this.untoggleButton();
+                }
+
                 return original_polygon_onStop.apply(this, arguments);
             }
 
+            MapboxDraw.modes.draw_polygon.onSetup_original = MapboxDraw.modes.draw_polygon.onSetup
+            MapboxDraw.modes.draw_polygon.onSetup = function(state) {
+                if (filter) {
+                    filter.setSelectionInProgress(true);
+                }
+
+                if (this.toggleButton) {
+                    this.toggleButton();
+                }
+
+                if (this.onSetup_original) {
+                    return this.onSetup_original.apply(this, arguments);
+                }
+            }
+
+            // Lasso draw is based on polygon drawing tool, but some of its functions are going to be replaced
             const LassoDraw = {...MapboxDraw.modes.draw_polygon};
 
-            LassoDraw.onSetup = function() {
+            // Toggle buttons
+            MapboxDraw.modes.draw_polygon.toggleButton = function() {
+                toggleIcon(MapboxDrawConstants.classes.CONTROL_BUTTON_POLYGON, true);
+            }
+            LassoDraw.toggleButton = function() {
+                toggleIcon(MapboxDrawConstants.classes.CONTROL_BUTTON_LASSO, true);
+            }
+
+            // Untoggle buttons
+            MapboxDraw.modes.draw_polygon.untoggleButton = function() {
+                toggleIcon(MapboxDrawConstants.classes.CONTROL_BUTTON_POLYGON, false);
+            }
+            LassoDraw.untoggleButton = function() {
+                toggleIcon(MapboxDrawConstants.classes.CONTROL_BUTTON_LASSO, false);
+            }
+
+            LassoDraw.onSetup_original = function() {
                 const polygon = this.newFeature({
                     type: MapboxDrawConstants.geojsonTypes.FEATURE,
                     properties: {},
@@ -96,15 +137,30 @@ module powerbi.extensibility.visual {
         export function makeIcon() {
             // Replace the line string tool icon and title to the lasso's icon and title
             try {
-                let drawLineGroup = document.getElementsByClassName("mapbox-gl-draw_line");
-                let drawLineControl: any = drawLineGroup[0];
-                let buttonClassName = 'mapboxgl-ctrl-icon ';
-                buttonClassName += 'mapboxgl-ctrl-draw-lasso';
+                const drawLineGroup = document.getElementsByClassName(MapboxDrawConstants.classes.CONTROL_BUTTON_LINE);
+                const drawLineControl: any = drawLineGroup[0];
+                let buttonClassName = MapboxDrawConstants.classes.CONTROL_BUTTON;
+                buttonClassName += ` ${MapboxDrawConstants.classes.CONTROL_BUTTON_LASSO}`;
                 drawLineControl.className = buttonClassName;
                 drawLineControl.title = 'Lasso tool (l)';
             } catch (error) {
                 // Failed to replace the icon and title of the line string tool
                 // control to lasso
+            }
+        }
+
+        function toggleIcon(className, toToggle) {
+            try {
+                const drawControlGroup = document.getElementsByClassName(className);
+                const drawControl: any = drawControlGroup[0];
+                const toggled = 'toggled';
+                if (toToggle) {
+                    drawControl.classList.add(toggled);
+                } else {
+                    drawControl.classList.remove(toggled)
+                }
+            } catch (error) {
+                // Failed to toggle icon
             }
         }
     }
