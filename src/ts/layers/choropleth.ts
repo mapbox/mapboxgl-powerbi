@@ -53,7 +53,7 @@ module powerbi.extensibility.visual {
                 type: 'fill',
                 source: 'choropleth-source',
                 paint: {
-                    "fill-color": constants.HIGHLIGHT_COLOR,
+                    "fill-color": choroSettings.highlightColor,
                     "fill-opacity": 1
                 },
                 "source-layer": sourceLayer,
@@ -116,6 +116,7 @@ module powerbi.extensibility.visual {
             let locationFilter = [];
             locationFilter.push("any");
             let featureNameMap = {};
+            console.log('updating properties2')
             let selectionIds = features
                 .filter((feature) => {
                     // Dedupliacate features since features may appear multiple times in query results
@@ -202,6 +203,7 @@ module powerbi.extensibility.visual {
             super.applySettings(settings, roleMap);
             const map = this.parent.getMap();
             const choroSettings = settings.choropleth;
+            console.log("applying settings test")
 
             if (map.getLayer(Choropleth.ID)) {
                 map.setLayoutProperty(Choropleth.ID, 'visibility', choroSettings.display() ? 'visible' : 'none');
@@ -284,7 +286,7 @@ module powerbi.extensibility.visual {
                     opacity = 0.5 * opacity;
                 }
                 map.setPaintProperty(Choropleth.ID, 'fill-opacity', opacity);
-
+                map.setPaintProperty(Choropleth.HighlightID, "fill-color", choroSettings.highlightColor)
                 map.setPaintProperty(Choropleth.OutlineID, 'line-color', settings.choropleth.outlineColor);
                 map.setPaintProperty(Choropleth.OutlineID, 'line-width', settings.choropleth.outlineWidth);
                 map.setPaintProperty(Choropleth.OutlineID, 'line-opacity', settings.choropleth.outlineOpacity / 100);

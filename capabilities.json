@@ -715,6 +715,18 @@
             }
           }
         },
+        "highlightColor": {
+          "displayName": "Highlight Color",
+          "displayNameKey": "highlightColor",
+          "description": "Defines the color a polyon will take when highlighted.",
+          "type": {
+            "fill": {
+              "solid": {
+                "color": true
+              }
+            }
+          }
+        },
         "minZoom": {
           "displayName": "Min Zoom",
           "displayNameKey": "minZoom",
