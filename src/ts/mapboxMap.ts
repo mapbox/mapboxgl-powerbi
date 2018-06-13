@@ -33,8 +33,6 @@ module powerbi.extensibility.visual {
             this.errorDiv.className = 'error';
             options.element.appendChild(this.errorDiv);
 
-            this.autoZoomControl = new AutoZoomControl();
-
             // For anchor elements to work we need to manually
             // call launchUrl API method
             options.element.addEventListener("click", (e) => {
@@ -46,6 +44,7 @@ module powerbi.extensibility.visual {
             });
 
             this.host = options.host;
+            this.autoZoomControl = new AutoZoomControl(this.host);
 
             this.tooltipServiceWrapper = createTooltipServiceWrapper(options.host.tooltipService, options.element);
             this.selectionManager = options.host.createSelectionManager();
@@ -473,6 +472,8 @@ module powerbi.extensibility.visual {
                 this.addMap();
             }
 
+            // Apply auto-zoom pin state from settings, if they differ (note that one is referring to pin state,
+            // the other is referring to 'enabled' state, this is why we have the equality check and the negation)
             if (this.autoZoomControl.isPinned() == this.settings.api.autozoom) {
                 this.autoZoomControl.setPin(!this.settings.api.autozoom);
             }
