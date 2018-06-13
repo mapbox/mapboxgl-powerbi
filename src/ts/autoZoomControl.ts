@@ -1,10 +1,15 @@
 module powerbi.extensibility.visual {
 
     export class AutoZoomControl implements mapboxgl.IControl {
+        private host: IVisualHost;
         private map: mapboxgl.Map;
         private container: HTMLElement;
         private zoomPinButton: HTMLElement;
         private toggled: boolean;
+
+        constructor(host) {
+            this.host = host;
+        }
 
         public onAdd(map) {
             this.toggled = false;
@@ -17,6 +22,16 @@ module powerbi.extensibility.visual {
                     this.toggled = !this.toggled;
                     this.zoomPinButton.className = this.getButtonClass();
                     this.zoomPinButton.title = this.getButtonTitle();
+                    // Persist autozoom state into 'api' settings
+                    this.host.persistProperties(<VisualObjectInstancesToPersist>{
+                        merge: [{
+                            objectName: "api",
+                            selector: null,
+                            properties: {
+                                autozoom: !this.toggled,
+                            }
+                        }]
+                    })
                 });
             return this.container;
         }
