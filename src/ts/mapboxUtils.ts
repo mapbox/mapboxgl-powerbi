@@ -1,5 +1,5 @@
 module powerbi.extensibility.visual {
-    declare var turf : any;
+    declare var turf: any;
     export module mapboxUtils {
         export interface Limits {
             min: number;
@@ -22,9 +22,9 @@ module powerbi.extensibility.visual {
 
         export function debounce(func, wait, immediate) {
             let timeout;
-            return function() {
+            return function () {
                 let context = this, args = arguments;
-                let later = function() {
+                let later = function () {
                     timeout = null;
                     if (!immediate) func.apply(context, args);
                 };
@@ -60,19 +60,18 @@ module powerbi.extensibility.visual {
             return ret;
         }
 
-        // export function positionInArray(array, element: any) {
-        //     return array.findIndex( value => {
-        //         return value === element
-        //     })
-        // }
-
-        export function positionInArray(array, element: any) {
-            return array.some( (value) => {
-                if (value === element) {
-                    return true
+         export function positionInArray(array: any[], element: any) {
+            let found = false
+            for (let i = 0; i <= array.length; i++) {
+                if (array[i] == element) {
+                    found = true
+                    break
                 }
-            })
-        }
+            }
+            if (!found) {
+                return -1
+            }
+         }
 
         export function pushIfNotExist(array: any[], element: any) {
             if (positionInArray(array, element) === -1) {
@@ -98,7 +97,7 @@ module powerbi.extensibility.visual {
             return layer;
         }
 
-        export function getLimits(data, myproperty) : Limits {
+        export function getLimits(data, myproperty): Limits {
 
             let min = null;
             let max = null;
@@ -107,7 +106,7 @@ module powerbi.extensibility.visual {
             if (data && data.length > 0 && myproperty != '') {
                 if (data[0]['type']) {
                     // data are geojson
-                    turf.meta.propEach(turf.helpers.featureCollection(data), function(currentProperties, featureIndex) {
+                    turf.meta.propEach(turf.helpers.featureCollection(data), function (currentProperties, featureIndex) {
                         if (currentProperties[myproperty]) {
                             const value = currentProperties[myproperty];
                             if (!min || value < min) { min = value }
@@ -163,7 +162,7 @@ module powerbi.extensibility.visual {
         "use strict";
         export function logExceptions(): MethodDecorator {
             return function (target: Object, propertyKey: string, descriptor: TypedPropertyDescriptor<Function>)
-            : TypedPropertyDescriptor<Function> {
+                : TypedPropertyDescriptor<Function> {
                 return {
                     value: function () {
                         try {
