@@ -61,7 +61,7 @@ module powerbi.extensibility.visual {
         }
 
         export function positionInArray(array, element: any) {
-            var index = -1
+            let index = -1
             return array.some( (value, i) => {
                 if (value === element) {
                     index = i
