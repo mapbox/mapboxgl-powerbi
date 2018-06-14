@@ -128,12 +128,11 @@ module powerbi.extensibility.visual {
             let category = this.categories[0];
 
             if (role) {
-                for (let i = 0; i < this.categories.length; i++) {
-                    if (this.categories[i].source.displayName == role.displayName) {
-                        category = this.categories[i]
-                        break
-                    }
-                }
+                category = this.categories.filter( cat => {
+                    return cat.source.displayName == role.displayName;
+                })[0]
+
+                console.log(category);
 
                 indexes = values.map( value => category.values.indexOf(value));
             }
