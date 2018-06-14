@@ -124,41 +124,20 @@ module powerbi.extensibility.visual {
             this.selectionManager.clear();
         }
 
-        // public altFind(arr, callback) {
-        //     for (let i = 0; i <arr.length; i++) {
-        //         let match = callback(arr[i])
-        //             if (match) {
-        //                 return arr[i]
-        //                 break
-        //             }
-        //     }
-        // }
-
         public addSelection(values, role?) {
             let indexes = values;
             let category = this.categories[0];
-            // if (role) {
-            //     category = this.categories.find( cat => {
-            //         return cat.source.displayName == role.displayName;
-            //     });
-
-            //     indexes = values.map( value => category.values.indexOf(value));
-            // }
 
             if (role) {
-                // category = this.categories.find( cat => {
-                //     return cat.source.displayName == role.displayName;
-                // });
-
                 for (let i = 0; i < this.categories.length; i++) {
                     if (this.categories[i].source.displayName == role.displayName) {
-                        category = true
+                        category = this.categories[i]
+                        break
                     }
                 }
 
                 indexes = values.map( value => category.values.indexOf(value));
             }
-
 
             const selectors = indexes
                 .filter( index => {
