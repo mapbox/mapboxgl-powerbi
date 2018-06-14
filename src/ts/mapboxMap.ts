@@ -126,10 +126,14 @@ module powerbi.extensibility.visual {
         public addSelection(values, role?) {
             let indexes = values;
             let category = this.categories[0];
+
             if (role) {
-                category = this.categories.find( cat => {
-                    return cat.source.displayName == role.displayName;
-                });
+                for (let i = 0; i < this.categories.length; i++) {
+                    if (this.categories[i].source.displayName == role.displayName) {
+                        category = this.categories[i]
+                        break
+                    }
+                }
 
                 indexes = values.map( value => category.values.indexOf(value));
             }
