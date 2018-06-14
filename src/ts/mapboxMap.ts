@@ -4,7 +4,7 @@ module powerbi.extensibility.visual {
     declare var MapboxDraw : any;
 
     export class MapboxMap implements IVisual {
-        private map: mapboxgl.Map;
+        private map: any;
         private mapDiv: HTMLDivElement;
         private errorDiv: HTMLDivElement;
         private autoZoomControl: AutoZoomControl;
@@ -165,6 +165,7 @@ module powerbi.extensibility.visual {
             }))
             this.layers.push(new Circle(this, this.palette))
             this.layers.push(new Choropleth(this, this.palette));
+            mapboxgl.config.API_URL = this.settings.api.apiUrl;
 
             const mapOptions = {
                 container: this.mapDiv,
