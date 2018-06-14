@@ -4,7 +4,7 @@ module powerbi.extensibility.visual {
     declare var MapboxDraw : any;
 
     export class MapboxMap implements IVisual {
-        private map: any;
+        private map: mapboxgl.Map;
         private mapDiv: HTMLDivElement;
         private errorDiv: HTMLDivElement;
         private autoZoomControl: AutoZoomControl;
