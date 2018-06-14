@@ -246,14 +246,14 @@
                 "displayNameKey": "satellite_v9"
               },
               {
-                "value": "mapbox:\/\/styles\/mapbox\/navigation-preview-day-v2?optimize=true",
+                "value": "mapbox:\/\/styles\/mapbox\/navigation-preview-day-v3?optimize=true",
                 "displayName": "Traffic Light",
-                "displayNameKey": "navigation_preview_day_v2"
+                "displayNameKey": "navigation_preview_day_v3"
               },
               {
-                "value": "mapbox:\/\/styles\/mapbox\/navigation-preview-night-v2?optimize=true",
+                "value": "mapbox:\/\/styles\/mapbox\/navigation-preview-night-v3?optimize=true",
                 "displayName": "Traffic Dark",
-                "displayNameKey": "navigation_preview_night_v2"
+                "displayNameKey": "navigation_preview_night_v3"
               },
               {
                 "value": "custom",
@@ -300,6 +300,14 @@
         },
         "autozoom": {
           "displayName": "Auto Zoom",
+          "displayNameKey": "autozoom",
+          "description": "Toggle autozoom on/off",
+          "type": {
+            "bool": true
+          }
+        },
+        "belowLayer": {
+          "displayName": "Visualize below layer",
           "displayNameKey": "autozoom",
           "description": "Toggle autozoom on/off",
           "type": {
