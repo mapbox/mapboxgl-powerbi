@@ -60,11 +60,15 @@ module powerbi.extensibility.visual {
             return ret;
         }
 
+        // export function positionInArray(array, element: any) {
+        //     return array.findIndex( value => {
+        //         return value === element
+        //     })
+        // }
+
         export function positionInArray(array, element: any) {
-            let index = -1
-            return array.some( (value, i) => {
+            return array.some( (value) => {
                 if (value === element) {
-                    index = i
                     return true
                 }
             })
