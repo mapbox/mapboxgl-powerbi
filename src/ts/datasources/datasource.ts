@@ -3,9 +3,11 @@ module powerbi.extensibility.visual.data {
     export abstract class Datasource {
         protected bounds: any[];
         private references: Object;
+        public ID: string;
 
-        constructor() {
+        constructor(id) {
             this.references = {}
+            this.ID = id
         }
 
         abstract addSources(map, settings);
@@ -30,7 +32,9 @@ module powerbi.extensibility.visual.data {
         update(map, features, roleMap, settings) {}
         getBounds() : any[] { return this.bounds }
         getLimits() : any { return null }
-        handleZoom(map, settings) {}
+        handleZoom(map, settings) : boolean {
+            return false;
+        }
         getData(map, settings) : any[] { return null }
     }
 }

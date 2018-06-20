@@ -3,7 +3,7 @@
     "allowJs": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
-    "target": "es6",
+    "target": "es5",
     "sourceMap": true,
     "typeRoots": [
       "src/types"
@@ -15,6 +15,10 @@
   ],
   "files": [
     ".api/v1.12.0/PowerBI-visuals.d.ts",
+    "src/ts/constants.ts",
+    "src/ts/MapboxDrawConstants.ts",
+    "src/ts/filter.ts",
+    "src/ts/palette.ts",
     "src/ts/datasources/datasource.ts",
     "src/ts/datasources/raster.ts",
     "src/ts/datasources/point.ts",
@@ -32,6 +36,7 @@
     "src/ts/mapboxUtils.ts",
     "src/ts/mapboxConverter.ts",
     "src/ts/autoZoomControl.ts",
+    "src/ts/lassoDraw.ts",
     "src/ts/mapboxMap.ts",
     "src/ts/tooltipServiceWrapper.ts"
   ]

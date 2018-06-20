@@ -67,7 +67,7 @@
     },
     {
       "name": "color",
-      "kind": "GroupingOrMeasure",
+      "kind": "Measure",
       "displayName": "Color",
       "description": "Measure or Dimension to color circles and heatmaps.  Can be numeric or text data type.",
       "requiredTypes": [
@@ -115,61 +115,88 @@
     },
     {
       "name": "tooltips",
-      "kind": "GroupingOrMeasure",
+      "kind": "Measure",
       "displayName": "Tooltips",
       "description": "Values to display in tooltips"
     }
   ],
   "dataViewMappings": [
     {
-      "categorical": {
-        "categories": {
-          "dataReductionAlgorithm": {
-            "sample": {
-              "count": 30000
+        "conditions": [
+            {
+                "location": {
+                    "max": 1
+                },
+                "latitude": {
+                    "max": 1
+                },
+                "longitude": {
+                    "max": 1
+                },
+                "color": {
+                    "max": 1
+                },
+                "size": {
+                    "max": 1
+                },
+                "cluster": {
+                    "max": 1
+                }
             }
-          },
-          "select": [
-            {
-              "for": {
-                "in": "size"
-              }
-            },
-            {
-              "for": {
-                "in": "color"
-              }
-            },
-            {
-              "for": {
-                "in": "latitude"
-              }
-            },
-            {
-              "for": {
-                "in": "longitude"
-              }
-            },
-            {
-              "for": {
-                "in": "location"
-              }
-            },
-            {
-              "for": {
-                "in": "cluster"
-              }
-            },
-            {
-              "for": {
-                "in": "tooltips"
-              }
+        ],
+        "categorical": {
+            "categories": {
+                "dataReductionAlgorithm": {
+                    "sample": {
+                        "count": 30000
+                    }
+                },
+                "select": [
+                    {
+                        "for": {
+                            "in": "location"
+                        }
+                    },
+                    {
+                        "for": {
+                            "in": "latitude"
+                        }
+                    },
+                    {
+                        "for": {
+                            "in": "longitude"
+                        }
+                    },
+                    {
+                        "for": {
+                            "in": "color"
+                        }
+                    },
+                    {
+                        "for": {
+                            "in": "size"
+                        }
+                    },
+                    {
+                        "for": {
+                            "in": "cluster"
+                        }
+                    },
+                    {
+                        "for": {
+                            "in": "tooltips"
+                        }
+                    }
+                ]
             }
-          ]
         }
-      }
     }
   ],
+  "drilldown": {
+    "roles": [
+      "location"
+    ]
+  },
   "objects": {
     "api": {
       "displayName": "Viz Settings",
@@ -380,6 +407,18 @@
           "displayName": "Max Color",
           "displayNameKey": "maxColor",
           "description": "Defines the color for the maximum value of the color field.",
+          "type": {
+            "fill": {
+              "solid": {
+                "color": true
+              }
+            }
+          }
+        },
+        "highlightColor": {
+          "displayName": "Highlight Color",
+          "displayNameKey": "highlightColor",
+          "description": "Defines the color a polyon will take when highlighted.",
           "type": {
             "fill": {
               "solid": {
@@ -697,35 +736,6 @@
             "bool": true
           }
         },
-        "data": {
-          "type": {
-            "enumeration": [
-              {
-                "value": "mapbox://mapbox.pbi-countries-v1",
-                "displayName": "Global Countries",
-                "displayNameKey": "globalCountries"
-              },
-              {
-                "value": "mapbox://mapbox.pbi-us-states-v1",
-                "displayName": "US States",
-                "displayNameKey": "usaStates"
-              },
-              {
-                "value": "mapbox://mapbox.pbi-us-postcodes-v1",
-                "displayName": "US Postcodes ZCTA",
-                "displayNameKey": "usaPostcodes5digit"
-              },
-              {
-                "value": "custom",
-                "displayName": "Custom Tileset",
-                "displayNameKey": "custom"
-              }
-            ]
-          },
-          "displayName": "Data",
-          "displayNameKey": "choroplethData",
-          "description": "Select a boundary tileset.  Select from Global Countries, USA States, and USA Postcodes; or create your own boundaries by uploading shapes to your Mapbox account.  See https://www.mapbox.com/help/studio-manual-uploads/ for a tutorial on how to upload your own boundaries.  Email help@mapbox.com to ask about access to global administrative and postal boundaries."
-        },
         "minColor": {
           "displayName": "Min Color",
           "displayNameKey": "minColor",
@@ -762,6 +772,18 @@
             }
           }
         },
+        "highlightColor": {
+          "displayName": "Highlight Color",
+          "displayNameKey": "highlightColor",
+          "description": "Defines the color a polyon will take when highlighted.",
+          "type": {
+            "fill": {
+              "solid": {
+                "color": true
+              }
+            }
+          }
+        },
         "minZoom": {
           "displayName": "Min Zoom",
           "displayNameKey": "minZoom",
@@ -778,28 +800,601 @@
             "integer": true
           }
         },
-        "vectorTileUrl": {
+        "maxLevel": {
+          "displayName": "Number of levels",
+          "displayNameKey": "nlevels",
+          "description": "Number of different levels used for drilldown",
+          "type": {
+            "integer": true
+          }
+        },
+        "selectedLevel": {
+          "type": {
+            "enumeration": [
+              {
+                "value": "1",
+                "displayName": "Level 1",
+                "displayNameKey": "level1"
+              },
+              {
+                "value": "2",
+                "displayName": "Level 2",
+                "displayNameKey": "level2"
+              },
+              {
+                "value": "3",
+                "displayName": "Level 3",
+                "displayNameKey": "level3"
+              },
+              {
+                "value": "4",
+                "displayName": "Level 4",
+                "displayNameKey": "level4"
+              },
+              {
+                "value": "5",
+                "displayName": "Level 5",
+                "displayNameKey": "level5"
+              },
+              {
+                "value": "6",
+                "displayName": "Level 6",
+                "displayNameKey": "level6"
+              },
+              {
+                "value": "7",
+                "displayName": "Level 7",
+                "displayNameKey": "level7"
+              },
+              {
+                "value": "8",
+                "displayName": "Level 8",
+                "displayNameKey": "level8"
+              },
+              {
+                "value": "9",
+                "displayName": "Level 9",
+                "displayNameKey": "level9"
+              },
+              {
+                "value": "10",
+                "displayName": "Level 10",
+                "displayNameKey": "level10"
+              }
+            ]
+          },
+          "displayName": "Level",
+          "displayNameKey": "selectedLevel",
+          "description": "Select a level to join."
+        },
+        "data1": {
+          "type": {
+            "enumeration": [
+              {
+                "value": "mapbox://mapbox.pbi-countries-v1",
+                "displayName": "Global Countries",
+                "displayNameKey": "globalCountries"
+              },
+              {
+                "value": "mapbox://mapbox.pbi-us-states-v1",
+                "displayName": "US States",
+                "displayNameKey": "usaStates"
+              },
+              {
+                "value": "mapbox://mapbox.pbi-us-postcodes-v1",
+                "displayName": "US Postcodes ZCTA",
+                "displayNameKey": "usaPostcodes5digit"
+              },
+              {
+                "value": "custom",
+                "displayName": "Custom Tileset",
+                "displayNameKey": "custom"
+              }
+            ]
+          },
+          "displayName": "Data Level 1",
+          "displayNameKey": "choroplethData1",
+          "description": "Select a boundary tileset.  Select from Global Countries, USA States, and USA Postcodes; or create your own boundaries by uploading shapes to your Mapbox account.  See https://www.mapbox.com/help/studio-manual-uploads/ for a tutorial on how to upload your own boundaries.  Email help@mapbox.com to ask about access to global administrative and postal boundaries."
+        },
+        "vectorTileUrl1": {
           "type": {
             "text": true
           },
-          "displayName": "Vector Tile Url",
-          "displayNameKey": "vectorTileUrl",
+          "displayName": "Vector Tile Url Level 1",
+          "displayNameKey": "vectorTileUrl1",
           "description": "The URL of the vector tileset. Example for US states: mapbox://mapbox.us_census_states_2015"
         },
-        "sourceLayer": {
+        "sourceLayer1": {
           "type": {
             "text": true
           },
-          "displayName": "Source Layer Name",
-          "displayNameKey": "sourceLayer",
+          "displayName": "Source Layer Name Level 1",
+          "displayNameKey": "sourceLayer1",
           "description": "The id of the vector layer to use for data join"
         },
-        "vectorProperty": {
+        "vectorProperty1": {
           "type": {
             "text": true
           },
-          "displayName": "Vector Property",
-          "displayNameKey": "vectorProperty",
+          "displayName": "Vector Property Level 1",
+          "displayNameKey": "vectorProperty1",
+          "description": "The property name in the vector layer to use for data join"
+        },
+        "data2": {
+          "type": {
+            "enumeration": [
+              {
+                "value": "mapbox://mapbox.pbi-countries-v1",
+                "displayName": "Global Countries",
+                "displayNameKey": "globalCountries"
+              },
+              {
+                "value": "mapbox://mapbox.pbi-us-states-v1",
+                "displayName": "US States",
+                "displayNameKey": "usaStates"
+              },
+              {
+                "value": "mapbox://mapbox.pbi-us-postcodes-v1",
+                "displayName": "US Postcodes ZCTA",
+                "displayNameKey": "usaPostcodes5digit"
+              },
+              {
+                "value": "custom",
+                "displayName": "Custom Tileset",
+                "displayNameKey": "custom"
+              }
+            ]
+          },
+          "displayName": "Data Level 2",
+          "displayNameKey": "choroplethData2",
+          "description": "Select a boundary tileset.  Select from Global Countries, USA States, and USA Postcodes; or create your own boundaries by uploading shapes to your Mapbox account.  See https://www.mapbox.com/help/studio-manual-uploads/ for a tutorial on how to upload your own boundaries.  Email help@mapbox.com to ask about access to global administrative and postal boundaries."
+        },
+        "vectorTileUrl2": {
+          "type": {
+            "text": true
+          },
+          "displayName": "Vector Tile Url Level 2",
+          "displayNameKey": "vectorTileUrl2",
+          "description": "The URL of the vector tileset. Example for US states: mapbox://mapbox.us_census_states_2015"
+        },
+        "sourceLayer2": {
+          "type": {
+            "text": true
+          },
+          "displayName": "Source Layer Name Level 2",
+          "displayNameKey": "sourceLayer2",
+          "description": "The id of the vector layer to use for data join"
+        },
+        "vectorProperty2": {
+          "type": {
+            "text": true
+          },
+          "displayName": "Vector Property Level 2",
+          "displayNameKey": "vectorProperty2",
+          "description": "The property name in the vector layer to use for data join"
+        },
+        "data3": {
+          "type": {
+            "enumeration": [
+              {
+                "value": "mapbox://mapbox.pbi-countries-v1",
+                "displayName": "Global Countries",
+                "displayNameKey": "globalCountries"
+              },
+              {
+                "value": "mapbox://mapbox.pbi-us-states-v1",
+                "displayName": "US States",
+                "displayNameKey": "usaStates"
+              },
+              {
+                "value": "mapbox://mapbox.pbi-us-postcodes-v1",
+                "displayName": "US Postcodes ZCTA",
+                "displayNameKey": "usaPostcodes5digit"
+              },
+              {
+                "value": "custom",
+                "displayName": "Custom Tileset",
+                "displayNameKey": "custom"
+              }
+            ]
+          },
+          "displayName": "Data Level 3",
+          "displayNameKey": "choroplethData3",
+          "description": "Select a boundary tileset.  Select from Global Countries, USA States, and USA Postcodes; or create your own boundaries by uploading shapes to your Mapbox account.  See https://www.mapbox.com/help/studio-manual-uploads/ for a tutorial on how to upload your own boundaries.  Email help@mapbox.com to ask about access to global administrative and postal boundaries."
+        },
+        "vectorTileUrl3": {
+          "type": {
+            "text": true
+          },
+          "displayName": "Vector Tile Url Level 3",
+          "displayNameKey": "vectorTileUrl3",
+          "description": "The URL of the vector tileset. Example for US states: mapbox://mapbox.us_census_states_2015"
+        },
+        "sourceLayer3": {
+          "type": {
+            "text": true
+          },
+          "displayName": "Source Layer Name Level 3",
+          "displayNameKey": "sourceLayer3",
+          "description": "The id of the vector layer to use for data join"
+        },
+        "vectorProperty3": {
+          "type": {
+            "text": true
+          },
+          "displayName": "Vector Property Level 3",
+          "displayNameKey": "vectorProperty3",
+          "description": "The property name in the vector layer to use for data join"
+        },
+        "data4": {
+          "type": {
+            "enumeration": [
+              {
+                "value": "mapbox://mapbox.pbi-countries-v1",
+                "displayName": "Global Countries",
+                "displayNameKey": "globalCountries"
+              },
+              {
+                "value": "mapbox://mapbox.pbi-us-states-v1",
+                "displayName": "US States",
+                "displayNameKey": "usaStates"
+              },
+              {
+                "value": "mapbox://mapbox.pbi-us-postcodes-v1",
+                "displayName": "US Postcodes ZCTA",
+                "displayNameKey": "usaPostcodes5digit"
+              },
+              {
+                "value": "custom",
+                "displayName": "Custom Tileset",
+                "displayNameKey": "custom"
+              }
+            ]
+          },
+          "displayName": "Data Level 4",
+          "displayNameKey": "choroplethData4",
+          "description": "Select a boundary tileset.  Select from Global Countries, USA States, and USA Postcodes; or create your own boundaries by uploading shapes to your Mapbox account.  See https://www.mapbox.com/help/studio-manual-uploads/ for a tutorial on how to upload your own boundaries.  Email help@mapbox.com to ask about access to global administrative and postal boundaries."
+        },
+        "vectorTileUrl4": {
+          "type": {
+            "text": true
+          },
+          "displayName": "Vector Tile Url Level 4",
+          "displayNameKey": "vectorTileUrl4",
+          "description": "The URL of the vector tileset. Example for US states: mapbox://mapbox.us_census_states_2015"
+        },
+        "sourceLayer4": {
+          "type": {
+            "text": true
+          },
+          "displayName": "Source Layer Name Level 4",
+          "displayNameKey": "sourceLayer4",
+          "description": "The id of the vector layer to use for data join"
+        },
+        "vectorProperty4": {
+          "type": {
+            "text": true
+          },
+          "displayName": "Vector Property Level 4",
+          "displayNameKey": "vectorProperty4",
+          "description": "The property name in the vector layer to use for data join"
+        },
+        "data5": {
+          "type": {
+            "enumeration": [
+              {
+                "value": "mapbox://mapbox.pbi-countries-v1",
+                "displayName": "Global Countries",
+                "displayNameKey": "globalCountries"
+              },
+              {
+                "value": "mapbox://mapbox.pbi-us-states-v1",
+                "displayName": "US States",
+                "displayNameKey": "usaStates"
+              },
+              {
+                "value": "mapbox://mapbox.pbi-us-postcodes-v1",
+                "displayName": "US Postcodes ZCTA",
+                "displayNameKey": "usaPostcodes5digit"
+              },
+              {
+                "value": "custom",
+                "displayName": "Custom Tileset",
+                "displayNameKey": "custom"
+              }
+            ]
+          },
+          "displayName": "Data Level 5",
+          "displayNameKey": "choroplethData5",
+          "description": "Select a boundary tileset.  Select from Global Countries, USA States, and USA Postcodes; or create your own boundaries by uploading shapes to your Mapbox account.  See https://www.mapbox.com/help/studio-manual-uploads/ for a tutorial on how to upload your own boundaries.  Email help@mapbox.com to ask about access to global administrative and postal boundaries."
+        },
+        "vectorTileUrl5": {
+          "type": {
+            "text": true
+          },
+          "displayName": "Vector Tile Url Level 5",
+          "displayNameKey": "vectorTileUrl5",
+          "description": "The URL of the vector tileset. Example for US states: mapbox://mapbox.us_census_states_2015"
+        },
+        "sourceLayer5": {
+          "type": {
+            "text": true
+          },
+          "displayName": "Source Layer Name Level 5",
+          "displayNameKey": "sourceLayer5",
+          "description": "The id of the vector layer to use for data join"
+        },
+        "vectorProperty5": {
+          "type": {
+            "text": true
+          },
+          "displayName": "Vector Property Level 5",
+          "displayNameKey": "vectorProperty5",
+          "description": "The property name in the vector layer to use for data join"
+        },
+        "data6": {
+          "type": {
+            "enumeration": [
+              {
+                "value": "mapbox://mapbox.pbi-countries-v1",
+                "displayName": "Global Countries",
+                "displayNameKey": "globalCountries"
+              },
+              {
+                "value": "mapbox://mapbox.pbi-us-states-v1",
+                "displayName": "US States",
+                "displayNameKey": "usaStates"
+              },
+              {
+                "value": "mapbox://mapbox.pbi-us-postcodes-v1",
+                "displayName": "US Postcodes ZCTA",
+                "displayNameKey": "usaPostcodes5digit"
+              },
+              {
+                "value": "custom",
+                "displayName": "Custom Tileset",
+                "displayNameKey": "custom"
+              }
+            ]
+          },
+          "displayName": "Data Level 6",
+          "displayNameKey": "choroplethData6",
+          "description": "Select a boundary tileset.  Select from Global Countries, USA States, and USA Postcodes; or create your own boundaries by uploading shapes to your Mapbox account.  See https://www.mapbox.com/help/studio-manual-uploads/ for a tutorial on how to upload your own boundaries.  Email help@mapbox.com to ask about access to global administrative and postal boundaries."
+        },
+        "vectorTileUrl6": {
+          "type": {
+            "text": true
+          },
+          "displayName": "Vector Tile Url Level 6",
+          "displayNameKey": "vectorTileUrl6",
+          "description": "The URL of the vector tileset. Example for US states: mapbox://mapbox.us_census_states_2015"
+        },
+        "sourceLayer6": {
+          "type": {
+            "text": true
+          },
+          "displayName": "Source Layer Name Level 6",
+          "displayNameKey": "sourceLayer6",
+          "description": "The id of the vector layer to use for data join"
+        },
+        "vectorProperty6": {
+          "type": {
+            "text": true
+          },
+          "displayName": "Vector Property Level 6",
+          "displayNameKey": "vectorProperty6",
+          "description": "The property name in the vector layer to use for data join"
+        },
+        "data7": {
+          "type": {
+            "enumeration": [
+              {
+                "value": "mapbox://mapbox.pbi-countries-v1",
+                "displayName": "Global Countries",
+                "displayNameKey": "globalCountries"
+              },
+              {
+                "value": "mapbox://mapbox.pbi-us-states-v1",
+                "displayName": "US States",
+                "displayNameKey": "usaStates"
+              },
+              {
+                "value": "mapbox://mapbox.pbi-us-postcodes-v1",
+                "displayName": "US Postcodes ZCTA",
+                "displayNameKey": "usaPostcodes5digit"
+              },
+              {
+                "value": "custom",
+                "displayName": "Custom Tileset",
+                "displayNameKey": "custom"
+              }
+            ]
+          },
+          "displayName": "Data Level 7",
+          "displayNameKey": "choroplethData7",
+          "description": "Select a boundary tileset.  Select from Global Countries, USA States, and USA Postcodes; or create your own boundaries by uploading shapes to your Mapbox account.  See https://www.mapbox.com/help/studio-manual-uploads/ for a tutorial on how to upload your own boundaries.  Email help@mapbox.com to ask about access to global administrative and postal boundaries."
+        },
+        "vectorTileUrl7": {
+          "type": {
+            "text": true
+          },
+          "displayName": "Vector Tile Url Level 7",
+          "displayNameKey": "vectorTileUrl7",
+          "description": "The URL of the vector tileset. Example for US states: mapbox://mapbox.us_census_states_2015"
+        },
+        "sourceLayer7": {
+          "type": {
+            "text": true
+          },
+          "displayName": "Source Layer Name Level 7",
+          "displayNameKey": "sourceLayer7",
+          "description": "The id of the vector layer to use for data join"
+        },
+        "vectorProperty7": {
+          "type": {
+            "text": true
+          },
+          "displayName": "Vector Property Level 7",
+          "displayNameKey": "vectorProperty7",
+          "description": "The property name in the vector layer to use for data join"
+        },
+        "data8": {
+          "type": {
+            "enumeration": [
+              {
+                "value": "mapbox://mapbox.pbi-countries-v1",
+                "displayName": "Global Countries",
+                "displayNameKey": "globalCountries"
+              },
+              {
+                "value": "mapbox://mapbox.pbi-us-states-v1",
+                "displayName": "US States",
+                "displayNameKey": "usaStates"
+              },
+              {
+                "value": "mapbox://mapbox.pbi-us-postcodes-v1",
+                "displayName": "US Postcodes ZCTA",
+                "displayNameKey": "usaPostcodes5digit"
+              },
+              {
+                "value": "custom",
+                "displayName": "Custom Tileset",
+                "displayNameKey": "custom"
+              }
+            ]
+          },
+          "displayName": "Data Level 8",
+          "displayNameKey": "choroplethData8",
+          "description": "Select a boundary tileset.  Select from Global Countries, USA States, and USA Postcodes; or create your own boundaries by uploading shapes to your Mapbox account.  See https://www.mapbox.com/help/studio-manual-uploads/ for a tutorial on how to upload your own boundaries.  Email help@mapbox.com to ask about access to global administrative and postal boundaries."
+        },
+        "vectorTileUrl8": {
+          "type": {
+            "text": true
+          },
+          "displayName": "Vector Tile Url Level 8",
+          "displayNameKey": "vectorTileUrl8",
+          "description": "The URL of the vector tileset. Example for US states: mapbox://mapbox.us_census_states_2015"
+        },
+        "sourceLayer8": {
+          "type": {
+            "text": true
+          },
+          "displayName": "Source Layer Name Level 8",
+          "displayNameKey": "sourceLayer8",
+          "description": "The id of the vector layer to use for data join"
+        },
+        "vectorProperty8": {
+          "type": {
+            "text": true
+          },
+          "displayName": "Vector Property Level 8",
+          "displayNameKey": "vectorProperty8",
+          "description": "The property name in the vector layer to use for data join"
+        },
+        "data9": {
+          "type": {
+            "enumeration": [
+              {
+                "value": "mapbox://mapbox.pbi-countries-v1",
+                "displayName": "Global Countries",
+                "displayNameKey": "globalCountries"
+              },
+              {
+                "value": "mapbox://mapbox.pbi-us-states-v1",
+                "displayName": "US States",
+                "displayNameKey": "usaStates"
+              },
+              {
+                "value": "mapbox://mapbox.pbi-us-postcodes-v1",
+                "displayName": "US Postcodes ZCTA",
+                "displayNameKey": "usaPostcodes5digit"
+              },
+              {
+                "value": "custom",
+                "displayName": "Custom Tileset",
+                "displayNameKey": "custom"
+              }
+            ]
+          },
+          "displayName": "Data Level 9",
+          "displayNameKey": "choroplethData9",
+          "description": "Select a boundary tileset.  Select from Global Countries, USA States, and USA Postcodes; or create your own boundaries by uploading shapes to your Mapbox account.  See https://www.mapbox.com/help/studio-manual-uploads/ for a tutorial on how to upload your own boundaries.  Email help@mapbox.com to ask about access to global administrative and postal boundaries."
+        },
+        "vectorTileUrl9": {
+          "type": {
+            "text": true
+          },
+          "displayName": "Vector Tile Url Level 9",
+          "displayNameKey": "vectorTileUrl9",
+          "description": "The URL of the vector tileset. Example for US states: mapbox://mapbox.us_census_states_2015"
+        },
+        "sourceLayer9": {
+          "type": {
+            "text": true
+          },
+          "displayName": "Source Layer Name Level 9",
+          "displayNameKey": "sourceLayer9",
+          "description": "The id of the vector layer to use for data join"
+        },
+        "vectorProperty9": {
+          "type": {
+            "text": true
+          },
+          "displayName": "Vector Property Level 9",
+          "displayNameKey": "vectorProperty9",
+          "description": "The property name in the vector layer to use for data join"
+        },
+        "data10": {
+          "type": {
+            "enumeration": [
+              {
+                "value": "mapbox://mapbox.pbi-countries-v1",
+                "displayName": "Global Countries",
+                "displayNameKey": "globalCountries"
+              },
+              {
+                "value": "mapbox://mapbox.pbi-us-states-v1",
+                "displayName": "US States",
+                "displayNameKey": "usaStates"
+              },
+              {
+                "value": "mapbox://mapbox.pbi-us-postcodes-v1",
+                "displayName": "US Postcodes ZCTA",
+                "displayNameKey": "usaPostcodes5digit"
+              },
+              {
+                "value": "custom",
+                "displayName": "Custom Tileset",
+                "displayNameKey": "custom"
+              }
+            ]
+          },
+          "displayName": "Data Level 10",
+          "displayNameKey": "choroplethData10",
+          "description": "Select a boundary tileset.  Select from Global Countries, USA States, and USA Postcodes; or create your own boundaries by uploading shapes to your Mapbox account.  See https://www.mapbox.com/help/studio-manual-uploads/ for a tutorial on how to upload your own boundaries.  Email help@mapbox.com to ask about access to global administrative and postal boundaries."
+        },
+        "vectorTileUrl10": {
+          "type": {
+            "text": true
+          },
+          "displayName": "Vector Tile Url Level 10",
+          "displayNameKey": "vectorTileUrl10",
+          "description": "The URL of the vector tileset. Example for US states: mapbox://mapbox.us_census_states_2015"
+        },
+        "sourceLayer10": {
+          "type": {
+            "text": true
+          },
+          "displayName": "Source Layer Name Level 10",
+          "displayNameKey": "sourceLayer10",
+          "description": "The id of the vector layer to use for data join"
+        },
+        "vectorProperty10": {
+          "type": {
+            "text": true
+          },
+          "displayName": "Vector Property Level 10",
+          "displayNameKey": "vectorProperty10",
           "description": "The property name in the vector layer to use for data join"
         },
         "opacity": {
@@ -839,6 +1434,21 @@
           }
         }
       }
+    },
+    "colorSelector": {
+        "displayName": "Data Colors",
+        "properties": {
+            "fill": {
+                "displayName": "Color",
+                "type": {
+                    "fill": {
+                        "solid": {
+                            "color": true
+                        }
+                    }
+                }
+            }
+        }
     }
   }
 }

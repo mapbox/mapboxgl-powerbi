@@ -84,7 +84,9 @@
     }
 
     @import (less) "./style/autozoom.css";
+    @import (less) "./style/lasso-draw.less";
     @import (less) "./node_modules/mapbox-gl/dist/mapbox-gl.css";
+    @import (less) "./node_modules/@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css";
     
 
     hr {
@@ -178,6 +180,13 @@
         object-fit: cover;
     }
 
+    .mapboxgl-map {
+        cursor: unset;
+    }
+    .mapboxgl-canvas-container.mapboxgl-interactive {
+        cursor: unset;
+    }
+
     .mapboxLink {
         position: relative;
         background-color: "white";
@@ -198,4 +207,14 @@
         &.hidden {
             display: none;
         }
+    }
+
+    .boxdraw {
+        background: rgba(56,135,190,0.1);
+        border: 2px solid #3887be;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 0;
+        height: 0;
     }

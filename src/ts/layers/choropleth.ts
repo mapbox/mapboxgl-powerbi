@@ -1,14 +1,15 @@
 module powerbi.extensibility.visual {
 
     export class Choropleth extends Layer {
-        private static ID = 'choropleth'
+        public static readonly ID = 'choropleth'
         private static OutlineID = 'choropleth-outline'
-        private vectorTileUrl: string = "";
-        private sourceLayer: string = "";
-        private vectorProperty: string = "";
-        private palette: IColorPalette;
+        private settings: ChoroplethSettings;
+        private static HighlightID = 'choropleth-highlight'
+        private static HighlightOutlineID = 'choropleth-highlight-outline'
 
-        constructor(map: MapboxMap, palette: IColorPalette) {
+        private palette: Palette;
+
+        constructor(map: MapboxMap, palette: Palette) {
             super(map);
             this.id = Choropleth.ID;
             this.source = data.Sources.Choropleth;
@@ -19,14 +20,20 @@ module powerbi.extensibility.visual {
             return [Choropleth.ID, Choropleth.OutlineID];
         }
 
-        addLayer(settings, beforeLayerId) {
+        addLayer(settings, beforeLayerId, roleMap) {
             const map = this.parent.getMap();
+
+            const choroSettings = settings.choropleth;
+            const sourceLayer = choroSettings[`sourceLayer${choroSettings.currentLevel}`];
+            const vectorProperty = choroSettings[`vectorProperty${choroSettings.currentLevel}`];
+
             const choroplethLayer = mapboxUtils.decorateLayer({
                 id: Choropleth.ID,
                 type: "fill",
                 source: 'choropleth-source',
-                "source-layer": settings.choropleth.sourceLayer
+                "source-layer": sourceLayer
             });
+
             const outlineLayer = mapboxUtils.decorateLayer({
                 id: Choropleth.OutlineID,
                 type: 'line',
@@ -37,16 +44,111 @@ module powerbi.extensibility.visual {
                     "line-width": 0
                 },
                 source: 'choropleth-source',
-                "source-layer": settings.choropleth.sourceLayer
+                "source-layer": sourceLayer
             });
-            map.addLayer(outlineLayer, beforeLayerId);
+
+            const zeroFilter = ["==", vectorProperty, ""]
+            const highlightLayer = mapboxUtils.decorateLayer({
+                id: Choropleth.HighlightID,
+                type: 'fill',
+                source: 'choropleth-source',
+                paint: {
+                    "fill-color": choroSettings.highlightColor,
+                    "fill-opacity": 1
+                },
+                "source-layer": sourceLayer,
+                filter: zeroFilter
+            });
+
+            const highlightOutlineLayer = mapboxUtils.decorateLayer({
+                id: Choropleth.HighlightOutlineID,
+                type: 'line',
+                layout: {
+                    "line-join": "round"
+                },
+                paint: {
+                    "line-width": 1,
+                    "line-color": 'black',
+                },
+                source: 'choropleth-source',
+                "source-layer": sourceLayer,
+                filter: zeroFilter,
+            });
+
+            map.addLayer(highlightOutlineLayer, beforeLayerId);
+            map.addLayer(highlightLayer, Choropleth.HighlightOutlineID);
+            map.addLayer(outlineLayer, Choropleth.HighlightID);
             map.addLayer(choroplethLayer, Choropleth.OutlineID);
+        }
+
+        hoverHighLight(e) {
+            if (!this.layerExists()) {
+                return;
+            }
+
+            const map = this.parent.getMap();
+            const choroSettings = this.settings;
+            const vectorProperty = choroSettings[`vectorProperty${choroSettings.currentLevel}`];
+            map.setFilter(Choropleth.HighlightID, ["==", vectorProperty, e.features[0].properties[vectorProperty]]);
+            map.setFilter(Choropleth.HighlightOutlineID, ["==", vectorProperty, e.features[0].properties[vectorProperty]]);
+        }
+
+        removeHighlight(roleMap) {
+            if (!this.layerExists()) {
+                return;
+            }
+
+            const choroSettings = this.settings;
+            const vectorProperty = choroSettings[`vectorProperty${choroSettings.currentLevel}`];
+            const zeroFilter = ["==", vectorProperty, ""]
+            const map = this.parent.getMap();
+
+            map.setPaintProperty(Choropleth.ID, 'fill-opacity', choroSettings.opacity / 100);
+            map.setFilter(Choropleth.HighlightID, zeroFilter);
+            map.setFilter(Choropleth.HighlightOutlineID, zeroFilter);
+        }
+
+        updateSelection(features, roleMap) {
+            const map = this.parent.getMap();
+            const choroSettings = this.settings;
+            const vectorProperty = choroSettings[`vectorProperty${choroSettings.currentLevel}`];
+
+            let locationFilter = [];
+            locationFilter.push("any");
+            let featureNameMap = {};
+            let selectionIds = features
+                .filter((feature) => {
+                    // Dedupliacate features since features may appear multiple times in query results
+                    if (featureNameMap[feature.properties[vectorProperty]]) {
+                        return false;
+                    }
+
+                    featureNameMap[feature.properties[vectorProperty]] = true;
+                    return true;
+                })
+                .slice(0, constants.MAX_SELECTION_COUNT)
+                .map( (feature, i) => {
+                    locationFilter.push(["==", vectorProperty, feature.properties[vectorProperty]]);
+                    return feature.properties[vectorProperty];
+                });
+
+            this.parent.addSelection(selectionIds, roleMap.location)
+
+            let opacity = choroSettings.opacity / 100;
+            if (this.parent.hasSelection()) {
+                opacity = 0.5 * opacity;
+            }
+            map.setPaintProperty(Choropleth.ID, 'fill-opacity', opacity);
+            map.setFilter(Choropleth.HighlightID, locationFilter);
+            map.setFilter(Choropleth.HighlightOutlineID, locationFilter);
         }
 
         removeLayer() {
             const map = this.parent.getMap();
             map.removeLayer(Choropleth.ID);
             map.removeLayer(Choropleth.OutlineID);
+            map.removeLayer(Choropleth.HighlightID);
+            map.removeLayer(Choropleth.HighlightOutlineID);
             this.source.removeFromMap(map, Choropleth.ID);
         }
 
@@ -83,18 +185,14 @@ module powerbi.extensibility.visual {
             const choroSettings = settings.choropleth;
             if (choroSettings.show) {
                 ChoroplethSettings.fillPredefinedProperties(choroSettings);
-
-                // The choropleth layer is different since it is a vector tile source, not geojson.  We can't modify it in-place.
-                // If it is, we'll create the vector tile source from the URL.  If not, we'll make sure the source doesn't exist.
-                if (this.vectorTileUrl != choroSettings.vectorTileUrl ||
-                    this.sourceLayer != choroSettings.sourceLayer ||
-                    this.vectorProperty != choroSettings.vectorProperty) {
-                    if (this.vectorTileUrl && this.sourceLayer && this.vectorProperty) {
-                        this.removeLayer();
+                if (choroSettings.hasChanged(this.settings)) {
+                    if (this.settings &&
+                        this.settings.vectorTileUrl1 &&
+                        this.settings.sourceLayer1 &&
+                        this.settings.vectorProperty1) {
+                            this.removeLayer();
                     }
-                    this.vectorTileUrl = choroSettings.vectorTileUrl;
-                    this.sourceLayer = choroSettings.sourceLayer;
-                    this.vectorProperty = choroSettings.vectorProperty;
+                    this.settings = choroSettings;
                 }
             }
             return super.getSource(settings);
@@ -115,7 +213,7 @@ module powerbi.extensibility.visual {
                 ChoroplethSettings.fillPredefinedProperties(choroSettings);
                 let fillClassCount = mapboxUtils.getClassCount(fillColorLimits);
                 const choroColorSettings = [choroSettings.minColor, choroSettings.medColor, choroSettings.maxColor];
-                let isGradient = mapboxUtils.shouldUseGradient(roleMap.color, fillColorLimits);
+                let isGradient = mapboxUtils.shouldUseGradient(roleMap.color);
 
                 let getColorStop = null;
                 if (isGradient) {
@@ -125,8 +223,7 @@ module powerbi.extensibility.visual {
                 else {
                     let colorStops = {};
                     fillColorLimits.values.map((value, idx) => {
-                        const color = chroma(this.palette.getColor(idx.toString()).value);
-                        colorStops[value] = color;
+                        colorStops[value] = chroma(this.palette.getColor(value, idx))
                     });
                     getColorStop = (value) => {
                         return colorStops[value]
@@ -135,9 +232,10 @@ module powerbi.extensibility.visual {
 
                 // We use the old property function syntax here because the data-join technique is faster to parse still than expressions with this method
                 const defaultColor = 'rgba(0,0,0,0)';
-                let colors = { type: "categorical", property: choroSettings.vectorProperty, default: defaultColor, stops: [] };
-                let outlineColors = { type: "categorical", property: choroSettings.vectorProperty, default: defaultColor, stops: [] };
-                let filter = ['in', choroSettings.vectorProperty];
+                const property = choroSettings[`vectorProperty${choroSettings.currentLevel}`];
+                let colors = { type: "categorical", property, default: defaultColor, stops: [] };
+                let outlineColors = { type: "categorical", property, default: defaultColor, stops: [] };
+                let filter = ['in', property];
                 const choroplethData = this.source.getData(map, settings);
 
                 let existingStops = {};
@@ -154,21 +252,22 @@ module powerbi.extensibility.visual {
                         continue;
                     }
 
-                    outlineColor = outlineColor.darken(2);
+                    const locationStr = location.toString();
 
-                    if (existingStops[location]) {
+
+                    if (existingStops[locationStr]) {
                         // Duplicate stop found. In case there are many rows, Mapbox generates so many errors on the
                         // console, that it can make the entire Power BI plugin unresponsive. This is why we validate
                         // the stops here, and won't let invalid stops to be passed to Mapbox.
-                        console.log('invalidStops')
                         validStops = false;
                         break;
                     }
 
-                    existingStops[location] = true;
-                    colors.stops.push([location, color.toString()]);
-                    filter.push(location);
-                    outlineColors.stops.push([location, outlineColor.toString()]);
+
+                    existingStops[locationStr] = true;
+                    colors.stops.push([locationStr, color.toString()]);
+                    filter.push(locationStr);
+                    outlineColors.stops.push([locationStr, outlineColor.toString()]);
                 }
 
                 if (validStops) {
@@ -176,13 +275,16 @@ module powerbi.extensibility.visual {
                     map.setFilter(Choropleth.ID, filter);
                     map.setFilter(Choropleth.OutlineID, filter);
                 } else {
-                    // Default color should represent error to the user, that's all we have for now
-                    map.setPaintProperty(Choropleth.ID, 'fill-color', defaultColor);
+                    map.setPaintProperty(Choropleth.ID, 'fill-color', 'rgb(0, 0, 0)');
                 }
 
                 map.setPaintProperty(Choropleth.ID, 'fill-outline-color', 'rgba(0,0,0,0.05)');
-                map.setPaintProperty(Choropleth.ID, 'fill-opacity', settings.choropleth.opacity / 100);
-
+                let opacity = choroSettings.opacity / 100;
+                if (this.parent.hasSelection()) {
+                    opacity = 0.5 * opacity;
+                }
+                map.setPaintProperty(Choropleth.ID, 'fill-opacity', opacity);
+                map.setPaintProperty(Choropleth.HighlightID, "fill-color", choroSettings.highlightColor)
                 map.setPaintProperty(Choropleth.OutlineID, 'line-color', settings.choropleth.outlineColor);
                 map.setPaintProperty(Choropleth.OutlineID, 'line-width', settings.choropleth.outlineWidth);
                 map.setPaintProperty(Choropleth.OutlineID, 'line-opacity', settings.choropleth.outlineOpacity / 100);
@@ -196,8 +298,15 @@ module powerbi.extensibility.visual {
 
         handleTooltip(tooltipEvent, roleMap, settings) {
             const tooltipData = super.handleTooltip(tooltipEvent, roleMap, settings);
-            const choroVectorData = tooltipData.find(td => {
-                return td.displayName === settings.choropleth.vectorProperty;
+            let choroVectorData = null;
+            tooltipData.map(td => {
+                if (choroVectorData) {
+                    return;
+                }
+
+                if (td.displayName === settings.choropleth[`vectorProperty${settings.choropleth.currentLevel}`]) {
+                    choroVectorData = td;
+                }
             });
             if (!choroVectorData) {
                 // Error! Could not found choropleth data joining on selected vector property
@@ -212,8 +321,15 @@ module powerbi.extensibility.visual {
 
             const choroplethData = choroplethSource.getData(settings, this.parent.getMap());
             const locationProperty = roleMap.location.displayName;
-            const dataUnderLocation = choroplethData.find(cd => {
-                return cd[locationProperty] == choroVectorData.value;
+            let dataUnderLocation = null;
+            choroplethData.map(cd => {
+                if (dataUnderLocation) {
+                    return;
+                }
+
+                if (cd[locationProperty] == choroVectorData.value) {
+                    dataUnderLocation = cd;
+                }
             });
 
             if (!dataUnderLocation) {

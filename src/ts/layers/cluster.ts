@@ -1,5 +1,4 @@
 module powerbi.extensibility.visual {
-    declare var turf : any;
 
     export class Cluster extends Layer {
         private static ID = 'cluster';
@@ -28,7 +27,7 @@ module powerbi.extensibility.visual {
             map.removeSource('clusterData');
         }
 
-        addLayer(settings, beforeLayerId) {
+        addLayer(settings, beforeLayerId, roleMap) {
             const map = this.parent.getMap();
             const clusterLayer = mapboxUtils.decorateLayer({
                 id: Cluster.ID,

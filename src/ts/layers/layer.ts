@@ -27,6 +27,15 @@ module powerbi.extensibility.visual {
 
         abstract getLayerIDs()
 
+        updateSelection(features, roleMap) {
+        }
+
+        hoverHighLight(e) {
+        }
+
+        removeHighlight(roleMap) {
+        }
+
         applySettings(settings, roleMap) {
             const map = this.parent.getMap();
             if (settings[this.id].show) {
@@ -36,17 +45,17 @@ module powerbi.extensibility.visual {
 
                     if (settings.api.style == 'mapbox://styles/mapbox/satellite-v9?optimize=true' ||
                         settings.api.style == 'custom') {
-                        //For custom style find the lowest symbol layer to place data underneath
+                        // For custom style find the lowest symbol layer to place data underneath
                         firstSymbolId = ''
                         let layers = map.getStyle().layers;
-                        for (var i = 0; i < layers.length; i++) {
+                        for (let i = 0; i < layers.length; i++) {
                             if (layers[i].type === 'symbol') {
                                 firstSymbolId = layers[i].id;
                                 break;
                             }
                         }
                     }
-                    this.addLayer(settings, firstSymbolId);
+                    this.addLayer(settings, firstSymbolId, roleMap);
                 }
             } else {
                 if (this.layerExists()) {
@@ -55,7 +64,7 @@ module powerbi.extensibility.visual {
             }
         }
 
-        addLayer(settings, beforeLayerId : string) {
+        addLayer(settings, beforeLayerId: string, roleMap) {
         }
         abstract removeLayer()
 
@@ -73,10 +82,11 @@ module powerbi.extensibility.visual {
             return null;
         }
 
-        handleZoom(settings) {
+        handleZoom(settings) : boolean {
             if (settings[this.id].show) {
-                this.source.handleZoom(this.parent.getMap(), settings);
+                return this.source.handleZoom(this.parent.getMap(), settings);
             }
+            return false;
         }
 
         hasTooltip() {
@@ -108,5 +118,3 @@ module powerbi.extensibility.visual {
         }
     }
 }
-
-

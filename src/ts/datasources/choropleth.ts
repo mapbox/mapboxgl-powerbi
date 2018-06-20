@@ -1,18 +1,17 @@
 module powerbi.extensibility.visual.data {
-    declare var turf : any;
 
     export class Choropleth extends Datasource {
         private choroplethData: any[];
         private fillColorLimits: mapboxUtils.Limits;
 
         constructor() {
-            super();
+            super('choropleth');
         }
 
         addSources(map, settings) {
             map.addSource('choropleth-source', {
                 type: 'vector',
-                url: settings.choropleth.vectorTileUrl,
+                url: settings.choropleth[`vectorTileUrl${settings.choropleth.currentLevel}`],
             });
             return map.getSource('choropleth-source');
         }

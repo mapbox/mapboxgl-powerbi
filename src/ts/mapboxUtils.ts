@@ -1,5 +1,5 @@
 module powerbi.extensibility.visual {
-    declare var turf : any;
+    declare var turf: any;
     export module mapboxUtils {
         export interface Limits {
             min: number;
@@ -8,23 +8,33 @@ module powerbi.extensibility.visual {
         }
 
         export function zoomToData(map, bounds, autoZoomPinned) {
-            
             if (bounds && !autoZoomPinned) {
                 map.fitBounds(bounds, {
                     padding: 20,
                     maxZoom: 15,
                 });
             }
-            
         }
 
-        export function shouldUseGradient(colorColumn, colorLimits: { min: any; max: any; values: any; }) {
-            if (colorColumn != null && colorLimits && colorLimits.min != null && colorLimits.min.toString() !== colorLimits.min) {
-                return true
-            }
-
-            return false
+        export function shouldUseGradient(colorColumn) {
+            return colorColumn.aggregates != null;
         }
+
+        export function debounce(func, wait, immediate) {
+            let timeout;
+            return function () {
+                let context = this, args = arguments;
+                let later = function () {
+                    timeout = null;
+                    if (!immediate) func.apply(context, args);
+                };
+                let callNow = immediate && !timeout;
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+                if (callNow) func.apply(context, args);
+            };
+        };
+
 
         export function getClassCount(limits: { min: number; max: number; values: number[]; }) {
             const MAX_BOUND_COUNT = 6;
@@ -50,69 +60,24 @@ module powerbi.extensibility.visual {
             return ret;
         }
 
-        export function positionInArray(array, element: any) {
-            return array.findIndex( value => {
-                return value === element
-            })
-        }
+         export function positionInArray(array: any[], element: any) {
+            let found = false
+            for (let i = 0; i <= array.length; i++) {
+                if (array[i] == element) {
+                    found = true
+                    break
+                }
+            }
+            if (!found) {
+                return -1
+            }
+         }
 
         export function pushIfNotExist(array: any[], element: any) {
             if (positionInArray(array, element) === -1) {
                 array.push(element)
             }
         }
-
-        function getCenter(feature) {
-            if (feature && feature.geometry)
-            {
-                if (feature.geometry.type == 'Point') {
-                    return feature.geometry.coordinates
-                }
-
-                const bbox = turf.bbox(feature)
-
-                const pointCollection = turf.helpers.featureCollection([
-                    turf.helpers.point( [bbox[0], bbox[1]]),
-                    turf.helpers.point( [bbox[2], bbox[3]]),
-                ]);
-
-                const center = turf.center(pointCollection);
-                return center.geometry.coordinates
-            }
-        }
-
-        export function createClickHandler(mapVisual: MapboxMap) {
-            var onClick : Function = function(e) {
-                const map = mapVisual.getMap()
-
-                // map.queryRenderedFeatures fails
-                // when option.layers contains an id which is not on the map
-                const layers = mapVisual.getExistingLayers().map(layer => layer.getId())
-
-                const radius = 5
-                let minpoint = new Array(e.point['x'] - radius, e.point['y'] - radius)
-                let maxpoint = new Array(e.point['x'] + radius, e.point['y'] + radius)
-                let features : any = map.queryRenderedFeatures([minpoint, maxpoint], {
-                    layers
-                });
-
-                if (features
-                    && features.length
-                    && features[0]
-                    && features[0].geometry
-                    && features[0].geometry.coordinates
-                ) {
-                    mapVisual.hideTooltip()
-                    map.easeTo({
-                        center: getCenter(features[0]),
-                        zoom: map.getZoom() + 1,
-                        duration: 1000
-                    });
-                }
-            }
-
-            return onClick
-        };
 
         export function decorateLayer(layer) {
             switch (layer.type) {
@@ -132,7 +97,7 @@ module powerbi.extensibility.visual {
             return layer;
         }
 
-        export function getLimits(data, myproperty) : Limits {
+        export function getLimits(data, myproperty): Limits {
 
             let min = null;
             let max = null;
@@ -141,7 +106,7 @@ module powerbi.extensibility.visual {
             if (data && data.length > 0 && myproperty != '') {
                 if (data[0]['type']) {
                     // data are geojson
-                    turf.meta.propEach(turf.helpers.featureCollection(data), function(currentProperties, featureIndex) {
+                    turf.meta.propEach(turf.helpers.featureCollection(data), function (currentProperties, featureIndex) {
                         if (currentProperties[myproperty]) {
                             const value = currentProperties[myproperty];
                             if (!min || value < min) { min = value }
@@ -163,11 +128,12 @@ module powerbi.extensibility.visual {
                 }
             }
 
-            // Min and max must not be equal becuse of the interpolation.
-            // let's make sure with the substraction
-            if (min == max) {
+            // Min and max must not be equal because of the interpolation.
+            // let's make sure with the substraction if it is a number
+            if (min && min.toString() !== min && min == max) {
                 min = min - 1
             }
+
             return {
                 min,
                 max,
@@ -175,10 +141,28 @@ module powerbi.extensibility.visual {
             }
         }
 
+        export function getCategoricalObjectValue<T>(category: DataViewCategoryColumn, index: number, objectName: string, propertyName: string, defaultValue: T): T {
+            let categoryObjects = category.objects;
+
+            if (categoryObjects) {
+                let categoryObject: DataViewObject = categoryObjects[index];
+                if (categoryObject) {
+                    let object = categoryObject[objectName];
+                    if (object) {
+                        let property: T = object[propertyName];
+                        if (property !== undefined) {
+                            return property;
+                        }
+                    }
+                }
+            }
+            return defaultValue;
+        }
+
         "use strict";
         export function logExceptions(): MethodDecorator {
             return function (target: Object, propertyKey: string, descriptor: TypedPropertyDescriptor<Function>)
-            : TypedPropertyDescriptor<Function> {
+                : TypedPropertyDescriptor<Function> {
                 return {
                     value: function () {
                         try {
