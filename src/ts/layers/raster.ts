@@ -8,7 +8,6 @@ module powerbi.extensibility.visual {
             super(map)
             this.id = 'raster'
             this.source = data.Sources.Raster
-            console.log('testing layerrrr')
         }
 
         getLayerIDs() {
@@ -16,16 +15,13 @@ module powerbi.extensibility.visual {
         }
 
         addLayer(settings, beforeLayerId) {
-            console.log('adding layer for raster')
             const map = this.parent.getMap();
             const rasterLayer = mapboxUtils.decorateLayer({
                 id: 'raster',
                 source: 'raster',
                 type: 'raster'
             });
-            console.log('before layer id')
-            console.log(beforeLayerId)
-            map.addLayer(rasterLayer, 'waterway-label');
+            map.addLayer(rasterLayer, 'water');
         }
 
         removeLayer() {

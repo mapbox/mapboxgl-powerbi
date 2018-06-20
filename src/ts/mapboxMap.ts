@@ -132,8 +132,6 @@ module powerbi.extensibility.visual {
                     return cat.source.displayName == role.displayName;
                 })[0]
 
-                console.log(category);
-
                 indexes = values.map( value => category.values.indexOf(value));
             }
 
@@ -399,9 +397,6 @@ module powerbi.extensibility.visual {
 
             let datasources = {}
             this.layers.map(layer => {
-                // console.log('logging the settings...')
-                // console.log(layer)
-                // console.log(this.settings)
                 const source = layer.getSource(this.settings);
                 if (source) {
                     datasources[source.ID] = source;

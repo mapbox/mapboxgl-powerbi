@@ -459,7 +459,7 @@
         "url": {
           "displayName": "URL",
           "displayNameKey": "url",
-          "description": "Optional number greater than or equal to 0. Units in pixels. ",
+          "description": "The URL from which your raster tiles are loaded. ",
           "type": {
             "text": true
           }
@@ -491,7 +491,7 @@
       }
     },
     "heatmap": {
-      "displayName": "Heatmap2",
+      "displayName": "Heatmap",
       "displayNameKey": "heatmap",
       "description": "Heatmap display settings",
       "properties": {

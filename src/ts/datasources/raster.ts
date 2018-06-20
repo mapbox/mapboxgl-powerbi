@@ -6,26 +6,22 @@ module powerbi.extensibility.visual.data {
         // protected sizeLimits: mapboxUtils.Limits;
 
         constructor() {
-            super()
-            console.log('testing datasource')
+            super('wms')
         }
 
         addSources(map, settings) {
-            console.log('testing add source for raster')
-            console.log(settings)
+            console.log(settings.raster.tilesize)
             map.addSource('raster', {
                 type: 'raster',
                 tiles: [
                     settings.raster.url
-                ],
-                tileSize: 512
+                ]
+                // tileSize: 256
             },);
-            console.log('returning the source for raster')
             return map.getSource('raster');
         }
 
         removeSources(map) {
-            console.log('removing source')
             map.removeSource('raster');
         }
 
