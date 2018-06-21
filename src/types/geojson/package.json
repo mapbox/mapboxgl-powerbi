@@ -1,0 +1,52 @@
+{
+  "_args": [
+    [
+      "@types/geojson@1.0.2",
+      "C:\\Projects\\mapbox\\mapboxgl-powerBI"
+    ]
+  ],
+  "_from": "@types/geojson@1.0.2",
+  "_id": "@types/geojson@1.0.2",
+  "_inBundle": false,
+  "_integrity": "sha1-sC0QqwKOKSisWSoFGqpJgaGUHQM=",
+  "_location": "/@types/geojson",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "version",
+    "registry": true,
+    "raw": "@types/geojson@1.0.2",
+    "name": "@types/geojson",
+    "escapedName": "@types%2fgeojson",
+    "scope": "@types",
+    "rawSpec": "1.0.2",
+    "saveSpec": null,
+    "fetchSpec": "1.0.2"
+  },
+  "_requiredBy": [
+    "/@types/mapbox-gl",
+    "/@types/turf"
+  ],
+  "_resolved": "https://registry.npmjs.org/@types/geojson/-/geojson-1.0.2.tgz",
+  "_spec": "1.0.2",
+  "_where": "C:\\Projects\\mapbox\\mapboxgl-powerBI",
+  "contributors": [
+    {
+      "name": "Jacob Bruun",
+      "url": "https://github.com/cobster/"
+    }
+  ],
+  "dependencies": {},
+  "description": "TypeScript definitions for GeoJSON Format Specification Revision",
+  "license": "MIT",
+  "main": "",
+  "name": "@types/geojson",
+  "peerDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "https://www.github.com/DefinitelyTyped/DefinitelyTyped.git"
+  },
+  "scripts": {},
+  "typeScriptVersion": "2.0",
+  "typesPublisherContentHash": "8af0f83b55578253a8217e74c8a6b4d11cf8aad1b82772cf45162e9ebc4eb776",
+  "version": "1.0.2"
+}

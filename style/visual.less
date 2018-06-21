@@ -1,0 +1,238 @@
+    p {
+        font-size: 20px;
+        font-weight: bold;
+        em {
+            background: yellow;
+            padding: 5px;
+        }
+    }
+
+    .full {
+        top: 0;
+        bottom: 0;
+        width: 100%;
+        position: absolute;
+    }
+
+    .loader {
+    	position: relative;
+        top: calc(50% - 50px);
+    	margin-left: auto; 
+    	margin-right:auto;
+    	border: 16px solid #f3f3f3; /* Light grey */
+	    border-top: 16px solid #3498db; /* Blue */
+	    border-radius: 50%;
+        height: 100px;
+        width: 100px;
+	    animation: spin 2s linear infinite;
+	}
+
+	@keyframes spin {
+	    0% { transform: rotate(0deg); }
+	    100% { transform: rotate(360deg); }
+	}
+
+    .map {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: 100%;
+    }
+
+    .options {
+        height: 50px;
+        background-color: white;
+        background-image: "./WMF-Agora-Settings_808080.svg";
+        width: 50px;
+        text: padding: 6px;
+        margin: 5px
+    }
+
+    .legend {
+        background-color: #202020;
+        color: #fff;
+        border-radius: 3px;
+        bottom: 50px;
+        width: 100px;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.10);
+        font: 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+        padding: 12px;
+        position: absolute;
+        right: 10px;
+        z-index: 1;
+        overflow: hidden;
+    }
+
+    .legend h4 {
+        margin: 0 0 10px;
+    }
+
+    .legend-title {
+        margin: 6px;
+        padding: 6px;
+        font-weight: bold;
+        font-size: 14px;
+        font: 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+    }
+
+    .legend div span {
+        border-radius: 50%;
+        display: inline-block;
+        height: 10px;
+        margin-right: 5px;
+        width: 10px;
+    }
+
+    @import (less) "./style/autozoom.css";
+    @import (less) "./style/lasso-draw.less";
+    @import (less) "./node_modules/mapbox-gl/dist/mapbox-gl.css";
+    @import (less) "./node_modules/@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css";
+    
+
+    hr {
+        display: block;
+        height: 1px;
+        border: 0;
+        border-top: 1px solid #ccc;
+        margin: 1em 0;
+        padding: 0;
+    }
+
+    /* Dark popup */
+    .mapboxgl-popup {
+        max-height: 200px;
+        min-width: 150px;
+    }
+    .mapboxgl-popup-content {
+        overflow-y: auto;
+        background-color: #333 !important;
+        color: #fff !important;
+        font-family: 'Segoe UI',wf_segoe-ui_normal,helvetica,arial,sans-serif;
+        background-color: #EAEAEA;
+        font-size: 16px;
+    }
+
+    .mapboxgl-popup-anchor-bottom-left .mapboxgl-popup-tip,
+    .mapboxgl-popup-anchor-bottom-right .mapboxgl-popup-tip,
+    .mapboxgl-popup-anchor-bottom .mapboxgl-popup-tip { border-top-color:#333 !important; }
+    .mapboxgl-popup-anchor-top-left .mapboxgl-popup-tip,
+    .mapboxgl-popup-anchor-top-right .mapboxgl-popup-tip,
+    .mapboxgl-popup-anchor-top .mapboxgl-popup-tip { border-bottom-color:#333 !important; }
+    .mapboxgl-popup-anchor-right .mapboxgl-popup-tip { border-left-color:#333 !important; }
+    .mapboxgl-popup-anchor-left .mapboxgl-popup-tip { border-right-color:#333 !important; }
+
+    /* Dark Scrollbar */
+    html {
+      scrollbar-face-color: #646464;
+      scrollbar-base-color: #646464;
+      scrollbar-3dlight-color: #646464;
+      scrollbar-highlight-color: #646464;
+      scrollbar-track-color: #000;
+      scrollbar-arrow-color: #000;
+      scrollbar-shadow-color: #646464;
+      scrollbar-dark-shadow-color: #646464;
+    }
+
+    ::-webkit-scrollbar { width: 8px; height: 3px;}
+    ::-webkit-scrollbar-button {  background-color: #666; }
+    ::-webkit-scrollbar-track {  background-color: #646464;}
+    ::-webkit-scrollbar-track-piece { background-color: #000;}
+    ::-webkit-scrollbar-thumb { height: 50px; background-color: #666; border-radius: 3px;}
+    ::-webkit-scrollbar-corner { background-color: #646464;}
+    ::-webkit-resizer { background-color: #666;}
+
+    #popup-menu ul,
+    #menu li {
+        margin: 0;
+        padding: 0;
+        z-index: 100;
+    }
+
+    .map {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        overflow: visible;
+    }
+
+    .error {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        text-align: center;
+        font-size: 30px;
+        line-height: 1.5;
+        background-color: #FFFFFF;
+        font-color: black;
+        font-weight: 800;
+        display: block;
+        overflow-y: auto;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .labelCnt{
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 50px;
+        text-align: center;
+        font-size: 24px;
+        line-height: 1.5;
+        background-color: #FFFFFF;
+        font-color: black;
+        font-weight: 800;
+        display: block;
+        overflow-y: auto;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    img {
+        padding-top: 10px;
+        object-fit: cover;
+    }
+
+    .mapboxgl-map {
+        cursor: unset;
+    }
+    .mapboxgl-canvas-container.mapboxgl-interactive {
+        cursor: unset;
+    }
+
+    .mapboxLink {
+        position: relative;
+        background-color: "white";
+        color: blue;
+        height: auto;
+        width: 100;
+        text-align: center;
+        font-size: 30px;
+        display: block;
+        transition: all 900ms ease;
+        padding-top: 20px;
+        &:hover {
+            color: #5080B0;
+            border-color: #5080B0;
+            transition: all 250ms ease;
+        }
+
+        &.hidden {
+            display: none;
+        }
+    }
+
+    .boxdraw {
+        background: rgba(56,135,190,0.1);
+        border: 2px solid #3887be;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 0;
+        height: 0;
+    }

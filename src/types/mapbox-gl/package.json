@@ -1,0 +1,29 @@
+{
+    "name": "@types/mapbox-gl",
+    "version": "0.41.0",
+    "description": "TypeScript definitions for Mapbox GL JS",
+    "license": "MIT",
+    "contributors": [
+        {
+            "name": "Dominik Bruderer",
+            "url": "https://github.com/dobrud",
+            "githubUsername": "dobrud"
+        },
+        {
+            "name": "Patrick Reames",
+            "url": "https://github.com/patrickr",
+            "githubUsername": "patrickr"
+        }
+    ],
+    "main": "",
+    "repository": {
+        "type": "git",
+        "url": "https://www.github.com/DefinitelyTyped/DefinitelyTyped.git"
+    },
+    "scripts": {},
+    "dependencies": {
+        "@types/geojson": "*"
+    },
+    "typesPublisherContentHash": "fbb37d11ae597b27dccc4de94123e37ac7e0827f9838bccdceacd96a3427a6ff",
+    "typeScriptVersion": "2.3"
+}
