@@ -34,6 +34,11 @@ module powerbi.extensibility.visual {
             this.errorDiv = document.createElement('div');
             this.errorDiv.className = 'error';
             options.element.appendChild(this.errorDiv);
+            this.labelDiv = document.createElement('div');
+            this.labelDiv.className = 'labelCnt';
+
+            this.labelDiv.appendChild(document.createTextNode("Row count:"));
+            options.element.appendChild(this.labelDiv);
 
             // For anchor elements to work we need to manually
             // call launchUrl API method
