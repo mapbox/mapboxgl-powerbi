@@ -435,6 +435,13 @@ module powerbi.extensibility.visual {
             };
         }
 
+        let table: DataViewTable = dataView.table;
+        let rows: DataViewTableRow[] = table.rows;
+        console.log(dataView.table.rows.length)
+        
+          this.labelDiv.textContent = 'Row Count: ' + rows.length + ' (fetchMoreData...)';
+
+
 
             this.layers.map(layer => {
                 if (layer.hasTooltip()) {
