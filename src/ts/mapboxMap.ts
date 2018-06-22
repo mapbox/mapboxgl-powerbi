@@ -18,10 +18,12 @@ module powerbi.extensibility.visual {
         private previousZoom: number;
         private filter: Filter;
         private palette: Palette;
+        private settingsHolder: any;
 
         private host: IVisualHost;
         private categories: any;
         private draw: any;  // TODO: this should not be any
+        private counter: any
 
         constructor(options: VisualConstructorOptions) {
             // Map initialization
@@ -51,6 +53,7 @@ module powerbi.extensibility.visual {
             this.host = options.host;
             this.filter = new Filter(this)
             this.palette = new Palette(this, options.host)
+            this.counter = 0
         }
 
         onUpdate(map, settings, zoom, updatedHandler: Function) {
@@ -157,7 +160,8 @@ module powerbi.extensibility.visual {
             if (this.map) {
                 return
             }
-
+            console.log('++ADDING MAP++')
+            console.log('++ADDING LAYERS++')
             this.layers = []
             this.layers.push(new Heatmap(this))
             this.layers.push(new Cluster(this, () => {
@@ -165,7 +169,8 @@ module powerbi.extensibility.visual {
             }))
             this.layers.push(new Circle(this, this.palette))
             this.layers.push(new Choropleth(this, this.palette));
-
+            console.log('++LAYERS BELOW++')
+            console.log(this.layers)
             const mapOptions = {
                 container: this.mapDiv,
                 zoom: this.settings.api.zoom,
@@ -391,10 +396,20 @@ module powerbi.extensibility.visual {
         public updateLayers(dataView: DataView) {
             // Placeholder to indicate whether data changed or paint prop changed
             // For now this is always true
+            console.log('++UPDATE LAYERS++')
+            console.log(this.settings)
+            console.log(this.settingsHolder)
             const features = mapboxConverter.convert(dataView);
+            
+            
+            if(this.counter > 0) {
+                if (this.settingsHolder.circle.highlightColor == this.settings.circle.highlightColor) {
+                console.log('++SETTINGS MATCH')
+                }
+            }
 
             this.palette.update(dataView, features);
-
+        
             let datasources = {}
             this.layers.map(layer => {
                 const source = layer.getSource(this.settings);
@@ -404,9 +419,12 @@ module powerbi.extensibility.visual {
             })
 
             for (let id in datasources) {
+                console.log('++UPDATELAYERS->DATASOURCE.TS/UPDATE++')
                 let datasource = datasources[id];
+                console.log(datasource)
                 datasource.update(this.map, features, this.roleMap, this.settings);
             };
+
 
             this.layers.map(layer => {
                 if (layer.hasTooltip()) {
@@ -419,8 +437,12 @@ module powerbi.extensibility.visual {
                     );
                 }
             });
-
+            this.counter ++
+            console.log(this.counter)
             this.onUpdate(this.map, this.settings, true, this.updatedHandler);
+            console.log('++Settings Holder Reset++')
+            this.settingsHolder = this.settings
+            console.log(this.settingsHolder)
         }
 
         private updateCurrentLevel(settings, options) {
@@ -449,6 +471,7 @@ module powerbi.extensibility.visual {
         @mapboxUtils.logExceptions()
         public update(options: VisualUpdateOptions) {
             const dataView: DataView = options.dataViews[0];
+            console.log('++UPDATE++')
 
             if (!dataView) {
                 console.error('No dataView received from powerBI api')
@@ -493,6 +516,7 @@ module powerbi.extensibility.visual {
                 // param every time so we need to set a different event handler on every
                 // style change and deregister it when it ran.
                 const delayedUpdate = (e) => {
+                    console.log('running updatelayers from delayed udpate')
                     this.updateLayers(dataView);
                     this.map.off('style.load', delayedUpdate);
                 }
@@ -502,6 +526,7 @@ module powerbi.extensibility.visual {
                     this.map.setStyle(this.mapStyle);
                 }
             } else {
+                console.log('running updatelayers from udpate')
                 this.updateLayers(dataView)
                 return;
             }

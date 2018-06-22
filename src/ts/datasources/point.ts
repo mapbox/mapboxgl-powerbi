@@ -38,6 +38,7 @@ module powerbi.extensibility.visual.data {
         }
 
         update(map, features, roleMap, settings) {
+            console.log('++CALLING UPDATE FROM POINT++')
             super.update(map, features, roleMap, settings)
             const featureCollection = turf.helpers.featureCollection(features);
             const source: any = map.getSource('data');

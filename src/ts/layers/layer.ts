@@ -10,6 +10,7 @@ module powerbi.extensibility.visual {
 
         updateSource(features, roleMap, settings) {
             if (settings[this.id].show) {
+                console.log('++CALLING UPDATE IN DATASOURCE FILE FROM LAYER.TS++')
                 this.source.update(this.parent.getMap(), features, roleMap, settings);
             }
         }
@@ -76,6 +77,7 @@ module powerbi.extensibility.visual {
 
         getSource(settings) {
             if (settings[this.id].show) {
+                // console.log('++CALING ENSURE IN DATASOURCE.TS FROM LAYER.TS++')
                 this.source.ensure(this.parent.getMap(), this.id, settings);
                 return this.source;
             }

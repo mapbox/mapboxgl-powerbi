@@ -41,7 +41,7 @@ module powerbi.extensibility.visual {
                         fill: {
                             solid: {
                                 color: group.color
-                            }
+                        }
                         }
                     },
                     selector: group.selectionId.getSelector(),
@@ -51,8 +51,10 @@ module powerbi.extensibility.visual {
         }
 
         public update(dataView: DataView, features: any) {
+            console.log('++CALLING UPDATE FROM PALLETTE++')
             try {
                 this.groupColors = [];
+                console.log(this.mapVisual)
                 const roleMap = this.mapVisual.getRoleMap()
                 if (mapboxUtils.shouldUseGradient(roleMap.color)) {
                     return;

@@ -4,10 +4,12 @@ module powerbi.extensibility.visual.data {
         protected bounds: any[];
         private references: Object;
         public ID: string;
+        private counter: any;
 
         constructor(id) {
             this.references = {}
             this.ID = id
+            this.counter = 0
         }
 
         abstract addSources(map, settings);
@@ -15,6 +17,7 @@ module powerbi.extensibility.visual.data {
 
 
         addToMap(map, settings) {
+            console.log('--ADD to MAP FROM DATASOURCE--')
             this.addSources(map, settings)
         }
 
@@ -29,7 +32,9 @@ module powerbi.extensibility.visual.data {
             this.references[layerId] = true;
         }
 
-        update(map, features, roleMap, settings) {}
+        update(map, features, roleMap, settings) {
+            console.log('--CALLING UPDATE FROM DATASOURCE--')
+        }
         getBounds() : any[] { return this.bounds }
         getLimits() : any { return null }
         handleZoom(map, settings) : boolean {
