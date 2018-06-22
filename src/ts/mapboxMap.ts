@@ -19,7 +19,7 @@ module powerbi.extensibility.visual {
         private filter: Filter;
         private palette: Palette;
         private settingsHolder: any;
-
+        private labelDiv: HTMLDivElement;
         private host: IVisualHost;
         private categories: any;
         private draw: any;  // TODO: this should not be any
