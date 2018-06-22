@@ -417,13 +417,14 @@ module powerbi.extensibility.visual {
                     datasources[source.ID] = source;
                 }
             })
-
+            if (!dataView.metadata.segment) {
             for (let id in datasources) {
                 console.log('++UPDATELAYERS->DATASOURCE.TS/UPDATE++')
                 let datasource = datasources[id];
                 console.log(datasource)
                 datasource.update(this.map, features, this.roleMap, this.settings);
             };
+        }
 
 
             this.layers.map(layer => {
