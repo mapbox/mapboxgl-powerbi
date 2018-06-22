@@ -417,6 +417,10 @@ module powerbi.extensibility.visual {
                     datasources[source.ID] = source;
                 }
             })
+
+            if (dataView.metadata.segment) {
+                this.host.fetchMoreData();
+            }
             if (!dataView.metadata.segment) {
             for (let id in datasources) {
                 console.log('++UPDATELAYERS->DATASOURCE.TS/UPDATE++')
