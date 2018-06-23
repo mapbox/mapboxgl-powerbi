@@ -148,7 +148,7 @@
             "categories": {
                 "dataReductionAlgorithm": {
                     "window": {
-                        "count": 30000
+                        "count": 15000
                     }
                 },
                 "select": [

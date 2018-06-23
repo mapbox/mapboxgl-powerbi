@@ -424,8 +424,10 @@ module powerbi.extensibility.visual {
             })
 
             if (dataView.metadata.segment) {
+                console.log('++FETCHING MORE DATA++')
                 this.host.fetchMoreData();
             }
+
             if (!dataView.metadata.segment) {
             for (let id in datasources) {
                 console.log('++UPDATELAYERS->DATASOURCE.TS/UPDATE++')
