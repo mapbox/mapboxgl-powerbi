@@ -147,7 +147,7 @@
         "categorical": {
             "categories": {
                 "dataReductionAlgorithm": {
-                    "sample": {
+                    "window": {
                         "count": 30000
                     }
                 },
