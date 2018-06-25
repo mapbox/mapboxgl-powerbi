@@ -408,12 +408,13 @@ module powerbi.extensibility.visual {
             let rows: DataViewTableRow[] = table.rows;
             console.log(dataView.table.rows.length)
             this.labelDiv.textContent = 'Row Count: ' + rows.length + ' (fetchMoreData...)';
-    
             
-            
-            if(this.counter > 0) {
-                if (this.settingsHolder.circle.highlightColor == this.settings.circle.highlightColor) {
-                console.log('++SETTINGS MATCH')
+            //Check if settings are same, and if they are not re apply them.
+            if (this.counter > 0) {
+                if (this.settingsHolder.circle.highlightColor != this.settings.circle.highlightColor) {
+                console.log('++SETTINGS DO NOT MATCH MATCH')
+                const features = mapboxConverter.convert(dataView);
+                this.palette.update(dataView, features);
                 }
             }
 
@@ -427,24 +428,48 @@ module powerbi.extensibility.visual {
                 }
             })
 
-            if (dataView.metadata.segment) {
-                
-                console.log('++FETCHING MORE DATA++')
-                this.host.fetchMoreData();
-    
-            }
-
-            if (!dataView.metadata.segment) {
+        if (this.counter > 0) {
+            if (this.settingsHolder.circle.highlightColor != this.settings.circle.highlightColor) {
                 const features = mapboxConverter.convert(dataView);
                 this.palette.update(dataView, features);
-            for (let id in datasources) {
-                console.log('++UPDATELAYERS->DATASOURCE.TS/UPDATE++')
-                let datasource = datasources[id];
-                console.log(datasource)
-                datasource.update(this.map, features, this.roleMap, this.settings);
-            };
+            }
+            else {
+                if (dataView.metadata.segment) {
+                    console.log('++FETCHING MORE DATA++')
+                    this.host.fetchMoreData();
+                }
+    
+                if (!dataView.metadata.segment) {
+                    const features = mapboxConverter.convert(dataView);
+                    this.palette.update(dataView, features);
+                    for (let id in datasources) {
+                        console.log('++UPDATELAYERS->DATASOURCE.TS/UPDATE++')
+                        let datasource = datasources[id];
+                        console.log(datasource)
+                        datasource.update(this.map, features, this.roleMap, this.settings);
+                    };
+                }
 
+            }
+        }
+        else {
+            if (dataView.metadata.segment) {
+                console.log('++FETCHING MORE DATA++')
+                this.host.fetchMoreData();
+            }
 
+            if (!dataView.metadata.segment || this.counter == 4) {
+                const features = mapboxConverter.convert(dataView);
+                this.palette.update(dataView, features);
+                for (let id in datasources) {
+                    console.log('++UPDATELAYERS->DATASOURCE.TS/UPDATE++')
+                    let datasource = datasources[id];
+                    console.log(datasource)
+                    datasource.update(this.map, features, this.roleMap, this.settings);
+                };
+            }
+
+        
         }
 
      
