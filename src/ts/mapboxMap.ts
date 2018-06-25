@@ -404,7 +404,11 @@ module powerbi.extensibility.visual {
             console.log('++UPDATE LAYERS++')
             console.log(this.settings)
             console.log(this.settingsHolder)
-            const features = mapboxConverter.convert(dataView);
+            let table: DataViewTable = dataView.table;
+            let rows: DataViewTableRow[] = table.rows;
+            console.log(dataView.table.rows.length)
+            this.labelDiv.textContent = 'Row Count: ' + rows.length + ' (fetchMoreData...)';
+    
             
             
             if(this.counter > 0) {
@@ -413,7 +417,7 @@ module powerbi.extensibility.visual {
                 }
             }
 
-            this.palette.update(dataView, features);
+            
         
             let datasources = {}
             this.layers.map(layer => {
@@ -424,25 +428,26 @@ module powerbi.extensibility.visual {
             })
 
             if (dataView.metadata.segment) {
+                
                 console.log('++FETCHING MORE DATA++')
                 this.host.fetchMoreData();
+    
             }
 
             if (!dataView.metadata.segment) {
+                const features = mapboxConverter.convert(dataView);
+                this.palette.update(dataView, features);
             for (let id in datasources) {
                 console.log('++UPDATELAYERS->DATASOURCE.TS/UPDATE++')
                 let datasource = datasources[id];
                 console.log(datasource)
                 datasource.update(this.map, features, this.roleMap, this.settings);
             };
+
+
         }
 
-        let table: DataViewTable = dataView.table;
-        let rows: DataViewTableRow[] = table.rows;
-        console.log(dataView.table.rows.length)
-        
-          this.labelDiv.textContent = 'Row Count: ' + rows.length + ' (fetchMoreData...)';
-
+     
 
 
             this.layers.map(layer => {
@@ -462,6 +467,9 @@ module powerbi.extensibility.visual {
             console.log('++Settings Holder Reset++')
             this.settingsHolder = this.settings
             console.log(this.settingsHolder)
+            // if (dataView.metadata.segment){
+            //     this.updateLayers(dataView)
+            // }
         }
 
         private updateCurrentLevel(settings, options) {
