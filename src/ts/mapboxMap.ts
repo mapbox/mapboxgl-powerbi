@@ -32,14 +32,13 @@ module powerbi.extensibility.visual {
             this.mapDiv = document.createElement('div');
             this.mapDiv.className = 'map';
             options.element.appendChild(this.mapDiv);
+            this.geoDiv = document.createElement('div');
+            this.geoDiv.className = 'geoDiv';
+            options.element.appendChild(this.geoDiv);
             this.errorDiv = document.createElement('div');
             this.errorDiv.className = 'error';
             options.element.appendChild(this.errorDiv);
-            this.geoDiv = document.createElement('div');
-            this.geoDiv.className = 'geoDiv';
 
-            this.geoDiv.appendChild(document.createTextNode("Row count:"));
-            options.element.appendChild(this.geoDiv);
 
             // For anchor elements to work we need to manually
             // call launchUrl API method
@@ -213,9 +212,10 @@ module powerbi.extensibility.visual {
                     'line_string': true     // Lasso is overriding the 'line_string' mode
                 },
             });
-
+            console.log(this.settings.api.zoom)
             this.geocoder = new MapboxGeocoder({
-                accessToken: this.settings.api.accessToken
+                accessToken: this.settings.api.accessToken,
+                zoom: 10
             })
 
             // console.log('geocoder', this.geocoder)
@@ -223,7 +223,7 @@ module powerbi.extensibility.visual {
             this.map.addControl(new mapboxgl.NavigationControl());
             this.map.addControl(this.draw, 'top-left');
             this.map.addControl(this.autoZoomControl);
-            this.map.addControl(this.geocoder, 'top-right')
+            document.querySelector('.geoDiv').appendChild(this.geocoder.onAdd(this.map));
 
             // Replace the line string draw icon to the lasso icon
             LassoDraw.makeIcon();
