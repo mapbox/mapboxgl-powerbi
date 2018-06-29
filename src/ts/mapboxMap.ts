@@ -1,7 +1,8 @@
 module powerbi.extensibility.visual {
     declare var debug: any;
     declare var turf: any;
-    declare var MapboxDraw : any;
+    declare var MapboxDraw: any;
+    declare var MapboxGeocoder: any;
 
     export class MapboxMap implements IVisual {
         private map: mapboxgl.Map;
@@ -22,6 +23,7 @@ module powerbi.extensibility.visual {
         private host: IVisualHost;
         private categories: any;
         private draw: any;  // TODO: this should not be any
+        private geocoder: any;
 
         constructor(options: VisualConstructorOptions) {
             // Map initialization
@@ -128,20 +130,20 @@ module powerbi.extensibility.visual {
             let category = this.categories[0];
 
             if (role) {
-                category = this.categories.filter( cat => {
+                category = this.categories.filter(cat => {
                     return cat.source.displayName == role.displayName;
                 })[0]
 
                 console.log(category);
 
-                indexes = values.map( value => category.values.indexOf(value));
+                indexes = values.map(value => category.values.indexOf(value));
             }
 
             const selectors = indexes
-                .filter( index => {
+                .filter(index => {
                     return (index >= 0 && index < category.values.length)
                 })
-                .map( index => {
+                .map(index => {
                     return this.host.createSelectionIdBuilder()
                         .withCategory(category, index).createSelectionId();
                 })
@@ -194,6 +196,9 @@ module powerbi.extensibility.visual {
             // Override the line string tool with our lasso draw tool
             MapboxDraw.modes.draw_line_string = LassoDraw.create(this.filter);
 
+            console.log(MapboxDraw)
+            console.log(MapboxGeocoder)
+
             this.draw = new MapboxDraw({
                 displayControlsDefault: false,
                 // defaultMode: 'lasso',
@@ -203,9 +208,16 @@ module powerbi.extensibility.visual {
                 },
             });
 
+            this.geocoder = new MapboxGeocoder({
+                accessToken: this.settings.api.accessToken
+            })
+
+            // console.log('geocoder', this.geocoder)
+
             this.map.addControl(new mapboxgl.NavigationControl());
             this.map.addControl(this.draw, 'top-left');
             this.map.addControl(this.autoZoomControl);
+            this.map.addControl(this.geocoder, 'top-right')
 
             // Replace the line string draw icon to the lasso icon
             LassoDraw.makeIcon();
@@ -231,14 +243,14 @@ module powerbi.extensibility.visual {
                 // Get the feature the user has drawn
                 const selection_poly = e.features[0];
 
-                const selectFeature = function(sel_pol, feature) {
+                const selectFeature = function (sel_pol, feature) {
                     if (feature.geometry.type === 'Point' && turf.booleanContains(sel_pol, feature)) {
                         return true;
                     }
                     if ((feature.geometry.type === 'Polygon' || feature.geometry.type === 'Linestring') &&
-                       (turf.booleanOverlap(feature, sel_pol) || turf.booleanContains(sel_pol, feature) ||
-                        turf.booleanContains(feature, sel_pol)
-                    )) {
+                        (turf.booleanOverlap(feature, sel_pol) || turf.booleanContains(sel_pol, feature) ||
+                            turf.booleanContains(feature, sel_pol)
+                        )) {
                         return true;
                     }
 
@@ -253,7 +265,7 @@ module powerbi.extensibility.visual {
                 // Find features in a layer the user selected bbox
                 const layers = this.getExistingLayers();
                 const layerIDs = layers.map(layer => layer.getId());
-                const bbox_features : any[] = this.map.queryRenderedFeatures([southWest, northEast], {
+                const bbox_features: any[] = this.map.queryRenderedFeatures([southWest, northEast], {
                     layers: layerIDs
                 });
 
@@ -282,7 +294,7 @@ module powerbi.extensibility.visual {
                     if (selectedFeatures.length > constants.MAX_SELECTION_COUNT) {
                         selectedFeatures = selectedFeatures.slice(0, constants.MAX_SELECTION_COUNT);
                     }
-                    layers.map( layer => {
+                    layers.map(layer => {
                         layer.updateSelection(
                             selectedFeatures,
                             roleMap);
@@ -427,7 +439,7 @@ module powerbi.extensibility.visual {
             let temp = options.dataViews[0].metadata.columns;
             let temp_indexes = []
             let temp_ii = []
-            temp.map( (v, i) => {
+            temp.map((v, i) => {
                 if (v.roles['location']) {
                     temp_indexes.push(v.displayName)
                     temp_ii.push(i)
