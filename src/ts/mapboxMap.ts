@@ -24,6 +24,7 @@ module powerbi.extensibility.visual {
         private categories: any;
         private draw: any;  // TODO: this should not be any
         private geocoder: any;
+        private geoDiv: any;
 
         constructor(options: VisualConstructorOptions) {
             // Map initialization
@@ -34,6 +35,11 @@ module powerbi.extensibility.visual {
             this.errorDiv = document.createElement('div');
             this.errorDiv.className = 'error';
             options.element.appendChild(this.errorDiv);
+            this.geoDiv = document.createElement('div');
+            this.geoDiv.className = 'geoDiv';
+
+            this.geoDiv.appendChild(document.createTextNode("Row count:"));
+            options.element.appendChild(this.geoDiv);
 
             // For anchor elements to work we need to manually
             // call launchUrl API method
