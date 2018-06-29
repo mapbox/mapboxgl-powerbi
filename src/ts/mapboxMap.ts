@@ -60,7 +60,7 @@ module powerbi.extensibility.visual {
             this.palette = new Palette(this, options.host)
         }
 
-        onUpdate(map, settings, zoom, updatedHandler: Function) {
+        onUpdate(map, settings, zoom, geocoder, updatedHandler: Function) {
             try {
                 this.layers.map(layer => {
                     layer.applySettings(settings, this.roleMap);
@@ -83,6 +83,13 @@ module powerbi.extensibility.visual {
                         return turf.bbox(combined)
                     });
                     mapboxUtils.zoomToData(map, bounds, this.autoZoomControl.isPinned());
+                }
+                if (!geocoder) {
+                    // var geoElement = document.querySelector('.')
+                    document.querySelector('.geoDiv').classList.add('hidden')
+                }
+                else {
+                    document.querySelector('.geoDiv').classList.remove('hidden')
                 }
             }
             catch (error) {
@@ -213,17 +220,20 @@ module powerbi.extensibility.visual {
                 },
             });
             console.log(this.settings.api.zoom)
-            this.geocoder = new MapboxGeocoder({
-                accessToken: this.settings.api.accessToken,
-                zoom: 10
-            })
+
 
             // console.log('geocoder', this.geocoder)
 
             this.map.addControl(new mapboxgl.NavigationControl());
             this.map.addControl(this.draw, 'top-left');
             this.map.addControl(this.autoZoomControl);
+
+            this.geocoder = new MapboxGeocoder({
+                accessToken: this.settings.api.accessToken,
+                zoom: 10
+            })
             document.querySelector('.geoDiv').appendChild(this.geocoder.onAdd(this.map));
+
 
             // Replace the line string draw icon to the lasso icon
             LassoDraw.makeIcon();
@@ -438,7 +448,7 @@ module powerbi.extensibility.visual {
                 }
             });
 
-            this.onUpdate(this.map, this.settings, true, this.updatedHandler);
+            this.onUpdate(this.map, this.settings, true, this.settings.api.geocoder, this.updatedHandler);
         }
 
         private updateCurrentLevel(settings, options) {
