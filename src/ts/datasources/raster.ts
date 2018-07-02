@@ -1,5 +1,5 @@
 module powerbi.extensibility.visual.data {
-    declare var turf : any;
+    declare var turf: any;
 
     export class Raster extends Datasource {
         // protected colorLimits: mapboxUtils.Limits;
@@ -10,14 +10,13 @@ module powerbi.extensibility.visual.data {
         }
 
         addSources(map, settings) {
-            console.log(settings.raster.tilesize)
             map.addSource('raster', {
                 type: 'raster',
                 tiles: [
                     settings.raster.url
                 ]
                 // tileSize: 256
-            },);
+            }, );
             return map.getSource('raster');
         }
 
@@ -35,7 +34,6 @@ module powerbi.extensibility.visual.data {
         }
 
         update(map, features, roleMap, settings) {
-            console.log('calling update')
             super.update(map, features, roleMap, settings)
             const source: any = map.getSource('raster');
         }
