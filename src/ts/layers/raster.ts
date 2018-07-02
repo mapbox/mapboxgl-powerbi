@@ -1,5 +1,5 @@
 module powerbi.extensibility.visual {
-    declare var turf : any;
+    declare var turf: any;
 
     export class Raster extends Layer {
         private static ID = 'raster';
@@ -11,7 +11,7 @@ module powerbi.extensibility.visual {
         }
 
         getLayerIDs() {
-            return [ 'raster' ];
+            return ['raster'];
         }
 
         addLayer(settings, beforeLayerId) {
@@ -21,7 +21,7 @@ module powerbi.extensibility.visual {
                 source: 'raster',
                 type: 'raster'
             });
-            map.addLayer(rasterLayer, 'water');
+            map.addLayer(rasterLayer, beforeLayerId);
         }
 
         removeLayer() {
