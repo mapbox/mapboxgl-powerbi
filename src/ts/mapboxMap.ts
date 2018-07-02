@@ -89,6 +89,9 @@ module powerbi.extensibility.visual {
                     document.querySelector('.geoDiv').classList.add('hidden')
                 }
                 else {
+                    console.log('geocoder', this.geocoder)
+                    console.log('map', this.map)
+                    this.geocoder.options.zoom = this.settings.api.zoom
                     document.querySelector('.geoDiv').classList.remove('hidden')
                 }
             }
