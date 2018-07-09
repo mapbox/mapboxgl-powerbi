@@ -24,7 +24,6 @@ module powerbi.extensibility.visual {
         private categories: any;
         private draw: any;  // TODO: this should not be any
         private geocoder: any;
-        private geoDiv: any;
 
         constructor(options: VisualConstructorOptions) {
             // Map initialization
@@ -32,9 +31,6 @@ module powerbi.extensibility.visual {
             this.mapDiv = document.createElement('div');
             this.mapDiv.className = 'map';
             options.element.appendChild(this.mapDiv);
-            this.geoDiv = document.createElement('div');
-            this.geoDiv.className = 'geoDiv';
-            options.element.appendChild(this.geoDiv);
             this.errorDiv = document.createElement('div');
             this.errorDiv.className = 'error';
             options.element.appendChild(this.errorDiv);
@@ -86,11 +82,11 @@ module powerbi.extensibility.visual {
                 }
                 if (!settings.api.geocoder) {
                     // var geoElement = document.querySelector('.')
-                    document.querySelector('.geoDiv').classList.add('hidden')
+                    document.querySelector('.mapboxgl-ctrl-geocoder').classList.add('hidden')
                 }
                 else {
                     this.geocoder.options.zoom = this.settings.api.zoom
-                    document.querySelector('.geoDiv').classList.remove('hidden')
+                    document.querySelector('.mapboxgl-ctrl-geocoder').classList.remove('hidden')
                 }
             }
             catch (error) {
@@ -209,9 +205,6 @@ module powerbi.extensibility.visual {
             // Override the line string tool with our lasso draw tool
             MapboxDraw.modes.draw_line_string = LassoDraw.create(this.filter);
 
-            console.log(MapboxDraw)
-            console.log(MapboxGeocoder)
-
             this.draw = new MapboxDraw({
                 displayControlsDefault: false,
                 // defaultMode: 'lasso',
@@ -220,20 +213,17 @@ module powerbi.extensibility.visual {
                     'line_string': true     // Lasso is overriding the 'line_string' mode
                 },
             });
-            console.log(this.settings.api.zoom)
-
-
-            // console.log('geocoder', this.geocoder)
-
-            this.map.addControl(new mapboxgl.NavigationControl());
-            this.map.addControl(this.draw, 'top-left');
-            this.map.addControl(this.autoZoomControl);
 
             this.geocoder = new MapboxGeocoder({
                 accessToken: this.settings.api.accessToken,
                 zoom: 10
             })
-            document.querySelector('.geoDiv').appendChild(this.geocoder.onAdd(this.map));
+
+            this.map.addControl(new mapboxgl.NavigationControl());
+            this.map.addControl(this.draw, 'top-left');
+            this.map.addControl(this.autoZoomControl);
+
+            document.querySelector('.map').appendChild(this.geocoder.onAdd(this.map));
 
 
             // Replace the line string draw icon to the lasso icon
