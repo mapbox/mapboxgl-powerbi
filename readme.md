@@ -28,6 +28,17 @@ The Mapbox Visual for Power BI supports:
 - Check out 3rd party documentation below:
     * Devin Knight's March 2018 video tutorial: https://www.youtube.com/watch?v=qDCOo3bm01o
 
+### Roadmap
+- Current roadmap is managed by @samgehret.
+- Check out the [project board](https://github.com/mapbox/mapboxgl-powerbi/projects) on this github for an up to date roadmap.
+- v1.2 will be our next relese to Power BI AppSource, follwed by 1.3.
+- To request feature enhancements or to report bugs, please log an [issue](https://github.com/mapbox/mapboxgl-powerbi/issues).
+- Our release timeline will be discretionary based on new feature availabilit
+
+### Beta Version
+- We will keep an up to date beta version in this section.
+-[v1.2 beta](https://github.com/mapbox/mapboxgl-powerbi/blob/drilldown/dist/mapboxGLMap.pbiviz).
+
 ### Adding MapboxGL Viz to a Power BI Dashboard
 
 On Power BI Online or Desktop, click `add visual from marketplace` and search `Mapbox`.  Check out the visual on the Microsoft Office Store at https://appsource.microsoft.com/en-us/product/power-bi-visuals/WA104381472?tab=Overview.
