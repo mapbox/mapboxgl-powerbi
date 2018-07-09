@@ -33,11 +33,15 @@ The Mapbox Visual for Power BI supports:
 - Check out the [project board](https://github.com/mapbox/mapboxgl-powerbi/projects) on this github for an up to date roadmap.
 - v1.2 will be our next relese to Power BI AppSource, follwed by 1.3.
 - To request feature enhancements or to report bugs, please log an [issue](https://github.com/mapbox/mapboxgl-powerbi/issues).
-- Our release timeline will be discretionary based on new feature availabilit
+- Our release timeline will be discretionary based on new feature availability, but most likely every 2-3 months.
 
 ### Beta Version
 - We will keep an up to date beta version in this section.
--[v1.2 beta](https://github.com/mapbox/mapboxgl-powerbi/blob/drilldown/dist/mapboxGLMap.pbiviz).
+- [v1.2 beta](https://github.com/mapbox/mapboxgl-powerbi/blob/drilldown/dist/mapboxGLMap.pbiviz).
+
+### Developing and Contributing.
+- This is an open source repo and we welcome contributions from the public.
+- Please see [contributing.md](CONTRIBUTING.md) for more information.
 
 ### Adding MapboxGL Viz to a Power BI Dashboard
 
@@ -52,10 +56,6 @@ Mapbox is the location data platform for mobile and web applications. We provide
 ## Sign up for Mapbox
 
 Not a Mapbox user yet? [Sign up for an account here](https://www.mapbox.com/signup/). Once you’re signed in, all you need to start building with Power BI is a Mapbox access token. 
-
-### Developing
-
-Please see [contributing.md](CONTRIBUTING.md)
 
 ### Screenshots
 
