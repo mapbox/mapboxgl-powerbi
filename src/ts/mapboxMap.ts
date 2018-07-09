@@ -60,7 +60,7 @@ module powerbi.extensibility.visual {
             this.palette = new Palette(this, options.host)
         }
 
-        onUpdate(map, settings, zoom, geocoder, updatedHandler: Function) {
+        onUpdate(map, settings, zoom, updatedHandler: Function) {
             try {
                 this.layers.map(layer => {
                     layer.applySettings(settings, this.roleMap);
@@ -84,7 +84,7 @@ module powerbi.extensibility.visual {
                     });
                     mapboxUtils.zoomToData(map, bounds, this.autoZoomControl.isPinned());
                 }
-                if (!geocoder) {
+                if (!settings.api.geocoder) {
                     // var geoElement = document.querySelector('.')
                     document.querySelector('.geoDiv').classList.add('hidden')
                 }
@@ -449,7 +449,7 @@ module powerbi.extensibility.visual {
                 }
             });
 
-            this.onUpdate(this.map, this.settings, true, this.settings.api.geocoder, this.updatedHandler);
+            this.onUpdate(this.map, this.settings, true, this.updatedHandler);
         }
 
         private updateCurrentLevel(settings, options) {
