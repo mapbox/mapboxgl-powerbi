@@ -21,15 +21,31 @@ module powerbi.extensibility.visual {
         }
 
         addLayer(settings, beforeLayerId, roleMap) {
+            console.log('++Choropleth - AddLayer');
+
+            //Add base dot layer
+            //this.geojsonSimple();
+
+            let layerType: string = 'fill'
+            let fillOpacityType: string = 'fill-opacity'
+            let fillColorType: string = 'fill-color'
+
             const map = this.parent.getMap();
 
             const choroSettings = settings.choropleth;
             const sourceLayer = choroSettings[`sourceLayer${choroSettings.currentLevel}`];
             const vectorProperty = choroSettings[`vectorProperty${choroSettings.currentLevel}`];
 
+            //if Extrusion change fillTypes    
+            if (choroSettings.extrusion == true) {
+                layerType = 'fill-extrusion'
+                fillOpacityType = 'fill-extrusion-opacity'
+                fillColorType = 'fill-extrusion-color'
+            }
+
             const choroplethLayer = mapboxUtils.decorateLayer({
                 id: Choropleth.ID,
-                type: "fill",
+                type: layerType,
                 source: 'choropleth-source',
                 "source-layer": sourceLayer
             });
@@ -54,7 +70,7 @@ module powerbi.extensibility.visual {
                 source: 'choropleth-source',
                 paint: {
                     "fill-color": choroSettings.highlightColor,
-                    "fill-opacity": 1
+                    'fill-opacity': 0.9
                 },
                 "source-layer": sourceLayer,
                 filter: zeroFilter
@@ -93,6 +109,7 @@ module powerbi.extensibility.visual {
             map.setFilter(Choropleth.HighlightOutlineID, ["==", vectorProperty, e.features[0].properties[vectorProperty]]);
         }
 
+
         removeHighlight(roleMap) {
             if (!this.layerExists()) {
                 return;
@@ -103,7 +120,7 @@ module powerbi.extensibility.visual {
             const zeroFilter = ["==", vectorProperty, ""]
             const map = this.parent.getMap();
 
-            map.setPaintProperty(Choropleth.ID, 'fill-opacity', choroSettings.opacity / 100);
+            // map.setPaintProperty(Choropleth.ID, 'fill-extrusion-opacity', 1);
             map.setFilter(Choropleth.HighlightID, zeroFilter);
             map.setFilter(Choropleth.HighlightOutlineID, zeroFilter);
         }
@@ -127,7 +144,7 @@ module powerbi.extensibility.visual {
                     return true;
                 })
                 .slice(0, constants.MAX_SELECTION_COUNT)
-                .map( (feature, i) => {
+                .map((feature, i) => {
                     locationFilter.push(["==", vectorProperty, feature.properties[vectorProperty]]);
                     return feature.properties[vectorProperty];
                 });
@@ -138,7 +155,7 @@ module powerbi.extensibility.visual {
             if (this.parent.hasSelection()) {
                 opacity = 0.5 * opacity;
             }
-            map.setPaintProperty(Choropleth.ID, 'fill-opacity', opacity);
+            //map.setPaintProperty(Choropleth.ID, 'fill-extrusion-opacity', 1);
             map.setFilter(Choropleth.HighlightID, locationFilter);
             map.setFilter(Choropleth.HighlightOutlineID, locationFilter);
         }
@@ -190,7 +207,7 @@ module powerbi.extensibility.visual {
                         this.settings.vectorTileUrl1 &&
                         this.settings.sourceLayer1 &&
                         this.settings.vectorProperty1) {
-                            this.removeLayer();
+                        this.removeLayer();
                     }
                     this.settings = choroSettings;
                 }
@@ -199,9 +216,22 @@ module powerbi.extensibility.visual {
         }
 
         applySettings(settings, roleMap) {
+            console.log('++Choropleth - Apply Settings');
             super.applySettings(settings, roleMap);
             const map = this.parent.getMap();
             const choroSettings = settings.choropleth;
+            let layerType: string = 'fill'
+            let fillOpacityType: string = 'fill-opacity'
+            let fillColorType: string = 'fill-color'
+            let heightDomain: any[]
+            let heightClsSize: number
+
+            //if Extrusion change fillTypes    
+            if (choroSettings.extrusion == true) {
+                layerType = 'fill-extrusion'
+                fillOpacityType = 'fill-extrusion-opacity'
+                fillColorType = 'fill-extrusion-color'
+            }
 
             if (map.getLayer(Choropleth.ID)) {
                 map.setLayoutProperty(Choropleth.ID, 'visibility', choroSettings.display() ? 'visible' : 'none');
@@ -209,11 +239,24 @@ module powerbi.extensibility.visual {
 
             if (choroSettings.display()) {
                 const fillColorLimits = this.source.getLimits();
-
                 ChoroplethSettings.fillPredefinedProperties(choroSettings);
                 let fillClassCount = mapboxUtils.getClassCount(fillColorLimits);
                 const choroColorSettings = [choroSettings.minColor, choroSettings.medColor, choroSettings.maxColor];
                 let isGradient = mapboxUtils.shouldUseGradient(roleMap.color);
+
+
+                //for 3D Extrusion 
+                if (choroSettings.extrusion == true) {
+                    const heightLimits = data.Sources.Choropleth.getHeightLimits();
+
+                    let heightClassCount = mapboxUtils.getClassCount(heightLimits);
+
+                    heightDomain = mapboxUtils.getNaturalBreaks(heightLimits, choroSettings.extrusionSteps);
+
+                    let maxHeight: number = choroSettings.extrusionMaxHeight;
+                    heightClsSize = maxHeight / heightClassCount;
+
+                }
 
                 let getColorStop = null;
                 if (isGradient) {
@@ -234,6 +277,7 @@ module powerbi.extensibility.visual {
                 const defaultColor = 'rgba(0,0,0,0)';
                 const property = choroSettings[`vectorProperty${choroSettings.currentLevel}`];
                 let colors = { type: "categorical", property, default: defaultColor, stops: [] };
+                let heights = { type: "categorical", property, default: 10000, stops: [] };
                 let outlineColors = { type: "categorical", property, default: defaultColor, stops: [] };
                 let filter = ['in', property];
                 const choroplethData = this.source.getData(map, settings);
@@ -264,32 +308,75 @@ module powerbi.extensibility.visual {
                     }
 
 
+
                     existingStops[locationStr] = true;
                     colors.stops.push([locationStr, color.toString()]);
                     filter.push(locationStr);
                     outlineColors.stops.push([locationStr, outlineColor.toString()]);
+
+                    //for 3D Extrusion 
+                    if (choroSettings.extrusion == true) {
+                        let height: any = 0;
+                        let heightVal: any = row[roleMap.ExtrusionHeight.displayName];
+
+                        for (let i: number = 1; i < heightDomain.length; i++) {
+
+                            if (heightVal > heightDomain[i - 1] && heightVal <= heightDomain[i]) {
+                                height = heightClsSize * i;
+                            }
+                        }
+                        heights.stops.push([locationStr, height]);
+                    }
                 }
 
+
+
+
+
                 if (validStops) {
-                    map.setPaintProperty(Choropleth.ID, 'fill-color', colors);
+                    map.setPaintProperty(Choropleth.ID, fillColorType, colors);
+
+                    if (layerType == 'fill-extrusion') {
+                        map.setPaintProperty(Choropleth.ID, 'fill-extrusion-height', heights);
+                        //map.setPaintProperty(Choropleth.HighlightID, 'fill-extrusion-height', heights);
+                    }
+
                     map.setFilter(Choropleth.ID, filter);
                     map.setFilter(Choropleth.OutlineID, filter);
                 } else {
-                    map.setPaintProperty(Choropleth.ID, 'fill-color', 'rgb(0, 0, 0)');
+                    map.setPaintProperty(Choropleth.ID, 'fill-extrusion-color', 'rgb(0, 0, 0)');
                 }
 
-                map.setPaintProperty(Choropleth.ID, 'fill-outline-color', 'rgba(0,0,0,0.05)');
+
+
                 let opacity = choroSettings.opacity / 100;
                 if (this.parent.hasSelection()) {
                     opacity = 0.5 * opacity;
                 }
-                map.setPaintProperty(Choropleth.ID, 'fill-opacity', opacity);
+
+                let lineOpacity = settings.choropleth.outlineOpacity / 100;
+                if (layerType == 'fill-extrusion') {
+                    lineOpacity == 0;
+                }
+
+                // map.setPaintProperty(Choropleth.ID, 'fill-outline-color', 'rgba(0,0,0,0.05)');
+
+                map.setPaintProperty(Choropleth.ID, fillOpacityType, opacity);
+
+                //map.setPaintProperty(Choropleth.ID, 'fill-extrusion-base', 0);
+
                 map.setPaintProperty(Choropleth.HighlightID, "fill-color", choroSettings.highlightColor)
+
                 map.setPaintProperty(Choropleth.OutlineID, 'line-color', settings.choropleth.outlineColor);
+
                 map.setPaintProperty(Choropleth.OutlineID, 'line-width', settings.choropleth.outlineWidth);
-                map.setPaintProperty(Choropleth.OutlineID, 'line-opacity', settings.choropleth.outlineOpacity / 100);
+
+                map.setPaintProperty(Choropleth.OutlineID, 'line-opacity', 0);
+
                 map.setLayerZoomRange(Choropleth.ID, choroSettings.minZoom, choroSettings.maxZoom);
+
             }
+
         }
 
         hasTooltip() {
@@ -347,5 +434,47 @@ module powerbi.extensibility.visual {
                 };
             });
         }
+
+        geojsonSimple() {
+
+
+            //DIRECT GEOJSON TEST Begin --
+/*
+            const base_map = this.parent.getMap();
+
+
+            base_map.addSource("new_points", {
+                "type": "geojson",
+                //"data": "https://biprogramstore.blob.core.windows.net/mapfiles/dotMapData_v3.json"
+                "data": "https://biprogramstore.blob.core.windows.net/mapfiles/ref_Address_business_200000.json"
+            });
+
+
+            base_map.addLayer({
+                "id": "testpoints",
+                "type": "circle",
+                "source": "new_points",
+                "minzoom": 0,
+                "paint": {
+                    'circle-radius': {
+                        'base': 5,
+                        'stops': [
+                            [10, 5],
+                            [12, 8]
+                        ]
+
+                    },
+                    "circle-color": "#B42222"
+                },
+                "filter": ["==", "$type", "Point"],
+
+            });
+
+
+            //DIRECT GEOJSON TEST end --
+*/
+
+        }
+
     }
 }

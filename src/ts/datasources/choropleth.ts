@@ -3,6 +3,7 @@ module powerbi.extensibility.visual.data {
     export class Choropleth extends Datasource {
         private choroplethData: any[];
         private fillColorLimits: mapboxUtils.Limits;
+        private extrusionHeightLimits: mapboxUtils.Limits;
 
         constructor() {
             super('choropleth');
@@ -32,6 +33,11 @@ module powerbi.extensibility.visual.data {
             return this.fillColorLimits;
         }
 
+        getHeightLimits() {
+          
+            return this.extrusionHeightLimits;
+        }
+
         getData(map, settings) : any[] {
             return this.choroplethData;
         }
@@ -41,6 +47,7 @@ module powerbi.extensibility.visual.data {
 
             this.choroplethData = features.map(f => f.properties);
             this.fillColorLimits = mapboxUtils.getLimits(this.choroplethData, roleMap.color ? roleMap.color.displayName : '');
+            this.extrusionHeightLimits  = mapboxUtils.getLimits(this.choroplethData, roleMap.ExtrusionHeight ? roleMap.ExtrusionHeight.displayName : '');
         }
     }
 }

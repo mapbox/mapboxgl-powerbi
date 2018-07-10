@@ -122,6 +122,10 @@ module powerbi.extensibility.visual {
         public minZoom: number = 0;
         public maxZoom: number = 22;
 
+        public extrusion: boolean = false;
+        public extrusionMaxHeight: number = 100000;
+        public extrusionSteps: number = 5;
+
         public maxLevel: number = 1
         public selectedLevel: string = '1'
         public currentLevel: number = 1;
@@ -228,6 +232,12 @@ module powerbi.extensibility.visual {
                     numberRange: {
                         min: 0,
                         max: 1000,
+                    }
+                },
+                extrusionSteps: {
+                    numberRange: {
+                        min: 1,
+                        max: 10,
                     }
                 },
                 maxLevel: {

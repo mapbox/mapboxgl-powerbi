@@ -86,6 +86,20 @@
       ]
     },
     {
+      "name": "ExtrusionHeight",
+      "kind": "Measure",
+      "displayName": "3D-Extrusion",
+      "description": "Measure or Dimension to set Size of 3D Extrusion for choropleth.  Can be numeric or text data type.",
+      "requiredTypes": [
+        {
+          "numeric": true
+        },
+        {
+          "integer": true
+        }
+      ]
+    },
+    {
       "name": "size",
       "kind": "Measure",
       "displayName": "Size",
@@ -751,6 +765,30 @@
           "displayName": "Max Zoom",
           "displayNameKey": "maxZoom",
           "description": "Maximum zoom level layer is visibile at.",
+          "type": {
+            "integer": true
+          }
+        },
+        "extrusion": {
+          "displayName": "3D",
+          "displayNameKey": "extrusion",
+          "description": "Toggle autozoom on/off",
+          "type": {
+            "bool": true
+          }
+        },
+        "extrusionMaxHeight": {
+          "displayName": "3D Max Height",
+          "displayNameKey": "extrusionMaxHeight",
+          "description": "Maximum Height of 3D Polygons Default 100000.",
+          "type": {
+            "numeric": true
+          }
+        }, 
+        "extrusionSteps": {
+          "displayName": "3D Steps",
+          "displayNameKey": "extrusionSteps",
+          "description": "Number of steps / buckets default 5",
           "type": {
             "integer": true
           }
