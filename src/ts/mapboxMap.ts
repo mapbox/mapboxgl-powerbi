@@ -176,6 +176,7 @@ module powerbi.extensibility.visual {
             }))
             this.layers.push(new Circle(this, this.palette))
             this.layers.push(new Choropleth(this, this.palette));
+            mapboxgl.config.API_URL = this.settings.api.apiUrl;
 
             const mapOptions = {
                 container: this.mapDiv,

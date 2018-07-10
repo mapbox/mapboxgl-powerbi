@@ -39,6 +39,7 @@ module powerbi.extensibility.visual {
         public startLong: number = 0;
         public startLat: number = 0;
         public autozoom: boolean = true;
+        public apiUrl: string = "https://api.mapbox.com"
         public geocoder: boolean = true;
 
         public enumerateObjectInstances(objectEnumeration) {
