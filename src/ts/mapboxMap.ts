@@ -1,7 +1,8 @@
 module powerbi.extensibility.visual {
     declare var debug: any;
     declare var turf: any;
-    declare var MapboxDraw : any;
+    declare var MapboxDraw: any;
+    declare var MapboxGeocoder: any;
 
     export class MapboxMap implements IVisual {
         private map: mapboxgl.Map;
@@ -22,6 +23,7 @@ module powerbi.extensibility.visual {
         private host: IVisualHost;
         private categories: any;
         private draw: any;  // TODO: this should not be any
+        private geocoder: any;
 
         constructor(options: VisualConstructorOptions) {
             // Map initialization
@@ -32,6 +34,7 @@ module powerbi.extensibility.visual {
             this.errorDiv = document.createElement('div');
             this.errorDiv.className = 'error';
             options.element.appendChild(this.errorDiv);
+
 
             // For anchor elements to work we need to manually
             // call launchUrl API method
@@ -76,6 +79,14 @@ module powerbi.extensibility.visual {
                         return turf.bbox(combined)
                     });
                     mapboxUtils.zoomToData(map, bounds, this.autoZoomControl.isPinned());
+                }
+                if (!settings.api.geocoder) {
+                    // var geoElement = document.querySelector('.')
+                    document.querySelector('.mapboxgl-ctrl-geocoder').classList.add('hidden')
+                }
+                else {
+                    this.geocoder.options.zoom = this.settings.api.zoom
+                    document.querySelector('.mapboxgl-ctrl-geocoder').classList.remove('hidden')
                 }
             }
             catch (error) {
@@ -128,20 +139,20 @@ module powerbi.extensibility.visual {
             let category = this.categories[0];
 
             if (role) {
-                category = this.categories.filter( cat => {
+                category = this.categories.filter(cat => {
                     return cat.source.displayName == role.displayName;
                 })[0]
 
                 console.log(category);
 
-                indexes = values.map( value => category.values.indexOf(value));
+                indexes = values.map(value => category.values.indexOf(value));
             }
 
             const selectors = indexes
-                .filter( index => {
+                .filter(index => {
                     return (index >= 0 && index < category.values.length)
                 })
-                .map( index => {
+                .map(index => {
                     return this.host.createSelectionIdBuilder()
                         .withCategory(category, index).createSelectionId();
                 })
@@ -203,9 +214,18 @@ module powerbi.extensibility.visual {
                 },
             });
 
+            this.geocoder = new MapboxGeocoder({
+                accessToken: this.settings.api.accessToken,
+                zoom: 10,
+                trackProximity: true
+            })
+
             this.map.addControl(new mapboxgl.NavigationControl());
             this.map.addControl(this.draw, 'top-left');
             this.map.addControl(this.autoZoomControl);
+
+            document.querySelector('.map').appendChild(this.geocoder.onAdd(this.map));
+
 
             // Replace the line string draw icon to the lasso icon
             LassoDraw.makeIcon();
@@ -231,14 +251,14 @@ module powerbi.extensibility.visual {
                 // Get the feature the user has drawn
                 const selection_poly = e.features[0];
 
-                const selectFeature = function(sel_pol, feature) {
+                const selectFeature = function (sel_pol, feature) {
                     if (feature.geometry.type === 'Point' && turf.booleanContains(sel_pol, feature)) {
                         return true;
                     }
                     if ((feature.geometry.type === 'Polygon' || feature.geometry.type === 'Linestring') &&
-                       (turf.booleanOverlap(feature, sel_pol) || turf.booleanContains(sel_pol, feature) ||
-                        turf.booleanContains(feature, sel_pol)
-                    )) {
+                        (turf.booleanOverlap(feature, sel_pol) || turf.booleanContains(sel_pol, feature) ||
+                            turf.booleanContains(feature, sel_pol)
+                        )) {
                         return true;
                     }
 
@@ -253,7 +273,7 @@ module powerbi.extensibility.visual {
                 // Find features in a layer the user selected bbox
                 const layers = this.getExistingLayers();
                 const layerIDs = layers.map(layer => layer.getId());
-                const bbox_features : any[] = this.map.queryRenderedFeatures([southWest, northEast], {
+                const bbox_features: any[] = this.map.queryRenderedFeatures([southWest, northEast], {
                     layers: layerIDs
                 });
 
@@ -282,7 +302,7 @@ module powerbi.extensibility.visual {
                     if (selectedFeatures.length > constants.MAX_SELECTION_COUNT) {
                         selectedFeatures = selectedFeatures.slice(0, constants.MAX_SELECTION_COUNT);
                     }
-                    layers.map( layer => {
+                    layers.map(layer => {
                         layer.updateSelection(
                             selectedFeatures,
                             roleMap);
@@ -427,7 +447,7 @@ module powerbi.extensibility.visual {
             let temp = options.dataViews[0].metadata.columns;
             let temp_indexes = []
             let temp_ii = []
-            temp.map( (v, i) => {
+            temp.map((v, i) => {
                 if (v.roles['location']) {
                     temp_indexes.push(v.displayName)
                     temp_ii.push(i)
