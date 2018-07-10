@@ -305,6 +305,14 @@
           "type": {
             "bool": true
           }
+        },
+        "apiUrl": {
+          "displayName": "Mapbox API URL",
+          "displayNameKey": "apiUrl",
+          "description": "Default URL for map api requests.  Set this to your Mapbox Atlas server hostname.",
+          "type": {
+            "text": true
+          }
         }
       }
     },
