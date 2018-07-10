@@ -23,9 +23,7 @@ module powerbi.extensibility.visual {
         addLayer(settings, beforeLayerId, roleMap) {
             console.log('++Choropleth - AddLayer');
 
-            //Add base dot layer
-            //this.geojsonSimple();
-
+         
             let layerType: string = 'fill'
             let fillOpacityType: string = 'fill-opacity'
             let fillColorType: string = 'fill-color'
@@ -35,6 +33,9 @@ module powerbi.extensibility.visual {
             const choroSettings = settings.choropleth;
             const sourceLayer = choroSettings[`sourceLayer${choroSettings.currentLevel}`];
             const vectorProperty = choroSettings[`vectorProperty${choroSettings.currentLevel}`];
+
+            //Add base dot layer
+            this.geojsonSimple(choroSettings);
 
             //if Extrusion change fillTypes    
             if (choroSettings.extrusion == true) {
@@ -435,18 +436,23 @@ module powerbi.extensibility.visual {
             });
         }
 
-        geojsonSimple() {
-
+        geojsonSimple(settings) {
+            
+            console.log('--ChoroPlethSettings')
+            console.log(settings)
 
             //DIRECT GEOJSON TEST Begin --
-/*
+
             const base_map = this.parent.getMap();
 
+            var minZoom = settings.geojsonMinZoom;
+            var geojsonURL = settings.geojsonURL;
 
             base_map.addSource("new_points", {
                 "type": "geojson",
                 //"data": "https://biprogramstore.blob.core.windows.net/mapfiles/dotMapData_v3.json"
-                "data": "https://biprogramstore.blob.core.windows.net/mapfiles/ref_Address_business_200000.json"
+                //"data": "https://biprogramstore.blob.core.windows.net/mapfiles/ref_Address_business_200000.json"
+                "data": geojsonURL
             });
 
 
@@ -454,7 +460,7 @@ module powerbi.extensibility.visual {
                 "id": "testpoints",
                 "type": "circle",
                 "source": "new_points",
-                "minzoom": 0,
+                "minzoom": minZoom,
                 "paint": {
                     'circle-radius': {
                         'base': 5,
@@ -472,7 +478,7 @@ module powerbi.extensibility.visual {
 
 
             //DIRECT GEOJSON TEST end --
-*/
+
 
         }
 

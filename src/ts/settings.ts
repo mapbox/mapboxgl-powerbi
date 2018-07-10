@@ -185,6 +185,8 @@ module powerbi.extensibility.visual {
         public outlineWidth: number = 1;
         public outlineOpacity: number = 50;
 
+        public geojsonURL: string = "";
+        public geojsonMinZoom: number = 10;
 
         public display(): boolean {
             return this.show &&
@@ -205,6 +207,12 @@ module powerbi.extensibility.visual {
 
             instances[0].validValues = {
                 minZoom: {
+                    numberRange: {
+                        min: 0,
+                        max: 22,
+                    }
+                },
+                geojsonMinZoom: {
                     numberRange: {
                         min: 0,
                         max: 22,

@@ -1425,6 +1425,22 @@
           "type": {
             "integer": true
           }
+        },
+        "geojsonURL": {
+          "type": {
+            "text": true
+          },
+          "displayName": "Custom Point Layer URL",
+          "displayNameKey": "geojsonURL",
+          "description": "The URL of the geojson used to create the base point layer"
+        },
+        "geojsonMinZoom": {
+          "displayName": "Custom Layer Min Zoom",
+          "displayNameKey": "geojsonMinZoom",
+          "description": "Minimum zoom level layer is visibile at.",
+          "type": {
+            "integer": true
+          }
         }
       }
     },
