@@ -216,7 +216,8 @@ module powerbi.extensibility.visual {
 
             this.geocoder = new MapboxGeocoder({
                 accessToken: this.settings.api.accessToken,
-                zoom: 10
+                zoom: 10,
+                trackProximity: true
             })
 
             this.map.addControl(new mapboxgl.NavigationControl());
