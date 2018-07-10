@@ -87,6 +87,7 @@
     @import (less) "./style/lasso-draw.less";
     @import (less) "./node_modules/mapbox-gl/dist/mapbox-gl.css";
     @import (less) "./node_modules/@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css";
+    @import (less) "./node_modules/@mapbox/mapbox-gl-geocoder/lib/mapbox-gl-geocoder.css";
     
 
     hr {
@@ -175,6 +176,10 @@
         margin-right: auto;
     }
 
+    .hidden {
+        visibility: hidden;
+    }
+
     img {
         padding-top: 10px;
         object-fit: cover;
@@ -218,3 +223,14 @@
         width: 0;
         height: 0;
     }
+
+    .mapboxgl-ctrl-geocoder {
+        font: 15px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+        background-color: white;
+        position: absolute;
+        z-index:1;
+        width:50%;
+        left:50%;
+        margin-left:-25%;
+        top:20px;
+      }

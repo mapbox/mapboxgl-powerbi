@@ -16,18 +16,18 @@ module powerbi.extensibility.visual {
             dataViewObjectParser: DataViewObjectsParser,
             options: EnumerateVisualObjectInstancesOptions): VisualObjectInstanceEnumeration {
 
-                let settings: MapboxSettings = <MapboxSettings>dataViewObjectParser;
-                let instanceEnumeration = DataViewObjectsParser.enumerateObjectInstances(dataViewObjectParser, options);
+            let settings: MapboxSettings = <MapboxSettings>dataViewObjectParser;
+            let instanceEnumeration = DataViewObjectsParser.enumerateObjectInstances(dataViewObjectParser, options);
 
-                switch (options.objectName) {
-                    case 'api':
-                    case 'choropleth': {
-                        return settings[options.objectName].enumerateObjectInstances(instanceEnumeration);
-                    }
-                    default: {
-                        return instanceEnumeration;
-                    }
+            switch (options.objectName) {
+                case 'api':
+                case 'choropleth': {
+                    return settings[options.objectName].enumerateObjectInstances(instanceEnumeration);
                 }
+                default: {
+                    return instanceEnumeration;
+                }
+            }
         }
     }
 
@@ -40,6 +40,7 @@ module powerbi.extensibility.visual {
         public startLat: number = 0;
         public autozoom: boolean = true;
         public apiUrl: string = "https://api.mapbox.com"
+        public geocoder: boolean = true;
 
         public enumerateObjectInstances(objectEnumeration) {
             let instances = objectEnumeration.instances;
@@ -244,7 +245,7 @@ module powerbi.extensibility.visual {
                 instances[0].validValues.selectedLevel.push((i + 1).toString());
             }
 
-            if (properties.selectedLevel >  properties.maxLevel) {
+            if (properties.selectedLevel > properties.maxLevel) {
                 properties.selectedLevel = properties.maxLevel;
             }
 
@@ -275,7 +276,7 @@ module powerbi.extensibility.visual {
                 if (old[`vectorTileUrl${i + 1}`] != this[`vectorTileUrl${i + 1}`] ||
                     old[`sourceLayer${i + 1}`] != this[`sourceLayer${i + 1}`] ||
                     old[`vectorProperty${i + 1}`] != this[`vectorProperty${i + 1}`]) {
-                        return true;
+                    return true;
                 }
             }
             return false;
