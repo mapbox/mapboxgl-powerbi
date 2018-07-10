@@ -319,7 +319,23 @@
           "type": {
             "bool": true
           }
-        }
+        },
+        "enableFetch": {
+          "displayName": "Enable Fetch More Data",
+          "displayNameKey": "enableFetch",
+          "description": "Toggle Fetch on/off",
+          "type": {
+            "bool": true
+          }
+        },
+        "showCount": {
+          "displayName": "Show Feature Count",
+          "displayNameKey": "showCount",
+          "description": "Show count of features retrived",
+          "type": {
+            "bool": true
+          }
+        }   
       }
     },
     "circle": {

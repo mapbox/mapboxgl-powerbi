@@ -23,6 +23,12 @@ module powerbi.extensibility.visual {
         private categories: any;
         private draw: any;  // TODO: this should not be any
 
+        //Label
+        private target: HTMLElement;
+        private textNode: Text;
+        private maxRows: number;
+        private labelDiv: HTMLDivElement;
+
         constructor(options: VisualConstructorOptions) {
             // Map initialization
             this.previousZoom = 0;
@@ -32,6 +38,12 @@ module powerbi.extensibility.visual {
             this.errorDiv = document.createElement('div');
             this.errorDiv.className = 'error';
             options.element.appendChild(this.errorDiv);
+
+            this.labelDiv = document.createElement('div');
+            this.labelDiv.className = 'labelCntHide';
+
+            this.labelDiv.appendChild(document.createTextNode(""));
+            options.element.appendChild(this.labelDiv);
 
             // For anchor elements to work we need to manually
             // call launchUrl API method
@@ -214,6 +226,8 @@ module powerbi.extensibility.visual {
 
             this.map.on('zoom', () => {
                 const newZoom = Math.floor(this.map.getZoom())
+                //console.log('--Current Zoom')
+                //console.log(newZoom)
                 if (this.previousZoom != newZoom) {
                     this.previousZoom = newZoom;
                     this.layers.map(layer => {
@@ -389,6 +403,7 @@ module powerbi.extensibility.visual {
         }
 
         public updateLayers(dataView: DataView) {
+            console.log('++Update Layers')
             // Placeholder to indicate whether data changed or paint prop changed
             // For now this is always true
             const features = mapboxConverter.convert(dataView);
@@ -421,9 +436,54 @@ module powerbi.extensibility.visual {
             });
 
             this.onUpdate(this.map, this.settings, true, this.updatedHandler);
+
+                        //* Ed G. Get row Count //
+                        var table: DataViewTable = dataView.table;
+                        var columns: DataViewMetadataColumn[] = table.columns;
+                        var rows: DataViewTableRow[] = table.rows;
+            
+            
+                        if (this.settings.api.showCount == true) {
+                            this.labelDiv.className = 'labelCnt';
+                            this.labelDiv.textContent = 'Feature Count: ' + rows.length;
+                        }
+                        if (this.settings.api.enableFetch == true) {
+            
+                            // ++ FetchData 
+ 
+                            this.labelDiv.textContent = 'Feature Count: ' + rows.length;
+            
+                            //console.log("++++++++ Segment " + JSON.stringify(dataView.metadata.segment));
+            
+                            if (dataView.metadata.segment) {
+                               // console.log('++++++++ fetch + 1')
+                                this.labelDiv.textContent = 'Feature Count: ' + rows.length + ' (fetch: MoreData Available...)';
+            
+            
+                                //request for more data if available
+                                let request_accepted: boolean = this.host.fetchMoreData();
+                                // handle rejection
+                                if (!request_accepted) {
+                                  //  console.log('++++ fin')
+                                    this.labelDiv.appendChild(document.createTextNode(' (max record reached!)'));
+                                    //this.myBtn.className = 'fetchBtn'
+                                }
+            
+                            } else {
+                                this.labelDiv.textContent = 'Feature Count: ' + rows.length + ' (done.)';
+                               
+                            }
+                            // ++ End FetchData 
+                        }
+
+
+
+
+
         }
 
         private updateCurrentLevel(settings, options) {
+            console.log('++Update Current Layer')
             let temp = options.dataViews[0].metadata.columns;
             let temp_indexes = []
             let temp_ii = []
@@ -475,6 +535,7 @@ module powerbi.extensibility.visual {
                 this.addMap();
             }
 
+         
             // Apply auto-zoom pin state from settings, if they differ (note that one is referring to pin state,
             // the other is referring to 'enabled' state, this is why we have the equality check and the negation)
             if (this.autoZoomControl.isPinned() == this.settings.api.autozoom) {

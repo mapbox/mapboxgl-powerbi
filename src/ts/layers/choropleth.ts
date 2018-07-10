@@ -23,7 +23,7 @@ module powerbi.extensibility.visual {
         addLayer(settings, beforeLayerId, roleMap) {
             console.log('++Choropleth - AddLayer');
 
-         
+
             let layerType: string = 'fill'
             let fillOpacityType: string = 'fill-opacity'
             let fillColorType: string = 'fill-color'
@@ -437,45 +437,44 @@ module powerbi.extensibility.visual {
         }
 
         geojsonSimple(settings) {
-            
-            console.log('--ChoroPlethSettings')
-            console.log(settings)
-
-            //DIRECT GEOJSON TEST Begin --
-
             const base_map = this.parent.getMap();
-
+            var souceExist = false;
             var minZoom = settings.geojsonMinZoom;
             var geojsonURL = settings.geojsonURL;
+            var n = geojsonURL.includes("http");
 
-            base_map.addSource("new_points", {
-                "type": "geojson",
-                //"data": "https://biprogramstore.blob.core.windows.net/mapfiles/dotMapData_v3.json"
-                //"data": "https://biprogramstore.blob.core.windows.net/mapfiles/ref_Address_business_200000.json"
-                "data": geojsonURL
-            });
+            if(base_map.getSource("new_points")){
+                souceExist = true;
+            }
+            
+            if (n == true && souceExist == false) {
+
+                base_map.addSource("new_points", {
+                    "type": "geojson",
+                    "data": geojsonURL
+                });
 
 
-            base_map.addLayer({
-                "id": "testpoints",
-                "type": "circle",
-                "source": "new_points",
-                "minzoom": minZoom,
-                "paint": {
-                    'circle-radius': {
-                        'base': 5,
-                        'stops': [
-                            [10, 5],
-                            [12, 8]
-                        ]
+                base_map.addLayer({
+                    "id": "testpoints",
+                    "type": "circle",
+                    "source": "new_points",
+                    "minzoom": minZoom,
+                    "paint": {
+                        'circle-radius': {
+                            'base': 5,
+                            'stops': [
+                                [10, 5],
+                                [12, 8]
+                            ]
 
+                        },
+                        "circle-color": "#B42222"
                     },
-                    "circle-color": "#B42222"
-                },
-                "filter": ["==", "$type", "Point"],
+                    "filter": ["==", "$type", "Point"],
 
-            });
-
+                });
+            }
 
             //DIRECT GEOJSON TEST end --
 

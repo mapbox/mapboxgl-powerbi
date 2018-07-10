@@ -39,6 +39,8 @@ module powerbi.extensibility.visual {
         public startLong:  number = 0;
         public startLat: number = 0;
         public autozoom: boolean = true;
+        public enableFetch: boolean = false;
+        public showCount: boolean = false;
 
         public enumerateObjectInstances(objectEnumeration) {
             let instances = objectEnumeration.instances;
