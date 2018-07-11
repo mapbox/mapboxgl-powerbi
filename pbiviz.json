@@ -2,7 +2,7 @@
   "visual": {
     "name": "mapboxGLMap",
     "displayName": "Mapbox Visual",
-    "guid": "PBI_CV_EB3A4088_75C5_4746_9D8B_255A7B7ECD6C",
+    "guid": "PBI_CV_EB3A4088_75C5_4746_9D8B_255A7B7ECD6C_6",
     "visualClassName": "MapboxMap",
     "version": "1.2.3",
     "description": "Visualze massive location data with custom map styles, using circle, heatmap, choropleth, and cluster layers.",
