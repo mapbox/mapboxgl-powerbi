@@ -295,14 +295,15 @@
           "type": {
             "text": true
           }
+        },
         "geocoder": {
           "displayName": "Geocoder",
           "displayNameKey": "geocoder",
           "description": "Toggle geocoder on/off",
           "type": {
             "bool": true
-
           }
+        }
       }
     },
     "circle": {
