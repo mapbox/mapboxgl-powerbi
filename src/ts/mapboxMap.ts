@@ -80,14 +80,14 @@ module powerbi.extensibility.visual {
                     });
                     mapboxUtils.zoomToData(map, bounds, this.autoZoomControl.isPinned());
                 }
-                if (!settings.api.geocoder) {
-                    // var geoElement = document.querySelector('.')
-                    document.querySelector('.mapboxgl-ctrl-geocoder').classList.add('hidden')
-                }
-                else {
-                    this.geocoder.options.zoom = this.settings.api.zoom
-                    document.querySelector('.mapboxgl-ctrl-geocoder').classList.remove('hidden')
-                }
+                // if (!settings.api.geocoder) {
+                //     // var geoElement = document.querySelector('.')
+                //     document.querySelector('.mapboxgl-ctrl-geocoder').classList.add('hidden')
+                // }
+                // else {
+                //     this.geocoder.options.zoom = this.settings.api.zoom
+                //     document.querySelector('.mapboxgl-ctrl-geocoder').classList.remove('hidden')
+                // }
             }
             catch (error) {
                 console.error("OnUpdate failed:", error)
@@ -215,17 +215,17 @@ module powerbi.extensibility.visual {
                 },
             });
 
-            this.geocoder = new MapboxGeocoder({
-                accessToken: this.settings.api.accessToken,
-                zoom: 10,
-                trackProximity: true
-            })
+            // this.geocoder = new MapboxGeocoder({
+            //     accessToken: this.settings.api.accessToken,
+            //     zoom: 10,
+            //     trackProximity: true
+            // })
 
             this.map.addControl(new mapboxgl.NavigationControl());
             this.map.addControl(this.draw, 'top-left');
             this.map.addControl(this.autoZoomControl);
 
-            document.querySelector('.map').appendChild(this.geocoder.onAdd(this.map));
+            // document.querySelector('.map').appendChild(this.geocoder.onAdd(this.map));
 
 
             // Replace the line string draw icon to the lasso icon
