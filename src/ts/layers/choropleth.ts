@@ -67,11 +67,11 @@ module powerbi.extensibility.visual {
             const zeroFilter = ["==", vectorProperty, ""]
             const highlightLayer = mapboxUtils.decorateLayer({
                 id: Choropleth.HighlightID,
-                type: 'fill',
+                type: 'fill-extrusion',
                 source: 'choropleth-source',
                 paint: {
-                    "fill-color": choroSettings.highlightColor,
-                    'fill-opacity': 0.9
+                    "fill-extrusion-color": choroSettings.highlightColor,
+                    'fill-extrusion-opacity': 0.9
                 },
                 "source-layer": sourceLayer,
                 filter: zeroFilter
@@ -92,8 +92,8 @@ module powerbi.extensibility.visual {
                 filter: zeroFilter,
             });
 
-            map.addLayer(highlightOutlineLayer, beforeLayerId);
-            map.addLayer(highlightLayer, Choropleth.HighlightOutlineID);
+            // map.addLayer(highlightOutlineLayer, beforeLayerId);
+            map.addLayer(highlightLayer, beforeLayerId);
             map.addLayer(outlineLayer, Choropleth.HighlightID);
             map.addLayer(choroplethLayer, Choropleth.OutlineID);
         }
@@ -107,7 +107,7 @@ module powerbi.extensibility.visual {
             const choroSettings = this.settings;
             const vectorProperty = choroSettings[`vectorProperty${choroSettings.currentLevel}`];
             map.setFilter(Choropleth.HighlightID, ["==", vectorProperty, e.features[0].properties[vectorProperty]]);
-            map.setFilter(Choropleth.HighlightOutlineID, ["==", vectorProperty, e.features[0].properties[vectorProperty]]);
+            // map.setFilter(Choropleth.HighlightOutlineID, ["==", vectorProperty, e.features[0].properties[vectorProperty]]);
         }
 
 
@@ -123,7 +123,7 @@ module powerbi.extensibility.visual {
 
             // map.setPaintProperty(Choropleth.ID, 'fill-extrusion-opacity', 1);
             map.setFilter(Choropleth.HighlightID, zeroFilter);
-            map.setFilter(Choropleth.HighlightOutlineID, zeroFilter);
+            // map.setFilter(Choropleth.HighlightOutlineID, zeroFilter);
         }
 
         updateSelection(features, roleMap) {
@@ -158,7 +158,7 @@ module powerbi.extensibility.visual {
             }
             //map.setPaintProperty(Choropleth.ID, 'fill-extrusion-opacity', 1);
             map.setFilter(Choropleth.HighlightID, locationFilter);
-            map.setFilter(Choropleth.HighlightOutlineID, locationFilter);
+            // map.setFilter(Choropleth.HighlightOutlineID, locationFilter);
         }
 
         removeLayer() {
@@ -166,7 +166,7 @@ module powerbi.extensibility.visual {
             map.removeLayer(Choropleth.ID);
             map.removeLayer(Choropleth.OutlineID);
             map.removeLayer(Choropleth.HighlightID);
-            map.removeLayer(Choropleth.HighlightOutlineID);
+            // map.removeLayer(Choropleth.HighlightOutlineID);
             this.source.removeFromMap(map, Choropleth.ID);
         }
 
@@ -339,6 +339,7 @@ module powerbi.extensibility.visual {
 
                     if (layerType == 'fill-extrusion') {
                         map.setPaintProperty(Choropleth.ID, 'fill-extrusion-height', heights);
+                        map.setPaintProperty(Choropleth.HighlightID, 'fill-extrusion-height', heights);
                         //map.setPaintProperty(Choropleth.HighlightID, 'fill-extrusion-height', heights);
                     }
 
@@ -366,7 +367,7 @@ module powerbi.extensibility.visual {
 
                 //map.setPaintProperty(Choropleth.ID, 'fill-extrusion-base', 0);
 
-                map.setPaintProperty(Choropleth.HighlightID, "fill-color", choroSettings.highlightColor)
+                map.setPaintProperty(Choropleth.HighlightID, "fill-extrusion-color", choroSettings.highlightColor)
 
                 map.setPaintProperty(Choropleth.OutlineID, 'line-color', settings.choropleth.outlineColor);
 
@@ -443,10 +444,10 @@ module powerbi.extensibility.visual {
             var geojsonURL = settings.geojsonURL;
             var n = geojsonURL.includes("http");
 
-            if(base_map.getSource("new_points")){
+            if (base_map.getSource("new_points")) {
                 souceExist = true;
             }
-            
+
             if (n == true && souceExist == false) {
 
                 base_map.addSource("new_points", {
