@@ -3,9 +3,9 @@ module powerbi.extensibility.visual {
     export class Circle extends Layer {
         private palette: Palette;
         private settings: CircleSettings;
+        private selectedFeatureIds = [];
 
         public static readonly ID = 'circle';
-        private static HighlightID = 'circle-highlight'
 
         constructor(map: MapboxMap, palette: Palette) {
             super(map)
@@ -15,7 +15,7 @@ module powerbi.extensibility.visual {
         }
 
         getLayerIDs() {
-            return [ Circle.ID ];
+            return [Circle.ID];
         }
 
         getSource(settings) {
@@ -25,7 +25,6 @@ module powerbi.extensibility.visual {
 
         addLayer(settings, beforeLayerId, roleMap) {
             const map = this.parent.getMap();
-            const latitude = roleMap.latitude.displayName;
 
             const circleLayer = mapboxUtils.decorateLayer({
                 id: Circle.ID,
@@ -33,81 +32,86 @@ module powerbi.extensibility.visual {
                 type: 'circle'
             });
 
-            const zeroFilter = ["==", latitude, ""]
-            const highlightLayer = mapboxUtils.decorateLayer({
-                id: Circle.HighlightID,
-                type: 'circle',
-                source: 'data',
-                filter: zeroFilter
-            });
-            map.addLayer(highlightLayer, beforeLayerId);
-            map.addLayer(circleLayer, Circle.HighlightID);
-
-            map.setPaintProperty(Circle.HighlightID, 'circle-color', settings.circle.highlightColor);
-            map.setPaintProperty(Circle.HighlightID, 'circle-opacity', 1);
-            map.setPaintProperty(Circle.HighlightID, 'circle-stroke-width', 1);
-            map.setPaintProperty(Circle.HighlightID, 'circle-stroke-color', 'black');
+            map.addLayer(circleLayer, beforeLayerId);
         }
 
-        hoverHighLight(e) {
+        hoverHighLight(features) {
             if (!this.layerExists()) {
                 return;
             }
 
-            const roleMap = this.parent.getRoleMap();
-            const latitude = roleMap.latitude.displayName;
-            const longitude = roleMap.longitude.displayName;
-            const eventProps = e.features[0].properties;
-            const lngLatFilter = ["all",
-                ["==", latitude, eventProps[latitude]],
-                ["==", longitude, eventProps[longitude]],
-            ]
-            this.parent.getMap().setFilter(Circle.HighlightID, lngLatFilter);
+            const map = this.parent.getMap();
+
+            // Remove existing highlights
+            this.selectedFeatureIds.forEach((id) => {
+                map.setFeatureState({
+                    "source": 'data',
+                    "id": id
+                },
+                    { "select": 0 }
+                )
+            });
+
+            this.selectedFeatureIds = [];
+
+            features.forEach((feature) => {
+                this.selectedFeatureIds.push(feature.id);
+                map.setFeatureState({
+                    "source": 'data',
+                    "id": feature.id
+                },
+                    { "select": 1 }
+                );
+            })
         }
 
         removeHighlight(roleMap) {
             if (!this.layerExists()) {
                 return;
             }
-            const latitude = roleMap.latitude.displayName;
             const map = this.parent.getMap();
-            const zeroFilter = ["==", latitude, ""];
-            map.setFilter(Circle.HighlightID, zeroFilter);
+
+            this.selectedFeatureIds.forEach((id) => {
+                map.setFeatureState({
+                    "source": 'data',
+                    "id": id
+                },
+                    { "select": 0 }
+                )
+            });
+
+            this.selectedFeatureIds = [];
+
             if (this.settings.opacity) {
-                map.setPaintProperty(Circle.ID, 'circle-opacity', this.settings.opacity / 100);
+                map.setPaintProperty(Circle.ID, 'circle-opacity', ['case', ['==', ['feature-state', 'select'], 1], 1, this.settings.opacity / 100]);
             }
         }
 
-        updateSelection(features, roleMap) {
+        updateSelection(features) {
             const map = this.parent.getMap();
-            const latitude = roleMap.latitude.displayName;
-            const longitude = roleMap.longitude.displayName;
 
-            let lngLatFilter = [];
-            lngLatFilter.push("any");
-            let selectionIds = features
-                .slice(0, constants.MAX_SELECTION_COUNT)
-                .map( (feature, index) => {
-                    lngLatFilter.push(["all",
-                        ["==", latitude, feature.properties[latitude]],
-                        ["==", longitude, feature.properties[longitude]]]);
+            features.slice(0, constants.MAX_SELECTION_COUNT)
+                .map((feature, index) => {
+                    map.setFeatureState({
+                        "source": 'data',
+                        "id": feature.id
+                    },
+                        { "select": 1 }
+                    )
+                    this.selectedFeatureIds.push(feature.id)
                     return feature.id;
-            });
+                });
 
-            map.setFilter(Circle.HighlightID, lngLatFilter);
-            this.parent.addSelection(selectionIds)
+            this.parent.addSelection(this.selectedFeatureIds);
 
-            let opacity = this.settings.opacity / 100;
-            if (this.parent.hasSelection()) {
-                opacity = opacity * 0.5
+            if (this.settings.opacity) {
+                map.setPaintProperty(Circle.ID, 'circle-opacity', ['case', ['==', ['feature-state', 'select'], 1], 1, this.settings.opacity / 100 / 2]);
             }
-            map.setPaintProperty(Circle.ID, 'circle-opacity', opacity);
         }
 
         removeLayer() {
             const map = this.parent.getMap();
             map.removeLayer(Circle.ID);
-            map.removeLayer(Circle.HighlightID);
             this.source.removeFromMap(map, Circle.ID);
         }
 
@@ -117,20 +121,16 @@ module powerbi.extensibility.visual {
             const limits = this.source.getLimits();
             if (settings.circle.show) {
                 const sizes = Circle.getSizes(limits.size, map, settings, roleMap.size);
-
                 let isGradient = mapboxUtils.shouldUseGradient(roleMap.color);
                 let colors = Circle.getColors(limits.color, isGradient, settings, this.palette, roleMap.color);
-
                 map.setPaintProperty(Circle.ID, 'circle-radius', sizes);
-                map.setPaintProperty(Circle.HighlightID, 'circle-radius', sizes);
-                map.setPaintProperty(Circle.HighlightID, 'circle-color', settings.circle.highlightColor);
-                map.setPaintProperty(Circle.ID, 'circle-color', colors);
+                map.setPaintProperty(Circle.ID, 'circle-color', ['case', ['==', ['feature-state', 'select'], 1], settings.circle.highlightColor, colors]);
                 map.setLayerZoomRange(Circle.ID, settings.circle.minZoom, settings.circle.maxZoom);
                 map.setPaintProperty(Circle.ID, 'circle-blur', settings.circle.blur / 100);
-                map.setPaintProperty(Circle.ID, 'circle-opacity', settings.circle.opacity / 100);
-                map.setPaintProperty(Circle.ID, 'circle-stroke-width', settings.circle.strokeWidth);
+                map.setPaintProperty(Circle.ID, 'circle-opacity', ['case', ['==', ['feature-state', 'select'], 1], 1, settings.circle.opacity / 100]);
+                map.setPaintProperty(Circle.ID, 'circle-stroke-width', ['case', ['==', ['feature-state', 'select'], 1], 2, settings.circle.strokeWidth]);
                 map.setPaintProperty(Circle.ID, 'circle-stroke-opacity', settings.circle.strokeOpacity / 100);
-                map.setPaintProperty(Circle.ID, 'circle-stroke-color', settings.circle.strokeColor);
+                map.setPaintProperty(Circle.ID, 'circle-stroke-color', ['case', ['==', ['feature-state', 'select'], 1], 'black', settings.circle.strokeColor]);
             }
         }
 
@@ -162,7 +162,7 @@ module powerbi.extensibility.visual {
 
             // Set colors for categorical value
             let colors = ['match', ['to-string', ['get', colorField.displayName]]];
-            colorLimits.values.map( (value, idx) => {
+            colorLimits.values.map((value, idx) => {
                 colors.push(value.toString());
                 const color = colorPalette.getColor(value.toString(), idx);
                 colors.push(color);
@@ -179,7 +179,7 @@ module powerbi.extensibility.visual {
             if (sizeField && sizeLimits && sizeLimits.min != null && sizeLimits.max != null && sizeLimits.min != sizeLimits.max) {
                 const style: any[] = [
                     "interpolate", ["linear"],
-                    ["to-number", ['get',sizeField.displayName]]
+                    ["to-number", ['get', sizeField.displayName]]
                 ]
 
                 const classCount = mapboxUtils.getClassCount(sizeLimits);
@@ -189,15 +189,15 @@ module powerbi.extensibility.visual {
                 sizeStops.map((sizeStop, index) => {
                     const size = settings.circle.radius + index * sizeDelta
                     style.push(sizeStop);
-                    style.push(size);
+                    style.push(['case', ['==', ['feature-state', 'select'], 1], size * 1.5, size]);
                 });
                 return style;
             }
             else {
                 return [
                     'interpolate', ['linear'], ['zoom'],
-                    0, settings.circle.radius,
-                    18, settings.circle.radius * settings.circle.scaleFactor
+                    0, ['case', ['==', ['feature-state', 'select'], 1], settings.circle.radius * 1.5, settings.circle.radius],
+                    18, ['case', ['==', ['feature-state', 'select'], 1], settings.circle.radius * settings.circle.scaleFactor * 1.5, settings.circle.radius * settings.circle.scaleFactor]
                 ];
             }
         }

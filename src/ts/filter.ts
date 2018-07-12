@@ -1,5 +1,5 @@
 module powerbi.extensibility.visual {
-    declare var turf : any;
+    declare var turf: any;
     export class Filter {
         private box: HTMLElement;
         private start: any;
@@ -33,7 +33,7 @@ module powerbi.extensibility.visual {
         }
 
         public removeHighlightAndSelection(layers) {
-            layers.map( layer => {
+            layers.map(layer => {
                 layer.removeHighlight(this.mapVisual.getRoleMap());
             });
             this.mapVisual.clearSelection();
@@ -43,32 +43,34 @@ module powerbi.extensibility.visual {
 
             const map = this.mapVisual.getMap();
             map.boxZoom.disable();
+            const hoverHighLightLayers = [Circle.ID, Choropleth.ID];
 
             const clickHandler = this.createClickHandler(this.mapVisual)
             map.off('click', clickHandler);
             map.on('click', clickHandler);
 
             const mouseMoveHandler = mapboxUtils.debounce((e) => {
-                if (!this.mapVisual.hasSelection() && !this.selectionInProgress) {
-                    const layers = this.mapVisual.getExistingLayers();
-                    layers.map(layer => layer.hoverHighLight(e));
+
+                let features = map.queryRenderedFeatures(e.point, {
+                    layers: [Circle.ID]
+                });
+
+                if (features.length) {
+                    if (!this.mapVisual.hasSelection() && !this.selectionInProgress) {
+                        const layers = this.mapVisual.getExistingLayers();
+                        layers.map(layer => layer.hoverHighLight(features));
+                    }
+                } else {
+                    if (!this.mapVisual.hasSelection() && !this.selectionInProgress) {
+                        const layers = this.mapVisual.getExistingLayers();
+                        layers.map(layer => layer.removeHighlight(this.mapVisual.getRoleMap()));
+                    }
                 }
+
             }, 12, true);
 
-            const mouseLeaveHandler = mapboxUtils.debounce((e) => {
-                if (!this.mapVisual.hasSelection() && !this.selectionInProgress) {
-                    const layers = this.mapVisual.getExistingLayers();
-                    layers.map(layer => layer.removeHighlight(this.mapVisual.getRoleMap()));
-                }
-            }, 12, true);
-
-            const hoverHighLightLayers = [Circle.ID, Choropleth.ID];
-            hoverHighLightLayers.map(hhLayer => {
-                map.off('mousemove', hhLayer, mouseMoveHandler);
-                map.on('mousemove', hhLayer, mouseMoveHandler);
-                map.off('mouseleave', hhLayer, mouseLeaveHandler);
-                map.on('mouseleave', hhLayer, mouseLeaveHandler);
-            });
+            map.off('mousemove', mouseMoveHandler);
+            map.on('mousemove', mouseMoveHandler);
 
             const dragStartHandler = (e) => {
                 this.dragScreenX = e.originalEvent.screenX;
@@ -101,8 +103,8 @@ module powerbi.extensibility.visual {
                     this.dragScreenX + radius < e.originalEvent.screenX ||
                     this.dragScreenY - radius > e.originalEvent.screenY ||
                     this.dragScreenY + radius < e.originalEvent.screenY) {
-                        // It was a real drag event
-                        return;
+                    // It was a real drag event
+                    return;
                 }
 
                 // This drag event is considered to be click, so remove the highlight and selection
@@ -119,9 +121,9 @@ module powerbi.extensibility.visual {
             let canvas = map.getCanvasContainer();
             let rect = canvas.getBoundingClientRect();
             return new mapboxgl.Point(
-                    e.clientX - rect.left - canvas.clientLeft,
-                    e.clientY - rect.top - canvas.clientTop
-                );
+                e.clientX - rect.left - canvas.clientLeft,
+                e.clientY - rect.top - canvas.clientTop
+            );
         }
 
         onMouseDown(e) {
@@ -205,8 +207,8 @@ module powerbi.extensibility.visual {
                 const layers = this.mapVisual.getExistingLayers();
                 if (layers && layers.length > 0) {
                     const roleMap = this.mapVisual.getRoleMap();
-                    layers.map( layer => {
-                        let features = map.queryRenderedFeatures(bbox, { layers: [ layer.getId() ] });
+                    layers.map(layer => {
+                        let features = map.queryRenderedFeatures(bbox, { layers: [layer.getId()] });
                         layer.updateSelection(
                             features,
                             roleMap);
@@ -220,7 +222,7 @@ module powerbi.extensibility.visual {
         }
 
         createClickHandler(mapVisual: MapboxMap) {
-            let onClick : Function = (e) => {
+            let onClick: Function = (e) => {
                 const originalEvent = e.originalEvent;
                 if (originalEvent.shiftKey && originalEvent.button === 0 || this.selectionInProgress) {
                     // Selection is considered to be still in progress
@@ -251,8 +253,8 @@ module powerbi.extensibility.visual {
                 // map.queryRenderedFeatures fails
                 // when option.layers contains an id which is not on the map
                 layers.map(layer => {
-                    let features : any = map.queryRenderedFeatures([minpoint, maxpoint], {
-                        "layers": [ layer.getId() ]
+                    let features: any = map.queryRenderedFeatures([minpoint, maxpoint], {
+                        "layers": [layer.getId()]
                     });
 
                     if (features
@@ -283,8 +285,8 @@ module powerbi.extensibility.visual {
                 const bbox = turf.bbox(feature)
 
                 const pointCollection = turf.helpers.featureCollection([
-                    turf.helpers.point( [bbox[0], bbox[1]]),
-                    turf.helpers.point( [bbox[2], bbox[3]]),
+                    turf.helpers.point([bbox[0], bbox[1]]),
+                    turf.helpers.point([bbox[2], bbox[3]]),
                 ]);
 
                 const center = turf.center(pointCollection);
