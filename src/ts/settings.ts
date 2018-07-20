@@ -188,6 +188,7 @@ module powerbi.extensibility.visual {
         public outlineOpacity: number = 50;
 
         public geojsonURL: string = "";
+        public pointsourceLayer: string = "";
         public geojsonMinZoom: number = 10;
 
         public display(): boolean {

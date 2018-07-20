@@ -35,7 +35,7 @@ module powerbi.extensibility.visual {
             const vectorProperty = choroSettings[`vectorProperty${choroSettings.currentLevel}`];
 
             //Add base dot layer
-            this.geojsonSimple(choroSettings);
+            this.pointLayerBase(choroSettings);
 
             //if Extrusion change fillTypes    
             if (choroSettings.extrusion == true) {
@@ -67,11 +67,11 @@ module powerbi.extensibility.visual {
             const zeroFilter = ["==", vectorProperty, ""]
             const highlightLayer = mapboxUtils.decorateLayer({
                 id: Choropleth.HighlightID,
-                type: 'fill',
+                type: 'fill-extrusion',
                 source: 'choropleth-source',
                 paint: {
-                    "fill-color": choroSettings.highlightColor,
-                    'fill-opacity': 0.9
+                    "fill-extrusion-color": choroSettings.highlightColor,
+                    'fill-extrusion-opacity': 0.9
                 },
                 "source-layer": sourceLayer,
                 filter: zeroFilter
@@ -92,8 +92,8 @@ module powerbi.extensibility.visual {
                 filter: zeroFilter,
             });
 
-            map.addLayer(highlightOutlineLayer, beforeLayerId);
-            map.addLayer(highlightLayer, Choropleth.HighlightOutlineID);
+            // map.addLayer(highlightOutlineLayer, beforeLayerId);
+            map.addLayer(highlightLayer, beforeLayerId);
             map.addLayer(outlineLayer, Choropleth.HighlightID);
             map.addLayer(choroplethLayer, Choropleth.OutlineID);
         }
@@ -107,7 +107,7 @@ module powerbi.extensibility.visual {
             const choroSettings = this.settings;
             const vectorProperty = choroSettings[`vectorProperty${choroSettings.currentLevel}`];
             map.setFilter(Choropleth.HighlightID, ["==", vectorProperty, e.features[0].properties[vectorProperty]]);
-            map.setFilter(Choropleth.HighlightOutlineID, ["==", vectorProperty, e.features[0].properties[vectorProperty]]);
+            // map.setFilter(Choropleth.HighlightOutlineID, ["==", vectorProperty, e.features[0].properties[vectorProperty]]);
         }
 
 
@@ -123,7 +123,7 @@ module powerbi.extensibility.visual {
 
             // map.setPaintProperty(Choropleth.ID, 'fill-extrusion-opacity', 1);
             map.setFilter(Choropleth.HighlightID, zeroFilter);
-            map.setFilter(Choropleth.HighlightOutlineID, zeroFilter);
+            // map.setFilter(Choropleth.HighlightOutlineID, zeroFilter);
         }
 
         updateSelection(features, roleMap) {
@@ -158,7 +158,7 @@ module powerbi.extensibility.visual {
             }
             //map.setPaintProperty(Choropleth.ID, 'fill-extrusion-opacity', 1);
             map.setFilter(Choropleth.HighlightID, locationFilter);
-            map.setFilter(Choropleth.HighlightOutlineID, locationFilter);
+            // map.setFilter(Choropleth.HighlightOutlineID, locationFilter);
         }
 
         removeLayer() {
@@ -166,7 +166,7 @@ module powerbi.extensibility.visual {
             map.removeLayer(Choropleth.ID);
             map.removeLayer(Choropleth.OutlineID);
             map.removeLayer(Choropleth.HighlightID);
-            map.removeLayer(Choropleth.HighlightOutlineID);
+            // map.removeLayer(Choropleth.HighlightOutlineID);
             this.source.removeFromMap(map, Choropleth.ID);
         }
 
@@ -339,6 +339,7 @@ module powerbi.extensibility.visual {
 
                     if (layerType == 'fill-extrusion') {
                         map.setPaintProperty(Choropleth.ID, 'fill-extrusion-height', heights);
+                        map.setPaintProperty(Choropleth.HighlightID, 'fill-extrusion-height', heights);
                         //map.setPaintProperty(Choropleth.HighlightID, 'fill-extrusion-height', heights);
                     }
 
@@ -366,7 +367,7 @@ module powerbi.extensibility.visual {
 
                 //map.setPaintProperty(Choropleth.ID, 'fill-extrusion-base', 0);
 
-                map.setPaintProperty(Choropleth.HighlightID, "fill-color", choroSettings.highlightColor)
+                map.setPaintProperty(Choropleth.HighlightID, "fill-extrusion-color", choroSettings.highlightColor)
 
                 map.setPaintProperty(Choropleth.OutlineID, 'line-color', settings.choropleth.outlineColor);
 
@@ -436,40 +437,50 @@ module powerbi.extensibility.visual {
             });
         }
 
-        geojsonSimple(settings) {
+        pointLayerBase(settings) {
             const base_map = this.parent.getMap();
             var souceExist = false;
             var minZoom = settings.geojsonMinZoom;
             var geojsonURL = settings.geojsonURL;
-            var n = geojsonURL.includes("http");
+            var tileLayer = settings.pointsourceLayer;
+            var n = geojsonURL.includes("mapbox");
 
-            if(base_map.getSource("new_points")){
+            // Create a simple popup.
+            var popup = new mapboxgl.Popup({
+                closeButton: false,
+                offset: 25
+            });
+
+
+            if (base_map.getSource("new_points")) {
                 souceExist = true;
             }
-            
+
             if (n == true && souceExist == false) {
 
                 base_map.addSource("new_points", {
-                    "type": "geojson",
-                    "data": geojsonURL
+                    "type": "vector",
+                    "url": geojsonURL
                 });
 
 
                 base_map.addLayer({
-                    "id": "testpoints",
+                    "id": "basePoints",
                     "type": "circle",
                     "source": "new_points",
+                    "source-layer": tileLayer,
                     "minzoom": minZoom,
                     "paint": {
                         'circle-radius': {
-                            'base': 5,
+                            'base': .5,
                             'stops': [
-                                [10, 5],
-                                [12, 8]
+                                [6, 1],
+                                [9, 3],
+                                [12, 6]
                             ]
 
                         },
-                        "circle-color": "#B42222"
+                        "circle-color": ["get", "color"],
                     },
                     "filter": ["==", "$type", "Point"],
 
@@ -478,6 +489,22 @@ module powerbi.extensibility.visual {
 
             //DIRECT GEOJSON TEST end --
 
+            
+            base_map.on("mousemove", "basePoints", function(e) {
+                base_map.getCanvas().style.cursor = 'pointer';
+    
+                popup.setLngLat(e.lngLat)
+                    .setText(e.features[0].properties.tip)
+                    .addTo(base_map);
+    
+            });
+    
+            base_map.on("mouseleave", "basePoints", function() {
+    
+                base_map.getCanvas().style.cursor = '';
+                popup.remove();
+               
+            });
 
         }
 

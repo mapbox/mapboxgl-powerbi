@@ -161,7 +161,7 @@
         "categorical": {
             "categories": {
                 "dataReductionAlgorithm": {
-                    "sample": {
+                    "window": {
                         "count": 30000
                     }
                 },
@@ -1446,12 +1446,20 @@
           "type": {
             "text": true
           },
-          "displayName": "Custom Point Layer URL",
+          "displayName": "Point Layer URL",
           "displayNameKey": "geojsonURL",
-          "description": "The URL of the geojson used to create the base point layer"
+          "description": "The URL of the Vector Tileset used to create the base point layer"
+        },
+        "pointsourceLayer": {
+          "type": {
+            "text": true
+          },
+          "displayName": "Point Source Layer Name",
+          "displayNameKey": "pointSourceLayer",
+          "description": "The id of the vector layer to use for data join"
         },
         "geojsonMinZoom": {
-          "displayName": "Custom Layer Min Zoom",
+          "displayName": "Point Layer Min Zoom",
           "displayNameKey": "geojsonMinZoom",
           "description": "Minimum zoom level layer is visibile at.",
           "type": {

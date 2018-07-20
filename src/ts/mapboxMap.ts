@@ -218,6 +218,8 @@ module powerbi.extensibility.visual {
             this.map.addControl(new mapboxgl.NavigationControl());
             this.map.addControl(this.draw, 'top-left');
             this.map.addControl(this.autoZoomControl);
+           
+            
 
             // Replace the line string draw icon to the lasso icon
             LassoDraw.makeIcon();
@@ -226,8 +228,9 @@ module powerbi.extensibility.visual {
 
             this.map.on('zoom', () => {
                 const newZoom = Math.floor(this.map.getZoom())
-                //console.log('--Current Zoom')
-                //console.log(newZoom)
+                this.labelDiv.textContent = 'zoom = ' + newZoom
+                console.log('--Current Zoom')
+                console.log(newZoom)
                 if (this.previousZoom != newZoom) {
                     this.previousZoom = newZoom;
                     this.layers.map(layer => {
@@ -437,7 +440,7 @@ module powerbi.extensibility.visual {
 
             this.onUpdate(this.map, this.settings, true, this.updatedHandler);
 
-                        //* Ed G. Get row Count //
+                        //* Get row Count //
                         var table: DataViewTable = dataView.table;
                         var columns: DataViewMetadataColumn[] = table.columns;
                         var rows: DataViewTableRow[] = table.rows;
@@ -453,20 +456,13 @@ module powerbi.extensibility.visual {
  
                             this.labelDiv.textContent = 'Feature Count: ' + rows.length;
             
-                            //console.log("++++++++ Segment " + JSON.stringify(dataView.metadata.segment));
-            
                             if (dataView.metadata.segment) {
-                               // console.log('++++++++ fetch + 1')
                                 this.labelDiv.textContent = 'Feature Count: ' + rows.length + ' (fetch: MoreData Available...)';
             
-            
-                                //request for more data if available
                                 let request_accepted: boolean = this.host.fetchMoreData();
                                 // handle rejection
                                 if (!request_accepted) {
-                                  //  console.log('++++ fin')
                                     this.labelDiv.appendChild(document.createTextNode(' (max record reached!)'));
-                                    //this.myBtn.className = 'fetchBtn'
                                 }
             
                             } else {

@@ -15,6 +15,7 @@ namespace powerbi.extensibility.visual {
                 <img style="padding-bottom: 20px;" src="https://dl.dropbox.com/s/dc9ibu2f71t4t23/start-visualizing.png"></img><br>
                 <li style="font-size: 18px;"> Still have questions? </li>
                 <a class="mapboxLink" href="https://www.mapbox.com/contact/support?source=PowerBI">Contact Support</a>
+                <a class="mapboxLink" href="/reports/273a81fe-9dd4-4582-86f8-6c60d45c8b73/ReportSectiond0dd273437d422d9ed94">test link</a>
                 <img src="https://dl.dropbox.com/s/5io6dvr1l8gcgtp/mapbox-logo-color.png"/>
             </ol>
         `
