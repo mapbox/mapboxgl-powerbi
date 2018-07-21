@@ -15,27 +15,29 @@ Drop in the Mapbox Visual to your Power BI dashboard from the [Microsoft Office 
 * [Example Dashboard - NYC Cycling Incidents](https://www.mapbox.com/bites/00369)
 * [Example Dashboard - 2017 USGS Earthquakes](https://app.powerbi.com/view?r=eyJrIjoiNTlkMzA5N2MtNGU0ZS00MDY5LTg1NTktNTZkODkyMmJjOThmIiwidCI6IjYyOWE3MGIyLTMyYjktNDEyNi05NTFlLTE3NjA0Y2Y0NTZlYyIsImMiOjF9)
 * [Example Dashboard - 2017 FCC Broadband Speeds in New Jersey](https://app.powerbi.com/view?r=eyJrIjoiMTk4ZDk3OWYtNzc2Ny00NDE0LWE2ZWYtZDk5NjAwZTA3YTljIiwidCI6IjYyOWE3MGIyLTMyYjktNDEyNi05NTFlLTE3NjA0Y2Y0NTZlYyIsImMiOjF9)
-
-### Supported Power BI Environments and Tools
-The Mapbox Visual for Power BI supports:
-
-| Mapbox Visaul  Version | PBI Report Server | PBI Mobile (iOS/Android) | PBI Embedded | PBI Publish to Web | PBI Desktop | Chrome | Firefox | Safari | Edge | IE11 |
-|------------------------|-------------------|-------------------|--------------|--------------------|-------------|--------|---------|--------|------|------|
-| v 1.2.3                | TBD - soon             | Yes  | Yes          | Yes                | Yes         | Yes    | Yes     | Yes    | Yes  | Yes  |
-
-Power BI Report Server does support the Mapbox Visual.  We're confirming when the newest Report Server update will launch so that the latest v1.2.3 version of the Mapbox Visual on the Office Store will work using the latest v1.12.0 version of the Power BI Visuals API. 
     
 ### Documentation
 
 - Check out the official Mapbox Visual for Power BI docs at: 
-    * Getting Started: https://www.mapbox.com/help/power-bi/
-    * Creating a Choropleth: https://www.mapbox.com/help/power-bi-choropleth-map/
+    * [Getting Started](https://www.mapbox.com/help/power-bi/)
+    * [Creating a Choropleth](https://www.mapbox.com/help/power-bi-choropleth-map/)
 - Check out 3rd party documentation below:
-    * Sam Gehret's July 2017 Mapbox Visual for Power BI webinar: https://www.youtube.com/watch?v=XtMqnls8dpE
-    * Devin Knight's Pragmatic Works March 2018 Mapbox Visual for Power BI video tutorial: https://www.youtube.com/watch?v=qDCOo3bm01o
-    * David Eldersveld's BlueGranite `Exploring Maps in Power BI` webinar, March 2018: https://www.blue-granite.com/maps-in-power-bi-mar-2018?utm_campaign=Q1%202018%20Webinars&utm_content=68211202&utm_medium=referral&utm_source=dataveld
-    
-### Firewall rules - Domain names and ports to use with Power BI in a secure environment
+    * Sam Gehret's [July 2017 Mapbox Visual for Power BI webinar](https://www.youtube.com/watch?v=XtMqnls8dpE)
+    * Devin Knight's [Pragmatic Works March 2018 Mapbox Visual for Power BI video tutorial](https://www.youtube.com/watch?v=qDCOo3bm01o)
+    * David Eldersveld's[ BlueGranite `Exploring Maps in Power BI` webinar, March 2018](https://www.blue-granite.com/maps-in-power-bi-mar-2018?utm_campaign=Q1%202018%20Webinars&utm_content=68211202&utm_medium=referral&utm_source=dataveld)
+
+### FAQ
+
+#### Supported Power BI Environments and Tools
+The Mapbox Visual for Power BI supports:
+
+| Mapbox Visual  Version | PBI Report Server | PBI Mobile (iOS/Android) | PBI Embedded | PBI Publish to Web | PBI Desktop | Chrome | Firefox | Safari | Edge | IE11 |
+|------------------------|-------------------|-------------------|--------------|--------------------|-------------|--------|---------|--------|------|------|
+| v 1.2.3                | TBD - soon             | Yes  | Yes          | Yes                | Yes         | Yes    | Yes     | Yes    | Yes  | Yes  |
+
+Power BI Report Server does support the Mapbox Visual.  We're confirming when the newest Report Server update will launch so that the latest v1.2.3 version of the Mapbox Visual on the Office Store will work using the latest v1.12.0 version of the Power BI Visuals API. 
+
+#### Firewall rules - Domain names and ports to use with Power BI in a secure environment
 
 The Mapbox Visual by default operates using API resources hosted on `api.mapbox.com` securely requested using HTTPS and your Mapbox access token.  If you need all requests to be made inside of your corporate or air-gapped network, you can host [Mapbox Atlas](https://www.mapbox.com/atlas/) on your own server and run the Mapbox Visual for Power BI completely on-premise.
 
@@ -46,7 +48,7 @@ The Mapbox Visual by default operates using API resources hosted on `api.mapbox.
 | api.mapbox.com     | 443  | icons, map styles, fonts |
 | *.tiles.mapbox.com | 443  | vector tiles                |
 
-### How many data points does the Mapbox Visual support?
+#### How many data points does the Mapbox Visual support?
 
 Mapbox supports up to the maximum allowed by Power BI, 30,000 rows, for all visualization types including Choropleth (fill), cluster, heatmap, and circle.  If your data is >30k rows, the Mapbox Visual will sample your data down to 30k rows and visualize the resultant sample.  If you need to visualize more than 30k rows for your use case, reach out to our sales team to connect you with a Mapbox Partner to setup a custom solution for your use case.
 
@@ -76,9 +78,8 @@ On Power BI Online or Desktop, click `add visual from marketplace` and search `M
 
 Mapbox is the location data platform for mobile and web applications. We provide [building blocks](https://www.mapbox.com/products/) to add location features like maps, search, and navigation into any experience you create. Use our simple and powerful APIs & SDKs and our open source libraries for interactivity and control.
 
-## Sign up for Mapbox
-
 Not a Mapbox user yet? [Sign up for an account here](https://www.mapbox.com/signup/). Once you’re signed in, all you need to start building with Power BI is a Mapbox access token. 
+
 
 ## Screenshots and GIFs
 
