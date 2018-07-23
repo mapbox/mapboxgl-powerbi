@@ -89,7 +89,7 @@
       "name": "ExtrusionHeight",
       "kind": "Measure",
       "displayName": "3D-Extrusion",
-      "description": "Measure or Dimension to set Size of 3D Extrusion for choropleth.  Can be numeric or text data type.",
+      "description": "Measure to set Height of 3D Extrusion for choropleth. Must be numeric data type.",
       "requiredTypes": [
         {
           "numeric": true
@@ -149,6 +149,8 @@
                 },
                 "color": {
                     "max": 1
+                },"ExtrusionHeight":{
+                  "max":1
                 },
                 "size": {
                     "max": 1
@@ -184,6 +186,11 @@
                     {
                         "for": {
                             "in": "color"
+                        }
+                    },
+                    {
+                        "for": {
+                            "in": "ExtrusionHeight"
                         }
                     },
                     {

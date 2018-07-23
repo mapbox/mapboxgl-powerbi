@@ -21,8 +21,10 @@ module powerbi.extensibility.visual {
         }
 
         addLayer(settings, beforeLayerId, roleMap) {
-            console.log('++Choropleth - AddLayer');
 
+
+            console.log('++Choropleth - AddLayer');
+          
 
             let layerType: string = 'fill'
             let fillOpacityType: string = 'fill-opacity'
@@ -287,6 +289,7 @@ module powerbi.extensibility.visual {
                 let validStops = true;
 
                 for (let row of choroplethData) {
+                 
                     const location = row[roleMap.location.displayName];
 
                     let color: any = getColorStop(row[roleMap.color.displayName]);
@@ -317,6 +320,7 @@ module powerbi.extensibility.visual {
 
                     //for 3D Extrusion 
                     if (choroSettings.extrusion == true) {
+                     
                         let height: any = 0;
                         let heightVal: any = row[roleMap.ExtrusionHeight.displayName];
 
@@ -388,6 +392,7 @@ module powerbi.extensibility.visual {
         handleTooltip(tooltipEvent, roleMap, settings) {
             const tooltipData = super.handleTooltip(tooltipEvent, roleMap, settings);
             let choroVectorData = null;
+   
             tooltipData.map(td => {
                 if (choroVectorData) {
                     return;

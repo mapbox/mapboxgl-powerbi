@@ -28,6 +28,7 @@ module powerbi.extensibility.visual {
         private textNode: Text;
         private maxRows: number;
         private labelDiv: HTMLDivElement;
+        private labelZm: HTMLDivElement;
 
         constructor(options: VisualConstructorOptions) {
             // Map initialization
@@ -41,9 +42,15 @@ module powerbi.extensibility.visual {
 
             this.labelDiv = document.createElement('div');
             this.labelDiv.className = 'labelCntHide';
-
             this.labelDiv.appendChild(document.createTextNode(""));
             options.element.appendChild(this.labelDiv);
+
+            this.labelZm = document.createElement('div');
+            this.labelZm.className = 'labelZm';
+            this.labelZm.appendChild(document.createTextNode("0"));
+            options.element.appendChild(this.labelZm);
+
+            
 
             // For anchor elements to work we need to manually
             // call launchUrl API method
@@ -144,7 +151,7 @@ module powerbi.extensibility.visual {
                     return cat.source.displayName == role.displayName;
                 })[0]
 
-                console.log(category);
+              
 
                 indexes = values.map( value => category.values.indexOf(value));
             }
@@ -228,9 +235,7 @@ module powerbi.extensibility.visual {
 
             this.map.on('zoom', () => {
                 const newZoom = Math.floor(this.map.getZoom())
-                this.labelDiv.textContent = 'zoom = ' + newZoom
-                console.log('--Current Zoom')
-                console.log(newZoom)
+                this.labelZm.textContent = "" + newZoom          
                 if (this.previousZoom != newZoom) {
                     this.previousZoom = newZoom;
                     this.layers.map(layer => {
