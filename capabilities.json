@@ -1,26 +1,32 @@
 {
-  "dataRoles": [{
+  "dataRoles": [
+    {
       "name": "location",
       "kind": "Grouping",
       "displayName": "Location",
       "description": "Geographic location identifier for Choropleth layer",
-      "preferredTypes": [{
-        "geography": {
-          "stateorprovince": true
+      "preferredTypes": [
+        {
+          "geography": {
+              "stateorprovince": true
+          }
         }
-      }]
+      ]
     },
     {
       "name": "latitude",
       "kind": "GroupingOrMeasure",
       "displayName": "Latitude",
       "description": "Latitude geographic point dimension",
-      "preferredTypes": [{
-        "geography": {
-          "latitude": true
+      "preferredTypes": [
+        {
+          "geography": {
+            "latitude": true
+          }
         }
-      }],
-      "requiredTypes": [{
+      ],
+      "requiredTypes": [
+        {
           "numeric": true
         },
         {
@@ -38,12 +44,15 @@
       "kind": "GroupingOrMeasure",
       "displayName": "Longitude",
       "description": "Longitude geographic point dimension",
-      "preferredTypes": [{
-        "geography": {
-          "longitude": true
+      "preferredTypes": [
+        {
+          "geography": {
+            "longitude": true
+          }
         }
-      }],
-      "requiredTypes": [{
+      ],
+      "requiredTypes": [
+        {
           "numeric": true
         },
         {
@@ -61,7 +70,8 @@
       "kind": "Measure",
       "displayName": "Color",
       "description": "Measure or Dimension to color circles and heatmaps.  Can be numeric or text data type.",
-      "requiredTypes": [{
+      "requiredTypes": [
+        {
           "numeric": true
         },
         {
@@ -80,7 +90,8 @@
       "kind": "Measure",
       "displayName": "Size",
       "description": "Measure to control circle radius size. Must be numeric data type.",
-      "requiredTypes": [{
+      "requiredTypes": [
+        {
           "numeric": true
         },
         {
@@ -93,7 +104,8 @@
       "kind": "Measure",
       "displayName": "Cluster",
       "description": "Measure to aggregate points for clustering.  Must be numeric data type.",
-      "requiredTypes": [{
+      "requiredTypes": [
+        {
           "numeric": true
         },
         {
@@ -108,73 +120,78 @@
       "description": "Values to display in tooltips"
     }
   ],
-  "dataViewMappings": [{
-    "conditions": [{
-      "location": {
-        "max": 1
-      },
-      "latitude": {
-        "max": 1
-      },
-      "longitude": {
-        "max": 1
-      },
-      "color": {
-        "max": 1
-      },
-      "size": {
-        "max": 1
-      },
-      "cluster": {
-        "max": 1
-      }
-    }],
-    "categorical": {
-      "categories": {
-        "dataReductionAlgorithm": {
-          "sample": {
-            "count": 30000
-          }
-        },
-        "select": [{
-            "for": {
-              "in": "location"
+  "dataViewMappings": [
+    {
+        "conditions": [
+            {
+                "location": {
+                    "max": 1
+                },
+                "latitude": {
+                    "max": 1
+                },
+                "longitude": {
+                    "max": 1
+                },
+                "color": {
+                    "max": 1
+                },
+                "size": {
+                    "max": 1
+                },
+                "cluster": {
+                    "max": 1
+                }
             }
-          },
-          {
-            "for": {
-              "in": "latitude"
+        ],
+        "categorical": {
+            "categories": {
+                "dataReductionAlgorithm": {
+                    "sample": {
+                        "count": 30000
+                    }
+                },
+                "select": [
+                    {
+                        "for": {
+                            "in": "location"
+                        }
+                    },
+                    {
+                        "for": {
+                            "in": "latitude"
+                        }
+                    },
+                    {
+                        "for": {
+                            "in": "longitude"
+                        }
+                    },
+                    {
+                        "for": {
+                            "in": "color"
+                        }
+                    },
+                    {
+                        "for": {
+                            "in": "size"
+                        }
+                    },
+                    {
+                        "for": {
+                            "in": "cluster"
+                        }
+                    },
+                    {
+                        "for": {
+                            "in": "tooltips"
+                        }
+                    }
+                ]
             }
-          },
-          {
-            "for": {
-              "in": "longitude"
-            }
-          },
-          {
-            "for": {
-              "in": "color"
-            }
-          },
-          {
-            "for": {
-              "in": "size"
-            }
-          },
-          {
-            "for": {
-              "in": "cluster"
-            }
-          },
-          {
-            "for": {
-              "in": "tooltips"
-            }
-          }
-        ]
-      }
+        }
     }
-  }],
+  ],
   "drilldown": {
     "roles": [
       "location"
@@ -197,7 +214,8 @@
         },
         "style": {
           "type": {
-            "enumeration": [{
+            "enumeration": [
+              {
                 "value": "mapbox:\/\/styles\/mapbox\/light-v9?optimize=true",
                 "displayName": "Light",
                 "displayNameKey": "light_v9"
@@ -295,14 +313,7 @@
           "type": {
             "text": true
           }
-        "geocoder": {
-          "displayName": "Geocoder",
-          "displayNameKey": "geocoder",
-          "description": "Toggle geocoder on/off",
-          "type": {
-            "bool": true
-
-          }
+        }
       }
     },
     "circle": {
@@ -544,7 +555,8 @@
         },
         "aggregation": {
           "type": {
-            "enumeration": [{
+            "enumeration": [
+              {
                 "value": "Count",
                 "displayName": "Count",
                 "displayNameKey": "Count"
@@ -761,7 +773,8 @@
         },
         "selectedLevel": {
           "type": {
-            "enumeration": [{
+            "enumeration": [
+              {
                 "value": "1",
                 "displayName": "Level 1",
                 "displayNameKey": "level1"
@@ -819,7 +832,8 @@
         },
         "data1": {
           "type": {
-            "enumeration": [{
+            "enumeration": [
+              {
                 "value": "mapbox://mapbox.pbi-countries-v1",
                 "displayName": "Global Countries",
                 "displayNameKey": "globalCountries"
@@ -871,7 +885,8 @@
         },
         "data2": {
           "type": {
-            "enumeration": [{
+            "enumeration": [
+              {
                 "value": "mapbox://mapbox.pbi-countries-v1",
                 "displayName": "Global Countries",
                 "displayNameKey": "globalCountries"
@@ -923,7 +938,8 @@
         },
         "data3": {
           "type": {
-            "enumeration": [{
+            "enumeration": [
+              {
                 "value": "mapbox://mapbox.pbi-countries-v1",
                 "displayName": "Global Countries",
                 "displayNameKey": "globalCountries"
@@ -975,7 +991,8 @@
         },
         "data4": {
           "type": {
-            "enumeration": [{
+            "enumeration": [
+              {
                 "value": "mapbox://mapbox.pbi-countries-v1",
                 "displayName": "Global Countries",
                 "displayNameKey": "globalCountries"
@@ -1027,7 +1044,8 @@
         },
         "data5": {
           "type": {
-            "enumeration": [{
+            "enumeration": [
+              {
                 "value": "mapbox://mapbox.pbi-countries-v1",
                 "displayName": "Global Countries",
                 "displayNameKey": "globalCountries"
@@ -1079,7 +1097,8 @@
         },
         "data6": {
           "type": {
-            "enumeration": [{
+            "enumeration": [
+              {
                 "value": "mapbox://mapbox.pbi-countries-v1",
                 "displayName": "Global Countries",
                 "displayNameKey": "globalCountries"
@@ -1131,7 +1150,8 @@
         },
         "data7": {
           "type": {
-            "enumeration": [{
+            "enumeration": [
+              {
                 "value": "mapbox://mapbox.pbi-countries-v1",
                 "displayName": "Global Countries",
                 "displayNameKey": "globalCountries"
@@ -1183,7 +1203,8 @@
         },
         "data8": {
           "type": {
-            "enumeration": [{
+            "enumeration": [
+              {
                 "value": "mapbox://mapbox.pbi-countries-v1",
                 "displayName": "Global Countries",
                 "displayNameKey": "globalCountries"
@@ -1235,7 +1256,8 @@
         },
         "data9": {
           "type": {
-            "enumeration": [{
+            "enumeration": [
+              {
                 "value": "mapbox://mapbox.pbi-countries-v1",
                 "displayName": "Global Countries",
                 "displayNameKey": "globalCountries"
@@ -1287,7 +1309,8 @@
         },
         "data10": {
           "type": {
-            "enumeration": [{
+            "enumeration": [
+              {
                 "value": "mapbox://mapbox.pbi-countries-v1",
                 "displayName": "Global Countries",
                 "displayNameKey": "globalCountries"
@@ -1376,19 +1399,19 @@
       }
     },
     "colorSelector": {
-      "displayName": "Data Colors",
-      "properties": {
-        "fill": {
-          "displayName": "Color",
-          "type": {
+        "displayName": "Data Colors",
+        "properties": {
             "fill": {
-              "solid": {
-                "color": true
-              }
+                "displayName": "Color",
+                "type": {
+                    "fill": {
+                        "solid": {
+                            "color": true
+                        }
+                    }
+                }
             }
-          }
         }
-      }
     }
   }
 }
