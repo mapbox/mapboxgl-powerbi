@@ -3,6 +3,7 @@ module powerbi.extensibility.visual {
     declare var turf: any;
     declare var MapboxDraw: any;
     declare var MapboxGeocoder: any;
+    declare var mapboxgl: any;
 
     export class MapboxMap implements IVisual {
         private map: mapboxgl.Map;
@@ -219,10 +220,42 @@ module powerbi.extensibility.visual {
                 zoom: 10,
                 trackProximity: true
             })
+            let self = this
+
+            self.map.on('load', function () {
+                self.map.addSource('single-point', {
+                    "type": "geojson",
+                    "data": {
+                        "type": "FeatureCollection",
+                        "features": []
+                    }
+                });
+                self.map.loadImage('https://upload.wikimedia.org/wikipedia/commons/thumb/6/60/Cat_silhouette.svg/400px-Cat_silhouette.svg.png', function (error, image) {
+                    if (error) throw error;
+                    self.map.addImage('cat', image);
+                    self.map.addLayer({
+                        "id": "points",
+                        "type": "symbol",
+                        "source": "single-point",
+                        "layout": {
+                            "icon-image": "cat",
+                            "icon-size": 0.25
+                        }
+                    });
+                });
+
+
+            });
 
             this.map.addControl(new mapboxgl.NavigationControl());
             this.map.addControl(this.draw, 'top-left');
             this.map.addControl(this.autoZoomControl);
+            // Listen for the `result` event from the MapboxGeocoder that is triggered when a user
+            // makes a selection and add a symbol that matches the result.
+            self.geocoder.on('result', function (ev) {
+                let source: any = self.map.getSource('single-point')
+                source.setData(ev.result.geometry)
+            });
 
             document.querySelector('.map').appendChild(this.geocoder.onAdd(this.map));
 
