@@ -35,7 +35,9 @@ The Mapbox Visual for Power BI supports:
 |------------------------|-------------------|-------------------|--------------|--------------------|-------------|--------|---------|--------|------|------|
 | v 1.2.3                | TBD - soon             | Yes  | Yes          | Yes                | Yes         | Yes    | Yes     | Yes    | Yes  | Yes  |
 
-Power BI Report Server does support the Mapbox Visual.  We're confirming when the newest Report Server update will launch so that the latest v1.2.3 version of the Mapbox Visual on the Office Store will work using the latest v1.12.0 version of the Power BI Visuals API. 
+Power BI Report Server does support the Mapbox Visual.  We're confirming when the newest Report Server update will launch so that the latest v1.2.3 version of the Mapbox Visual on the Office Store will work using the latest v1.12.0 version of the Power BI Visuals API.
+
+In the meantime, you can [use this visual](https://github.com/mapbox/mapboxgl-powerbi/blob/1.2.4_1.10/dist/mapboxGLMap.pbiviz) which uses v.1.10.0 and will work with the current version of Power Bi Report Server. 
 
 #### Firewall rules - Domain names and ports to use with Power BI in a secure environment
 
