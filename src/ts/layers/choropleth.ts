@@ -477,8 +477,9 @@ module powerbi.extensibility.visual {
                     "minzoom": minZoom,
                     "paint": {
                         'circle-radius': {
-                            'base': .5,
+                            'base': .25,
                             'stops': [
+                                [5, .5],
                                 [6, 1],
                                 [9, 3],
                                 [12, 6]
