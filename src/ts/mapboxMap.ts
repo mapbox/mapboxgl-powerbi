@@ -7,7 +7,8 @@ module powerbi.extensibility.visual {
         private map: any;
         private mapDiv: HTMLDivElement;
         private errorDiv: HTMLDivElement;
-        private navigationControl: mapboxgl.NavigationControl; 
+        private controlsPopulated: boolean;
+        private navigationControl: mapboxgl.NavigationControl;
         private autoZoomControl: AutoZoomControl;
         private settings: MapboxSettings;
         private mapStyle: string = "";
@@ -65,6 +66,8 @@ module powerbi.extensibility.visual {
                     'line_string': true     // Lasso is overriding the 'line_string' mode
                 },
             });
+
+            this.controlsPopulated = false;
         }
 
         onUpdate(map, settings, zoom, updatedHandler: Function) {
@@ -358,13 +361,19 @@ module powerbi.extensibility.visual {
 
         private manageControlElements() {
             if (this.settings.api.showControls) {
-                this.map.addControl(this.navigationControl);
-                this.map.addControl(this.draw, 'top-left');
-                this.map.addControl(this.autoZoomControl);
+                if (!this.controlsPopulated) {
+                    this.map.addControl(this.navigationControl);
+                    this.map.addControl(this.draw, 'top-left');
+                    this.map.addControl(this.autoZoomControl);
+                    this.controlsPopulated = true;
+                }
             } else {
-                this.map.removeControl(this.navigationControl);
-                this.map.removeControl(this.draw);
-                this.map.removeControl(this.autoZoomControl);
+                if (this.controlsPopulated) {
+                    this.map.removeControl(this.navigationControl);
+                    this.map.removeControl(this.draw);
+                    this.map.removeControl(this.autoZoomControl);
+                    this.controlsPopulated = false;
+                }
             }
         }
 
