@@ -313,6 +313,14 @@
           "type": {
             "text": true
           }
+        },
+        "showControls": {
+          "displayName": "Show Mapbox controls",
+          "displayNameKey": "showControls",
+          "description": "Show Mapbox control elements",
+          "type": {
+            "bool": true
+          }
         }
       }
     },

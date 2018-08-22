@@ -7,6 +7,7 @@ module powerbi.extensibility.visual {
         private map: any;
         private mapDiv: HTMLDivElement;
         private errorDiv: HTMLDivElement;
+        private navigationControl: mapboxgl.NavigationControl; 
         private autoZoomControl: AutoZoomControl;
         private settings: MapboxSettings;
         private mapStyle: string = "";
@@ -44,13 +45,26 @@ module powerbi.extensibility.visual {
             });
 
             this.host = options.host;
-            this.autoZoomControl = new AutoZoomControl(this.host);
 
             this.tooltipServiceWrapper = createTooltipServiceWrapper(options.host.tooltipService, options.element);
             this.selectionManager = options.host.createSelectionManager();
-            this.host = options.host;
             this.filter = new Filter(this)
             this.palette = new Palette(this, options.host)
+
+            this.navigationControl = new mapboxgl.NavigationControl();
+            this.autoZoomControl = new AutoZoomControl(this.host);
+
+            // Override the line string tool with our lasso draw tool
+            MapboxDraw.modes.draw_line_string = LassoDraw.create(this.filter);
+
+            this.draw = new MapboxDraw({
+                displayControlsDefault: false,
+                // defaultMode: 'lasso',
+                controls: {
+                    'polygon': true,
+                    'line_string': true     // Lasso is overriding the 'line_string' mode
+                },
+            });
         }
 
         onUpdate(map, settings, zoom, updatedHandler: Function) {
@@ -191,22 +205,6 @@ module powerbi.extensibility.visual {
 
             // If the map container doesn't exist yet, create it
             this.map = new mapboxgl.Map(mapOptions);
-
-            // Override the line string tool with our lasso draw tool
-            MapboxDraw.modes.draw_line_string = LassoDraw.create(this.filter);
-
-            this.draw = new MapboxDraw({
-                displayControlsDefault: false,
-                // defaultMode: 'lasso',
-                controls: {
-                    'polygon': true,
-                    'line_string': true     // Lasso is overriding the 'line_string' mode
-                },
-            });
-
-            this.map.addControl(new mapboxgl.NavigationControl());
-            this.map.addControl(this.draw, 'top-left');
-            this.map.addControl(this.autoZoomControl);
 
             // Replace the line string draw icon to the lasso icon
             LassoDraw.makeIcon();
@@ -358,6 +356,18 @@ module powerbi.extensibility.visual {
             return true;
         }
 
+        private manageControlElements() {
+            if (this.settings.api.showControls) {
+                this.map.addControl(this.navigationControl);
+                this.map.addControl(this.draw, 'top-left');
+                this.map.addControl(this.autoZoomControl);
+            } else {
+                this.map.removeControl(this.navigationControl);
+                this.map.removeControl(this.draw);
+                this.map.removeControl(this.autoZoomControl);
+            }
+        }
+
         private visibilityChanged(oldSettings, newSettings) {
             return oldSettings && newSettings && (
                 oldSettings.choropleth.show != newSettings.choropleth.show ||
@@ -475,6 +485,9 @@ module powerbi.extensibility.visual {
             if (!this.map) {
                 this.addMap();
             }
+
+            // Show/hide Mapbox control elements based on the show controls switch
+            this.manageControlElements();
 
             // Apply auto-zoom pin state from settings, if they differ (note that one is referring to pin state,
             // the other is referring to 'enabled' state, this is why we have the equality check and the negation)
