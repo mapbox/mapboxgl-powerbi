@@ -495,7 +495,7 @@ module powerbi.extensibility.visual {
                 this.addMap();
             }
 
-            // Show/hide Mapbox control elements based on the show controls switch
+            // Show/hide Mapbox control elements based on the Mapbox Controls toggle button
             this.manageControlElements();
 
             // Apply auto-zoom pin state from settings, if they differ (note that one is referring to pin state,
