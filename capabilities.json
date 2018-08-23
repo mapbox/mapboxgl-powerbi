@@ -306,20 +306,20 @@
             "bool": true
           }
         },
+        "mapboxControls": {
+          "displayName": "Mapbox Controls",
+          "displayNameKey": "mapboxControls",
+          "description": "Toggle Mapbox control elements on/off",
+          "type": {
+            "bool": true
+          }
+        },
         "apiUrl": {
           "displayName": "Mapbox API URL",
           "displayNameKey": "apiUrl",
           "description": "Default URL for map api requests.  Set this to your Mapbox Atlas server hostname.",
           "type": {
             "text": true
-          }
-        },
-        "showControls": {
-          "displayName": "Show Mapbox controls",
-          "displayNameKey": "showControls",
-          "description": "Show Mapbox control elements",
-          "type": {
-            "bool": true
           }
         }
       }

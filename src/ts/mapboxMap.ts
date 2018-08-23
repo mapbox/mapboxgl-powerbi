@@ -360,7 +360,7 @@ module powerbi.extensibility.visual {
         }
 
         private manageControlElements() {
-            if (this.settings.api.showControls) {
+            if (this.settings.api.mapboxControls) {
                 if (!this.controlsPopulated) {
                     this.map.addControl(this.navigationControl);
                     this.map.addControl(this.draw, 'top-left');
