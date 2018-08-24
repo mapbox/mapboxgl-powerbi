@@ -10,6 +10,7 @@ module powerbi.extensibility.visual {
     export interface ITooltipServiceWrapper {
         addTooltip<T>(
             map,
+            roleMap,
             layers,
             getTooltipInfoDelegate: (args: TooltipEventArgs<T>) => VisualTooltipDataItem[],
             reloadTooltipDataOnMouseMove?: boolean): void;
@@ -36,6 +37,7 @@ module powerbi.extensibility.visual {
 
         public addTooltip<T>(
             map,
+            roleMap,
             layers,
             getTooltipInfoDelegate: (args: TooltipEventArgs<T>) => VisualTooltipDataItem[],
             reloadTooltipDataOnMouseMove?: boolean): void {
@@ -106,8 +108,20 @@ module powerbi.extensibility.visual {
                 immediately
             });
         }
+        private getToolTipFormat(roleMap, prop): any {
+
+            let format = undefined;
+            Object.keys(roleMap).map(role => {
+                if (roleMap[role].displayName === prop) {
+                    format = roleMap[role].format
+                    return
+                }
+            })
+            return format
+        }
 
         private makeTooltipEventArgs<T>(e: any): TooltipEventArgs<T> {
+        private makeTooltipEventArgs<T>(e: any, roleMap: any): TooltipEventArgs<T> {
 
             let tooltipEventArgs : TooltipEventArgs<T> = null;
             try {
@@ -115,11 +129,16 @@ module powerbi.extensibility.visual {
                     tooltipEventArgs = {
                         // Take only the first three element until we figure out how
                         // to add pager to powerbi native tooltips
-                        data: e.features.slice(0, 3).map( feature => {
-                            return Object.keys(feature.properties).map( prop => {
+                        data: e.features.slice(0, 3).map(feature => {
+                            return Object.keys(feature.properties).map(prop => {
+                                let format = this.getToolTipFormat(roleMap, prop)
+                                let tooltipValue = feature.properties[prop]
+                                if (format !== undefined) {
+                                    tooltipValue = numeral(tooltipValue).format(format);
+                                }
                                 return {
                                     key: prop,
-                                    value: feature.properties[prop]
+                                    value: tooltipValue
                                 }
                             });
                         }),
