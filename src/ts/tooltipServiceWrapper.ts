@@ -1,4 +1,5 @@
 module powerbi.extensibility.visual {
+    declare var numeral: any;
 
     export interface TooltipEventArgs<TData> {
         data: TData;
