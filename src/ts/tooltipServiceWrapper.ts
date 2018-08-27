@@ -115,10 +115,9 @@ module powerbi.extensibility.visual {
                         // to add pager to powerbi native tooltips
                         data: e.features.slice(0, 3).map(feature => {
                             return Object.keys(feature.properties).map(prop => {
-                                let tooltipValue = feature.properties[prop]
                                 return {
                                     key: prop,
-                                    value: tooltipValue
+                                    value: feature.properties[prop]
                                 }
                             });
                         }),
