@@ -1,10 +1,9 @@
 module powerbi.extensibility.visual {
-    declare var debug: any;
     declare var turf: any;
     declare var MapboxDraw : any;
 
     export class MapboxMap implements IVisual {
-        private map: any;
+        private map: mapboxgl.Map;
         private mapDiv: HTMLDivElement;
         private errorDiv: HTMLDivElement;
         private autoZoomControl: AutoZoomControl;
@@ -358,40 +357,11 @@ module powerbi.extensibility.visual {
             return true;
         }
 
-        private visibilityChanged(oldSettings, newSettings) {
-            return oldSettings && newSettings && (
-                oldSettings.choropleth.show != newSettings.choropleth.show ||
-                oldSettings.circle.show != newSettings.circle.show ||
-                oldSettings.cluster.show != newSettings.cluster.show ||
-                oldSettings.heatmap.show != newSettings.heatmap.show)
-        }
-
-        private static getTooltipData(value: any): VisualTooltipDataItem[] {
-            if (!value) {
-                return []
-            }
-
-            // Flatten the multiple properties or multiple datapoints
-            return [].concat.apply([], value.map(properties => {
-                // This mapping is needed to copy the value with the toString
-                // call as otherwise some caching logic causes to be the same
-                // tooltip displayed for all datapoints.
-                return properties.map(prop => {
-                    return {
-                        displayName: prop.key,
-                        value: prop.value.toString(),
-                    }
-                });
-            }))
-        }
-
         public hideTooltip(): void {
             this.tooltipServiceWrapper.hide(true)
         }
 
         public updateLayers(dataView: DataView) {
-            // Placeholder to indicate whether data changed or paint prop changed
-            // For now this is always true
             const features = mapboxConverter.convert(dataView);
 
             this.palette.update(dataView, features);
