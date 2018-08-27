@@ -107,7 +107,6 @@ module powerbi.extensibility.visual {
             });
         }
 
-        private makeTooltipEventArgs<T>(e: any): TooltipEventArgs<T> {
         private makeTooltipEventArgs<T>(e: any, roleMap: any): TooltipEventArgs<T> {
 
             let tooltipEventArgs : TooltipEventArgs<T> = null;
