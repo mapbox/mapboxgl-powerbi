@@ -8,7 +8,6 @@ module powerbi.extensibility.visual {
     export interface ITooltipServiceWrapper {
         addTooltip<T>(
             map,
-            roleMap,
             layers,
             getTooltipInfoDelegate: (args: TooltipEventArgs<T>) => VisualTooltipDataItem[],
             reloadTooltipDataOnMouseMove?: boolean): void;
@@ -35,7 +34,6 @@ module powerbi.extensibility.visual {
 
         public addTooltip<T>(
             map,
-            roleMap,
             layers,
             getTooltipInfoDelegate: (args: TooltipEventArgs<T>) => VisualTooltipDataItem[],
             reloadTooltipDataOnMouseMove?: boolean): void {
@@ -107,7 +105,7 @@ module powerbi.extensibility.visual {
             });
         }
 
-        private makeTooltipEventArgs<T>(e: any, roleMap: any): TooltipEventArgs<T> {
+        private makeTooltipEventArgs<T>(e: any): TooltipEventArgs<T> {
 
             let tooltipEventArgs : TooltipEventArgs<T> = null;
             try {
