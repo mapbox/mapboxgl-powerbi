@@ -5,24 +5,24 @@ module powerbi.extensibility.visual.data {
         private fillColorLimits: mapboxUtils.Limits;
 
         constructor() {
-            super('choropleth');
+            super('choropleth-source');
         }
 
-        addSources(map, settings) {
-            map.addSource('choropleth-source', {
+        addSources(map, settings: MapboxSettings) {
+            map.addSource(this.ID, {
                 type: 'vector',
                 url: settings.choropleth[`vectorTileUrl${settings.choropleth.currentLevel}`],
             });
-            return map.getSource('choropleth-source');
+            return map.getSource(this.ID);
         }
 
         removeSources(map) {
-            map.removeSource('choropleth-source');
+            map.removeSource(this.ID);
         }
 
         ensure(map, layerId, settings): void {
             super.ensure(map, layerId, settings)
-            const source: any = map.getSource('choropleth-source');
+            const source: any = map.getSource(this.ID);
             if (!source) {
                 this.addToMap(map, settings);
             }
