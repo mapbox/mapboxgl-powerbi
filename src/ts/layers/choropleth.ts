@@ -20,12 +20,12 @@ module powerbi.extensibility.visual {
             return [Choropleth.ID, Choropleth.OutlineID];
         }
 
-        addLayer(settings, beforeLayerId, roleMap) {
+        addLayer(settings: MapboxSettings, beforeLayerId, roleMap) {
             const map = this.parent.getMap();
 
             const choroSettings = settings.choropleth;
-            const sourceLayer = choroSettings[`sourceLayer${choroSettings.currentLevel}`];
-            const vectorProperty = choroSettings[`vectorProperty${choroSettings.currentLevel}`];
+            const sourceLayer = choroSettings.getCurrentSourceLayer()
+            const vectorProperty = choroSettings.getCurrentVectorProperty()
 
             const choroplethLayer = mapboxUtils.decorateLayer({
                 id: Choropleth.ID,
@@ -88,7 +88,7 @@ module powerbi.extensibility.visual {
 
             const map = this.parent.getMap();
             const choroSettings = this.settings;
-            const vectorProperty = choroSettings[`vectorProperty${choroSettings.currentLevel}`];
+            const vectorProperty = choroSettings.getCurrentVectorProperty()
             map.setFilter(Choropleth.HighlightID, ["==", vectorProperty, e.features[0].properties[vectorProperty]]);
             map.setFilter(Choropleth.HighlightOutlineID, ["==", vectorProperty, e.features[0].properties[vectorProperty]]);
         }
@@ -99,7 +99,7 @@ module powerbi.extensibility.visual {
             }
 
             const choroSettings = this.settings;
-            const vectorProperty = choroSettings[`vectorProperty${choroSettings.currentLevel}`];
+            const vectorProperty = choroSettings.getCurrentVectorProperty()
             const zeroFilter = ["==", vectorProperty, ""]
             const map = this.parent.getMap();
 
@@ -111,7 +111,7 @@ module powerbi.extensibility.visual {
         updateSelection(features, roleMap) {
             const map = this.parent.getMap();
             const choroSettings = this.settings;
-            const vectorProperty = choroSettings[`vectorProperty${choroSettings.currentLevel}`];
+            const vectorProperty = choroSettings.getCurrentVectorProperty()
 
             let locationFilter = [];
             locationFilter.push("any");
@@ -232,7 +232,7 @@ module powerbi.extensibility.visual {
 
                 // We use the old property function syntax here because the data-join technique is faster to parse still than expressions with this method
                 const defaultColor = 'rgba(0,0,0,0)';
-                const property = choroSettings[`vectorProperty${choroSettings.currentLevel}`];
+                const property = choroSettings.getCurrentVectorProperty()
                 let colors = { type: "categorical", property, default: defaultColor, stops: [] };
                 let outlineColors = { type: "categorical", property, default: defaultColor, stops: [] };
                 let filter = ['in', property];
@@ -296,7 +296,7 @@ module powerbi.extensibility.visual {
             return true;
         }
 
-        handleTooltip(tooltipEvent, roleMap, settings) {
+        handleTooltip(tooltipEvent, roleMap, settings: MapboxSettings) {
             const tooltipData = super.handleTooltip(tooltipEvent, roleMap, settings);
             let choroVectorData = null;
             tooltipData.map(td => {
@@ -304,7 +304,7 @@ module powerbi.extensibility.visual {
                     return;
                 }
 
-                if (td.displayName === settings.choropleth[`vectorProperty${settings.choropleth.currentLevel}`]) {
+                if (td.displayName === settings.choropleth.getCurrentVectorProperty()) {
                     choroVectorData = td;
                 }
             });

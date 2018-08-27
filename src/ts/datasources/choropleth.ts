@@ -11,7 +11,7 @@ module powerbi.extensibility.visual.data {
         addSources(map, settings: MapboxSettings) {
             map.addSource(this.ID, {
                 type: 'vector',
-                url: settings.choropleth[`vectorTileUrl${settings.choropleth.currentLevel}`],
+                url: settings.choropleth.getCurrentVectorTileUrl(),
             });
             return map.getSource(this.ID);
         }

@@ -182,6 +182,17 @@ module powerbi.extensibility.visual {
         public outlineWidth: number = 1;
         public outlineOpacity: number = 50;
 
+        public getCurrentSourceLayer(): string {
+            return this[`sourceLayer${this.currentLevel}`]
+        }
+
+        public getCurrentVectorProperty(): string {
+            return this[`vectorProperty${this.currentLevel}`]
+        }
+
+        public getCurrentVectorTileUrl(): string {
+            return this[`vectorTileUrl${this.currentLevel}`]
+        }
 
         public display(): boolean {
             return this.show &&
