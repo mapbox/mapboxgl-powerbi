@@ -52,13 +52,13 @@ module powerbi.extensibility.visual {
             this.palette = new Palette(this, options.host)
         }
 
-        onUpdate(map, settings, zoom, updatedHandler: Function) {
+        onUpdate(map, settings, updatedHandler: Function) {
             try {
                 this.layers.map(layer => {
                     layer.applySettings(settings, this.roleMap);
                 });
 
-                if (zoom) {
+                if (settings.api.autozoom) {
                     const bounds = this.layers.map(layer => {
                         return layer.getBounds(settings);
                     }).reduce((acc, bounds) => {
@@ -74,7 +74,7 @@ module powerbi.extensibility.visual {
                         ]);
                         return turf.bbox(combined)
                     });
-                    mapboxUtils.zoomToData(map, bounds, this.autoZoomControl.isPinned());
+                    mapboxUtils.zoomToData(map, bounds);
                 }
             }
             catch (error) {
@@ -391,7 +391,7 @@ module powerbi.extensibility.visual {
                 }
             });
 
-            this.onUpdate(this.map, this.settings, true, this.updatedHandler);
+            this.onUpdate(this.map, this.settings, this.updatedHandler);
         }
 
         private updateCurrentLevel(settings, options) {
