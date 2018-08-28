@@ -152,35 +152,6 @@ module powerbi.extensibility.visual {
             this.source.removeFromMap(map, Choropleth.ID);
         }
 
-        getBounds(settings): any[] {
-            const map = this.parent.getMap();
-            let source: any;
-            let bounds: any[];
-
-            if (map.getSource('choropleth-source') && map.isSourceLoaded('choropleth-source')) {
-                source = map.getSource('choropleth-source');
-                bounds = source.bounds;
-                return bounds
-            }
-            else {
-                // If the source isn't loaded, fit bounds after source loads
-                let sourceLoaded = function (e) {
-                    if (e.sourceId === 'choropleth-source') {
-                        source = map.getSource('choropleth-source');
-                        map.off('sourcedata', sourceLoaded);
-                        bounds = source.bounds;
-                        if (settings.api.autozoom) {
-                            map.fitBounds(bounds, {
-                                padding: 20,
-                                maxZoom: 15,
-                            });
-                        }
-                    }
-                }
-                map.on('sourcedata', sourceLoaded);
-            }
-        }
-
         getSource(settings) {
             const choroSettings = settings.choropleth;
             if (choroSettings.show) {

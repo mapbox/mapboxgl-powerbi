@@ -3,9 +3,11 @@ module powerbi.extensibility.visual.data {
     export class Choropleth extends Datasource {
         private choroplethData: any[];
         private fillColorLimits: mapboxUtils.Limits;
+        private bboxCache: BBoxCache;
 
         constructor() {
             super('choropleth-source');
+            this.bboxCache = new BBoxCache()
         }
 
         addSources(map, settings: MapboxSettings) {
@@ -32,15 +34,17 @@ module powerbi.extensibility.visual.data {
             return this.fillColorLimits;
         }
 
-        getData(map, settings) : any[] {
+        getData(map, settings): any[] {
             return this.choroplethData;
         }
 
-        update(map, features, roleMap, settings) {
+        update(map, features, roleMap, settings: MapboxSettings) {
             super.update(map, features, roleMap, settings)
-
-            this.choroplethData = features.map(f => f.properties);
-            this.fillColorLimits = mapboxUtils.getLimits(this.choroplethData, roleMap.color ? roleMap.color.displayName : '');
+            this.choroplethData = features.map(f => f.properties)
+            this.fillColorLimits = mapboxUtils.getLimits(this.choroplethData, roleMap.color ? roleMap.color.displayName : '')
+            const featureNames = this.choroplethData.map(f => f[roleMap.location.displayName])
+            this.bboxCache.update(map, this.ID, settings.choropleth)
+            this.bounds = this.bboxCache.getBBox(featureNames);
         }
     }
 }
