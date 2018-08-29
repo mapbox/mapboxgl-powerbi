@@ -66,6 +66,14 @@ module powerbi.extensibility.visual.data {
                 }, {})
 
             Object.keys(sourceFeaturesByName).forEach((featureName) => {
+                // NOTE: hardcode Alaska bounding box, as Alaska is spreading over the meridian, thus its bounding box
+                // would result in an entire world-like bounds.
+                const currentVectorTileUrl = this.usedSettings[`vectorTileUrl${this.usedSettings.currentLevel}`];
+                if (featureName == 'Alaska' && currentVectorTileUrl == ChoroplethSettings.US_STATES_TILE_URL) {
+                    this.cache[featureName] = turf.bboxPolygon([-168.121, 54.764, -129.994, 71.39]);
+                    return;
+                }
+
                 const featureArray = sourceFeaturesByName[featureName]
                 const cachedFeaturePolygon = this.cache[featureName]
                 if (cachedFeaturePolygon) {
