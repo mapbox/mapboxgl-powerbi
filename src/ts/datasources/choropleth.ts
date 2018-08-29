@@ -5,6 +5,8 @@ module powerbi.extensibility.visual.data {
         private fillColorLimits: mapboxUtils.Limits;
         private bboxCache: BBoxCache;
 
+        private static readonly BBOX_TIMEOUT = 5000
+
         constructor() {
             super('choropleth-source');
             this.bboxCache = new BBoxCache()
@@ -48,13 +50,20 @@ module powerbi.extensibility.visual.data {
             // with isSourceLoaded being true. And then sometimes querySourceFeatures() returns an empty set.
             // This is why we are waiting until we get the bounds of the desired features.
             if (settings.api.autozoom) {
+                const start = Date.now()
                 let sourceLoaded = (e) => {
+                    console.log('sourcedata event')
+                    if (Date.now() - start > Choropleth.BBOX_TIMEOUT) {
+                        console.log('Waiting for getting bounds of desired features has timed out')
+                        map.off('sourcedata', sourceLoaded)
+                        return
+                    }
                     if (e.sourceId == this.ID) {
                         this.bboxCache.update(map, this.ID, settings.choropleth)
                         this.bounds = this.bboxCache.getBBox(featureNames)
                         if (this.bounds == null) {
                             // Wait a bit more until we get the bounding box for the desired features
-                            return;
+                            return
                         }
                         map.off('sourcedata', sourceLoaded)
                         mapboxUtils.zoomToData(map, this.bounds)
