@@ -157,15 +157,6 @@ module powerbi.extensibility.visual {
                 return
             }
 
-            this.layers = []
-            this.layers.push(new Heatmap(this))
-            this.layers.push(new Cluster(this, () => {
-                return this.roleMap.cluster.displayName;
-            }))
-            this.layers.push(new Circle(this, this.palette))
-            this.layers.push(new Choropleth(this, this.palette));
-            mapboxgl.config.API_URL = this.settings.api.apiUrl;
-
             const mapOptions = {
                 container: this.mapDiv,
                 zoom: this.settings.api.zoom,
@@ -190,6 +181,15 @@ module powerbi.extensibility.visual {
 
             // If the map container doesn't exist yet, create it
             this.map = new mapboxgl.Map(mapOptions);
+
+            this.layers = []
+            this.layers.push(new Heatmap(this))
+            this.layers.push(new Cluster(this, () => {
+                return this.roleMap.cluster.displayName;
+            }))
+            this.layers.push(new Circle(this, this.palette))
+            this.layers.push(new Choropleth(this, this.palette));
+            mapboxgl.config.API_URL = this.settings.api.apiUrl;
 
             // Override the line string tool with our lasso draw tool
             MapboxDraw.modes.draw_line_string = LassoDraw.create(this.filter);
