@@ -44,30 +44,29 @@ module powerbi.extensibility.visual.data {
             this.fillColorLimits = mapboxUtils.getLimits(this.choroplethData, roleMap.color ? roleMap.color.displayName : '')
             const featureNames = this.choroplethData.map(f => f[roleMap.location.displayName])
 
-            // NOTE: this is a workaround because 'load' event of mapbox is missing sometimes. And 
-            // even if it is triggered, sometimes querySourceFeatures() returns an empty set. This
-            // is why we are polling until we get the bounds of the desired features.
+            // NOTE: this is a workaround because 'sourcedata' event of mapbox is received multiple times
+            // with isSourceLoaded being true. And then sometimes querySourceFeatures() returns an empty set.
+            // This is why we are waiting until we get the bounds of the desired features.
             if (settings.api.autozoom) {
-                const pollStart = Date.now();
-                let bboxInit = setInterval( () => {
-                    // Stop polling after 5 seconds
-                    if (Date.now() - pollStart > 5000) {
-                        clearInterval(bboxInit);
-                        console.log('Failed to get the bounding box of the desired features. Abort polling.')
-                        return;
+                let sourceLoaded = (e) => {
+                    if (e.sourceId == this.ID) {
+                        this.bboxCache.update(map, this.ID, settings.choropleth)
+                        this.bounds = this.bboxCache.getBBox(featureNames)
+                        if (this.bounds == null) {
+                            // Wait a bit more until we get the bounding box for the desired features
+                            return;
+                        }
+                        map.off('sourcedata', sourceLoaded)
+                        mapboxUtils.zoomToData(map, this.bounds)
                     }
+                }
 
-                    this.bboxCache.update(map, this.ID, settings.choropleth);
-                    this.bounds = this.bboxCache.getBBox(featureNames);
-
-                    if (this.bounds == null) {
-                        // Wait a bit more until we get the bounding box for the desired features
-                        return;
-                    }
-
-                    mapboxUtils.zoomToData(map, this.bounds);
-                    clearInterval(bboxInit);
-                }, 300);
+                this.bboxCache.update(map, this.ID, settings.choropleth)
+                this.bounds = this.bboxCache.getBBox(featureNames)
+                if (this.bounds == null) {
+                    // Source must be still loading wait for it to finish
+                    map.on('sourcedata', sourceLoaded)
+                }
             }
         }
     }
