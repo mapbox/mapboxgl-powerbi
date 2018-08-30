@@ -7,8 +7,8 @@ module powerbi.extensibility.visual {
             values: number[];
         }
 
-        export function zoomToData(map, bounds, autoZoomPinned) {
-            if (bounds && !autoZoomPinned) {
+        export function zoomToData(map, bounds) {
+            if (bounds) {
                 map.fitBounds(bounds, {
                     padding: 20,
                     maxZoom: 15,
