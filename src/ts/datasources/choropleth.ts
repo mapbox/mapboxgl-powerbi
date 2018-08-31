@@ -3,11 +3,10 @@ module powerbi.extensibility.visual.data {
     export class Choropleth extends Datasource {
         private choroplethData: any[];
         private fillColorLimits: mapboxUtils.Limits;
-		private fillSizeLimits: mapboxUtils.Limits;
+        private fillSizeLimits: mapboxUtils.Limits;
         private bboxCache: BBoxCache;
 
         private static readonly BBOX_TIMEOUT = 5000
-        
 
         constructor() {
             super('choropleth-source');
@@ -49,7 +48,7 @@ module powerbi.extensibility.visual.data {
             super.update(map, features, roleMap, settings)
             this.choroplethData = features.map(f => f.properties)
             this.fillColorLimits = mapboxUtils.getLimits(this.choroplethData, roleMap.color ? roleMap.color.displayName : '')
-			this.fillSizeLimits = mapboxUtils.getLimits(this.choroplethData, roleMap.size ? roleMap.size.displayName : '')
+            this.fillSizeLimits = mapboxUtils.getLimits(this.choroplethData, roleMap.size ? roleMap.size.displayName : '')
             const featureNames = this.choroplethData.map(f => f[roleMap.location.displayName])
 
             // NOTE: this is a workaround because 'sourcedata' event of mapbox is received multiple times
