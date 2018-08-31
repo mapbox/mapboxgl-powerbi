@@ -123,6 +123,9 @@ module powerbi.extensibility.visual {
         public highlightColor: string = "#2c7fb8";
         public minZoom: number = 0;
         public maxZoom: number = 22;
+        public baseHeight: number = 0;
+        public height: number = 0;
+        public extrusionColor: string = "#FFC0CB"
 
         public maxLevel: number = 1
         public selectedLevel: string = '1'
@@ -223,6 +226,18 @@ module powerbi.extensibility.visual {
                     numberRange: {
                         min: 0,
                         max: 22,
+                    }
+                },
+                height: {
+                    numberRange: {
+                        min: 0,
+                        max: 1000000
+                    }
+                },
+                baseHeight: {
+                    numberRange: {
+                        min: 0,
+                        max: properties.height || 0
                     }
                 },
                 opacity: {
