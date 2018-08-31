@@ -7,7 +7,8 @@ module powerbi.extensibility.visual.data {
         private usedSettings: ChoroplethSettings
 
         public getBBox(featureNames: string[]): number[] {
-            const features = featureNames.map(featureName => this.cache[featureName]).filter(feature => feature != null)
+            const features = featureNames.map(featureName => this.cache[featureName])
+                                         .filter(feature => feature != null)
             if (!features.length) {
                 return null
             }
