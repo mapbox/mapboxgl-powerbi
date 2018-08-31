@@ -54,6 +54,11 @@ module powerbi.extensibility.visual {
             try {
                 this.groupColors = [];
                 const roleMap = this.mapVisual.getRoleMap()
+
+                if (!roleMap.color) {
+                    return;
+                }
+
                 if (mapboxUtils.shouldUseGradient(roleMap.color)) {
                     return;
                 }

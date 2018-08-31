@@ -17,7 +17,7 @@ module powerbi.extensibility.visual {
         }
 
         export function shouldUseGradient(colorColumn) {
-            return colorColumn.aggregates != null;
+            return colorColumn && colorColumn.aggregates != null;
         }
 
         export function debounce(func, wait, immediate) {
