@@ -6,6 +6,8 @@ module powerbi.extensibility.visual {
         private map: mapboxgl.Map;
         private mapDiv: HTMLDivElement;
         private errorDiv: HTMLDivElement;
+        private controlsPopulated: boolean;
+        private navigationControl: mapboxgl.NavigationControl;
         private autoZoomControl: AutoZoomControl;
         private settings: MapboxSettings;
         private mapStyle: string = "";
@@ -43,13 +45,28 @@ module powerbi.extensibility.visual {
             });
 
             this.host = options.host;
-            this.autoZoomControl = new AutoZoomControl(this.host);
 
             this.tooltipServiceWrapper = createTooltipServiceWrapper(options.host.tooltipService, options.element);
             this.selectionManager = options.host.createSelectionManager();
-            this.host = options.host;
             this.filter = new Filter(this)
             this.palette = new Palette(this, options.host)
+
+            this.navigationControl = new mapboxgl.NavigationControl();
+            this.autoZoomControl = new AutoZoomControl(this.host);
+
+            // Override the line string tool with our lasso draw tool
+            MapboxDraw.modes.draw_line_string = LassoDraw.create(this.filter);
+
+            this.draw = new MapboxDraw({
+                displayControlsDefault: false,
+                // defaultMode: 'lasso',
+                controls: {
+                    'polygon': true,
+                    'line_string': true     // Lasso is overriding the 'line_string' mode
+                },
+            });
+
+            this.controlsPopulated = false;
         }
 
         onUpdate(map, settings, updatedHandler: Function) {
@@ -190,22 +207,6 @@ module powerbi.extensibility.visual {
             this.layers.push(new Circle(this, this.palette))
             this.layers.push(new Choropleth(this, this.palette));
             mapboxgl.config.API_URL = this.settings.api.apiUrl;
-
-            // Override the line string tool with our lasso draw tool
-            MapboxDraw.modes.draw_line_string = LassoDraw.create(this.filter);
-
-            this.draw = new MapboxDraw({
-                displayControlsDefault: false,
-                // defaultMode: 'lasso',
-                controls: {
-                    'polygon': true,
-                    'line_string': true     // Lasso is overriding the 'line_string' mode
-                },
-            });
-
-            this.map.addControl(new mapboxgl.NavigationControl());
-            this.map.addControl(this.draw, 'top-left');
-            this.map.addControl(this.autoZoomControl);
 
             // Replace the line string draw icon to the lasso icon
             LassoDraw.makeIcon();
@@ -357,6 +358,24 @@ module powerbi.extensibility.visual {
             return true;
         }
 
+        private manageControlElements() {
+            if (this.settings.api.mapboxControls) {
+                if (!this.controlsPopulated) {
+                    this.map.addControl(this.navigationControl);
+                    this.map.addControl(this.draw, 'top-left');
+                    this.map.addControl(this.autoZoomControl);
+                    this.controlsPopulated = true;
+                }
+            } else {
+                if (this.controlsPopulated) {
+                    this.map.removeControl(this.navigationControl);
+                    this.map.removeControl(this.draw);
+                    this.map.removeControl(this.autoZoomControl);
+                    this.controlsPopulated = false;
+                }
+            }
+        }
+
         public hideTooltip(): void {
             this.tooltipServiceWrapper.hide(true)
         }
@@ -445,6 +464,9 @@ module powerbi.extensibility.visual {
             if (!this.map) {
                 this.addMap();
             }
+
+            // Show/hide Mapbox control elements based on the Mapbox Controls toggle button
+            this.manageControlElements();
 
             // Apply auto-zoom pin state from settings, if they differ (note that one is referring to pin state,
             // the other is referring to 'enabled' state, this is why we have the equality check and the negation)

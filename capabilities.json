@@ -306,6 +306,14 @@
             "bool": true
           }
         },
+        "mapboxControls": {
+          "displayName": "Mapbox Controls",
+          "displayNameKey": "mapboxControls",
+          "description": "Toggle Mapbox control elements on/off",
+          "type": {
+            "bool": true
+          }
+        },
         "apiUrl": {
           "displayName": "Mapbox API URL",
           "displayNameKey": "apiUrl",
