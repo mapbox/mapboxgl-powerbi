@@ -747,6 +747,22 @@
             }
           }
         },
+        "baseHeight": {
+          "displayName": "Extrusion Base",
+          "displayNameKey": "baseHeight",
+          "description": "Defines base height for 3d extrusion",
+          "type": {
+            "integer": true
+          }
+        },
+        "height": {
+          "displayName": "Extrusion Height",
+          "displayNameKey": "height",
+          "description": "Defines height for 3d extrusion multiplied by 1000",
+          "type": {
+            "integer": true
+          }
+        },
         "minZoom": {
           "displayName": "Min Zoom",
           "displayNameKey": "minZoom",
