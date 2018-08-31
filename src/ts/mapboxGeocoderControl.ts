@@ -5,18 +5,45 @@ module powerbi.extensibility.visual {
         private geocoder: any
         private eventHandlers: { [eventName: string]: Function }
         private pin: mapboxgl.Marker
+        private dropPin: boolean
+        private accessToken: string
+        private zoom: number
 
-        constructor(accessToken: string) {
-            this.geocoder = new MapboxGeocoder({
-                accessToken: accessToken,
-                zoom: 10,
-                trackProximity: true
-            })
 
+        constructor(settings: MapboxSettings) {
+            this.accessToken = settings.api.accessToken
+            this.zoom = settings.geocoder.zoom
+            this.dropPin = settings.geocoder.dropPin
             this.pin = new mapboxgl.Marker()
         }
 
+        public update(map: mapboxgl.Map, settings: MapboxSettings) {
+
+            if (!settings.geocoder.dropPin) {
+                this.removePin()
+            }
+
+            const reinitNeeded = false
+                || this.accessToken != settings.api.accessToken
+                || this.zoom != settings.geocoder.zoom
+
+            this.accessToken = settings.api.accessToken
+            this.zoom = settings.geocoder.zoom
+            this.dropPin = settings.geocoder.dropPin
+
+            if (reinitNeeded && this.geocoder) {
+                map.removeControl(this)
+                map.addControl(this)
+            }
+        }
+
         public onAdd(map: mapboxgl.Map): HTMLElement {
+            this.geocoder = new MapboxGeocoder({
+                accessToken: this.accessToken,
+                zoom: this.zoom,
+                trackProximity: false // BUG in mapbox-gl-geocoder
+            })
+
             this.quirkPosition(map)
             if (map.loaded()) {
                 this.subscribe(map)
@@ -32,9 +59,12 @@ module powerbi.extensibility.visual {
         }
 
         public onRemove(map: mapboxgl.Map) {
-            this.unsubscribe()
-            this.removePin()
-            this.geocoder.onRemove(map)
+            if (this.geocoder) {
+                this.unsubscribe()
+                this.removePin()
+                this.geocoder.onRemove(map)
+                this.geocoder = null
+            }
         }
 
         public getDefaultPosition(): string {
@@ -85,7 +115,9 @@ module powerbi.extensibility.visual {
         }
 
         private addPin(map: mapboxgl.Map, position: number[]) {
-            this.pin.setLngLat(position).addTo(map)
+            if (this.dropPin) {
+                this.pin.setLngLat(position).addTo(map)
+            }
         }
 
         // This a workaround for the mapboxgl.Map to support the top-center position string

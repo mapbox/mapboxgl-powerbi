@@ -209,9 +209,6 @@ module powerbi.extensibility.visual {
             this.layers.push(new Choropleth(this, this.palette));
             mapboxgl.config.API_URL = this.settings.api.apiUrl;
 
-            this.geocoder = new MapboxGeocoderControl(this.settings.api.accessToken);
-            this.map.addControl(this.geocoder);
-
             // Replace the line string draw icon to the lasso icon
             LassoDraw.makeIcon();
 
@@ -472,6 +469,8 @@ module powerbi.extensibility.visual {
             // Show/hide Mapbox control elements based on the Mapbox Controls toggle button
             this.manageControlElements();
 
+            this.updateGeocoder();
+
             // Apply auto-zoom pin state from settings, if they differ (note that one is referring to pin state,
             // the other is referring to 'enabled' state, this is why we have the equality check and the negation)
             if (this.autoZoomControl.isPinned() == this.settings.api.autozoom) {
@@ -501,6 +500,21 @@ module powerbi.extensibility.visual {
             } else {
                 this.updateLayers(dataView)
                 return;
+            }
+        }
+
+        private updateGeocoder() {
+            if (this.settings.geocoder.show && !this.geocoder) {
+                this.geocoder = new MapboxGeocoderControl(this.settings);
+                this.map.addControl(this.geocoder);
+            }
+            else if (!this.settings.geocoder.show && this.geocoder) {
+                this.map.removeControl(this.geocoder)
+                this.geocoder = null
+            }
+
+            if (this.geocoder) {
+                this.geocoder.update(this.map, this.settings)
             }
         }
 
