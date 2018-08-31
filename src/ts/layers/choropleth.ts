@@ -300,6 +300,7 @@ module powerbi.extensibility.visual {
                     map.setPaintProperty(Choropleth.ID, 'fill-color', colors);
                     map.setFilter(Choropleth.ID, filter);
                     map.setFilter(Choropleth.OutlineID, filter);
+                    map.setPaintProperty(Choropleth.ExtrusionID, 'fill-extrusion-color', colors);
                     map.setPaintProperty(Choropleth.ExtrusionID, 'fill-extrusion-height', sizes)
                 } else {
                     map.setPaintProperty(Choropleth.ID, 'fill-color', 'rgb(0, 0, 0)');
@@ -322,6 +323,7 @@ module powerbi.extensibility.visual {
                 map.setPaintProperty(Choropleth.OutlineID, 'line-width', settings.choropleth.outlineWidth);
                 map.setPaintProperty(Choropleth.OutlineID, 'line-opacity', settings.choropleth.outlineOpacity / 100);
                 map.setLayerZoomRange(Choropleth.ID, choroSettings.minZoom, choroSettings.maxZoom);
+                map.setPaintProperty(Choropleth.ExtrusionID, 'fill-extrusion-base', choroSettings.baseHeight);
             }
         }
 
