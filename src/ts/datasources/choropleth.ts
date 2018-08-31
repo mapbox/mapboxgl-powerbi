@@ -52,7 +52,6 @@ module powerbi.extensibility.visual.data {
             if (settings.api.autozoom) {
                 const start = Date.now()
                 let sourceLoaded = (e) => {
-                    console.log('sourcedata event')
                     if (Date.now() - start > Choropleth.BBOX_TIMEOUT) {
                         console.log('Waiting for getting bounds of desired features has timed out')
                         map.off('sourcedata', sourceLoaded)
