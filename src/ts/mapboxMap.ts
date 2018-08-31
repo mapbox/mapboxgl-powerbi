@@ -23,6 +23,7 @@ module powerbi.extensibility.visual {
         private host: IVisualHost;
         private categories: any;
         private draw: any;  // TODO: this should not be any
+        private geocoder: MapboxGeocoderControl;
 
         constructor(options: VisualConstructorOptions) {
             // Map initialization
@@ -207,6 +208,9 @@ module powerbi.extensibility.visual {
             this.layers.push(new Circle(this, this.palette))
             this.layers.push(new Choropleth(this, this.palette));
             mapboxgl.config.API_URL = this.settings.api.apiUrl;
+
+            this.geocoder = new MapboxGeocoderControl(this.settings.api.accessToken);
+            this.map.addControl(this.geocoder);
 
             // Replace the line string draw icon to the lasso icon
             LassoDraw.makeIcon();
