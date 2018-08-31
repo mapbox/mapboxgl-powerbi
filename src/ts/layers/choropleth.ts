@@ -198,8 +198,8 @@ module powerbi.extensibility.visual {
             }
 
             if (choroSettings.display()) {
-                const fillColorLimits = this.source.getLimits();
-
+                const fillColorLimits = this.source.getLimits().color;
+                const sizeLimits = this.source.getLimits().size;
                 ChoroplethSettings.fillPredefinedProperties(choroSettings);
                 let fillClassCount = mapboxUtils.getClassCount(fillColorLimits);
                 const choroColorSettings = [choroSettings.minColor, choroSettings.medColor, choroSettings.maxColor];
