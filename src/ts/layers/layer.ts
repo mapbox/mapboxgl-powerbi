@@ -1,4 +1,5 @@
 module powerbi.extensibility.visual {
+    declare var numeral: any;
     export abstract class Layer {
         protected parent: MapboxMap;
         protected source: data.Datasource;
@@ -93,16 +94,33 @@ module powerbi.extensibility.visual {
             return false;
         }
 
+        private getToolTipFormat(roleMap, prop): any {
+            let format = undefined;
+            Object.keys(roleMap).map(role => {
+                if (roleMap[role].displayName === prop) {
+                    format = roleMap[role].format
+                    return
+                }
+            })
+            return format
+        }
+
         handleTooltip(tooltipEvent: TooltipEventArgs<number>, roleMap, settings) {
             const tooltipData = Layer.getTooltipData(tooltipEvent.data);
-            return tooltipData;
+            return tooltipData.map(data => {
+                const prop = data.displayName
+                let format = this.getToolTipFormat(roleMap, prop)
+                if (format != undefined) {
+                    data.value = numeral(tooltipData).format(format);
+                }
+                return data;
+            })
         }
 
         static getTooltipData(value: any): VisualTooltipDataItem[] {
             if (!value) {
                 return [];
             }
-
             // Flatten the multiple properties or multiple datapoints
             return [].concat.apply([], value.map(properties => {
                 // This mapping is needed to copy the value with the toString

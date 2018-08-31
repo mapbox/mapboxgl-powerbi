@@ -1,5 +1,4 @@
 module powerbi.extensibility.visual {
-
     export interface TooltipEventArgs<TData> {
         data: TData;
         coordinates: number[];
@@ -114,8 +113,8 @@ module powerbi.extensibility.visual {
                     tooltipEventArgs = {
                         // Take only the first three element until we figure out how
                         // to add pager to powerbi native tooltips
-                        data: e.features.slice(0, 3).map( feature => {
-                            return Object.keys(feature.properties).map( prop => {
+                        data: e.features.slice(0, 3).map(feature => {
+                            return Object.keys(feature.properties).map(prop => {
                                 return {
                                     key: prop,
                                     value: feature.properties[prop]
