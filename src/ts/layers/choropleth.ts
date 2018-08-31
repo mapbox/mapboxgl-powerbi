@@ -180,6 +180,13 @@ module powerbi.extensibility.visual {
             return super.getSource(settings);
         }
 
+        sizeInterpolate(sizeLimits: mapboxUtils.Limits, choroSettings: ChoroplethSettings, size: number): number {
+            if (size === null) {
+                return 0
+            }
+            const k = choroSettings.baseHeight * 1000 + (size - sizeLimits.min) * (choroSettings.height * 1000 - choroSettings.baseHeight * 1000) / (sizeLimits.max - sizeLimits.min)
+            return k
+        }
         applySettings(settings, roleMap) {
             super.applySettings(settings, roleMap);
             const map = this.parent.getMap();
