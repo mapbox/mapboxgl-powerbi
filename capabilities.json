@@ -324,6 +324,34 @@
         }
       }
     },
+    "geocoder": {
+      "displayName": "Geocoder",
+      "displayNameKey": "geocoder",
+      "description": "Geocoder settings",
+      "properties": {
+        "show": {
+          "displayName": "Geocoder",
+          "description": "Toggle geocoder on/off",
+          "type": {
+            "bool": true
+          }
+        },
+        "dropPin": {
+          "displayName": "Drop pin",
+          "description": "Should a pin be added to the map after search",
+          "type": {
+            "bool": true
+          }
+        },
+        "zoom": {
+          "displayName": "Zoom",
+          "description": "Zoom level to set after search",
+          "type": {
+            "numeric": true
+          }
+        }
+      }
+    },
     "circle": {
       "displayName": "Circle",
       "displayNameKey": "circle",
