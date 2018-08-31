@@ -28,6 +28,7 @@ module powerbi.extensibility.visual {
             const choroSettings = settings.choropleth;
             const sourceLayer = choroSettings.getCurrentSourceLayer()
             const vectorProperty = choroSettings.getCurrentVectorProperty()
+            const zeroFilter = ["==", vectorProperty, ""]
 
             const choroplethLayer = mapboxUtils.decorateLayer({
                 id: Choropleth.ID,
