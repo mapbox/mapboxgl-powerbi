@@ -56,7 +56,6 @@ module powerbi.extensibility.visual {
                 "source-layer": sourceLayer
             });
 
-            const zeroFilter = ["==", vectorProperty, ""]
             const highlightLayer = mapboxUtils.decorateLayer({
                 id: Choropleth.HighlightID,
                 type: 'fill',
@@ -192,6 +191,8 @@ module powerbi.extensibility.visual {
             const map = this.parent.getMap();
             const choroSettings = settings.choropleth;
 
+            const vectorProperty = choroSettings[`vectorProperty${choroSettings.currentLevel}`];
+            const zeroFilter = ["==", vectorProperty, ""]
             if (map.getLayer(Choropleth.ID)) {
                 map.setLayoutProperty(Choropleth.ID, 'visibility', choroSettings.display() ? 'visible' : 'none');
             }
@@ -278,6 +279,12 @@ module powerbi.extensibility.visual {
                 let opacity = choroSettings.opacity / 100;
                 if (this.parent.hasSelection()) {
                     opacity = 0.5 * opacity;
+                }
+                if (choroSettings.height === 0) {
+                    map.setFilter(Choropleth.ExtrusionID, zeroFilter)
+                } else {
+                    map.setFilter(Choropleth.ID, zeroFilter)
+                    map.setFilter(Choropleth.ExtrusionID, filter)
                 }
                 map.setPaintProperty(Choropleth.ID, 'fill-opacity', opacity);
                 map.setPaintProperty(Choropleth.HighlightID, "fill-color", choroSettings.highlightColor)
