@@ -342,10 +342,6 @@ module powerbi.extensibility.visual {
                 this.errorDiv.innerHTML = Templates.MissingLocationOrColor;
                 return false;
             }
-            else if (this.settings.choropleth.show && this.settings.choropleth.height != 0 && !roles.size) {
-                this.errorDiv.innerHTML = Templates.MissingSize
-                return false
-            }
             else if (this.settings.choropleth.show && (
                 !this.settings.choropleth.vectorTileUrl1 ||
                 !this.settings.choropleth.sourceLayer1 ||
