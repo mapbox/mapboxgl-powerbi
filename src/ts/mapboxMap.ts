@@ -1,10 +1,9 @@
 module powerbi.extensibility.visual {
-    declare var debug: any;
     declare var turf: any;
     declare var MapboxDraw : any;
 
     export class MapboxMap implements IVisual {
-        private map: any;
+        private map: mapboxgl.Map;
         private mapDiv: HTMLDivElement;
         private errorDiv: HTMLDivElement;
         private controlsPopulated: boolean;
@@ -70,13 +69,13 @@ module powerbi.extensibility.visual {
             this.controlsPopulated = false;
         }
 
-        onUpdate(map, settings, zoom, updatedHandler: Function) {
+        onUpdate(map, settings, updatedHandler: Function) {
             try {
                 this.layers.map(layer => {
                     layer.applySettings(settings, this.roleMap);
                 });
 
-                if (zoom) {
+                if (settings.api.autozoom) {
                     const bounds = this.layers.map(layer => {
                         return layer.getBounds(settings);
                     }).reduce((acc, bounds) => {
@@ -92,7 +91,7 @@ module powerbi.extensibility.visual {
                         ]);
                         return turf.bbox(combined)
                     });
-                    mapboxUtils.zoomToData(map, bounds, this.autoZoomControl.isPinned());
+                    mapboxUtils.zoomToData(map, bounds);
                 }
             }
             catch (error) {
@@ -175,15 +174,6 @@ module powerbi.extensibility.visual {
                 return
             }
 
-            this.layers = []
-            this.layers.push(new Heatmap(this))
-            this.layers.push(new Cluster(this, () => {
-                return this.roleMap.cluster.displayName;
-            }))
-            this.layers.push(new Circle(this, this.palette))
-            this.layers.push(new Choropleth(this, this.palette));
-            mapboxgl.config.API_URL = this.settings.api.apiUrl;
-
             const mapOptions = {
                 container: this.mapDiv,
                 zoom: this.settings.api.zoom,
@@ -208,6 +198,15 @@ module powerbi.extensibility.visual {
 
             // If the map container doesn't exist yet, create it
             this.map = new mapboxgl.Map(mapOptions);
+
+            this.layers = []
+            this.layers.push(new Heatmap(this))
+            this.layers.push(new Cluster(this, () => {
+                return this.roleMap.cluster.displayName;
+            }))
+            this.layers.push(new Circle(this, this.palette))
+            this.layers.push(new Choropleth(this, this.palette));
+            mapboxgl.config.API_URL = this.settings.api.apiUrl;
 
             // Replace the line string draw icon to the lasso icon
             LassoDraw.makeIcon();
@@ -377,40 +376,11 @@ module powerbi.extensibility.visual {
             }
         }
 
-        private visibilityChanged(oldSettings, newSettings) {
-            return oldSettings && newSettings && (
-                oldSettings.choropleth.show != newSettings.choropleth.show ||
-                oldSettings.circle.show != newSettings.circle.show ||
-                oldSettings.cluster.show != newSettings.cluster.show ||
-                oldSettings.heatmap.show != newSettings.heatmap.show)
-        }
-
-        private static getTooltipData(value: any): VisualTooltipDataItem[] {
-            if (!value) {
-                return []
-            }
-
-            // Flatten the multiple properties or multiple datapoints
-            return [].concat.apply([], value.map(properties => {
-                // This mapping is needed to copy the value with the toString
-                // call as otherwise some caching logic causes to be the same
-                // tooltip displayed for all datapoints.
-                return properties.map(prop => {
-                    return {
-                        displayName: prop.key,
-                        value: prop.value.toString(),
-                    }
-                });
-            }))
-        }
-
         public hideTooltip(): void {
             this.tooltipServiceWrapper.hide(true)
         }
 
         public updateLayers(dataView: DataView) {
-            // Placeholder to indicate whether data changed or paint prop changed
-            // For now this is always true
             const features = mapboxConverter.convert(dataView);
 
             this.palette.update(dataView, features);
@@ -440,7 +410,7 @@ module powerbi.extensibility.visual {
                 }
             });
 
-            this.onUpdate(this.map, this.settings, true, this.updatedHandler);
+            this.onUpdate(this.map, this.settings, this.updatedHandler);
         }
 
         private updateCurrentLevel(settings, options) {
