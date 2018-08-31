@@ -338,9 +338,13 @@ module powerbi.extensibility.visual {
                 this.errorDiv.innerHTML = Templates.MissingGeo;
                 return false;
             }
-            else if (this.settings.choropleth.show && ((!roles.location || !roles.color) || (roles.latitude || roles.longitude || roles.size))) {
+            else if (this.settings.choropleth.show && ((!roles.location || !roles.color) || (roles.latitude || roles.longitude))) {
                 this.errorDiv.innerHTML = Templates.MissingLocationOrColor;
                 return false;
+            }
+            else if (this.settings.choropleth.show && this.settings.choropleth.height != 0 && !roles.size) {
+                this.errorDiv.innerHTML = Templates.MissingSize
+                return false
             }
             else if (this.settings.choropleth.show && (
                 !this.settings.choropleth.vectorTileUrl1 ||
