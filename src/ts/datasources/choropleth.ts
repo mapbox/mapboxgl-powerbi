@@ -55,15 +55,10 @@ module powerbi.extensibility.visual.data {
                     if (Date.now() - start > Choropleth.BBOX_TIMEOUT) {
                         map.off('sourcedata', sourceLoaded)
 
-                        const source = map.getSource(this.ID);
-                        const bounds = source.bounds;
-                        console.log('Waiting for getting bounds of desired features has timed out. Zooming to source bounds:', bounds)
-                        if (settings.api.autozoom) {
-                            map.fitBounds(bounds, {
-                                padding: 20,
-                                maxZoom: 15,
-                            });
-                        }
+                        const source = map.getSource(this.ID)
+                        this.bounds = source.bounds
+                        console.log('Waiting for getting bounds of desired features has timed out. Zooming to source bounds:', this.bounds)
+                        mapboxUtils.zoomToData(map, this.bounds)
                         return
                     }
                     if (e.sourceId == this.ID) {
