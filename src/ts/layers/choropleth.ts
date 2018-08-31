@@ -6,6 +6,7 @@ module powerbi.extensibility.visual {
         private settings: ChoroplethSettings;
         private static HighlightID = 'choropleth-highlight'
         private static HighlightOutlineID = 'choropleth-highlight-outline'
+        private static ExtrusionID = 'choropleth-extrusion'
 
         private palette: Palette;
 
@@ -33,7 +34,15 @@ module powerbi.extensibility.visual {
                 source: 'choropleth-source',
                 "source-layer": sourceLayer
             });
+            const extrusionLayer = mapboxUtils.decorateLayer({
+                id: Choropleth.ExtrusionID,
+                type: "fill-extrusion",
+                source: 'choropleth-source',
+                "source-layer": sourceLayer,
+                paint: {
 
+                },
+            })
             const outlineLayer = mapboxUtils.decorateLayer({
                 id: Choropleth.OutlineID,
                 type: 'line',
@@ -79,6 +88,7 @@ module powerbi.extensibility.visual {
             map.addLayer(highlightLayer, Choropleth.HighlightOutlineID);
             map.addLayer(outlineLayer, Choropleth.HighlightID);
             map.addLayer(choroplethLayer, Choropleth.OutlineID);
+            map.addLayer(extrusionLayer, Choropleth.ID)
         }
 
         hoverHighLight(e) {
@@ -149,6 +159,7 @@ module powerbi.extensibility.visual {
             map.removeLayer(Choropleth.OutlineID);
             map.removeLayer(Choropleth.HighlightID);
             map.removeLayer(Choropleth.HighlightOutlineID);
+            map.removeLayer(Choropleth.ExtrusionID);
             this.source.removeFromMap(map, Choropleth.ID);
         }
 
