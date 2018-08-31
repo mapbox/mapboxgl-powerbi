@@ -223,6 +223,7 @@ module powerbi.extensibility.visual {
                 const defaultColor = 'rgba(0,0,0,0)';
                 const property = choroSettings.getCurrentVectorProperty()
                 let colors = { type: "categorical", property, default: defaultColor, stops: [] };
+                let sizes = { type: "categorical", property, default: 0, stops: [] };
                 let outlineColors = { type: "categorical", property, default: defaultColor, stops: [] };
                 let filter = ['in', property];
                 const choroplethData = this.source.getData(map, settings);
@@ -232,8 +233,12 @@ module powerbi.extensibility.visual {
 
                 for (let row of choroplethData) {
                     const location = row[roleMap.location.displayName];
+                    let size: any;
 
                     let color: any = getColorStop(row[roleMap.color.displayName]);
+                    if (roleMap.size) {
+                        size = row[roleMap.size.displayName]
+                    }
                     let outlineColor: any = getColorStop(row[roleMap.color.displayName]);
 
                     if (!location || !color || !outlineColor) {
@@ -255,6 +260,7 @@ module powerbi.extensibility.visual {
 
                     existingStops[locationStr] = true;
                     colors.stops.push([locationStr, color.toString()]);
+                    sizes.stops.push([locationStr, this.sizeInterpolate(sizeLimits, choroSettings, size)])
                     filter.push(locationStr);
                     outlineColors.stops.push([locationStr, outlineColor.toString()]);
                 }
@@ -263,6 +269,7 @@ module powerbi.extensibility.visual {
                     map.setPaintProperty(Choropleth.ID, 'fill-color', colors);
                     map.setFilter(Choropleth.ID, filter);
                     map.setFilter(Choropleth.OutlineID, filter);
+                    map.setPaintProperty(Choropleth.ExtrusionID, 'fill-extrusion-height', sizes)
                 } else {
                     map.setPaintProperty(Choropleth.ID, 'fill-color', 'rgb(0, 0, 0)');
                 }
