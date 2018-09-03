@@ -148,8 +148,6 @@ module powerbi.extensibility.visual {
                     return cat.source.displayName == role.displayName;
                 })[0]
 
-                console.log(category);
-
                 indexes = values.map( value => category.values.indexOf(value));
             }
 
