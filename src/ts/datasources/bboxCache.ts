@@ -56,12 +56,10 @@ module powerbi.extensibility.visual.data {
 
                     const featureName = feature.properties[vectorPropertyName]
 
-                    if (result[featureName]) {
-                        result[featureName].push(feature)
+                    if (!result[featureName]) {
+                        result[featureName] = []
                     }
-                    else {
-                        result[featureName] = [feature]
-                    }
+                    result[featureName].push(feature)
 
                     return result
                 }, {})
