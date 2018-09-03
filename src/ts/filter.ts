@@ -1,5 +1,5 @@
 module powerbi.extensibility.visual {
-    declare var turf : any;
+    declare var turf: any;
     export class Filter {
         private box: HTMLElement;
         private start: any;
@@ -9,15 +9,57 @@ module powerbi.extensibility.visual {
         private dragScreenX: number;
         private dragScreenY: number;
         private dragStartTime: number;
+        private selectionManager: ISelectionManager;
+        private host: IVisualHost;
+        private categories: any;
 
-        constructor(mapVisual: MapboxMap) {
+
+        constructor(mapVisual: MapboxMap, host: IVisualHost) {
             this.mapVisual = mapVisual
+            this.selectionManager = host.createSelectionManager();
+            this.host = host;
 
             document.addEventListener('mousedown', (e) => this.onMouseDown(e));
             document.addEventListener('mousemove', (e) => this.onMouseMove(e));
             document.addEventListener('mouseup', (e) => this.onMouseUp(e));
             document.addEventListener('keydown', (e) => this.onKeyDown(e));
             document.addEventListener('keyup', (e) => this.onKeyUp(e));
+        }
+
+        public setCategories(categories: any) {
+            this.categories = categories
+        }
+
+        public clearSelection() {
+            this.selectionManager.clear();
+        }
+
+        public hasSelection() {
+            return this.selectionManager.hasSelection();
+        }
+
+        public addSelection(values, role?) {
+            let indexes = values;
+            let category = this.categories[0];
+
+            if (role) {
+                category = this.categories.filter(cat => {
+                    return cat.source.displayName == role.displayName;
+                })[0]
+
+                indexes = values.map(value => category.values.indexOf(value));
+            }
+
+            const selectors = indexes
+                .filter(index => {
+                    return (index >= 0 && index < category.values.length)
+                })
+                .map(index => {
+                    return this.host.createSelectionIdBuilder()
+                        .withCategory(category, index).createSelectionId();
+                })
+
+            this.selectionManager.select(selectors, false);
         }
 
         public isSelectionInProgress() {
@@ -33,10 +75,10 @@ module powerbi.extensibility.visual {
         }
 
         public removeHighlightAndSelection(layers) {
-            layers.map( layer => {
+            layers.map(layer => {
                 layer.removeHighlight(this.mapVisual.getRoleMap());
             });
-            this.mapVisual.clearSelection();
+            this.clearSelection();
         }
 
         public manageHandlers() {
@@ -49,14 +91,14 @@ module powerbi.extensibility.visual {
             map.on('click', clickHandler);
 
             const mouseMoveHandler = mapboxUtils.debounce((e) => {
-                if (!this.mapVisual.hasSelection() && !this.selectionInProgress) {
+                if (!this.hasSelection() && !this.selectionInProgress) {
                     const layers = this.mapVisual.getExistingLayers();
                     layers.map(layer => layer.hoverHighLight(e));
                 }
             }, 12, true);
 
             const mouseLeaveHandler = mapboxUtils.debounce((e) => {
-                if (!this.mapVisual.hasSelection() && !this.selectionInProgress) {
+                if (!this.hasSelection() && !this.selectionInProgress) {
                     const layers = this.mapVisual.getExistingLayers();
                     layers.map(layer => layer.removeHighlight(this.mapVisual.getRoleMap()));
                 }
@@ -119,9 +161,9 @@ module powerbi.extensibility.visual {
             let canvas = map.getCanvasContainer();
             let rect = canvas.getBoundingClientRect();
             return new mapboxgl.Point(
-                    e.clientX - rect.left - canvas.clientLeft,
-                    e.clientY - rect.top - canvas.clientTop
-                );
+                e.clientX - rect.left - canvas.clientLeft,
+                e.clientY - rect.top - canvas.clientTop
+            );
         }
 
         onMouseDown(e) {
@@ -191,6 +233,7 @@ module powerbi.extensibility.visual {
             }
         }
 
+
         finish(bbox) {
             this.selectionInProgress = false;
             const map = this.mapVisual.getMap();
@@ -205,11 +248,9 @@ module powerbi.extensibility.visual {
                 const layers = this.mapVisual.getExistingLayers();
                 if (layers && layers.length > 0) {
                     const roleMap = this.mapVisual.getRoleMap();
-                    layers.map( layer => {
-                        let features = map.queryRenderedFeatures(bbox, { layers: [ layer.getId() ] });
-                        layer.updateSelection(
-                            features,
-                            roleMap);
+                    layers.map(layer => {
+                        let features = map.queryRenderedFeatures(bbox, { layers: [layer.getId()] });
+                        this.updateSelection(layer, features, roleMap);
                     });
 
                 }
@@ -219,8 +260,17 @@ module powerbi.extensibility.visual {
             this.start = null;
         }
 
+        private updateSelection(layer: Layer, features: GeoJSON.Feature<mapboxgl.GeoJSONGeometry>[], roleMap: any) {
+            const selectionIds = layer.updateSelection(features, roleMap);
+            if (layer.getId() === "choropleth") {
+                this.addSelection(selectionIds, roleMap.location);
+            } else {
+                this.addSelection(selectionIds);
+            }
+        }
+
         createClickHandler(mapVisual: MapboxMap) {
-            let onClick : Function = (e) => {
+            let onClick: Function = (e) => {
                 const originalEvent = e.originalEvent;
                 if (originalEvent.shiftKey && originalEvent.button === 0 || this.selectionInProgress) {
                     // Selection is considered to be still in progress
@@ -251,8 +301,8 @@ module powerbi.extensibility.visual {
                 // map.queryRenderedFeatures fails
                 // when option.layers contains an id which is not on the map
                 layers.map(layer => {
-                    let features : any = map.queryRenderedFeatures([minpoint, maxpoint], {
-                        "layers": [ layer.getId() ]
+                    let features: any = map.queryRenderedFeatures([minpoint, maxpoint], {
+                        "layers": [layer.getId()]
                     });
 
                     if (features
@@ -260,12 +310,10 @@ module powerbi.extensibility.visual {
                         && features[0]
                         && features[0].geometry
                         && features[0].geometry.coordinates
-                        && !mapVisual.hasSelection()
+                        && !this.hasSelection()
                     ) {
                         mapVisual.hideTooltip()
-                        layer.updateSelection(
-                            features,
-                            roleMap);
+                        this.updateSelection(layer, features, roleMap)
                     }
                 });
 
@@ -283,8 +331,8 @@ module powerbi.extensibility.visual {
                 const bbox = turf.bbox(feature)
 
                 const pointCollection = turf.helpers.featureCollection([
-                    turf.helpers.point( [bbox[0], bbox[1]]),
-                    turf.helpers.point( [bbox[2], bbox[3]]),
+                    turf.helpers.point([bbox[0], bbox[1]]),
+                    turf.helpers.point([bbox[2], bbox[3]]),
                 ]);
 
                 const center = turf.center(pointCollection);

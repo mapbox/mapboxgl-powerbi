@@ -132,8 +132,6 @@ module powerbi.extensibility.visual {
                     return feature.properties[vectorProperty];
                 });
 
-            this.parent.addSelection(selectionIds, roleMap.location)
-
             let opacity = choroSettings.opacity / 100;
             if (this.parent.hasSelection()) {
                 opacity = 0.5 * opacity;
@@ -141,6 +139,7 @@ module powerbi.extensibility.visual {
             map.setPaintProperty(Choropleth.ID, 'fill-opacity', opacity);
             map.setFilter(Choropleth.HighlightID, locationFilter);
             map.setFilter(Choropleth.HighlightOutlineID, locationFilter);
+            return selectionIds
         }
 
         removeLayer() {

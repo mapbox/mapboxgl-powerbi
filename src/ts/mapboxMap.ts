@@ -12,7 +12,6 @@ module powerbi.extensibility.visual {
         private mapStyle: string = "";
         private updatedHandler: Function = () => { }
         private tooltipServiceWrapper: ITooltipServiceWrapper;
-        private selectionManager: ISelectionManager;
         private layers: Layer[] = [];
         private roleMap: any;
         private previousZoom: number;
@@ -20,7 +19,6 @@ module powerbi.extensibility.visual {
         private palette: Palette;
 
         private host: IVisualHost;
-        private categories: any;
         private drawControl: DrawControl;
 
         constructor(options: VisualConstructorOptions) {
@@ -46,8 +44,7 @@ module powerbi.extensibility.visual {
             this.host = options.host;
 
             this.tooltipServiceWrapper = createTooltipServiceWrapper(options.host.tooltipService, options.element);
-            this.selectionManager = options.host.createSelectionManager();
-            this.filter = new Filter(this)
+            this.filter = new Filter(this, options.host)
             this.palette = new Palette(this, options.host)
 
             this.navigationControl = new mapboxgl.NavigationControl();
@@ -122,38 +119,8 @@ module powerbi.extensibility.visual {
             return this.roleMap;
         }
 
-        public clearSelection() {
-            this.selectionManager.clear();
-        }
-
-        public addSelection(values, role?) {
-            let indexes = values;
-            let category = this.categories[0];
-
-            if (role) {
-                category = this.categories.filter( cat => {
-                    return cat.source.displayName == role.displayName;
-                })[0]
-
-                console.log(category);
-
-                indexes = values.map( value => category.values.indexOf(value));
-            }
-
-            const selectors = indexes
-                .filter( index => {
-                    return (index >= 0 && index < category.values.length)
-                })
-                .map( index => {
-                    return this.host.createSelectionIdBuilder()
-                        .withCategory(category, index).createSelectionId();
-                })
-
-            this.selectionManager.select(selectors, false);
-        }
-
-        public hasSelection() {
-            return this.selectionManager.hasSelection();
+        public hasSelection(): boolean {
+            return this.filter.hasSelection()
         }
 
         private addMap() {
@@ -371,7 +338,7 @@ module powerbi.extensibility.visual {
                 return false;
             }
 
-            this.categories = dataView.categorical.categories;
+            this.filter.setCategories(dataView.categorical.categories);
 
             this.roleMap = mapboxUtils.getRoleMap(dataView.metadata);
 
