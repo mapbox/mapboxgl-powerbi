@@ -6,6 +6,7 @@ module powerbi.extensibility.visual.data {
         private bboxCache: BBoxCache;
 
         private static readonly BBOX_TIMEOUT = 2500
+        private static readonly BBOX_TIMER = 'choropleth-bbox-timer'
 
         constructor() {
             super('choropleth-source');
@@ -57,8 +58,9 @@ module powerbi.extensibility.visual.data {
                 let boundsPoll = null
                 const start = Date.now()
                 let sourceLoaded = (e) => {
+
                     if (e.sourceId == this.ID || e.type == 'zoomend') {
-                        this.bboxCache.update(map, this.ID, settings.choropleth, apiSettings.zoom)
+                        this.bboxCache.update(map, this.ID, settings.choropleth)
 
                         let currentBounds = null
                         if (this.bounds) {
@@ -85,6 +87,14 @@ module powerbi.extensibility.visual.data {
 
                                 // Bounds not found for the desired features. Stay on source bounds.
                                 map.off('zoomend', sourceLoaded)
+
+                                if (apiSettings.zoom && apiSettings.startLong && apiSettings.startLat) {
+                                    console.log(`Zooming to position found in config. Zoom: '${apiSettings.zoom}' Lng: '${apiSettings.startLong}' Lat: '${apiSettings.startLat}'`)
+                                    map.easeTo({
+                                        center: [apiSettings.startLong, apiSettings.startLat],
+                                        zoom: apiSettings.zoom
+                                    })
+                                }
                             }
                             return
                         }
@@ -97,12 +107,12 @@ module powerbi.extensibility.visual.data {
                     }
                 }
 
-                this.bboxCache.update(map, this.ID, settings.choropleth, apiSettings.zoom)
+                this.bboxCache.update(map, this.ID, settings.choropleth)
                 this.bounds = this.bboxCache.getBBox(featureNames)
                 if (this.bounds == null) {
                     // Source must be still loading, wait for it to finish
                     map.on('sourcedata', sourceLoaded)
-                    boundsPoll = setInterval(() => sourceLoaded({sourceId: this.ID}), 300)
+                    boundsPoll = setInterval(() => sourceLoaded({sourceId: this.ID, type: Choropleth.BBOX_TIMER}), 500)
                 }
             }
         }
