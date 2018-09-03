@@ -45,47 +45,51 @@ module powerbi.extensibility.visual.data {
             this.choroplethData = features.map(f => f.properties)
             this.fillColorLimits = mapboxUtils.getLimits(this.choroplethData, roleMap.color ? roleMap.color.displayName : '')
             const featureNames = this.choroplethData.map(f => f[roleMap.location.displayName])
+            const apiSettings = settings.api
 
             // NOTE: this is a workaround because 'sourcedata' event of mapbox is received multiple times
             // with isSourceLoaded being true. And then sometimes querySourceFeatures() returns an empty set.
-            // This is why we are waiting until we get the bounds of the desired features.
-            let inFallback = false
-            if (settings.api.autozoom) {
+            // This is why we are waiting until we get the bounds of the desired features. It is performed in
+            // two rounds. In the first round we are starting from the zoom level from the configuration, and
+            // if we don't get the desired bounds, the 2nd round is started from the source bounds.
+            let in1stRound = true
+            if (apiSettings.autozoom) {
                 let boundsPoll = null
                 const start = Date.now()
                 let sourceLoaded = (e) => {
                     if (e.sourceId == this.ID || e.type == 'zoomend') {
-                        this.bboxCache.update(map, this.ID, settings.choropleth)
+                        this.bboxCache.update(map, this.ID, settings.choropleth, apiSettings.zoom)
+
                         let currentBounds = null
                         if (this.bounds) {
                             currentBounds = this.bounds.slice()
                         }
                         this.bounds = this.bboxCache.getBBox(featureNames)
-                        if (this.bounds == null || currentBounds == this.bounds) {
+                        if (this.bounds == currentBounds) {
                             // Wait a bit more until we get the bounding box for the desired features
                             if (Date.now() - start > Choropleth.BBOX_TIMEOUT) {
                                 map.off('sourcedata', sourceLoaded)
                                 clearInterval(boundsPoll)
-                                // HACK for keep going
-                                if (inFallback) {
-                                    map.off('zoomend', sourceLoaded)
-                                }
-                                inFallback = true
 
-                                const source = map.getSource(this.ID)
-                                this.bounds = source.bounds
-                                console.log('Waiting for getting bounds of desired features has timed out. Zooming to source bounds:', this.bounds)
-                                mapboxUtils.zoomToData(map, this.bounds)
-                                map.on('zoomend', sourceLoaded)
-                                // map.fitBounds(this.bounds, {
-                                //     padding: 20,
-                                //     maxZoom: 15,
-                                //     animate: false,
-                                // });
-                                return
+                                if (in1stRound) {
+                                    // Fall back to source bounds. But when zooming to source bounds ends, give another attempt
+                                    // to get the bounds of the desired features.
+                                    in1stRound = false
+                                    const source = map.getSource(this.ID)
+                                    this.bounds = source.bounds
+                                    console.log('Waiting for getting bounds of desired features has timed out. Falling back to source bounds:', this.bounds)
+                                    mapboxUtils.zoomToData(map, this.bounds)
+                                    map.on('zoomend', sourceLoaded)
+                                    return
+                                }
+
+                                // Bounds not found for the desired features. Stay on source bounds.
+                                map.off('zoomend', sourceLoaded)
                             }
                             return
                         }
+
+                        // Found bounds. Success.
                         map.off('sourcedata', sourceLoaded)
                         map.off('zoomend', sourceLoaded)
                         clearInterval(boundsPoll)
@@ -93,10 +97,10 @@ module powerbi.extensibility.visual.data {
                     }
                 }
 
-                this.bboxCache.update(map, this.ID, settings.choropleth)
+                this.bboxCache.update(map, this.ID, settings.choropleth, apiSettings.zoom)
                 this.bounds = this.bboxCache.getBBox(featureNames)
                 if (this.bounds == null) {
-                    // Source must be still loading wait for it to finish
+                    // Source must be still loading, wait for it to finish
                     map.on('sourcedata', sourceLoaded)
                     boundsPoll = setInterval(() => sourceLoaded({sourceId: this.ID}), 300)
                 }
