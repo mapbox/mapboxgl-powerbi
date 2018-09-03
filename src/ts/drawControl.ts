@@ -4,10 +4,12 @@ module powerbi.extensibility.visual {
 
     export class DrawControl implements mapboxgl.IControl {
         private draw: any;  // TODO: this should not be any
+        private filter: Filter;
 
         constructor(filter: Filter) {
+            this.filter = filter
             // Override the line string tool with our lasso draw tool
-            MapboxDraw.modes.draw_line_string = LassoDraw.create(filter);
+            MapboxDraw.modes.draw_line_string = LassoDraw.create(this.filter);
 
             this.draw = new MapboxDraw({
                 displayControlsDefault: false,
@@ -82,9 +84,7 @@ module powerbi.extensibility.visual {
                         selectedFeatures = selectedFeatures.slice(0, constants.MAX_SELECTION_COUNT);
                     }
                     layers.map( layer => {
-                        layer.updateSelection(
-                            selectedFeatures,
-                            roleMap);
+                        this.filter.updateSelection(layer, selectedFeatures, roleMap)
                     })
                 }
 

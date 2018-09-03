@@ -260,7 +260,7 @@ module powerbi.extensibility.visual {
             this.start = null;
         }
 
-        private updateSelection(layer: Layer, features: GeoJSON.Feature<mapboxgl.GeoJSONGeometry>[], roleMap: any) {
+        public updateSelection(layer: Layer, features: GeoJSON.Feature<mapboxgl.GeoJSONGeometry>[], roleMap: any) {
             const selectionIds = layer.updateSelection(features, roleMap);
             if (layer.getId() === "choropleth") {
                 this.addSelection(selectionIds, roleMap.location);
