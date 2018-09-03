@@ -17,6 +17,7 @@
     ".api/v1.10.0/PowerBI-visuals.d.ts",
     "src/ts/constants.ts",
     "src/ts/MapboxDrawConstants.ts",
+    "src/ts/drawControl.ts",
     "src/ts/filter.ts",
     "src/ts/palette.ts",
     "src/ts/datasources/bboxCache.ts",
