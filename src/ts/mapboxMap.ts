@@ -1,6 +1,5 @@
 module powerbi.extensibility.visual {
     declare var turf: any;
-    declare var MapboxDraw : any;
 
     export class MapboxMap implements IVisual {
         private map: mapboxgl.Map;
@@ -22,7 +21,7 @@ module powerbi.extensibility.visual {
 
         private host: IVisualHost;
         private categories: any;
-        private draw: any;  // TODO: this should not be any
+        private drawControl: DrawControl;
 
         constructor(options: VisualConstructorOptions) {
             // Map initialization
@@ -53,19 +52,7 @@ module powerbi.extensibility.visual {
 
             this.navigationControl = new mapboxgl.NavigationControl();
             this.autoZoomControl = new AutoZoomControl(this.host);
-
-            // Override the line string tool with our lasso draw tool
-            MapboxDraw.modes.draw_line_string = LassoDraw.create(this.filter);
-
-            this.draw = new MapboxDraw({
-                displayControlsDefault: false,
-                // defaultMode: 'lasso',
-                controls: {
-                    'polygon': true,
-                    'line_string': true     // Lasso is overriding the 'line_string' mode
-                },
-            });
-
+            this.drawControl = new DrawControl(this.filter)
             this.controlsPopulated = false;
         }
 
@@ -208,10 +195,9 @@ module powerbi.extensibility.visual {
             this.layers.push(new Choropleth(this, this.palette));
             mapboxgl.config.API_URL = this.settings.api.apiUrl;
 
-            // Replace the line string draw icon to the lasso icon
-            LassoDraw.makeIcon();
 
             this.filter.manageHandlers();
+            this.drawControl.manageHandlers(this);
 
             this.map.on('zoom', () => {
                 const newZoom = Math.floor(this.map.getZoom())
@@ -223,75 +209,6 @@ module powerbi.extensibility.visual {
                         }
                     });
                 }
-            });
-
-            this.map.on('draw.create', (e) => {
-
-                this.map.doubleClickZoom.disable();
-
-                // Get the feature the user has drawn
-                const selection_poly = e.features[0];
-
-                const selectFeature = function(sel_pol, feature) {
-                    if (feature.geometry.type === 'Point' && turf.booleanContains(sel_pol, feature)) {
-                        return true;
-                    }
-                    if ((feature.geometry.type === 'Polygon' || feature.geometry.type === 'Linestring') &&
-                       (turf.booleanOverlap(feature, sel_pol) || turf.booleanContains(sel_pol, feature) ||
-                        turf.booleanContains(feature, sel_pol)
-                    )) {
-                        return true;
-                    }
-
-                    return false;
-                }
-
-                // Create a bounding box from the user's polygon
-                const polygonBoundingBox = turf.bbox(selection_poly);
-                const southWest = this.map.project([polygonBoundingBox[0], polygonBoundingBox[1]]);
-                const northEast = this.map.project([polygonBoundingBox[2], polygonBoundingBox[3]]);
-
-                // Find features in a layer the user selected bbox
-                const layers = this.getExistingLayers();
-                const layerIDs = layers.map(layer => layer.getId());
-                const bbox_features : any[] = this.map.queryRenderedFeatures([southWest, northEast], {
-                    layers: layerIDs
-                });
-
-                let selectedFeatures = bbox_features.reduce(function (acc, feature) {
-                    if (selectFeature(selection_poly, feature)) {
-                        acc.push(feature);
-                        return acc;
-                    }
-
-                    // Split the feature into polygons, if it is a MultiPolygon
-                    if (feature.geometry.type === 'MultiPolygon') {
-                        for (let polygon of feature.geometry.coordinates) {
-                            if (selectFeature(selection_poly, turf.helpers.polygon(polygon))) {
-                                acc.push(feature);
-                                return acc;
-                            }
-                        };
-                    }
-
-                    return acc;
-                }, []);
-
-                // Here are the selected features we can use for filters, selects, etc
-                if (layers && layers.length > 0) {
-                    const roleMap = this.getRoleMap();
-                    if (selectedFeatures.length > constants.MAX_SELECTION_COUNT) {
-                        selectedFeatures = selectedFeatures.slice(0, constants.MAX_SELECTION_COUNT);
-                    }
-                    layers.map( layer => {
-                        layer.updateSelection(
-                            selectedFeatures,
-                            roleMap);
-                    })
-                }
-
-                // Remove all features from the map after selection
-                this.draw.deleteAll();
             });
         }
 
@@ -362,14 +279,14 @@ module powerbi.extensibility.visual {
             if (this.settings.api.mapboxControls) {
                 if (!this.controlsPopulated) {
                     this.map.addControl(this.navigationControl);
-                    this.map.addControl(this.draw, 'top-left');
+                    this.map.addControl(this.drawControl);
                     this.map.addControl(this.autoZoomControl);
                     this.controlsPopulated = true;
                 }
             } else {
                 if (this.controlsPopulated) {
                     this.map.removeControl(this.navigationControl);
-                    this.map.removeControl(this.draw);
+                    this.map.removeControl(this.drawControl);
                     this.map.removeControl(this.autoZoomControl);
                     this.controlsPopulated = false;
                 }
