@@ -25,6 +25,7 @@
     "node_modules/chroma-js/chroma.min.js",
     "node_modules/powerbi-visuals-utils-dataviewutils/lib/index.js",
     "node_modules/numeral/min/numeral.min.js",
+    "./node_modules/geojson-equality/dist/geojson-equality.min.js",
     "src/js/mapboxglAdaptor.js"
   ],
   "style": "style/visual.less",
