@@ -12,12 +12,14 @@ module powerbi.extensibility.visual {
         private selectionManager: ISelectionManager;
         private host: IVisualHost;
         private categories: any;
+        private prevSelectionByLayer: { [layerId: string]: GeoJSON.Feature<mapboxgl.GeoJSONGeometry>[] };
 
 
         constructor(mapVisual: MapboxMap, host: IVisualHost) {
             this.mapVisual = mapVisual
             this.selectionManager = host.createSelectionManager();
             this.host = host;
+            this.prevSelectionByLayer = {};
 
             document.addEventListener('mousedown', (e) => this.onMouseDown(e));
             document.addEventListener('mousemove', (e) => this.onMouseMove(e));
@@ -84,6 +86,9 @@ module powerbi.extensibility.visual {
         public manageHandlers() {
 
             const map = this.mapVisual.getMap();
+
+            // Disable default CTRL + click operation on Map (dragRotate)
+            map.dragRotate.disable();
             map.boxZoom.disable();
 
             const clickHandler = this.createClickHandler(this.mapVisual)
@@ -166,7 +171,7 @@ module powerbi.extensibility.visual {
             );
         }
 
-        onMouseDown(e) {
+        onMouseDown(e: MouseEvent) {
             // Continue the rest of the function if the shiftkey is pressed.
             if (!(e.shiftKey && e.button === 0) || !this.mapVisual) return;
             const map = this.mapVisual.getMap();
@@ -260,13 +265,32 @@ module powerbi.extensibility.visual {
             this.start = null;
         }
 
-        public updateSelection(layer: Layer, features: GeoJSON.Feature<mapboxgl.GeoJSONGeometry>[], roleMap: any) {
+        public updateSelection(layer: Layer, features: GeoJSON.Feature<mapboxgl.GeoJSONGeometry>[], roleMap: any, toggleSelection = false) {
+            const layerId = layer.getId();
+            if (toggleSelection && this.prevSelectionByLayer[layerId]) {
+                const toAdd = features.filter(feature => !FeatureOps.isInclude(this.prevSelectionByLayer[layerId], feature))
+                const toKeep = this.prevSelectionByLayer[layerId].filter(feature => !FeatureOps.isInclude(features, feature))
+                features = toKeep.concat(toAdd)
+            }
             const selectionIds = layer.updateSelection(features, roleMap);
-            if (layer.getId() === "choropleth") {
+            if (layerId === "choropleth") {
                 this.addSelection(selectionIds, roleMap.location);
             } else {
                 this.addSelection(selectionIds);
             }
+
+            this.prevSelectionByLayer[layerId] = [...features]
+        }
+
+        private static isToggleClick(e: MouseEvent) {
+            if (navigator.platform.toUpperCase().indexOf('MAC') >= 0) {
+                return e.metaKey && e.button === 0
+            }
+            else if (navigator.platform.toUpperCase().indexOf('WIN') >= 0) {
+                return e.ctrlKey && e.button === 0
+            }
+
+            return (e.metaKey || e.ctrlKey) && e.button === 0
         }
 
         createClickHandler(mapVisual: MapboxMap) {
@@ -298,9 +322,22 @@ module powerbi.extensibility.visual {
 
                 this.removeHighlightAndSelection(layers);
 
+                const isToggleClick = Filter.isToggleClick(originalEvent)
+
                 // map.queryRenderedFeatures fails
                 // when option.layers contains an id which is not on the map
-                layers.map(layer => {
+                layers.forEach(layer => {
+
+                    // FIXME Do we really want to let only the first layer to perform any selection?
+                    if (this.hasSelection()) {
+                        return
+                    }
+
+                    // Clicking without holding down ctrl/cmd clears the previous selection
+                    if (!isToggleClick) {
+                        this.prevSelectionByLayer[layer.getId()] = []
+                    }
+
                     let features: any = map.queryRenderedFeatures([minpoint, maxpoint], {
                         "layers": [layer.getId()]
                     });
@@ -310,13 +347,18 @@ module powerbi.extensibility.visual {
                         && features[0]
                         && features[0].geometry
                         && features[0].geometry.coordinates
-                        && !this.hasSelection()
                     ) {
                         mapVisual.hideTooltip()
-                        this.updateSelection(layer, features, roleMap)
+                        this.updateSelection(layer, features, roleMap, isToggleClick)
+                    }
+                    else if (isToggleClick) {
+                        // Clicking on an empty space while holding down ctrl/cmd
+                        // should not clear the previous selection
+                        // (removeHighlightAndSelection has already cleared it)
+                        // so it must be added back.
+                        this.updateSelection(layer, [], roleMap, isToggleClick)
                     }
                 });
-
             }
 
             return onClick
