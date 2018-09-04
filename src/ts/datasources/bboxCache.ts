@@ -7,7 +7,8 @@ module powerbi.extensibility.visual.data {
         private usedSettings: ChoroplethSettings
 
         public getBBox(featureNames: string[]): number[] {
-            const features = featureNames.map(featureName => this.cache[featureName]).filter(feature => feature != null)
+            const features = featureNames.map(featureName => this.cache[featureName])
+                                         .filter(feature => feature != null)
             if (!features.length) {
                 return null
             }
@@ -55,12 +56,10 @@ module powerbi.extensibility.visual.data {
 
                     const featureName = feature.properties[vectorPropertyName]
 
-                    if (result[featureName]) {
-                        result[featureName].push(feature)
+                    if (!result[featureName]) {
+                        result[featureName] = []
                     }
-                    else {
-                        result[featureName] = [feature]
-                    }
+                    result[featureName].push(feature)
 
                     return result
                 }, {})
