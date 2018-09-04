@@ -1,0 +1,6 @@
+// Workaround for missing top-center position
+.mapboxgl-ctrl-top-center { position: absolute; pointer-events: none; z-index: 2; }
+.mapboxgl-ctrl-top-center { margin-left: 40%; margin-right: 40%; }
+.mapboxgl-ctrl-top-center .mapboxgl-ctrl { margin: 10px 0 0 10px; float: left; }
+
+@import (less) "../node_modules/@mapbox/mapbox-gl-geocoder/lib/mapbox-gl-geocoder.css";

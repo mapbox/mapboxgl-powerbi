@@ -7,6 +7,7 @@ module powerbi.extensibility.visual {
 
     export class MapboxSettings extends DataViewObjectsParser {
         public api: APISettings = new APISettings();
+        public geocoder: GeocoderSettings = new GeocoderSettings();
         public cluster: ClusterSettings = new ClusterSettings();
         public heatmap: HeatmapSettings = new HeatmapSettings();
         public circle: CircleSettings = new CircleSettings();
@@ -56,6 +57,12 @@ module powerbi.extensibility.visual {
 
             return { instances }
         }
+    }
+
+    export class GeocoderSettings {
+        public show: boolean = true;
+        public dropPin: boolean = true;
+        public zoom: number = 10;
     }
 
     export class CircleSettings {
