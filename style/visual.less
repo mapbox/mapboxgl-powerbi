@@ -17,7 +17,7 @@
     .loader {
     	position: relative;
         top: calc(50% - 50px);
-    	margin-left: auto; 
+    	margin-left: auto;
     	margin-right:auto;
     	border: 16px solid #f3f3f3; /* Light grey */
 	    border-top: 16px solid #3498db; /* Blue */
@@ -44,7 +44,7 @@
         background-color: white;
         background-image: "./WMF-Agora-Settings_808080.svg";
         width: 50px;
-        text: padding: 6px;
+        padding: 6px;
         margin: 5px
     }
 
@@ -85,9 +85,10 @@
 
     @import (less) "./style/autozoom.css";
     @import (less) "./style/lasso-draw.less";
+    @import (less) "./style/geocoder.less";
     @import (less) "./node_modules/mapbox-gl/dist/mapbox-gl.css";
     @import (less) "./node_modules/@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css";
-    
+
 
     hr {
         display: block;
@@ -130,7 +131,7 @@
       scrollbar-track-color: #000;
       scrollbar-arrow-color: #000;
       scrollbar-shadow-color: #646464;
-      scrollbar-dark-shadow-color: #646464;
+      scrollbar-darkshadow-color: #646464;
     }
 
     ::-webkit-scrollbar { width: 8px; height: 3px;}
@@ -167,7 +168,7 @@
         font-size: 30px;
         line-height: 1.5;
         background-color: #FFFFFF;
-        font-color: black;
+        color: black;
         font-weight: 800;
         display: block;
         overflow-y: auto;

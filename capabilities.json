@@ -324,6 +324,34 @@
         }
       }
     },
+    "geocoder": {
+      "displayName": "Geocoder",
+      "displayNameKey": "geocoder",
+      "description": "Geocoder settings",
+      "properties": {
+        "show": {
+          "displayName": "Geocoder",
+          "description": "Toggle geocoder on/off",
+          "type": {
+            "bool": true
+          }
+        },
+        "dropPin": {
+          "displayName": "Drop pin",
+          "description": "Should a pin be added to the map after search",
+          "type": {
+            "bool": true
+          }
+        },
+        "zoom": {
+          "displayName": "Zoom",
+          "description": "Zoom level to set after search",
+          "type": {
+            "numeric": true
+          }
+        }
+      }
+    },
     "circle": {
       "displayName": "Circle",
       "displayNameKey": "circle",
@@ -753,6 +781,22 @@
                 "color": true
               }
             }
+          }
+        },
+        "baseHeight": {
+          "displayName": "Extrusion Base",
+          "displayNameKey": "baseHeight",
+          "description": "Defines base height for 3d extrusion",
+          "type": {
+            "integer": true
+          }
+        },
+        "height": {
+          "displayName": "Extrusion Height",
+          "displayNameKey": "height",
+          "description": "Defines height for 3d extrusion multiplied by 1000",
+          "type": {
+            "integer": true
           }
         },
         "minZoom": {

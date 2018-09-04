@@ -5,3 +5,4 @@ const supercluster = window['supercluster'];
 const MapboxDraw = window['MapboxDraw'];
 const numeral = window['numeral'];
 const GeojsonEquality = window['GeojsonEquality'];
+const MapboxGeocoder = window['MapboxGeocoder'];

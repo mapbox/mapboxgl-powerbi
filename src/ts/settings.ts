@@ -7,6 +7,7 @@ module powerbi.extensibility.visual {
 
     export class MapboxSettings extends DataViewObjectsParser {
         public api: APISettings = new APISettings();
+        public geocoder: GeocoderSettings = new GeocoderSettings();
         public cluster: ClusterSettings = new ClusterSettings();
         public heatmap: HeatmapSettings = new HeatmapSettings();
         public circle: CircleSettings = new CircleSettings();
@@ -54,8 +55,21 @@ module powerbi.extensibility.visual {
                 properties.styleUrl = "";
             }
 
+            // If autozoom is enabled, there is no point in initial zoom and position
+            if (properties.autozoom) {
+                delete properties.zoom
+                delete properties.startLong
+                delete properties.startLat
+            }
+
             return { instances }
         }
+    }
+
+    export class GeocoderSettings {
+        public show: boolean = true;
+        public dropPin: boolean = true;
+        public zoom: number = 10;
     }
 
     export class CircleSettings {
@@ -123,6 +137,9 @@ module powerbi.extensibility.visual {
         public highlightColor: string = "#2c7fb8";
         public minZoom: number = 0;
         public maxZoom: number = 22;
+        public height: number = 0;
+        public baseHeight: number = 0;
+        public extrusionColor: string = "#FFC0CB"
 
         public maxLevel: number = 1
         public selectedLevel: string = '1'
@@ -225,6 +242,18 @@ module powerbi.extensibility.visual {
                         max: 22,
                     }
                 },
+                height: {
+                    numberRange: {
+                        min: 0,
+                        max: 1000000 //Power BI does not allow to set min only so we use a big enough number here
+                    }
+                },
+                baseHeight: {
+                    numberRange: {
+                        min: 0,
+                        max: properties.height || 0
+                    }
+                },
                 opacity: {
                     numberRange: {
                         min: 0,
@@ -256,8 +285,12 @@ module powerbi.extensibility.visual {
                 instances[0].validValues.selectedLevel.push((i + 1).toString());
             }
 
-            if (properties.selectedLevel >  properties.maxLevel) {
+            if (properties.selectedLevel > properties.maxLevel) {
                 properties.selectedLevel = properties.maxLevel;
+            }
+
+            if (properties.height < properties.baseHeight) {
+                properties.baseHeight = properties.height
             }
 
             for (let i = 0; i < 10; i++) {
