@@ -87,14 +87,6 @@ module powerbi.extensibility.visual.data {
 
                                 // Bounds not found for the desired features. Stay on source bounds.
                                 map.off('zoomend', sourceLoaded)
-
-                                if (apiSettings.zoom && apiSettings.startLong && apiSettings.startLat) {
-                                    console.log(`Zooming to position found in config. Zoom: '${apiSettings.zoom}' Lng: '${apiSettings.startLong}' Lat: '${apiSettings.startLat}'`)
-                                    map.easeTo({
-                                        center: [apiSettings.startLong, apiSettings.startLat],
-                                        zoom: apiSettings.zoom
-                                    })
-                                }
                             }
                             return
                         }

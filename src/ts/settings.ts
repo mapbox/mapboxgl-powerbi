@@ -54,6 +54,13 @@ module powerbi.extensibility.visual {
                 properties.styleUrl = "";
             }
 
+            // If autozoom is enabled, there is no point in initial zoom and position
+            if (properties.autozoom) {
+                delete properties.zoom
+                delete properties.startLong
+                delete properties.startLat
+            }
+
             return { instances }
         }
     }
