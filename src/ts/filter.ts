@@ -327,11 +327,6 @@ module powerbi.extensibility.visual {
                 // when option.layers contains an id which is not on the map
                 layers.forEach(layer => {
 
-                    // FIXME Do we really want to let only the first layer to perform any selection?
-                    if (this.hasSelection()) {
-                        return
-                    }
-
                     // Clicking without holding down ctrl/cmd clears the previous selection
                     if (!isToggleClick) {
                         this.prevSelectionByLayer[layer.getId()] = []
