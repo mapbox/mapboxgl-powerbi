@@ -95,13 +95,13 @@ module powerbi.extensibility.visual {
             });
 
             map.setFilter(Circle.HighlightID, lngLatFilter);
-            this.parent.addSelection(selectionIds)
 
             let opacity = this.settings.opacity / 100;
             if (this.parent.hasSelection()) {
                 opacity = opacity * 0.5
             }
             map.setPaintProperty(Circle.ID, 'circle-opacity', opacity);
+            return selectionIds
         }
 
         removeLayer() {
@@ -179,7 +179,7 @@ module powerbi.extensibility.visual {
             if (sizeField && sizeLimits && sizeLimits.min != null && sizeLimits.max != null && sizeLimits.min != sizeLimits.max) {
                 const style: any[] = [
                     "interpolate", ["linear"],
-                    ["to-number", ['get',sizeField.displayName]]
+                    ["to-number", ['get', sizeField.displayName]]
                 ]
 
                 const classCount = mapboxUtils.getClassCount(sizeLimits);

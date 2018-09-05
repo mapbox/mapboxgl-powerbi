@@ -5,3 +5,4 @@ const supercluster = window['supercluster'];
 const MapboxDraw = window['MapboxDraw'];
 const numeral = window['numeral'];
 const MapboxGeocoder = window['MapboxGeocoder'];
+const fastDeepEqual = window['fastDeepEqual']

@@ -134,15 +134,13 @@ module powerbi.extensibility.visual {
             return LassoDraw;
         }
 
-        export function makeIcon() {
+        export function makeIcon(surrogateControl: HTMLElement) {
             // Replace the line string tool icon and title to the lasso's icon and title
             try {
-                const drawLineGroup = document.getElementsByClassName(MapboxDrawConstants.classes.CONTROL_BUTTON_LINE);
-                const drawLineControl: any = drawLineGroup[0];
                 let buttonClassName = MapboxDrawConstants.classes.CONTROL_BUTTON;
                 buttonClassName += ` ${MapboxDrawConstants.classes.CONTROL_BUTTON_LASSO}`;
-                drawLineControl.className = buttonClassName;
-                drawLineControl.title = 'Lasso tool (l)';
+                surrogateControl.className = buttonClassName;
+                surrogateControl.title = 'Lasso tool (l)';
             } catch (error) {
                 // Failed to replace the icon and title of the line string tool
                 // control to lasso
