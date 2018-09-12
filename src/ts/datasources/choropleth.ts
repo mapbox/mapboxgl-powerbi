@@ -6,7 +6,7 @@ module powerbi.extensibility.visual.data {
         private fillSizeLimits: mapboxUtils.Limits;
         private bboxCache: BBoxCache;
 
-        private static readonly BBOX_TIMEOUT = 2500
+        private static readonly BBOX_TIMEOUT = 1500
         private static readonly BBOX_TIMER = 'choropleth-bbox-timer'
 
         constructor() {
