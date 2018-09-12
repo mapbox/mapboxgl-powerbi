@@ -108,7 +108,7 @@ module powerbi.extensibility.visual {
                 }
             }, 12, true);
 
-            const hoverHighLightLayers = [Circle.ID, Choropleth.ID];
+            const hoverHighLightLayers = [Circle.ID, Choropleth.ID, Choropleth.ExtrusionID];
             hoverHighLightLayers.map(hhLayer => {
                 map.off('mousemove', hhLayer, mouseMoveHandler);
                 map.on('mousemove', hhLayer, mouseMoveHandler);

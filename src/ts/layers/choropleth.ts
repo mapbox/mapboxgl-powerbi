@@ -2,14 +2,16 @@ module powerbi.extensibility.visual {
 
     export class Choropleth extends Layer {
         public static readonly ID = 'choropleth'
-        private static OutlineID = 'choropleth-outline'
-        private settings: ChoroplethSettings;
-        private static HighlightID = 'choropleth-highlight'
-        private static HighlightOutlineID = 'choropleth-highlight-outline'
-        private static ExtrusionID = 'choropleth-extrusion'
+        public static readonly OutlineID = 'choropleth-outline'
+        public static readonly HighlightID = 'choropleth-highlight'
+        public static readonly HighlightOutlineID = 'choropleth-highlight-outline'
+        public static readonly ExtrusionID = 'choropleth-extrusion'
+        public static readonly ExtrusionHighlightID = 'choropleth-extrusion-highlight'
+
         private static HeightMultiplier = 1000
 
         private palette: Palette;
+        private settings: ChoroplethSettings;
 
         constructor(map: MapboxMap, palette: Palette) {
             super(map);
@@ -85,11 +87,24 @@ module powerbi.extensibility.visual {
                 filter: zeroFilter,
             });
 
-            map.addLayer(highlightOutlineLayer, beforeLayerId);
+            const extrusionHighlightLayer = mapboxUtils.decorateLayer({
+                id: Choropleth.ExtrusionHighlightID,
+                type: "fill-extrusion",
+                source: 'choropleth-source',
+                paint: {
+                    "fill-extrusion-color": choroSettings.highlightColor,
+                    "fill-extrusion-opacity": 1
+                },
+                "source-layer": sourceLayer,
+                filter: zeroFilter
+            });
+
+            map.addLayer(extrusionHighlightLayer, beforeLayerId);
+            map.addLayer(extrusionLayer, Choropleth.ExtrusionHighlightID);
+            map.addLayer(highlightOutlineLayer, Choropleth.ExtrusionID);
             map.addLayer(highlightLayer, Choropleth.HighlightOutlineID);
             map.addLayer(outlineLayer, Choropleth.HighlightID);
             map.addLayer(choroplethLayer, Choropleth.OutlineID);
-            map.addLayer(extrusionLayer, Choropleth.ID)
         }
 
         hoverHighLight(e) {
@@ -102,6 +117,7 @@ module powerbi.extensibility.visual {
             const vectorProperty = choroSettings.getCurrentVectorProperty()
             map.setFilter(Choropleth.HighlightID, ["==", vectorProperty, e.features[0].properties[vectorProperty]]);
             map.setFilter(Choropleth.HighlightOutlineID, ["==", vectorProperty, e.features[0].properties[vectorProperty]]);
+            map.setFilter(Choropleth.ExtrusionHighlightID, ["==", vectorProperty, e.features[0].properties[vectorProperty]]);
         }
 
         removeHighlight(roleMap) {
@@ -115,8 +131,10 @@ module powerbi.extensibility.visual {
             const map = this.parent.getMap();
 
             map.setPaintProperty(Choropleth.ID, 'fill-opacity', choroSettings.opacity / 100);
+            map.setPaintProperty(Choropleth.ExtrusionID, 'fill-extrusion-opacity', choroSettings.opacity / 100);
             map.setFilter(Choropleth.HighlightID, zeroFilter);
             map.setFilter(Choropleth.HighlightOutlineID, zeroFilter);
+            map.setFilter(Choropleth.ExtrusionHighlightID, zeroFilter);
         }
 
         updateSelection(features, roleMap) {
@@ -148,8 +166,10 @@ module powerbi.extensibility.visual {
                 opacity = 0.5 * opacity;
             }
             map.setPaintProperty(Choropleth.ID, 'fill-opacity', opacity);
+            map.setPaintProperty(Choropleth.ExtrusionID, 'fill-extrusion-opacity', opacity);
             map.setFilter(Choropleth.HighlightID, locationFilter);
             map.setFilter(Choropleth.HighlightOutlineID, locationFilter);
+            map.setFilter(Choropleth.ExtrusionHighlightID, locationFilter);
             return selectionIds
         }
 
@@ -160,6 +180,7 @@ module powerbi.extensibility.visual {
             map.removeLayer(Choropleth.HighlightID);
             map.removeLayer(Choropleth.HighlightOutlineID);
             map.removeLayer(Choropleth.ExtrusionID);
+            map.removeLayer(Choropleth.ExtrusionHighlightID);
             this.source.removeFromMap(map, Choropleth.ID);
         }
 
@@ -192,6 +213,7 @@ module powerbi.extensibility.visual {
             map.setPaintProperty(Choropleth.ExtrusionID, 'fill-extrusion-color', colors);
             if (sizes) {
                 map.setPaintProperty(Choropleth.ExtrusionID, 'fill-extrusion-height', sizes)
+                map.setPaintProperty(Choropleth.ExtrusionHighlightID, 'fill-extrusion-height', sizes)
             }
         }
 
@@ -217,6 +239,8 @@ module powerbi.extensibility.visual {
             }
             map.setPaintProperty(Choropleth.ID, 'fill-opacity', opacity);
             map.setPaintProperty(Choropleth.HighlightID, "fill-color", settings.highlightColor)
+            map.setPaintProperty(Choropleth.ExtrusionHighlightID, "fill-extrusion-color", settings.highlightColor)
+            map.setPaintProperty(Choropleth.ExtrusionHighlightID, 'fill-extrusion-base', settings.baseHeight);
             map.setPaintProperty(Choropleth.ExtrusionID, 'fill-extrusion-base', settings.baseHeight);
         }
 
@@ -316,6 +340,7 @@ module powerbi.extensibility.visual {
                     this.setCalculatedProps(map, colors, sizes)
                 } else {
                     map.setPaintProperty(Choropleth.ID, 'fill-color', 'rgb(0, 0, 0)');
+                    map.setPaintProperty(Choropleth.ExtrusionID, 'fill-extrusion-color', 'rgb(0, 0, 0)');
                 }
 
                 this.setFilters(map, filter, choroSettings)
