@@ -21,7 +21,7 @@ module powerbi.extensibility.visual {
         }
 
         getLayerIDs() {
-            return [Choropleth.ID, Choropleth.OutlineID];
+            return [Choropleth.ID, Choropleth.OutlineID, Choropleth.ExtrusionID];
         }
 
         addLayer(settings: MapboxSettings, beforeLayerId, roleMap) {
