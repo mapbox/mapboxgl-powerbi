@@ -63,6 +63,10 @@ module powerbi.extensibility.visual {
             map.addLayer(clusterLabelLayer);
         }
 
+        hasTooltip(tooltips) {
+            return true;
+        }
+
         applySettings(settings, roleMap) {
             super.applySettings(settings, roleMap);
             const map = this.parent.getMap();
