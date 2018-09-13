@@ -284,7 +284,7 @@ module powerbi.extensibility.visual {
             };
 
             this.layers.map(layer => {
-                if (layer.hasTooltip()) {
+                if (layer.hasTooltip(this.roleMap.tooltips)) {
                     this.tooltipServiceWrapper.addTooltip(
                         this.map,
                         layer.getLayerIDs(),

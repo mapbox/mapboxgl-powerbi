@@ -350,10 +350,6 @@ module powerbi.extensibility.visual {
             }
         }
 
-        hasTooltip() {
-            return true;
-        }
-
         handleTooltip(tooltipEvent, roleMap, settings: MapboxSettings) {
             const tooltipData = super.handleTooltip(tooltipEvent, roleMap, settings);
             let choroVectorData = null;
