@@ -90,8 +90,12 @@ module powerbi.extensibility.visual {
             return false;
         }
 
-        hasTooltip() {
-            return false;
+        hasTooltip(tooltips) {
+            if (!tooltips) {
+                // Do not show tooltip if no property is pulled into 'tooltips' data role
+                return false;
+            }
+            return true;
         }
 
         private getToolTipFormat(roleMap, prop): any {

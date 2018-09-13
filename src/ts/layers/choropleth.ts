@@ -350,10 +350,6 @@ module powerbi.extensibility.visual {
             }
         }
 
-        hasTooltip() {
-            return true;
-        }
-
         handleTooltip(tooltipEvent, roleMap, settings: MapboxSettings) {
             const tooltipData = super.handleTooltip(tooltipEvent, roleMap, settings);
             let choroVectorData = null;
@@ -394,16 +390,24 @@ module powerbi.extensibility.visual {
                 return tooltipData;
             }
 
-            return Object.keys(dataUnderLocation).map(key => {
+            return Object.keys(dataUnderLocation).reduce((result, key) => {
                 let value = 'null';
                 if (dataUnderLocation[key] !== null && dataUnderLocation[key] !== undefined) {
                     value = dataUnderLocation[key].toString();
                 }
-                return {
+                const tooltipValue = {
                     displayName: key,
                     value
-                };
-            });
+                }
+                if (key == locationProperty) {
+                    // The location property should always be the first tooltip item...
+                    result.unshift(tooltipValue)
+                } else {
+                    // ... and then we can have the rest of the tooltip role items
+                    result.push(tooltipValue)
+                }
+                return result
+            }, [])
         }
     }
 }

@@ -98,9 +98,8 @@ module powerbi.extensibility.visual {
             }
         }
 
-        hasTooltip() {
+        hasTooltip(tooltips) {
             return true;
         }
     }
 }
-
