@@ -20,6 +20,12 @@ module powerbi.extensibility.visual {
             this.palette = palette;
         }
 
+        getId() {
+            if (this.settings.height !== 0) {
+                return Choropleth.ExtrusionID
+            }
+            return Choropleth.ID
+        }
         getLayerIDs() {
             return [Choropleth.ID, Choropleth.OutlineID, Choropleth.ExtrusionID];
         }
