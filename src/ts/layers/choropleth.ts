@@ -295,6 +295,7 @@ module powerbi.extensibility.visual {
         applySettings(settings, roleMap) {
             super.applySettings(settings, roleMap);
             const map = this.parent.getMap();
+            this.settings = settings.choropleth
             const choroSettings = settings.choropleth;
 
             if (map.getLayer(Choropleth.ID)) {
