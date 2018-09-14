@@ -273,6 +273,7 @@ module powerbi.extensibility.visual {
             }
             const selectionIds = layer.updateSelection(features, roleMap);
             if (layerId === "choropleth") {
+            if (layerId === "choropleth" || layerId === "choropleth-extrusion") {
                 this.addSelection(selectionIds, roleMap.location);
             } else {
                 this.addSelection(selectionIds);
