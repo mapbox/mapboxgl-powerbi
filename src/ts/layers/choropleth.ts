@@ -141,7 +141,8 @@ module powerbi.extensibility.visual {
             const map = this.parent.getMap();
 
             map.setPaintProperty(Choropleth.ID, 'fill-opacity', choroSettings.opacity / 100);
-            map.setPaintProperty(Choropleth.ExtrusionID, 'fill-extrusion-opacity', choroSettings.opacity / 100);
+            // map.setPaintProperty(Choropleth.ExtrusionID, 'fill-extrusion-opacity', 0)
+            // map.setPaintProperty(Choropleth.ExtrusionID, 'fill-extrusion-opacity', choroSettings.opacity / 100);
             map.setFilter(Choropleth.HighlightID, zeroFilter);
             map.setFilter(Choropleth.HighlightOutlineID, zeroFilter);
             map.setFilter(Choropleth.ExtrusionHighlightID, zeroFilter);
@@ -241,12 +242,20 @@ module powerbi.extensibility.visual {
 
         }
 
-        setFillProps(map: any, settings: ChoroplethSettings) {
+        setFillProps(map: any, settings: ChoroplethSettings, sizes: number) {
+            console.log("in setFillProps")
             map.setPaintProperty(Choropleth.ID, 'fill-outline-color', 'rgba(0,0,0,0.05)');
             let opacity = settings.opacity / 100;
             if (this.parent.hasSelection()) {
+                console.log("hasSelection")
                 opacity = 0.5 * opacity;
             }
+            if (settings.height === 0){
+                map.setPaintProperty(Choropleth.ExtrusionID, 'fill-extrusion-height', 0)
+                map.setPaintProperty(Choropleth.ExtrusionHighlightID, 'fill-extrusion-height', 0)
+            }
+            map.setPaintProperty(Choropleth.ExtrusionID, 'fill-extrusion-height', sizes)
+            map.setPaintProperty(Choropleth.ExtrusionHighlightID, 'fill-extrusion-height', sizes)
             map.setPaintProperty(Choropleth.ID, 'fill-opacity', opacity);
             map.setPaintProperty(Choropleth.HighlightID, "fill-color", settings.highlightColor)
             map.setPaintProperty(Choropleth.ExtrusionHighlightID, "fill-extrusion-color", settings.highlightColor)
@@ -355,7 +364,7 @@ module powerbi.extensibility.visual {
 
                 this.setFilters(map, filter, choroSettings)
                 this.setLineProps(map, choroSettings)
-                this.setFillProps(map, choroSettings)
+                this.setFillProps(map, choroSettings, sizes)
                 this.setZoom(map, choroSettings)
             }
         }
