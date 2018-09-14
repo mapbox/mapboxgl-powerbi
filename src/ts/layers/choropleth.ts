@@ -121,9 +121,13 @@ module powerbi.extensibility.visual {
             const map = this.parent.getMap();
             const choroSettings = this.settings;
             const vectorProperty = choroSettings.getCurrentVectorProperty()
-            map.setFilter(Choropleth.HighlightID, ["==", vectorProperty, e.features[0].properties[vectorProperty]]);
-            map.setFilter(Choropleth.HighlightOutlineID, ["==", vectorProperty, e.features[0].properties[vectorProperty]]);
-            map.setFilter(Choropleth.ExtrusionHighlightID, ["==", vectorProperty, e.features[0].properties[vectorProperty]]);
+            if (choroSettings.height === 0) {
+                map.setFilter(Choropleth.HighlightID, ["==", vectorProperty, e.features[0].properties[vectorProperty]]);
+                map.setFilter(Choropleth.HighlightOutlineID, ["==", vectorProperty, e.features[0].properties[vectorProperty]]);
+            }
+            else {
+                map.setFilter(Choropleth.ExtrusionHighlightID, ["==", vectorProperty, e.features[0].properties[vectorProperty]]);
+            }
         }
 
         removeHighlight(roleMap) {
