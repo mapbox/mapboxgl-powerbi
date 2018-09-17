@@ -271,15 +271,17 @@ module powerbi.extensibility.visual {
                 const toKeep = this.prevSelectionByLayer[layerId].filter(feature => !FeatureOps.isInclude(features, feature))
                 features = toKeep.concat(toAdd)
             }
-            const selectionIds = layer.updateSelection(features, roleMap);
-            if (layerId === "choropleth") {
-            if (layerId === "choropleth" || layerId === "choropleth-extrusion") {
-                this.addSelection(selectionIds, roleMap.location);
-            } else {
-                this.addSelection(selectionIds);
-            }
 
+            layer.updateSelection(features, roleMap);
             this.prevSelectionByLayer[layerId] = [...features]
+        }
+
+        public getSelectionOpacity(opacity) {
+            opacity = opacity / 100
+            if (this.hasSelection()) {
+                opacity = 0.5 * opacity;
+            }
+            return opacity
         }
 
         private static isToggleClick(e: MouseEvent) {

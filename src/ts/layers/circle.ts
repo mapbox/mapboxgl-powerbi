@@ -1,15 +1,17 @@
 module powerbi.extensibility.visual {
 
     export class Circle extends Layer {
+        private filter: Filter;
         private palette: Palette;
         private settings: CircleSettings;
 
         public static readonly ID = 'circle';
         private static HighlightID = 'circle-highlight'
 
-        constructor(map: MapboxMap, palette: Palette) {
+        constructor(map: MapboxMap, filter: Filter, palette: Palette) {
             super(map)
             this.id = Circle.ID
+            this.filter = filter
             this.palette = palette
             this.source = data.Sources.Point
         }
@@ -93,13 +95,11 @@ module powerbi.extensibility.visual {
                         ["==", longitude, feature.properties[longitude]]]);
                     return feature.id;
             });
+            this.filter.addSelection(selectionIds)
 
             map.setFilter(Circle.HighlightID, lngLatFilter);
 
-            let opacity = this.settings.opacity / 100;
-            if (this.parent.hasSelection()) {
-                opacity = opacity * 0.5
-            }
+            const opacity = this.filter.getSelectionOpacity(this.settings.opacity)
             map.setPaintProperty(Circle.ID, 'circle-opacity', opacity);
             return selectionIds
         }
