@@ -134,10 +134,6 @@ module powerbi.extensibility.visual {
             }
         }
 
-        hasTooltip() {
-            return true;
-        }
-
         private static getColors(colorLimits: mapboxUtils.Limits, isGradient: boolean, settings: any, colorPalette: Palette, colorField: any) {
             if (!colorField || colorLimits == null || colorLimits.min == null || colorLimits.max == null || colorLimits.values.length <= 0) {
                 return settings.circle.minColor;
