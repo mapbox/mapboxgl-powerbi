@@ -120,10 +120,6 @@ module powerbi.extensibility.visual {
             return this.roleMap;
         }
 
-        public hasSelection(): boolean {
-            return this.filter.hasSelection()
-        }
-
         private addMap() {
             if (this.map) {
                 return
@@ -159,8 +155,8 @@ module powerbi.extensibility.visual {
             this.layers.push(new Cluster(this, () => {
                 return this.roleMap.cluster.displayName;
             }))
-            this.layers.push(new Circle(this, this.palette))
-            this.layers.push(new Choropleth(this, this.palette));
+            this.layers.push(new Circle(this, this.filter, this.palette))
+            this.layers.push(new Choropleth(this, this.filter, this.palette))
             mapboxgl.config.API_URL = this.settings.api.apiUrl;
 
 
