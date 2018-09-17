@@ -8,7 +8,8 @@ module powerbi.extensibility.visual {
     export interface ITooltipServiceWrapper {
         addTooltip<T>(
             map,
-            layers,
+            layer,
+            tooltips,
             getTooltipInfoDelegate: (args: TooltipEventArgs<T>) => VisualTooltipDataItem[],
             reloadTooltipDataOnMouseMove?: boolean): void;
         hide(immediately?: boolean): void;
@@ -25,16 +26,21 @@ module powerbi.extensibility.visual {
         private visualHostTooltipService: ITooltipService;
         private rootElement: HTMLElement;
         private handleTouchDelay: number;
+        private showTooltip: any;
+        private hideTooltip: any;
 
         constructor(tooltipService: ITooltipService, rootElement: HTMLElement, handleTouchDelay: number) {
             this.visualHostTooltipService = tooltipService;
             this.handleTouchDelay = handleTouchDelay;
             this.rootElement = rootElement;
+            this.showTooltip = {}
+            this.hideTooltip = {}
         }
 
         public addTooltip<T>(
             map,
-            layers,
+            layer: Layer,
+            tooltips,
             getTooltipInfoDelegate: (args: TooltipEventArgs<T>) => VisualTooltipDataItem[],
             reloadTooltipDataOnMouseMove?: boolean): void {
 
@@ -50,37 +56,48 @@ module powerbi.extensibility.visual {
                 rootNode.style.cursor = '-webkit-grab';
                 rootNode.style.cursor = 'grab';
 
-                const hideTooltip = (e) => {
-                    this.hide()
-                };
-
-                const showTooltip = mapboxUtils.debounce((e) => {
-                    rootNode.style.cursor = 'pointer';
-                    let tooltipEventArgs = this.makeTooltipEventArgs<T>(e);
-                    if (!tooltipEventArgs)
-                        return;
-
-                    let tooltipInfo: VisualTooltipDataItem[];
-                    if (reloadTooltipDataOnMouseMove || true) {
-                        tooltipInfo = getTooltipInfoDelegate(tooltipEventArgs);
-                        if (tooltipInfo == null)
-                            return;
+                layer.getLayerIDs().map( layerId => {
+                    if (!this.hideTooltip[layerId]) {
+                        this.hideTooltip[layerId] = (e) => {
+                            this.hide()
+                        };
                     }
 
-                    this.visualHostTooltipService.show({
-                        coordinates: tooltipEventArgs.coordinates,
-                        isTouchEvent: false,
-                        dataItems: tooltipInfo,
-                        identities: [],
-                    });
-                }, 12, true)
+                    if (!this.showTooltip[layerId]) {
+                        this.showTooltip[layerId] = mapboxUtils.debounce((e) => {
+                            rootNode.style.cursor = 'pointer';
+                            let tooltipEventArgs = this.makeTooltipEventArgs<T>(e);
+                            if (!tooltipEventArgs)
+                                return;
 
-                layers.map( layerId => {
-                    map.off('mouseleave', layerId, hideTooltip);
-                    map.on('mouseleave', layerId, hideTooltip);
+                            let tooltipInfo: VisualTooltipDataItem[];
+                            if (reloadTooltipDataOnMouseMove || true) {
+                                tooltipInfo = getTooltipInfoDelegate(tooltipEventArgs);
+                                if (tooltipInfo == null) {
+                                    return;
+                                }
+                            }
 
-                    map.off('mousemove', layerId, showTooltip);
-                    map.on('mousemove', layerId, showTooltip);
+                            this.visualHostTooltipService.show({
+                                coordinates: tooltipEventArgs.coordinates,
+                                isTouchEvent: false,
+                                dataItems: tooltipInfo,
+                                identities: [],
+                            });
+                        }, 12, true)
+                    }
+
+                    map.off('mouseleave', layerId, this.hideTooltip[layerId]);
+                    map.off('mousemove', layerId, this.showTooltip[layerId]);
+
+                    if (layer.hasTooltip(tooltips)) {
+                        map.on('mouseleave', layerId, this.hideTooltip[layerId]);
+                        map.on('mousemove', layerId, this.showTooltip[layerId]);
+                    }
+                    else {
+                        this.showTooltip[layerId] = null
+                        this.hideTooltip[layerId] = null
+                    }
                 });
         }
 
