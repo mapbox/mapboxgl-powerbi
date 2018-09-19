@@ -1,4 +1,5 @@
 module powerbi.extensibility.visual {
+    declare var numeral: any;
 
     export class Choropleth extends Layer {
         public static readonly ID = 'choropleth'
@@ -402,6 +403,12 @@ module powerbi.extensibility.visual {
                 if (dataUnderLocation[key] !== null && dataUnderLocation[key] !== undefined) {
                     value = dataUnderLocation[key].toString();
                 }
+
+                let format = this.getToolTipFormat(roleMap, key)
+                if (format != undefined) {
+                    value = numeral(value).format(format);
+                }
+
                 const tooltipValue = {
                     displayName: key,
                     value

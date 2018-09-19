@@ -280,15 +280,14 @@ module powerbi.extensibility.visual {
             };
 
             this.layers.map(layer => {
-                if (layer.hasTooltip(this.roleMap.tooltips)) {
-                    this.tooltipServiceWrapper.addTooltip(
-                        this.map,
-                        layer.getLayerIDs(),
-                        (tooltipEvent: TooltipEventArgs<number>) => {
-                            return layer.handleTooltip(tooltipEvent, this.roleMap, this.settings);
-                        }
-                    );
-                }
+                this.tooltipServiceWrapper.addTooltip(
+                    this.map,
+                    layer,
+                    this.roleMap.tooltips,
+                    (tooltipEvent: TooltipEventArgs<number>) => {
+                        return layer.handleTooltip(tooltipEvent, this.roleMap, this.settings);
+                    }
+                );
             });
 
             this.onUpdate(this.map, this.settings, this.updatedHandler);
