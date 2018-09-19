@@ -61,7 +61,7 @@ Mapbox supports up to the maximum allowed by Power BI, 30,000 rows, for all visu
 
 ### Beta Version
 - We will keep an up to date beta version in this section.
-- [v1.3 beta](https://github.com/mapbox/mapboxgl-powerbi/blob/v1.3/dist/mapboxGLMap.pbiviz) is the lastest beta.
+- [v1.3 beta](https://github.com/mapbox/mapboxgl-powerbi/blob/v1.3_beta/dist/mapboxGLMap.pbiviz) is the lastest beta.
 
 ### Developing and Contributing.
 - This is an open source repo and we welcome contributions from the public.
