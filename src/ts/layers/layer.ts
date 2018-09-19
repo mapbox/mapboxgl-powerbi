@@ -115,7 +115,7 @@ module powerbi.extensibility.visual {
                 const prop = data.displayName
                 let format = this.getToolTipFormat(roleMap, prop)
                 if (format != undefined) {
-                    data.value = numeral(tooltipData).format(format);
+                    data.value = numeral(data.value).format(format);
                 }
                 return data;
             })
