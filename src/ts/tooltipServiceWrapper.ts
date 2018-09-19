@@ -26,15 +26,18 @@ module powerbi.extensibility.visual {
         private visualHostTooltipService: ITooltipService;
         private rootElement: HTMLElement;
         private handleTouchDelay: number;
-        private showTooltip: any;
-        private hideTooltip: any;
+
+        // Store the registered showTooltip and hideTooltip handler functions, so that
+        // we can unregister them successfully
+        private mapShowTooltip: any;
+        private mapHideTooltip: any;
 
         constructor(tooltipService: ITooltipService, rootElement: HTMLElement, handleTouchDelay: number) {
             this.visualHostTooltipService = tooltipService;
             this.handleTouchDelay = handleTouchDelay;
             this.rootElement = rootElement;
-            this.showTooltip = {}
-            this.hideTooltip = {}
+            this.mapShowTooltip = {}
+            this.mapHideTooltip = {}
         }
 
         public addTooltip<T>(
@@ -57,14 +60,14 @@ module powerbi.extensibility.visual {
                 rootNode.style.cursor = 'grab';
 
                 layer.getLayerIDs().map( layerId => {
-                    if (!this.hideTooltip[layerId]) {
-                        this.hideTooltip[layerId] = (e) => {
+                    if (!this.mapHideTooltip[layerId]) {
+                        this.mapHideTooltip[layerId] = (e) => {
                             this.hide()
                         };
                     }
 
-                    if (!this.showTooltip[layerId]) {
-                        this.showTooltip[layerId] = mapboxUtils.debounce((e) => {
+                    if (!this.mapShowTooltip[layerId]) {
+                        this.mapShowTooltip[layerId] = mapboxUtils.debounce((e) => {
                             rootNode.style.cursor = 'pointer';
                             let tooltipEventArgs = this.makeTooltipEventArgs<T>(e);
                             if (!tooltipEventArgs)
@@ -87,16 +90,16 @@ module powerbi.extensibility.visual {
                         }, 12, true)
                     }
 
-                    map.off('mouseleave', layerId, this.hideTooltip[layerId]);
-                    map.off('mousemove', layerId, this.showTooltip[layerId]);
+                    map.off('mouseleave', layerId, this.mapHideTooltip[layerId]);
+                    map.off('mousemove', layerId, this.mapShowTooltip[layerId]);
 
                     if (layer.hasTooltip(tooltips)) {
-                        map.on('mouseleave', layerId, this.hideTooltip[layerId]);
-                        map.on('mousemove', layerId, this.showTooltip[layerId]);
+                        map.on('mouseleave', layerId, this.mapHideTooltip[layerId]);
+                        map.on('mousemove', layerId, this.mapShowTooltip[layerId]);
                     }
                     else {
-                        this.showTooltip[layerId] = null
-                        this.hideTooltip[layerId] = null
+                        this.mapShowTooltip[layerId] = null
+                        this.mapHideTooltip[layerId] = null
                     }
                 });
         }
