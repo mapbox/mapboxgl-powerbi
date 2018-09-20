@@ -236,9 +236,11 @@ module powerbi.extensibility.visual {
             map.setFilter(Choropleth.OutlineID, filter);
             if (settings.height === 0) {
                 map.setFilter(Choropleth.ExtrusionID, zeroFilter)
+                map.setPitch(0)
             } else {
                 map.setFilter(Choropleth.ID, zeroFilter)
                 map.setFilter(Choropleth.ExtrusionID, filter)
+                map.setPitch(settings.extrusionPitch)
             }
 
         }

@@ -799,6 +799,14 @@
             "integer": true
           }
         },
+        "extrusionPitch": {
+          "displayName": "Extrusion Pitch",
+          "displayNameKey": "extrusionPitch",
+          "description": "Defines pitch for 3d extrusion",
+          "type": {
+            "integer": true
+          }
+        },
         "minZoom": {
           "displayName": "Min Zoom",
           "displayNameKey": "minZoom",
