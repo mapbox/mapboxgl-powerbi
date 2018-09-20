@@ -21,7 +21,7 @@ module powerbi.extensibility.visual {
 
         export const MissingGeo = `
             <h4>
-                Add longitude & latitude OR location & color fields to see your data on the map.
+            Begin by adding latitude and longitude attributes to your viz for Circle Layers. Use Location and Color for Choropleth layers. Circle Layer is enabled by default. Change this from the Format panel.
             </h4>
             <img style="padding-bottom: 20px;" src="https://dl.dropbox.com/s/aobsdsrzn0ewc2t/add-long-lat.png"></img><br>
             <img src="https://dl.dropbox.com/s/5io6dvr1l8gcgtp/mapbox-logo-color.png"></img>
@@ -29,7 +29,7 @@ module powerbi.extensibility.visual {
 
         export const MissingLocationOrColor = `
             <h4>
-                Add only Location & Color (and optionally Size) fields to use a choropleth layer.  Choropleth layers do not support using multiple layers in the same map - only a choropleth layer is allowed.
+            Add only Location & Color fields to use a choropleth layer. Choropleth layers do not support using multiple layers in the same map - only a choropleth layer is allowed. Location attribute must match US State, Global Country, or US Postal Code. The default setting is US States and can be changed in the "Data Level" property within Choropleth settings. For other polygons, use a custom tileset.
             </h4>
            <img src="https://dl.dropbox.com/s/5io6dvr1l8gcgtp/mapbox-logo-color.png"></img>
         `
@@ -48,6 +48,7 @@ module powerbi.extensibility.visual {
            <img style="padding-bottom: 20px;" src="https://dl.dropbox.com/s/io61ltmj69xlt75/add-cluster.png"></img><br>
             <img src="https://dl.dropbox.com/s/5io6dvr1l8gcgtp/mapbox-logo-color.png"></img>
         `
+        export const noGlSupport = `<h4>This machine doesnt support WebGL.</h4>`
     }
 }
 
