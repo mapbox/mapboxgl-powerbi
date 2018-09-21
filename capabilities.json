@@ -783,14 +783,6 @@
             }
           }
         },
-        "baseHeight": {
-          "displayName": "Extrusion Base",
-          "displayNameKey": "baseHeight",
-          "description": "Defines base height for 3d extrusion",
-          "type": {
-            "integer": true
-          }
-        },
         "height": {
           "displayName": "Extrusion Height",
           "displayNameKey": "height",

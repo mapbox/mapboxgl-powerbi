@@ -137,7 +137,7 @@ module powerbi.extensibility.visual {
         public highlightColor: string = "#2c7fb8";
         public minZoom: number = 0;
         public maxZoom: number = 22;
-        public height: number = 0;
+        public height: number = 500;
         public baseHeight: number = 0;
         public extrusionPitch: number = 0;
         public extrusionColor: string = "#FFC0CB"

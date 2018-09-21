@@ -220,10 +220,10 @@ module powerbi.extensibility.visual {
             const k = choroSettings.baseHeight + (size - sizeLimits.min) * (choroSettings.height - choroSettings.baseHeight) / (sizeLimits.max - sizeLimits.min)
             return k
         }
-        setCalculatedProps(map: any, colors: object, sizes: object | number) {
+        setCalculatedProps(map: any, colors: object, sizes: object | number, roleMap) {
             map.setPaintProperty(Choropleth.ID, 'fill-color', colors);
             map.setPaintProperty(Choropleth.ExtrusionID, 'fill-extrusion-color', colors);
-            if (sizes) {
+            if (roleMap.size) {
                 map.setPaintProperty(Choropleth.ExtrusionID, 'fill-extrusion-height', sizes)
                 map.setPaintProperty(Choropleth.ExtrusionHighlightID, 'fill-extrusion-height', sizes)
             }
@@ -347,7 +347,7 @@ module powerbi.extensibility.visual {
                 }
 
                 if (validStops) {
-                    this.setCalculatedProps(map, colors, sizes)
+                    this.setCalculatedProps(map, colors, sizes, roleMap)
                 } else {
                     map.setPaintProperty(Choropleth.ID, 'fill-color', 'rgb(0, 0, 0)');
                     map.setPaintProperty(Choropleth.ExtrusionID, 'fill-extrusion-color', 'rgb(0, 0, 0)');
