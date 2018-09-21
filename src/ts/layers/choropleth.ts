@@ -227,6 +227,10 @@ module powerbi.extensibility.visual {
                 map.setPaintProperty(Choropleth.ExtrusionID, 'fill-extrusion-height', sizes)
                 map.setPaintProperty(Choropleth.ExtrusionHighlightID, 'fill-extrusion-height', sizes)
             }
+            else {
+                map.setPaintProperty(Choropleth.ExtrusionID, 'fill-extrusion-height', 0)
+                map.setPaintProperty(Choropleth.ExtrusionHighlightID, 'fill-extrusion-height', 0)
+            }
         }
 
         setFilters(map: any, filter: any[], settings: ChoroplethSettings) {
@@ -236,7 +240,7 @@ module powerbi.extensibility.visual {
             map.setFilter(Choropleth.OutlineID, filter);
             if (settings.height === 0) {
                 map.setFilter(Choropleth.ExtrusionID, zeroFilter)
-                map.setPitch(0)
+                // map.setPitch(0)
             } else {
                 map.setFilter(Choropleth.ID, zeroFilter)
                 map.setFilter(Choropleth.ExtrusionID, filter)
