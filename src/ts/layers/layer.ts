@@ -97,7 +97,7 @@ module powerbi.extensibility.visual {
             return true;
         }
 
-        getToolTipFormat(roleMap, prop): any {
+        getToolTipFormat(roleMap, prop): string {
             let format = undefined;
             Object.keys(roleMap).map(role => {
                 if (roleMap[role].displayName === prop) {
