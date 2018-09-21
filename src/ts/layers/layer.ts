@@ -1,5 +1,4 @@
 module powerbi.extensibility.visual {
-    declare var numeral: any;
     export abstract class Layer {
         protected parent: MapboxMap;
         protected source: data.Datasource;

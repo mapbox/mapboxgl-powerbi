@@ -1,5 +1,4 @@
 module powerbi.extensibility.visual {
-    declare var numeral: any;
 
     export class Choropleth extends Layer {
         public static readonly ID = 'choropleth'
