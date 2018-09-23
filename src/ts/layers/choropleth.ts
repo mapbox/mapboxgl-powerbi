@@ -221,7 +221,7 @@ module powerbi.extensibility.visual {
             return k
         }
         setCalculatedProps(map: any, colors: object, sizes: object | number, roleMap) {
-            // map.setPaintProperty(Choropleth.ID, 'fill-color', colors);
+            map.setPaintProperty(Choropleth.ID, 'fill-color', colors);
             map.setPaintProperty(Choropleth.ExtrusionID, 'fill-extrusion-color', colors);
             console.log('colors', colors)
             if (roleMap.size) {
