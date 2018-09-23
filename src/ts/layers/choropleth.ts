@@ -9,7 +9,7 @@ module powerbi.extensibility.visual {
         public static readonly ExtrusionID = 'choropleth-extrusion'
         public static readonly ExtrusionHighlightID = 'choropleth-extrusion-highlight'
 
-        private static HeightMultiplier = 1000
+        private static HeightMultiplier = 100
 
         private filter: Filter;
         private palette: Palette;
@@ -177,7 +177,7 @@ module powerbi.extensibility.visual {
             this.filter.addSelection(selectionIds, roleMap.location)
 
             const opacity = this.filter.getSelectionOpacity(choroSettings.opacity)
-            map.setPaintProperty(Choropleth.ID, 'fill-opacity', opacity);
+            map.setPaintProperty(Choropleth.ID, 'fill-extrusion-opacity', opacity);
             map.setPaintProperty(Choropleth.ExtrusionID, 'fill-extrusion-opacity', opacity);
             map.setFilter(Choropleth.HighlightID, locationFilter);
             map.setFilter(Choropleth.HighlightOutlineID, locationFilter);
@@ -221,8 +221,9 @@ module powerbi.extensibility.visual {
             return k
         }
         setCalculatedProps(map: any, colors: object, sizes: object | number, roleMap) {
-            map.setPaintProperty(Choropleth.ID, 'fill-color', colors);
+            // map.setPaintProperty(Choropleth.ID, 'fill-color', colors);
             map.setPaintProperty(Choropleth.ExtrusionID, 'fill-extrusion-color', colors);
+            console.log('colors', colors)
             if (roleMap.size) {
                 map.setPaintProperty(Choropleth.ExtrusionID, 'fill-extrusion-height', sizes)
                 map.setPaintProperty(Choropleth.ExtrusionHighlightID, 'fill-extrusion-height', sizes)
@@ -328,7 +329,7 @@ module powerbi.extensibility.visual {
                         continue;
                     }
 
-                    const locationStr = location.toString();
+                    const locationStr = location
 
 
                     if (existingStops[locationStr]) {
@@ -341,6 +342,7 @@ module powerbi.extensibility.visual {
 
 
                     existingStops[locationStr] = true;
+
                     colors.stops.push([locationStr, color.toString()]);
                     if (roleMap.size) {
                         const size = row[roleMap.size.displayName]
