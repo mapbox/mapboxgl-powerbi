@@ -177,7 +177,7 @@ module powerbi.extensibility.visual {
             this.filter.addSelection(selectionIds, roleMap.location)
 
             const opacity = this.filter.getSelectionOpacity(choroSettings.opacity)
-            map.setPaintProperty(Choropleth.ID, 'fill-extrusion-opacity', opacity);
+            map.setPaintProperty(Choropleth.ID, 'fill-opacity', opacity);
             map.setPaintProperty(Choropleth.ExtrusionID, 'fill-extrusion-opacity', opacity);
             map.setFilter(Choropleth.HighlightID, locationFilter);
             map.setFilter(Choropleth.HighlightOutlineID, locationFilter);
