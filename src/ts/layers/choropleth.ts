@@ -1,5 +1,4 @@
 module powerbi.extensibility.visual {
-    declare var numeral: any;
 
     export class Choropleth extends Layer {
         public static readonly ID = 'choropleth'
@@ -24,7 +23,7 @@ module powerbi.extensibility.visual {
         }
 
         getId() {
-            if (this.settings.height !== 0) {
+            if (this.isExtruding()) {
                 return Choropleth.ExtrusionID
             }
             return Choropleth.ID
@@ -116,6 +115,10 @@ module powerbi.extensibility.visual {
             map.addLayer(choroplethLayer, Choropleth.OutlineID);
         }
 
+        isExtruding() {
+            return this.parent.getRoleMap().size && this.settings.height > 0
+        }
+
         hoverHighLight(e) {
             if (!this.layerExists()) {
                 return;
@@ -124,12 +127,13 @@ module powerbi.extensibility.visual {
             const map = this.parent.getMap();
             const choroSettings = this.settings;
             const vectorProperty = choroSettings.getCurrentVectorProperty()
-            if (choroSettings.height === 0) {
-                map.setFilter(Choropleth.HighlightID, ["==", vectorProperty, e.features[0].properties[vectorProperty]]);
-                map.setFilter(Choropleth.HighlightOutlineID, ["==", vectorProperty, e.features[0].properties[vectorProperty]]);
+            const featureVectorProperty = e.features[0].properties[vectorProperty]
+            if (this.isExtruding()) {
+                map.setFilter(Choropleth.ExtrusionHighlightID, ["==", vectorProperty, featureVectorProperty]);
             }
             else {
-                map.setFilter(Choropleth.ExtrusionHighlightID, ["==", vectorProperty, e.features[0].properties[vectorProperty]]);
+                map.setFilter(Choropleth.HighlightID, ["==", vectorProperty, featureVectorProperty]);
+                map.setFilter(Choropleth.HighlightOutlineID, ["==", vectorProperty, featureVectorProperty]);
             }
         }
 
@@ -181,7 +185,9 @@ module powerbi.extensibility.visual {
             map.setPaintProperty(Choropleth.ExtrusionID, 'fill-extrusion-opacity', opacity);
             map.setFilter(Choropleth.HighlightID, locationFilter);
             map.setFilter(Choropleth.HighlightOutlineID, locationFilter);
-            map.setFilter(Choropleth.ExtrusionHighlightID, locationFilter);
+            if (this.isExtruding()) {
+                map.setFilter(Choropleth.ExtrusionHighlightID, locationFilter);
+            }
             return selectionIds
         }
 
@@ -238,13 +244,13 @@ module powerbi.extensibility.visual {
             const zeroFilter = ["==", vectorProperty, ""]
             map.setFilter(Choropleth.ID, filter);
             map.setFilter(Choropleth.OutlineID, filter);
-            if (settings.height === 0) {
-                map.setFilter(Choropleth.ExtrusionID, zeroFilter)
-                // map.setPitch(0)
-            } else {
+            if (this.isExtruding()) {
                 map.setFilter(Choropleth.ID, zeroFilter)
                 map.setFilter(Choropleth.ExtrusionID, filter)
                 map.setPitch(settings.extrusionPitch)
+            } else {
+                map.setFilter(Choropleth.ExtrusionID, zeroFilter)
+                // map.setPitch(0)
             }
 
         }
