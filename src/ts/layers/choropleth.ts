@@ -8,7 +8,7 @@ module powerbi.extensibility.visual {
         public static readonly ExtrusionID = 'choropleth-extrusion'
         public static readonly ExtrusionHighlightID = 'choropleth-extrusion-highlight'
 
-        private static HeightMultiplier = 1000
+        private static HeightMultiplier = 100
 
         private filter: Filter;
         private palette: Palette;
@@ -23,7 +23,7 @@ module powerbi.extensibility.visual {
         }
 
         getId() {
-            if (this.settings.height !== 0) {
+            if (this.isExtruding()) {
                 return Choropleth.ExtrusionID
             }
             return Choropleth.ID
@@ -115,6 +115,10 @@ module powerbi.extensibility.visual {
             map.addLayer(choroplethLayer, Choropleth.OutlineID);
         }
 
+        isExtruding() {
+            return this.parent.getRoleMap().size && this.settings.height > 0
+        }
+
         hoverHighLight(e) {
             if (!this.layerExists()) {
                 return;
@@ -123,12 +127,13 @@ module powerbi.extensibility.visual {
             const map = this.parent.getMap();
             const choroSettings = this.settings;
             const vectorProperty = choroSettings.getCurrentVectorProperty()
-            if (choroSettings.height === 0) {
-                map.setFilter(Choropleth.HighlightID, ["==", vectorProperty, e.features[0].properties[vectorProperty]]);
-                map.setFilter(Choropleth.HighlightOutlineID, ["==", vectorProperty, e.features[0].properties[vectorProperty]]);
+            const featureVectorProperty = e.features[0].properties[vectorProperty]
+            if (this.isExtruding()) {
+                map.setFilter(Choropleth.ExtrusionHighlightID, ["==", vectorProperty, featureVectorProperty]);
             }
             else {
-                map.setFilter(Choropleth.ExtrusionHighlightID, ["==", vectorProperty, e.features[0].properties[vectorProperty]]);
+                map.setFilter(Choropleth.HighlightID, ["==", vectorProperty, featureVectorProperty]);
+                map.setFilter(Choropleth.HighlightOutlineID, ["==", vectorProperty, featureVectorProperty]);
             }
         }
 
@@ -180,7 +185,7 @@ module powerbi.extensibility.visual {
             map.setPaintProperty(Choropleth.ExtrusionID, 'fill-extrusion-opacity', opacity);
             map.setFilter(Choropleth.HighlightID, locationFilter);
             map.setFilter(Choropleth.HighlightOutlineID, locationFilter);
-            if (choroSettings.height !== 0){
+            if (this.isExtruding()) {
                 map.setFilter(Choropleth.ExtrusionHighlightID, locationFilter);
             }
             return selectionIds
@@ -221,12 +226,16 @@ module powerbi.extensibility.visual {
             const k = choroSettings.baseHeight + (size - sizeLimits.min) * (choroSettings.height - choroSettings.baseHeight) / (sizeLimits.max - sizeLimits.min)
             return k
         }
-        setCalculatedProps(map: any, colors: object, sizes: object | number) {
+        setCalculatedProps(map: any, colors: object, sizes: object | number, roleMap) {
             map.setPaintProperty(Choropleth.ID, 'fill-color', colors);
             map.setPaintProperty(Choropleth.ExtrusionID, 'fill-extrusion-color', colors);
-            if (sizes) {
+            if (roleMap.size) {
                 map.setPaintProperty(Choropleth.ExtrusionID, 'fill-extrusion-height', sizes)
                 map.setPaintProperty(Choropleth.ExtrusionHighlightID, 'fill-extrusion-height', sizes)
+            }
+            else {
+                map.setPaintProperty(Choropleth.ExtrusionID, 'fill-extrusion-height', 0)
+                map.setPaintProperty(Choropleth.ExtrusionHighlightID, 'fill-extrusion-height', 0)
             }
         }
 
@@ -235,11 +244,13 @@ module powerbi.extensibility.visual {
             const zeroFilter = ["==", vectorProperty, ""]
             map.setFilter(Choropleth.ID, filter);
             map.setFilter(Choropleth.OutlineID, filter);
-            if (settings.height === 0) {
-                map.setFilter(Choropleth.ExtrusionID, zeroFilter)
-            } else {
+            if (this.isExtruding()) {
                 map.setFilter(Choropleth.ID, zeroFilter)
                 map.setFilter(Choropleth.ExtrusionID, filter)
+                map.setPitch(settings.extrusionPitch)
+            } else {
+                map.setFilter(Choropleth.ExtrusionID, zeroFilter)
+                // map.setPitch(0)
             }
 
         }
@@ -323,7 +334,7 @@ module powerbi.extensibility.visual {
                         continue;
                     }
 
-                    const locationStr = location.toString();
+                    const locationStr = location.toString()
 
 
                     if (existingStops[locationStr]) {
@@ -336,17 +347,18 @@ module powerbi.extensibility.visual {
 
 
                     existingStops[locationStr] = true;
-                    colors.stops.push([locationStr, color.toString()]);
+
+                    colors.stops.push([location, color.toString()]);
                     if (roleMap.size) {
                         const size = row[roleMap.size.displayName]
-                        sizes.stops.push([locationStr, this.sizeInterpolate(sizeLimits, choroSettings, size) * Choropleth.HeightMultiplier])
+                        sizes.stops.push([location, this.sizeInterpolate(sizeLimits, choroSettings, size) * Choropleth.HeightMultiplier])
                     }
-                    filter.push(locationStr);
-                    outlineColors.stops.push([locationStr, outlineColor.toString()]);
+                    filter.push(location);
+                    outlineColors.stops.push([location, outlineColor.toString()]);
                 }
 
                 if (validStops) {
-                    this.setCalculatedProps(map, colors, sizes)
+                    this.setCalculatedProps(map, colors, sizes, roleMap)
                 } else {
                     map.setPaintProperty(Choropleth.ID, 'fill-color', 'rgb(0, 0, 0)');
                     map.setPaintProperty(Choropleth.ExtrusionID, 'fill-extrusion-color', 'rgb(0, 0, 0)');

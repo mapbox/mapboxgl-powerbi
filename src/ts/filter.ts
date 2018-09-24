@@ -86,8 +86,7 @@ module powerbi.extensibility.visual {
 
             const map = this.mapVisual.getMap();
 
-            // Disable default CTRL + click operation on Map (dragRotate)
-            map.dragRotate.disable();
+            // Disable box zoom in favour of rectangular selection (Shift + drag)
             map.boxZoom.disable();
 
             const clickHandler = this.createClickHandler(this.mapVisual)
