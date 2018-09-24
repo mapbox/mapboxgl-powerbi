@@ -223,7 +223,6 @@ module powerbi.extensibility.visual {
         setCalculatedProps(map: any, colors: object, sizes: object | number, roleMap) {
             map.setPaintProperty(Choropleth.ID, 'fill-color', colors);
             map.setPaintProperty(Choropleth.ExtrusionID, 'fill-extrusion-color', colors);
-            console.log('colors', colors)
             if (roleMap.size) {
                 map.setPaintProperty(Choropleth.ExtrusionID, 'fill-extrusion-height', sizes)
                 map.setPaintProperty(Choropleth.ExtrusionHighlightID, 'fill-extrusion-height', sizes)
@@ -329,7 +328,7 @@ module powerbi.extensibility.visual {
                         continue;
                     }
 
-                    const locationStr = location
+                    const locationStr = location.toString()
 
 
                     if (existingStops[locationStr]) {
@@ -343,13 +342,13 @@ module powerbi.extensibility.visual {
 
                     existingStops[locationStr] = true;
 
-                    colors.stops.push([locationStr, color.toString()]);
+                    colors.stops.push([location, color.toString()]);
                     if (roleMap.size) {
                         const size = row[roleMap.size.displayName]
-                        sizes.stops.push([locationStr, this.sizeInterpolate(sizeLimits, choroSettings, size) * Choropleth.HeightMultiplier])
+                        sizes.stops.push([location, this.sizeInterpolate(sizeLimits, choroSettings, size) * Choropleth.HeightMultiplier])
                     }
-                    filter.push(locationStr);
-                    outlineColors.stops.push([locationStr, outlineColor.toString()]);
+                    filter.push(location);
+                    outlineColors.stops.push([location, outlineColor.toString()]);
                 }
 
                 if (validStops) {
