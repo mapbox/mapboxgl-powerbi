@@ -193,6 +193,12 @@ module powerbi.extensibility.visual {
             this.errorDiv.style.display = 'none';
             this.errorDiv.innerText = '';
 
+            //check for GL Support
+            if (!mapboxgl.supported()) {
+               this.errorDiv.innerHTML = Templates.noGlSupport
+               return false;
+            }
+
             // Check for Access Token
             if (!this.settings.api.accessToken) {
                 this.errorDiv.innerHTML = Templates.MissingToken;

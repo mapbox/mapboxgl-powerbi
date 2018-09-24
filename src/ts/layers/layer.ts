@@ -1,5 +1,4 @@
 module powerbi.extensibility.visual {
-    declare var numeral: any;
     export abstract class Layer {
         protected parent: MapboxMap;
         protected source: data.Datasource;
@@ -98,7 +97,7 @@ module powerbi.extensibility.visual {
             return true;
         }
 
-        getToolTipFormat(roleMap, prop): any {
+        getToolTipFormat(roleMap, prop): string {
             let format = undefined;
             Object.keys(roleMap).map(role => {
                 if (roleMap[role].displayName === prop) {

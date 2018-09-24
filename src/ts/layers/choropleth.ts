@@ -1,5 +1,4 @@
 module powerbi.extensibility.visual {
-    declare var numeral: any;
 
     export class Choropleth extends Layer {
         public static readonly ID = 'choropleth'
@@ -181,7 +180,9 @@ module powerbi.extensibility.visual {
             map.setPaintProperty(Choropleth.ExtrusionID, 'fill-extrusion-opacity', opacity);
             map.setFilter(Choropleth.HighlightID, locationFilter);
             map.setFilter(Choropleth.HighlightOutlineID, locationFilter);
-            map.setFilter(Choropleth.ExtrusionHighlightID, locationFilter);
+            if (choroSettings.height !== 0){
+                map.setFilter(Choropleth.ExtrusionHighlightID, locationFilter);
+            }
             return selectionIds
         }
 
