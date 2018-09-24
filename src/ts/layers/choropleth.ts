@@ -251,7 +251,7 @@ module powerbi.extensibility.visual {
             } else {
                 map.setFilter(Choropleth.ExtrusionID, zeroFilter)
                 // map.setPitch(0)
-            }
+         }
 
         }
 
