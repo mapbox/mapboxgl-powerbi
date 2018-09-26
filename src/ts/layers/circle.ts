@@ -145,7 +145,6 @@ module powerbi.extensibility.visual {
 
                 const domain: any[] = mapboxUtils.getNaturalBreaks(colorLimits, classCount);
                 const colors = chroma.scale([settings.circle.minColor, settings.circle.medColor, settings.circle.maxColor]).colors(domain.length)
-
                 const style = ["interpolate", ["linear"], ["to-number", ['get', colorField.displayName]]]
                 domain.map((colorStop, idx) => {
                     const color = colors[idx].toString();

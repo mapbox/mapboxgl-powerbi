@@ -46,7 +46,9 @@ module powerbi.extensibility.visual {
         }
 
         export function getNaturalBreaks(limits: { min: any; max: any; values: any[]; }, classCount: number) {
+            console.log('limits.values', limits.values)
             const stops: any[] = chroma.limits(limits.values, 'q', classCount);
+            console.log('stops', stops)
             return stops;
         }
 
@@ -103,11 +105,11 @@ module powerbi.extensibility.visual {
             let max = null;
             let values = [];
 
-            if (data && data.length > 0 && myproperty != '') {
+            if (data && data.length >= 0 && myproperty != '') {
                 if (data[0]['type']) {
                     // data are geojson
                     turf.meta.propEach(turf.helpers.featureCollection(data), function (currentProperties, featureIndex) {
-                        if (currentProperties[myproperty]) {
+                        if (currentProperties[myproperty] || currentProperties[myproperty] === 0) {
                             const value = currentProperties[myproperty];
                             if (!min || value < min) { min = value }
                             if (!max || value > max) { max = value }
