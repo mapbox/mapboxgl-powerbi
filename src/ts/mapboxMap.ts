@@ -195,8 +195,8 @@ module powerbi.extensibility.visual {
 
             //check for GL Support
             if (!mapboxgl.supported()) {
-               this.errorDiv.innerHTML = Templates.noGlSupport
-               return false;
+                this.errorDiv.innerHTML = Templates.noGlSupport
+                return false;
             }
 
             // Check for Access Token
@@ -303,7 +303,7 @@ module powerbi.extensibility.visual {
             let temp = options.dataViews[0].metadata.columns;
             let temp_indexes = []
             let temp_ii = []
-            temp.map( (v, i) => {
+            temp.map((v, i) => {
                 if (v.roles['location']) {
                     temp_indexes.push(v.displayName)
                     temp_ii.push(i)

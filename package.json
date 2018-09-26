@@ -7,7 +7,7 @@
     "pbi": "pbiviz",
     "pbicert": "pbiviz --create-cert",
     "pbicerti": "pbiviz --install-cert",
-    "package": "pbiviz package",
+    "package": "pbiviz package --no-minify",
     "pretest": "pbiviz package --resources --no-minify --no-pbiviz --no-plugin",
     "test": "karma start",
     "start": "pbiviz start",
