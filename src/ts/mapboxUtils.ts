@@ -46,9 +46,7 @@ module powerbi.extensibility.visual {
         }
 
         export function getNaturalBreaks(limits: { min: any; max: any; values: any[]; }, classCount: number) {
-            console.log('limits.values', limits.values)
             const stops: any[] = chroma.limits(limits.values, 'q', classCount);
-            console.log('stops', stops)
             return stops;
         }
 
