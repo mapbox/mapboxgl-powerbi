@@ -67,7 +67,7 @@
     },
     {
       "name": "color",
-      "kind": "Measure",
+      "kind": "GroupingOrMeasure",
       "displayName": "Color",
       "description": "Measure or Dimension to color circles and heatmaps.  Can be numeric or text data type.",
       "requiredTypes": [
