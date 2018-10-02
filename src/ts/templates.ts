@@ -48,7 +48,7 @@ module powerbi.extensibility.visual {
            <img style="padding-bottom: 20px;" src="https://dl.dropbox.com/s/io61ltmj69xlt75/add-cluster.png"></img><br>
             <img src="https://dl.dropbox.com/s/5io6dvr1l8gcgtp/mapbox-logo-color.png"></img>
         `
-        export const noGlSupport = `<h4>This machine doesnt support WebGL.</h4>`
+        export const noGlSupport = `<h4>It looks like this machine doesn't support Web GL. The Mapbox visual requires access to a GPU to run Web GL. This is most often caused by running Power BI Desktop from a Virtual Machine. Please try from a physical machine instead. </h4>`
     }
 }
 
