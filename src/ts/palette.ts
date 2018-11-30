@@ -22,7 +22,7 @@ module powerbi.extensibility.visual {
             }
         }
 
-        public getColor(id: string, idx: number): string {
+        public getColor(id: string | number, idx: number): string {
             if (this.colorMap[id]) {
                     return this.colorMap[id];
             }
@@ -54,6 +54,11 @@ module powerbi.extensibility.visual {
             try {
                 this.groupColors = [];
                 const roleMap = this.mapVisual.getRoleMap()
+
+                if (!roleMap.color) {
+                    return;
+                }
+
                 if (mapboxUtils.shouldUseGradient(roleMap.color)) {
                     return;
                 }

@@ -1,15 +1,17 @@
 module powerbi.extensibility.visual {
 
     export class Circle extends Layer {
+        private filter: Filter;
         private palette: Palette;
         private settings: CircleSettings;
 
         public static readonly ID = 'circle';
         private static HighlightID = 'circle-highlight'
 
-        constructor(map: MapboxMap, palette: Palette) {
+        constructor(map: MapboxMap, filter: Filter, palette: Palette) {
             super(map)
             this.id = Circle.ID
+            this.filter = filter
             this.palette = palette
             this.source = data.Sources.Point
         }
@@ -93,15 +95,13 @@ module powerbi.extensibility.visual {
                         ["==", longitude, feature.properties[longitude]]]);
                     return feature.id;
             });
+            this.filter.addSelection(selectionIds)
 
             map.setFilter(Circle.HighlightID, lngLatFilter);
-            this.parent.addSelection(selectionIds)
 
-            let opacity = this.settings.opacity / 100;
-            if (this.parent.hasSelection()) {
-                opacity = opacity * 0.5
-            }
+            const opacity = this.filter.getSelectionOpacity(this.settings.opacity)
             map.setPaintProperty(Circle.ID, 'circle-opacity', opacity);
+            return selectionIds
         }
 
         removeLayer() {
@@ -134,10 +134,6 @@ module powerbi.extensibility.visual {
             }
         }
 
-        hasTooltip() {
-            return true;
-        }
-
         private static getColors(colorLimits: mapboxUtils.Limits, isGradient: boolean, settings: any, colorPalette: Palette, colorField: any) {
             if (!colorField || colorLimits == null || colorLimits.min == null || colorLimits.max == null || colorLimits.values.length <= 0) {
                 return settings.circle.minColor;
@@ -149,7 +145,6 @@ module powerbi.extensibility.visual {
 
                 const domain: any[] = mapboxUtils.getNaturalBreaks(colorLimits, classCount);
                 const colors = chroma.scale([settings.circle.minColor, settings.circle.medColor, settings.circle.maxColor]).colors(domain.length)
-
                 const style = ["interpolate", ["linear"], ["to-number", ['get', colorField.displayName]]]
                 domain.map((colorStop, idx) => {
                     const color = colors[idx].toString();
@@ -179,7 +174,7 @@ module powerbi.extensibility.visual {
             if (sizeField && sizeLimits && sizeLimits.min != null && sizeLimits.max != null && sizeLimits.min != sizeLimits.max) {
                 const style: any[] = [
                     "interpolate", ["linear"],
-                    ["to-number", ['get',sizeField.displayName]]
+                    ["to-number", ['get', sizeField.displayName]]
                 ]
 
                 const classCount = mapboxUtils.getClassCount(sizeLimits);

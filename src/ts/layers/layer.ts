@@ -89,20 +89,41 @@ module powerbi.extensibility.visual {
             return false;
         }
 
-        hasTooltip() {
-            return false;
+        hasTooltip(tooltips) {
+            if (!tooltips) {
+                // Do not show tooltip if no property is pulled into 'tooltips' data role
+                return false;
+            }
+            return true;
+        }
+
+        getToolTipFormat(roleMap, prop): string {
+            let format = undefined;
+            Object.keys(roleMap).map(role => {
+                if (roleMap[role].displayName === prop) {
+                    format = roleMap[role].format
+                    return
+                }
+            })
+            return format
         }
 
         handleTooltip(tooltipEvent: TooltipEventArgs<number>, roleMap, settings) {
             const tooltipData = Layer.getTooltipData(tooltipEvent.data);
-            return tooltipData;
+            return tooltipData.map(data => {
+                const prop = data.displayName
+                let format = this.getToolTipFormat(roleMap, prop)
+                if (format != undefined) {
+                    data.value = numeral(data.value).format(format);
+                }
+                return data;
+            })
         }
 
         static getTooltipData(value: any): VisualTooltipDataItem[] {
             if (!value) {
                 return [];
             }
-
             // Flatten the multiple properties or multiple datapoints
             return [].concat.apply([], value.map(properties => {
                 // This mapping is needed to copy the value with the toString

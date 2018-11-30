@@ -1,5 +1,4 @@
 module powerbi.extensibility.visual {
-
     export interface TooltipEventArgs<TData> {
         data: TData;
         coordinates: number[];
@@ -9,7 +8,8 @@ module powerbi.extensibility.visual {
     export interface ITooltipServiceWrapper {
         addTooltip<T>(
             map,
-            layers,
+            layer,
+            tooltips,
             getTooltipInfoDelegate: (args: TooltipEventArgs<T>) => VisualTooltipDataItem[],
             reloadTooltipDataOnMouseMove?: boolean): void;
         hide(immediately?: boolean): void;
@@ -27,15 +27,23 @@ module powerbi.extensibility.visual {
         private rootElement: HTMLElement;
         private handleTouchDelay: number;
 
+        // Store the registered showTooltip and hideTooltip handler functions, so that
+        // we can unregister them successfully
+        private mapShowTooltip: any;
+        private mapHideTooltip: any;
+
         constructor(tooltipService: ITooltipService, rootElement: HTMLElement, handleTouchDelay: number) {
             this.visualHostTooltipService = tooltipService;
             this.handleTouchDelay = handleTouchDelay;
             this.rootElement = rootElement;
+            this.mapShowTooltip = {}
+            this.mapHideTooltip = {}
         }
 
         public addTooltip<T>(
             map,
-            layers,
+            layer: Layer,
+            tooltips,
             getTooltipInfoDelegate: (args: TooltipEventArgs<T>) => VisualTooltipDataItem[],
             reloadTooltipDataOnMouseMove?: boolean): void {
 
@@ -51,37 +59,48 @@ module powerbi.extensibility.visual {
                 rootNode.style.cursor = '-webkit-grab';
                 rootNode.style.cursor = 'grab';
 
-                const hideTooltip = (e) => {
-                    this.hide()
-                };
-
-                const showTooltip = mapboxUtils.debounce((e) => {
-                    rootNode.style.cursor = 'pointer';
-                    let tooltipEventArgs = this.makeTooltipEventArgs<T>(e);
-                    if (!tooltipEventArgs)
-                        return;
-
-                    let tooltipInfo: VisualTooltipDataItem[];
-                    if (reloadTooltipDataOnMouseMove || true) {
-                        tooltipInfo = getTooltipInfoDelegate(tooltipEventArgs);
-                        if (tooltipInfo == null)
-                            return;
+                layer.getLayerIDs().map( layerId => {
+                    if (!this.mapHideTooltip[layerId]) {
+                        this.mapHideTooltip[layerId] = (e) => {
+                            this.hide()
+                        };
                     }
 
-                    this.visualHostTooltipService.show({
-                        coordinates: tooltipEventArgs.coordinates,
-                        isTouchEvent: false,
-                        dataItems: tooltipInfo,
-                        identities: [],
-                    });
-                }, 12, true)
+                    if (!this.mapShowTooltip[layerId]) {
+                        this.mapShowTooltip[layerId] = mapboxUtils.debounce((e) => {
+                            rootNode.style.cursor = 'pointer';
+                            let tooltipEventArgs = this.makeTooltipEventArgs<T>(e);
+                            if (!tooltipEventArgs)
+                                return;
 
-                layers.map( layerId => {
-                    map.off('mouseleave', layerId, hideTooltip);
-                    map.on('mouseleave', layerId, hideTooltip);
+                            let tooltipInfo: VisualTooltipDataItem[];
+                            if (reloadTooltipDataOnMouseMove || true) {
+                                tooltipInfo = getTooltipInfoDelegate(tooltipEventArgs);
+                                if (tooltipInfo == null) {
+                                    return;
+                                }
+                            }
 
-                    map.off('mousemove', layerId, showTooltip);
-                    map.on('mousemove', layerId, showTooltip);
+                            this.visualHostTooltipService.show({
+                                coordinates: tooltipEventArgs.coordinates,
+                                isTouchEvent: false,
+                                dataItems: tooltipInfo,
+                                identities: [],
+                            });
+                        }, 12, true)
+                    }
+
+                    map.off('mouseleave', layerId, this.mapHideTooltip[layerId]);
+                    map.off('mousemove', layerId, this.mapShowTooltip[layerId]);
+
+                    if (layer.hasTooltip(tooltips)) {
+                        map.on('mouseleave', layerId, this.mapHideTooltip[layerId]);
+                        map.on('mousemove', layerId, this.mapShowTooltip[layerId]);
+                    }
+                    else {
+                        this.mapShowTooltip[layerId] = null
+                        this.mapHideTooltip[layerId] = null
+                    }
                 });
         }
 
@@ -114,8 +133,8 @@ module powerbi.extensibility.visual {
                     tooltipEventArgs = {
                         // Take only the first three element until we figure out how
                         // to add pager to powerbi native tooltips
-                        data: e.features.slice(0, 3).map( feature => {
-                            return Object.keys(feature.properties).map( prop => {
+                        data: e.features.slice(0, 3).map(feature => {
+                            return Object.keys(feature.properties).map(prop => {
                                 return {
                                     key: prop,
                                     value: feature.properties[prop]

@@ -7,8 +7,8 @@ module powerbi.extensibility.visual {
             values: number[];
         }
 
-        export function zoomToData(map, bounds, autoZoomPinned) {
-            if (bounds && !autoZoomPinned) {
+        export function zoomToData(map, bounds) {
+            if (bounds) {
                 map.fitBounds(bounds, {
                     padding: 20,
                     maxZoom: 15,
@@ -17,7 +17,7 @@ module powerbi.extensibility.visual {
         }
 
         export function shouldUseGradient(colorColumn) {
-            return colorColumn.aggregates != null;
+            return colorColumn && colorColumn.aggregates != null;
         }
 
         export function debounce(func, wait, immediate) {
@@ -103,11 +103,11 @@ module powerbi.extensibility.visual {
             let max = null;
             let values = [];
 
-            if (data && data.length > 0 && myproperty != '') {
+            if (data && data.length >= 0 && myproperty != '') {
                 if (data[0]['type']) {
                     // data are geojson
                     turf.meta.propEach(turf.helpers.featureCollection(data), function (currentProperties, featureIndex) {
-                        if (currentProperties[myproperty]) {
+                        if (currentProperties[myproperty] || currentProperties[myproperty] === 0) {
                             const value = currentProperties[myproperty];
                             if (!min || value < min) { min = value }
                             if (!max || value > max) { max = value }

@@ -5,9 +5,12 @@ module powerbi.extensibility.visual {
         private static LabelID = 'cluster-label';
         private static UnclusterID = 'uncluster';
 
+        private getClusterField: Function;
+
         constructor(map: MapboxMap, getClusterField) {
             super(map)
             this.id = Cluster.ID
+            this.getClusterField = getClusterField
             this.source = data.Sources.Cluster.withGetter(getClusterField)
         }
 
@@ -98,9 +101,15 @@ module powerbi.extensibility.visual {
             }
         }
 
-        hasTooltip() {
+        hasTooltip(tooltips) {
             return true;
+        }
+
+        getToolTipFormat(roleMap, prop): string {
+            if (Object.keys(roleMap).indexOf(prop) < 0) {
+                return super.getToolTipFormat(roleMap, this.getClusterField())
+            }
+            return super.getToolTipFormat(roleMap, prop)
         }
     }
 }
-

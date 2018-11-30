@@ -2,30 +2,43 @@ module powerbi.extensibility.visual {
 
     export class Choropleth extends Layer {
         public static readonly ID = 'choropleth'
-        private static OutlineID = 'choropleth-outline'
-        private settings: ChoroplethSettings;
-        private static HighlightID = 'choropleth-highlight'
-        private static HighlightOutlineID = 'choropleth-highlight-outline'
+        public static readonly OutlineID = 'choropleth-outline'
+        public static readonly HighlightID = 'choropleth-highlight'
+        public static readonly HighlightOutlineID = 'choropleth-highlight-outline'
+        public static readonly ExtrusionID = 'choropleth-extrusion'
+        public static readonly ExtrusionHighlightID = 'choropleth-extrusion-highlight'
 
+        private static HeightMultiplier = 100
+
+        private filter: Filter;
         private palette: Palette;
+        private settings: ChoroplethSettings;
 
-        constructor(map: MapboxMap, palette: Palette) {
+        constructor(map: MapboxMap, filter: Filter, palette: Palette) {
             super(map);
             this.id = Choropleth.ID;
             this.source = data.Sources.Choropleth;
+            this.filter = filter;
             this.palette = palette;
         }
 
+        getId() {
+            if (this.isExtruding()) {
+                return Choropleth.ExtrusionID
+            }
+            return Choropleth.ID
+        }
         getLayerIDs() {
-            return [Choropleth.ID, Choropleth.OutlineID];
+            return [Choropleth.ID, Choropleth.OutlineID, Choropleth.ExtrusionID];
         }
 
-        addLayer(settings, beforeLayerId, roleMap) {
+        addLayer(settings: MapboxSettings, beforeLayerId, roleMap) {
             const map = this.parent.getMap();
 
             const choroSettings = settings.choropleth;
-            const sourceLayer = choroSettings[`sourceLayer${choroSettings.currentLevel}`];
-            const vectorProperty = choroSettings[`vectorProperty${choroSettings.currentLevel}`];
+            const sourceLayer = choroSettings.getCurrentSourceLayer()
+            const vectorProperty = choroSettings.getCurrentVectorProperty()
+            const zeroFilter = ["==", vectorProperty, ""]
 
             const choroplethLayer = mapboxUtils.decorateLayer({
                 id: Choropleth.ID,
@@ -33,7 +46,15 @@ module powerbi.extensibility.visual {
                 source: 'choropleth-source',
                 "source-layer": sourceLayer
             });
+            const extrusionLayer = mapboxUtils.decorateLayer({
+                id: Choropleth.ExtrusionID,
+                type: "fill-extrusion",
+                source: 'choropleth-source',
+                "source-layer": sourceLayer,
+                paint: {
 
+                },
+            })
             const outlineLayer = mapboxUtils.decorateLayer({
                 id: Choropleth.OutlineID,
                 type: 'line',
@@ -47,7 +68,6 @@ module powerbi.extensibility.visual {
                 "source-layer": sourceLayer
             });
 
-            const zeroFilter = ["==", vectorProperty, ""]
             const highlightLayer = mapboxUtils.decorateLayer({
                 id: Choropleth.HighlightID,
                 type: 'fill',
@@ -75,10 +95,28 @@ module powerbi.extensibility.visual {
                 filter: zeroFilter,
             });
 
-            map.addLayer(highlightOutlineLayer, beforeLayerId);
+            const extrusionHighlightLayer = mapboxUtils.decorateLayer({
+                id: Choropleth.ExtrusionHighlightID,
+                type: "fill-extrusion",
+                source: 'choropleth-source',
+                paint: {
+                    "fill-extrusion-color": choroSettings.highlightColor,
+                    "fill-extrusion-opacity": 1
+                },
+                "source-layer": sourceLayer,
+                filter: zeroFilter
+            });
+
+            map.addLayer(extrusionHighlightLayer, beforeLayerId);
+            map.addLayer(extrusionLayer, Choropleth.ExtrusionHighlightID);
+            map.addLayer(highlightOutlineLayer, Choropleth.ExtrusionID);
             map.addLayer(highlightLayer, Choropleth.HighlightOutlineID);
             map.addLayer(outlineLayer, Choropleth.HighlightID);
             map.addLayer(choroplethLayer, Choropleth.OutlineID);
+        }
+
+        isExtruding() {
+            return this.parent.getRoleMap().size && this.settings.height > 0
         }
 
         hoverHighLight(e) {
@@ -88,9 +126,15 @@ module powerbi.extensibility.visual {
 
             const map = this.parent.getMap();
             const choroSettings = this.settings;
-            const vectorProperty = choroSettings[`vectorProperty${choroSettings.currentLevel}`];
-            map.setFilter(Choropleth.HighlightID, ["==", vectorProperty, e.features[0].properties[vectorProperty]]);
-            map.setFilter(Choropleth.HighlightOutlineID, ["==", vectorProperty, e.features[0].properties[vectorProperty]]);
+            const vectorProperty = choroSettings.getCurrentVectorProperty()
+            const featureVectorProperty = e.features[0].properties[vectorProperty]
+            if (this.isExtruding()) {
+                map.setFilter(Choropleth.ExtrusionHighlightID, ["==", vectorProperty, featureVectorProperty]);
+            }
+            else {
+                map.setFilter(Choropleth.HighlightID, ["==", vectorProperty, featureVectorProperty]);
+                map.setFilter(Choropleth.HighlightOutlineID, ["==", vectorProperty, featureVectorProperty]);
+            }
         }
 
         removeHighlight(roleMap) {
@@ -99,19 +143,21 @@ module powerbi.extensibility.visual {
             }
 
             const choroSettings = this.settings;
-            const vectorProperty = choroSettings[`vectorProperty${choroSettings.currentLevel}`];
+            const vectorProperty = choroSettings.getCurrentVectorProperty()
             const zeroFilter = ["==", vectorProperty, ""]
             const map = this.parent.getMap();
 
             map.setPaintProperty(Choropleth.ID, 'fill-opacity', choroSettings.opacity / 100);
+            map.setPaintProperty(Choropleth.ExtrusionID, 'fill-extrusion-opacity', choroSettings.opacity / 100);
             map.setFilter(Choropleth.HighlightID, zeroFilter);
             map.setFilter(Choropleth.HighlightOutlineID, zeroFilter);
+            map.setFilter(Choropleth.ExtrusionHighlightID, zeroFilter);
         }
 
         updateSelection(features, roleMap) {
             const map = this.parent.getMap();
             const choroSettings = this.settings;
-            const vectorProperty = choroSettings[`vectorProperty${choroSettings.currentLevel}`];
+            const vectorProperty = choroSettings.getCurrentVectorProperty()
 
             let locationFilter = [];
             locationFilter.push("any");
@@ -132,15 +178,17 @@ module powerbi.extensibility.visual {
                     return feature.properties[vectorProperty];
                 });
 
-            this.parent.addSelection(selectionIds, roleMap.location)
+            this.filter.addSelection(selectionIds, roleMap.location)
 
-            let opacity = choroSettings.opacity / 100;
-            if (this.parent.hasSelection()) {
-                opacity = 0.5 * opacity;
-            }
+            const opacity = this.filter.getSelectionOpacity(choroSettings.opacity)
             map.setPaintProperty(Choropleth.ID, 'fill-opacity', opacity);
+            map.setPaintProperty(Choropleth.ExtrusionID, 'fill-extrusion-opacity', opacity);
             map.setFilter(Choropleth.HighlightID, locationFilter);
             map.setFilter(Choropleth.HighlightOutlineID, locationFilter);
+            if (this.isExtruding()) {
+                map.setFilter(Choropleth.ExtrusionHighlightID, locationFilter);
+            }
+            return selectionIds
         }
 
         removeLayer() {
@@ -149,36 +197,9 @@ module powerbi.extensibility.visual {
             map.removeLayer(Choropleth.OutlineID);
             map.removeLayer(Choropleth.HighlightID);
             map.removeLayer(Choropleth.HighlightOutlineID);
+            map.removeLayer(Choropleth.ExtrusionID);
+            map.removeLayer(Choropleth.ExtrusionHighlightID);
             this.source.removeFromMap(map, Choropleth.ID);
-        }
-
-        getBounds(settings): any[] {
-            const map = this.parent.getMap();
-            let source: any;
-            let bounds: any[];
-
-            if (map.getSource('choropleth-source') && map.isSourceLoaded('choropleth-source')) {
-                source = map.getSource('choropleth-source');
-                bounds = source.bounds;
-                return bounds
-            }
-            else {
-                // If the source isn't loaded, fit bounds after source loads
-                let sourceLoaded = function (e) {
-                    if (e.sourceId === 'choropleth-source') {
-                        source = map.getSource('choropleth-source');
-                        map.off('sourcedata', sourceLoaded);
-                        bounds = source.bounds;
-                        if (settings.api.autozoom) {
-                            map.fitBounds(bounds, {
-                                padding: 20,
-                                maxZoom: 15,
-                            });
-                        }
-                    }
-                }
-                map.on('sourcedata', sourceLoaded);
-            }
         }
 
         getSource(settings) {
@@ -198,9 +219,83 @@ module powerbi.extensibility.visual {
             return super.getSource(settings);
         }
 
+        sizeInterpolate(sizeLimits: mapboxUtils.Limits, choroSettings: ChoroplethSettings, size: number): number {
+            if (size === null) {
+                return 0
+            }
+            const k = choroSettings.baseHeight + (size - sizeLimits.min) * (choroSettings.height - choroSettings.baseHeight) / (sizeLimits.max - sizeLimits.min)
+            return k
+        }
+        setCalculatedProps(map: any, colors: object, sizes: object | number, roleMap) {
+            map.setPaintProperty(Choropleth.ID, 'fill-color', colors);
+            map.setPaintProperty(Choropleth.ExtrusionID, 'fill-extrusion-color', colors);
+            if (roleMap.size) {
+                map.setPaintProperty(Choropleth.ExtrusionID, 'fill-extrusion-height', sizes)
+                map.setPaintProperty(Choropleth.ExtrusionHighlightID, 'fill-extrusion-height', sizes)
+            }
+            else {
+                map.setPaintProperty(Choropleth.ExtrusionID, 'fill-extrusion-height', 0)
+                map.setPaintProperty(Choropleth.ExtrusionHighlightID, 'fill-extrusion-height', 0)
+            }
+        }
+
+        setFilters(map: any, filter: any[], settings: ChoroplethSettings) {
+            const vectorProperty = settings[`vectorProperty${settings.currentLevel}`];
+            const zeroFilter = ["==", vectorProperty, ""]
+            map.setFilter(Choropleth.ID, filter);
+            map.setFilter(Choropleth.OutlineID, filter);
+            if (this.isExtruding()) {
+                map.setFilter(Choropleth.ID, zeroFilter)
+                map.setFilter(Choropleth.ExtrusionID, filter)
+                map.setPitch(settings.extrusionPitch)
+            } else {
+                map.setFilter(Choropleth.ExtrusionID, zeroFilter)
+                // map.setPitch(0)
+         }
+
+        }
+
+        setFillProps(map: any, settings: ChoroplethSettings) {
+            map.setPaintProperty(Choropleth.ID, 'fill-outline-color', 'rgba(0,0,0,0.05)');
+            map.setPaintProperty(Choropleth.HighlightID, "fill-color", settings.highlightColor)
+            map.setPaintProperty(Choropleth.ExtrusionHighlightID, "fill-extrusion-color", settings.highlightColor)
+            map.setPaintProperty(Choropleth.ExtrusionHighlightID, 'fill-extrusion-base', settings.baseHeight);
+            map.setPaintProperty(Choropleth.ExtrusionID, 'fill-extrusion-base', settings.baseHeight);
+        }
+
+        setLineProps(map: any, settings: ChoroplethSettings) {
+            map.setPaintProperty(Choropleth.OutlineID, 'line-color', settings.outlineColor);
+            map.setPaintProperty(Choropleth.OutlineID, 'line-width', settings.outlineWidth);
+            map.setPaintProperty(Choropleth.OutlineID, 'line-opacity', settings.outlineOpacity / 100);
+        }
+
+        setZoom(map: any, settings: ChoroplethSettings) {
+            map.setLayerZoomRange(Choropleth.ID, settings.minZoom, settings.maxZoom);
+        }
+
+        getColorStopPicker(isGradient: boolean, colorSettings: any, fillColorLimits: mapboxUtils.Limits, fillClassCount: number) {
+
+            let getColorStop = null;
+            if (isGradient) {
+                let fillDomain: any[] = mapboxUtils.getNaturalBreaks(fillColorLimits, fillClassCount);
+                getColorStop = chroma.scale(colorSettings).domain(fillDomain);
+            }
+            else {
+                let colorStops = {};
+                fillColorLimits.values.map((value, idx) => {
+                    colorStops[value] = chroma(this.palette.getColor(value, idx))
+                });
+                getColorStop = (value) => {
+                    return colorStops[value]
+                }
+            }
+            return getColorStop
+        }
+
         applySettings(settings, roleMap) {
             super.applySettings(settings, roleMap);
             const map = this.parent.getMap();
+            this.settings = settings.choropleth
             const choroSettings = settings.choropleth;
 
             if (map.getLayer(Choropleth.ID)) {
@@ -208,32 +303,19 @@ module powerbi.extensibility.visual {
             }
 
             if (choroSettings.display()) {
-                const fillColorLimits = this.source.getLimits();
-
+                const fillColorLimits = this.source.getLimits().color;
+                const sizeLimits = this.source.getLimits().size;
                 ChoroplethSettings.fillPredefinedProperties(choroSettings);
                 let fillClassCount = mapboxUtils.getClassCount(fillColorLimits);
                 const choroColorSettings = [choroSettings.minColor, choroSettings.medColor, choroSettings.maxColor];
                 let isGradient = mapboxUtils.shouldUseGradient(roleMap.color);
-
-                let getColorStop = null;
-                if (isGradient) {
-                    let fillDomain: any[] = mapboxUtils.getNaturalBreaks(fillColorLimits, fillClassCount);
-                    getColorStop = chroma.scale(choroColorSettings).domain(fillDomain);
-                }
-                else {
-                    let colorStops = {};
-                    fillColorLimits.values.map((value, idx) => {
-                        colorStops[value] = chroma(this.palette.getColor(value, idx))
-                    });
-                    getColorStop = (value) => {
-                        return colorStops[value]
-                    }
-                }
+                let getColorStop = this.getColorStopPicker(isGradient, choroColorSettings, fillColorLimits, fillClassCount)
 
                 // We use the old property function syntax here because the data-join technique is faster to parse still than expressions with this method
                 const defaultColor = 'rgba(0,0,0,0)';
-                const property = choroSettings[`vectorProperty${choroSettings.currentLevel}`];
+                const property = choroSettings.getCurrentVectorProperty()
                 let colors = { type: "categorical", property, default: defaultColor, stops: [] };
+                let sizes: any = roleMap.size ? { type: "categorical", property, default: 0, stops: [] } : choroSettings.height * Choropleth.HeightMultiplier
                 let outlineColors = { type: "categorical", property, default: defaultColor, stops: [] };
                 let filter = ['in', property];
                 const choroplethData = this.source.getData(map, settings);
@@ -242,17 +324,17 @@ module powerbi.extensibility.visual {
                 let validStops = true;
 
                 for (let row of choroplethData) {
-                    const location = row[roleMap.location.displayName];
 
-                    let color: any = getColorStop(row[roleMap.color.displayName]);
+                    const location = row[roleMap.location.displayName];
                     let outlineColor: any = getColorStop(row[roleMap.color.displayName]);
+                    let color: any = getColorStop(row[roleMap.color.displayName]);
 
                     if (!location || !color || !outlineColor) {
                         // Stop value cannot be undefined or null; don't add this row to the stops
                         continue;
                     }
 
-                    const locationStr = location.toString();
+                    const locationStr = location.toString()
 
 
                     if (existingStops[locationStr]) {
@@ -265,38 +347,31 @@ module powerbi.extensibility.visual {
 
 
                     existingStops[locationStr] = true;
-                    colors.stops.push([locationStr, color.toString()]);
-                    filter.push(locationStr);
-                    outlineColors.stops.push([locationStr, outlineColor.toString()]);
+
+                    colors.stops.push([location, color.toString()]);
+                    if (roleMap.size) {
+                        const size = row[roleMap.size.displayName]
+                        sizes.stops.push([location, this.sizeInterpolate(sizeLimits, choroSettings, size) * Choropleth.HeightMultiplier])
+                    }
+                    filter.push(location);
+                    outlineColors.stops.push([location, outlineColor.toString()]);
                 }
 
                 if (validStops) {
-                    map.setPaintProperty(Choropleth.ID, 'fill-color', colors);
-                    map.setFilter(Choropleth.ID, filter);
-                    map.setFilter(Choropleth.OutlineID, filter);
+                    this.setCalculatedProps(map, colors, sizes, roleMap)
                 } else {
                     map.setPaintProperty(Choropleth.ID, 'fill-color', 'rgb(0, 0, 0)');
+                    map.setPaintProperty(Choropleth.ExtrusionID, 'fill-extrusion-color', 'rgb(0, 0, 0)');
                 }
 
-                map.setPaintProperty(Choropleth.ID, 'fill-outline-color', 'rgba(0,0,0,0.05)');
-                let opacity = choroSettings.opacity / 100;
-                if (this.parent.hasSelection()) {
-                    opacity = 0.5 * opacity;
-                }
-                map.setPaintProperty(Choropleth.ID, 'fill-opacity', opacity);
-                map.setPaintProperty(Choropleth.HighlightID, "fill-color", choroSettings.highlightColor)
-                map.setPaintProperty(Choropleth.OutlineID, 'line-color', settings.choropleth.outlineColor);
-                map.setPaintProperty(Choropleth.OutlineID, 'line-width', settings.choropleth.outlineWidth);
-                map.setPaintProperty(Choropleth.OutlineID, 'line-opacity', settings.choropleth.outlineOpacity / 100);
-                map.setLayerZoomRange(Choropleth.ID, choroSettings.minZoom, choroSettings.maxZoom);
+                this.setFilters(map, filter, choroSettings)
+                this.setLineProps(map, choroSettings)
+                this.setFillProps(map, choroSettings)
+                this.setZoom(map, choroSettings)
             }
         }
 
-        hasTooltip() {
-            return true;
-        }
-
-        handleTooltip(tooltipEvent, roleMap, settings) {
+        handleTooltip(tooltipEvent, roleMap, settings: MapboxSettings) {
             const tooltipData = super.handleTooltip(tooltipEvent, roleMap, settings);
             let choroVectorData = null;
             tooltipData.map(td => {
@@ -304,7 +379,7 @@ module powerbi.extensibility.visual {
                     return;
                 }
 
-                if (td.displayName === settings.choropleth[`vectorProperty${settings.choropleth.currentLevel}`]) {
+                if (td.displayName === settings.choropleth.getCurrentVectorProperty()) {
                     choroVectorData = td;
                 }
             });
@@ -336,16 +411,30 @@ module powerbi.extensibility.visual {
                 return tooltipData;
             }
 
-            return Object.keys(dataUnderLocation).map(key => {
+            return Object.keys(dataUnderLocation).reduce((result, key) => {
                 let value = 'null';
                 if (dataUnderLocation[key] !== null && dataUnderLocation[key] !== undefined) {
                     value = dataUnderLocation[key].toString();
                 }
-                return {
+
+                let format = this.getToolTipFormat(roleMap, key)
+                if (format != undefined) {
+                    value = numeral(value).format(format);
+                }
+
+                const tooltipValue = {
                     displayName: key,
                     value
-                };
-            });
+                }
+                if (key == locationProperty) {
+                    // The location property should always be the first tooltip item...
+                    result.unshift(tooltipValue)
+                } else {
+                    // ... and then we can have the rest of the tooltip role items
+                    result.push(tooltipValue)
+                }
+                return result
+            }, [])
         }
     }
 }

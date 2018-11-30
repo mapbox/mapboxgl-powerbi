@@ -1,0 +1,9 @@
+// Workaround for missing top-center position
+.mapboxgl-ctrl-top-center { pointer-events: none; z-index: 2; }
+.mapboxgl-ctrl-top-center { position: relative; display: flex; text-align: center; justify-content: center; align-content: center; }
+.mapboxgl-ctrl-top-center .mapboxgl-ctrl { margin: 10px; }
+
+@import (less) "../node_modules/@mapbox/mapbox-gl-geocoder/lib/mapbox-gl-geocoder.css";
+
+// Change size for search box
+.mapboxgl-ctrl-geocoder { width: 50%; max-width: none; }

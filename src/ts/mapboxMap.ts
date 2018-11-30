@@ -1,18 +1,17 @@
 module powerbi.extensibility.visual {
-    declare var debug: any;
     declare var turf: any;
-    declare var MapboxDraw : any;
 
     export class MapboxMap implements IVisual {
-        private map: any;
+        private map: mapboxgl.Map;
         private mapDiv: HTMLDivElement;
         private errorDiv: HTMLDivElement;
+        private controlsPopulated: boolean;
+        private navigationControl: mapboxgl.NavigationControl;
         private autoZoomControl: AutoZoomControl;
         private settings: MapboxSettings;
         private mapStyle: string = "";
         private updatedHandler: Function = () => { }
         private tooltipServiceWrapper: ITooltipServiceWrapper;
-        private selectionManager: ISelectionManager;
         private layers: Layer[] = [];
         private roleMap: any;
         private previousZoom: number;
@@ -20,8 +19,8 @@ module powerbi.extensibility.visual {
         private palette: Palette;
 
         private host: IVisualHost;
-        private categories: any;
-        private draw: any;  // TODO: this should not be any
+        private drawControl: DrawControl;
+        private geocoder: MapboxGeocoderControl;
 
         constructor(options: VisualConstructorOptions) {
             // Map initialization
@@ -44,22 +43,24 @@ module powerbi.extensibility.visual {
             });
 
             this.host = options.host;
-            this.autoZoomControl = new AutoZoomControl(this.host);
 
             this.tooltipServiceWrapper = createTooltipServiceWrapper(options.host.tooltipService, options.element);
-            this.selectionManager = options.host.createSelectionManager();
-            this.host = options.host;
-            this.filter = new Filter(this)
+            this.filter = new Filter(this, options.host)
             this.palette = new Palette(this, options.host)
+
+            this.navigationControl = new mapboxgl.NavigationControl();
+            this.autoZoomControl = new AutoZoomControl(this.host);
+            this.drawControl = new DrawControl(this.filter)
+            this.controlsPopulated = false;
         }
 
-        onUpdate(map, settings, zoom, updatedHandler: Function) {
+        onUpdate(map, settings, updatedHandler: Function) {
             try {
                 this.layers.map(layer => {
                     layer.applySettings(settings, this.roleMap);
                 });
 
-                if (zoom) {
+                if (settings.api.autozoom) {
                     const bounds = this.layers.map(layer => {
                         return layer.getBounds(settings);
                     }).reduce((acc, bounds) => {
@@ -75,7 +76,7 @@ module powerbi.extensibility.visual {
                         ]);
                         return turf.bbox(combined)
                     });
-                    mapboxUtils.zoomToData(map, bounds, this.autoZoomControl.isPinned());
+                    mapboxUtils.zoomToData(map, bounds);
                 }
             }
             catch (error) {
@@ -119,53 +120,10 @@ module powerbi.extensibility.visual {
             return this.roleMap;
         }
 
-        public clearSelection() {
-            this.selectionManager.clear();
-        }
-
-        public addSelection(values, role?) {
-            let indexes = values;
-            let category = this.categories[0];
-
-            if (role) {
-                category = this.categories.filter( cat => {
-                    return cat.source.displayName == role.displayName;
-                })[0]
-
-                console.log(category);
-
-                indexes = values.map( value => category.values.indexOf(value));
-            }
-
-            const selectors = indexes
-                .filter( index => {
-                    return (index >= 0 && index < category.values.length)
-                })
-                .map( index => {
-                    return this.host.createSelectionIdBuilder()
-                        .withCategory(category, index).createSelectionId();
-                })
-
-            this.selectionManager.select(selectors, false);
-        }
-
-        public hasSelection() {
-            return this.selectionManager.hasSelection();
-        }
-
         private addMap() {
             if (this.map) {
                 return
             }
-
-            this.layers = []
-            this.layers.push(new Heatmap(this))
-            this.layers.push(new Cluster(this, () => {
-                return this.roleMap.cluster.displayName;
-            }))
-            this.layers.push(new Circle(this, this.palette))
-            this.layers.push(new Choropleth(this, this.palette));
-            mapboxgl.config.API_URL = this.settings.api.apiUrl;
 
             const mapOptions = {
                 container: this.mapDiv,
@@ -192,26 +150,18 @@ module powerbi.extensibility.visual {
             // If the map container doesn't exist yet, create it
             this.map = new mapboxgl.Map(mapOptions);
 
-            // Override the line string tool with our lasso draw tool
-            MapboxDraw.modes.draw_line_string = LassoDraw.create(this.filter);
+            this.layers = []
+            this.layers.push(new Heatmap(this))
+            this.layers.push(new Cluster(this, () => {
+                return this.roleMap.cluster.displayName;
+            }))
+            this.layers.push(new Circle(this, this.filter, this.palette))
+            this.layers.push(new Choropleth(this, this.filter, this.palette))
+            mapboxgl.config.API_URL = this.settings.api.apiUrl;
 
-            this.draw = new MapboxDraw({
-                displayControlsDefault: false,
-                // defaultMode: 'lasso',
-                controls: {
-                    'polygon': true,
-                    'line_string': true     // Lasso is overriding the 'line_string' mode
-                },
-            });
-
-            this.map.addControl(new mapboxgl.NavigationControl());
-            this.map.addControl(this.draw, 'top-left');
-            this.map.addControl(this.autoZoomControl);
-
-            // Replace the line string draw icon to the lasso icon
-            LassoDraw.makeIcon();
 
             this.filter.manageHandlers();
+            this.drawControl.manageHandlers(this);
 
             this.map.on('zoom', () => {
                 const newZoom = Math.floor(this.map.getZoom())
@@ -223,75 +173,6 @@ module powerbi.extensibility.visual {
                         }
                     });
                 }
-            });
-
-            this.map.on('draw.create', (e) => {
-
-                this.map.doubleClickZoom.disable();
-
-                // Get the feature the user has drawn
-                const selection_poly = e.features[0];
-
-                const selectFeature = function(sel_pol, feature) {
-                    if (feature.geometry.type === 'Point' && turf.booleanContains(sel_pol, feature)) {
-                        return true;
-                    }
-                    if ((feature.geometry.type === 'Polygon' || feature.geometry.type === 'Linestring') &&
-                       (turf.booleanOverlap(feature, sel_pol) || turf.booleanContains(sel_pol, feature) ||
-                        turf.booleanContains(feature, sel_pol)
-                    )) {
-                        return true;
-                    }
-
-                    return false;
-                }
-
-                // Create a bounding box from the user's polygon
-                const polygonBoundingBox = turf.bbox(selection_poly);
-                const southWest = this.map.project([polygonBoundingBox[0], polygonBoundingBox[1]]);
-                const northEast = this.map.project([polygonBoundingBox[2], polygonBoundingBox[3]]);
-
-                // Find features in a layer the user selected bbox
-                const layers = this.getExistingLayers();
-                const layerIDs = layers.map(layer => layer.getId());
-                const bbox_features : any[] = this.map.queryRenderedFeatures([southWest, northEast], {
-                    layers: layerIDs
-                });
-
-                let selectedFeatures = bbox_features.reduce(function (acc, feature) {
-                    if (selectFeature(selection_poly, feature)) {
-                        acc.push(feature);
-                        return acc;
-                    }
-
-                    // Split the feature into polygons, if it is a MultiPolygon
-                    if (feature.geometry.type === 'MultiPolygon') {
-                        for (let polygon of feature.geometry.coordinates) {
-                            if (selectFeature(selection_poly, turf.helpers.polygon(polygon))) {
-                                acc.push(feature);
-                                return acc;
-                            }
-                        };
-                    }
-
-                    return acc;
-                }, []);
-
-                // Here are the selected features we can use for filters, selects, etc
-                if (layers && layers.length > 0) {
-                    const roleMap = this.getRoleMap();
-                    if (selectedFeatures.length > constants.MAX_SELECTION_COUNT) {
-                        selectedFeatures = selectedFeatures.slice(0, constants.MAX_SELECTION_COUNT);
-                    }
-                    layers.map( layer => {
-                        layer.updateSelection(
-                            selectedFeatures,
-                            roleMap);
-                    })
-                }
-
-                // Remove all features from the map after selection
-                this.draw.deleteAll();
             });
         }
 
@@ -311,6 +192,12 @@ module powerbi.extensibility.visual {
         private validateOptions(options: VisualUpdateOptions) {
             this.errorDiv.style.display = 'none';
             this.errorDiv.innerText = '';
+
+            //check for GL Support
+            if (!mapboxgl.supported()) {
+                this.errorDiv.innerHTML = Templates.noGlSupport
+                return false;
+            }
 
             // Check for Access Token
             if (!this.settings.api.accessToken) {
@@ -338,7 +225,7 @@ module powerbi.extensibility.visual {
                 this.errorDiv.innerHTML = Templates.MissingGeo;
                 return false;
             }
-            else if (this.settings.choropleth.show && ((!roles.location || !roles.color) || (roles.latitude || roles.longitude || roles.size))) {
+            else if (this.settings.choropleth.show && ((!roles.location || !roles.color) || (roles.latitude || roles.longitude))) {
                 this.errorDiv.innerHTML = Templates.MissingLocationOrColor;
                 return false;
             }
@@ -358,31 +245,22 @@ module powerbi.extensibility.visual {
             return true;
         }
 
-        private visibilityChanged(oldSettings, newSettings) {
-            return oldSettings && newSettings && (
-                oldSettings.choropleth.show != newSettings.choropleth.show ||
-                oldSettings.circle.show != newSettings.circle.show ||
-                oldSettings.cluster.show != newSettings.cluster.show ||
-                oldSettings.heatmap.show != newSettings.heatmap.show)
-        }
-
-        private static getTooltipData(value: any): VisualTooltipDataItem[] {
-            if (!value) {
-                return []
+        private manageControlElements() {
+            if (this.settings.api.mapboxControls) {
+                if (!this.controlsPopulated) {
+                    this.map.addControl(this.navigationControl);
+                    this.map.addControl(this.drawControl);
+                    this.map.addControl(this.autoZoomControl);
+                    this.controlsPopulated = true;
+                }
+            } else {
+                if (this.controlsPopulated) {
+                    this.map.removeControl(this.navigationControl);
+                    this.map.removeControl(this.drawControl);
+                    this.map.removeControl(this.autoZoomControl);
+                    this.controlsPopulated = false;
+                }
             }
-
-            // Flatten the multiple properties or multiple datapoints
-            return [].concat.apply([], value.map(properties => {
-                // This mapping is needed to copy the value with the toString
-                // call as otherwise some caching logic causes to be the same
-                // tooltip displayed for all datapoints.
-                return properties.map(prop => {
-                    return {
-                        displayName: prop.key,
-                        value: prop.value.toString(),
-                    }
-                });
-            }))
         }
 
         public hideTooltip(): void {
@@ -390,8 +268,6 @@ module powerbi.extensibility.visual {
         }
 
         public updateLayers(dataView: DataView) {
-            // Placeholder to indicate whether data changed or paint prop changed
-            // For now this is always true
             const features = mapboxConverter.convert(dataView);
 
             this.palette.update(dataView, features);
@@ -410,25 +286,24 @@ module powerbi.extensibility.visual {
             };
 
             this.layers.map(layer => {
-                if (layer.hasTooltip()) {
-                    this.tooltipServiceWrapper.addTooltip(
-                        this.map,
-                        layer.getLayerIDs(),
-                        (tooltipEvent: TooltipEventArgs<number>) => {
-                            return layer.handleTooltip(tooltipEvent, this.roleMap, this.settings);
-                        }
-                    );
-                }
+                this.tooltipServiceWrapper.addTooltip(
+                    this.map,
+                    layer,
+                    this.roleMap.tooltips,
+                    (tooltipEvent: TooltipEventArgs<number>) => {
+                        return layer.handleTooltip(tooltipEvent, this.roleMap, this.settings);
+                    }
+                );
             });
 
-            this.onUpdate(this.map, this.settings, true, this.updatedHandler);
+            this.onUpdate(this.map, this.settings, this.updatedHandler);
         }
 
         private updateCurrentLevel(settings, options) {
             let temp = options.dataViews[0].metadata.columns;
             let temp_indexes = []
             let temp_ii = []
-            temp.map( (v, i) => {
+            temp.map((v, i) => {
                 if (v.roles['location']) {
                     temp_indexes.push(v.displayName)
                     temp_ii.push(i)
@@ -465,7 +340,7 @@ module powerbi.extensibility.visual {
                 return false;
             }
 
-            this.categories = dataView.categorical.categories;
+            this.filter.setCategories(dataView.categorical.categories);
 
             this.roleMap = mapboxUtils.getRoleMap(dataView.metadata);
 
@@ -475,6 +350,11 @@ module powerbi.extensibility.visual {
             if (!this.map) {
                 this.addMap();
             }
+
+            // Show/hide Mapbox control elements based on the Mapbox Controls toggle button
+            this.manageControlElements();
+
+            this.updateGeocoder();
 
             // Apply auto-zoom pin state from settings, if they differ (note that one is referring to pin state,
             // the other is referring to 'enabled' state, this is why we have the equality check and the negation)
@@ -505,6 +385,21 @@ module powerbi.extensibility.visual {
             } else {
                 this.updateLayers(dataView)
                 return;
+            }
+        }
+
+        private updateGeocoder() {
+            if (this.settings.geocoder.show && !this.geocoder) {
+                this.geocoder = new MapboxGeocoderControl(this.settings);
+                this.map.addControl(this.geocoder);
+            }
+            else if (!this.settings.geocoder.show && this.geocoder) {
+                this.map.removeControl(this.geocoder)
+                this.geocoder = null
+            }
+
+            if (this.geocoder) {
+                this.geocoder.update(this.map, this.settings)
             }
         }
 
