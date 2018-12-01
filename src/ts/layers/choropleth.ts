@@ -21,6 +21,7 @@ module powerbi.extensibility.visual {
             this.filter = filter;
             this.palette = palette;
         }
+        
 
         getId() {
             if (this.isExtruding()) {
@@ -173,7 +174,7 @@ module powerbi.extensibility.visual {
                     return true;
                 })
                 .slice(0, constants.MAX_SELECTION_COUNT)
-                .map( (feature, i) => {
+                .map((feature, i) => {
                     locationFilter.push(["==", vectorProperty, feature.properties[vectorProperty]]);
                     return feature.properties[vectorProperty];
                 });
@@ -211,7 +212,7 @@ module powerbi.extensibility.visual {
                         this.settings.vectorTileUrl1 &&
                         this.settings.sourceLayer1 &&
                         this.settings.vectorProperty1) {
-                            this.removeLayer();
+                        this.removeLayer();
                     }
                     this.settings = choroSettings;
                 }
@@ -228,6 +229,9 @@ module powerbi.extensibility.visual {
         }
         setCalculatedProps(map: any, colors: object, sizes: object | number, roleMap) {
             map.setPaintProperty(Choropleth.ID, 'fill-color', colors);
+            // console.log('colors', colors['stops'].length)
+
+
             map.setPaintProperty(Choropleth.ExtrusionID, 'fill-extrusion-color', colors);
             if (roleMap.size) {
                 map.setPaintProperty(Choropleth.ExtrusionID, 'fill-extrusion-height', sizes)
@@ -251,7 +255,7 @@ module powerbi.extensibility.visual {
             } else {
                 map.setFilter(Choropleth.ExtrusionID, zeroFilter)
                 // map.setPitch(0)
-         }
+            }
 
         }
 
@@ -279,11 +283,14 @@ module powerbi.extensibility.visual {
             if (isGradient) {
                 let fillDomain: any[] = mapboxUtils.getNaturalBreaks(fillColorLimits, fillClassCount);
                 getColorStop = chroma.scale(colorSettings).domain(fillDomain);
+                // console.log('getcolorstop', getColorStop)
             }
+
             else {
                 let colorStops = {};
                 fillColorLimits.values.map((value, idx) => {
                     colorStops[value] = chroma(this.palette.getColor(value, idx))
+                    // console.log('color stops value', colorStops[value])
                 });
                 getColorStop = (value) => {
                     return colorStops[value]
@@ -304,9 +311,11 @@ module powerbi.extensibility.visual {
 
             if (choroSettings.display()) {
                 const fillColorLimits = this.source.getLimits().color;
+                // console.log('fill color limits', fillColorLimits)
                 const sizeLimits = this.source.getLimits().size;
                 ChoroplethSettings.fillPredefinedProperties(choroSettings);
                 let fillClassCount = mapboxUtils.getClassCount(fillColorLimits);
+                // console.log('fill class count', fillClassCount)
                 const choroColorSettings = [choroSettings.minColor, choroSettings.medColor, choroSettings.maxColor];
                 let isGradient = mapboxUtils.shouldUseGradient(roleMap.color);
                 let getColorStop = this.getColorStopPicker(isGradient, choroColorSettings, fillColorLimits, fillClassCount)
@@ -322,12 +331,20 @@ module powerbi.extensibility.visual {
 
                 let existingStops = {};
                 let validStops = true;
+                var legend = document.querySelector('.map-overlay')
+                    while (legend.firstChild) {
+                        legend.removeChild(legend.firstChild);
+                    }
+                let legendArray = []
 
                 for (let row of choroplethData) {
 
                     const location = row[roleMap.location.displayName];
                     let outlineColor: any = getColorStop(row[roleMap.color.displayName]);
                     let color: any = getColorStop(row[roleMap.color.displayName]);
+
+                    // console.log(row)
+                    // console.log('color2', colors)
 
                     if (!location || !color || !outlineColor) {
                         // Stop value cannot be undefined or null; don't add this row to the stops
@@ -355,10 +372,51 @@ module powerbi.extensibility.visual {
                     }
                     filter.push(location);
                     outlineColors.stops.push([location, outlineColor.toString()]);
+
+                    // console.log('row', row[roleMap.color.displayName])
+                    // console.log(color.toString())
+                    // console.log('document', document.body)
+                    legendArray.push([row[roleMap.color.displayName].toFixed(0), color.toString()])
+                    
+                 
+                }
+                // console.log('legendArray', legendArray)
+                // console.log('length', (legendArray.length/5).toFixed(0))
+                console.log('rolemap', roleMap.color.displayName)
+                let i = 0
+                let arrayLength = parseInt((legendArray.length/7).toFixed(0))
+                
+                var item2 = document.createElement('div');
+                var key2 = document.createElement('span');
+                key2.className = 'legend-key';
+                // key2.style.backgroundColor = legendArray[i][1];
+
+                var value2 = document.createElement('span');
+                value2.innerHTML = roleMap.color.displayName
+                
+                item2.appendChild(value2);
+                // legend.appendChild(item);
+                legend.appendChild(item2)
+
+                while (i < legendArray.length) {
+                    var item = document.createElement('div');
+                    var key = document.createElement('span');
+                    key.className = 'legend-key';
+                    key.style.backgroundColor = legendArray[i][1];
+
+                    var value = document.createElement('span');
+                    value.innerHTML = legendArray[i][0]
+                    
+                    item.appendChild(key);
+                    item.appendChild(value);
+                    // legend.appendChild(item);
+                    legend.appendChild(item)
+                    i = i + arrayLength
                 }
 
                 if (validStops) {
                     this.setCalculatedProps(map, colors, sizes, roleMap)
+                    // console.log('SETPROPS', map, colors, sizes, roleMap)
                 } else {
                     map.setPaintProperty(Choropleth.ID, 'fill-color', 'rgb(0, 0, 0)');
                     map.setPaintProperty(Choropleth.ExtrusionID, 'fill-extrusion-color', 'rgb(0, 0, 0)');

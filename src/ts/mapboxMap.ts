@@ -21,6 +21,7 @@ module powerbi.extensibility.visual {
         private host: IVisualHost;
         private drawControl: DrawControl;
         private geocoder: MapboxGeocoderControl;
+        private legend: any;
 
         constructor(options: VisualConstructorOptions) {
             // Map initialization
@@ -31,6 +32,10 @@ module powerbi.extensibility.visual {
             this.errorDiv = document.createElement('div');
             this.errorDiv.className = 'error';
             options.element.appendChild(this.errorDiv);
+            this.legend = document.createElement('div')
+            this.legend.className = 'map-overlay'
+            this.legend.id = 'legend'
+            options.element.appendChild(this.legend)
 
             // For anchor elements to work we need to manually
             // call launchUrl API method
@@ -344,6 +349,8 @@ module powerbi.extensibility.visual {
 
             this.roleMap = mapboxUtils.getRoleMap(dataView.metadata);
 
+            // console.log('rolemap', this.roleMap)
+
             this.updateCurrentLevel(this.settings.choropleth, options);
 
 
@@ -355,6 +362,7 @@ module powerbi.extensibility.visual {
             this.manageControlElements();
 
             this.updateGeocoder();
+
 
             // Apply auto-zoom pin state from settings, if they differ (note that one is referring to pin state,
             // the other is referring to 'enabled' state, this is why we have the equality check and the negation)
@@ -402,6 +410,8 @@ module powerbi.extensibility.visual {
                 this.geocoder.update(this.map, this.settings)
             }
         }
+
+       
 
         @mapboxUtils.logExceptions()
         public destroy(): void {
