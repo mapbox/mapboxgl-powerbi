@@ -86,7 +86,7 @@ module powerbi.extensibility.visual {
                     }
                 }
 
-                const colorValue = mapboxUtils.getCategoricalObjectValue<Fill>(cat, i, 'colorSelector', 'fill', defaultColor).solid.color
+                const colorValue = mapboxUtils.getCategoricalObjectValue<Fill>(cat, i, 'dataColorsPalette', 'fill', defaultColor).solid.color
                 this.colorMap[group] = colorValue
 
                 return {

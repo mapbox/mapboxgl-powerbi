@@ -93,7 +93,7 @@ module powerbi.extensibility.visual {
         * validation and return other values/defaults
         */
         public enumerateObjectInstances(options: EnumerateVisualObjectInstancesOptions): VisualObjectInstanceEnumeration {
-            if (options.objectName == 'colorSelector') {
+            if (options.objectName == 'dataColorsPalette') {
                 return this.palette.enumerateObjectInstances(options);
             } else {
                 return MapboxSettings.enumerateObjectInstances(this.settings || MapboxSettings.getDefault(), options);
