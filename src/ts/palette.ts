@@ -22,13 +22,12 @@ module powerbi.extensibility.visual {
             }
         }
 
-        public getColor(id: string | number, idx: number): string {
-            if (this.colorMap[id]) {
-                    return this.colorMap[id];
+        public getColor(id: string | number): string {
+            if (!this.colorMap[id]) {
+                this.colorMap[id] = this.colorPalette.getColor(id.toString()).value
             }
-            else {
-                return this.colorPalette.getColor(idx.toString()).value
-            }
+
+            return this.colorMap[id];
         }
 
         public enumerateObjectInstances(options: EnumerateVisualObjectInstancesOptions) {
@@ -83,7 +82,7 @@ module powerbi.extensibility.visual {
             return Object.keys(groups).map( (group, i) => {
                 let defaultColor: Fill = {
                     solid: {
-                        color: this.getColor(group, i)
+                        color: this.getColor(group)
                     }
                 }
 
