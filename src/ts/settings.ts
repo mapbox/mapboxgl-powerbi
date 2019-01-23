@@ -42,6 +42,7 @@ module powerbi.extensibility.visual {
         public autozoom: boolean = true;
         public mapboxControls: boolean = true;
         public apiUrl: string = "https://api.mapbox.com"
+        public labelPosition: string = "above";
 
         public enumerateObjectInstances(objectEnumeration) {
             let instances = objectEnumeration.instances;

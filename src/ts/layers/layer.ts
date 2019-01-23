@@ -40,18 +40,21 @@ module powerbi.extensibility.visual {
             const map = this.parent.getMap();
             if (settings[this.id].show) {
                 if (!this.layerExists()) {
-                    // For default styles place data under waterway-label layer
-                    let firstSymbolId = 'waterway-label';
-
-                    if (settings.api.style == 'mapbox://styles/mapbox/satellite-v9?optimize=true' ||
+                    // If there is no firstSymbolId specified, it adds the data as the last element.
+                    let firstSymbolId = null;
+                    if (settings.api.labelPosition === 'above') {
+                        // For default styles place data under waterway-label layer
+                        firstSymbolId = 'waterway-label';
+                        if (settings.api.style == 'mapbox://styles/mapbox/satellite-v9?optimize=true' ||
                         settings.api.style == 'custom') {
-                        // For custom style find the lowest symbol layer to place data underneath
-                        firstSymbolId = ''
-                        let layers = map.getStyle().layers;
-                        for (let i = 0; i < layers.length; i++) {
-                            if (layers[i].type === 'symbol') {
-                                firstSymbolId = layers[i].id;
-                                break;
+                            // For custom style find the lowest symbol layer to place data underneath
+                            firstSymbolId = ''
+                            let layers = map.getStyle().layers;
+                            for (let i = 0; i < layers.length; i++) {
+                                if (layers[i].type === 'symbol') {
+                                    firstSymbolId = layers[i].id;
+                                    break;
+                                }
                             }
                         }
                     }
