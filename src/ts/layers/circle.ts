@@ -51,6 +51,12 @@ module powerbi.extensibility.visual {
             map.setPaintProperty(Circle.HighlightID, 'circle-stroke-color', 'black');
         }
 
+        moveLayer(settings, beforeLayerId: string, roleMap) {
+            const map = this.parent.getMap();
+            map.moveLayer(Circle.HighlightID, beforeLayerId)
+            map.moveLayer(Circle.ID, Circle.HighlightID)
+        }
+
         hoverHighLight(e) {
             if (!this.layerExists()) {
                 return;
