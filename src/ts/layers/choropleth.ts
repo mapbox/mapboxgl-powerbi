@@ -202,6 +202,16 @@ module powerbi.extensibility.visual {
             this.source.removeFromMap(map, Choropleth.ID);
         }
 
+        moveLayer(settings, beforeLayerId: string, mapRoles) {
+            const map = this.parent.getMap();
+            map.moveLayer(Choropleth.ExtrusionHighlightID, beforeLayerId);
+            map.moveLayer(Choropleth.ExtrusionID, Choropleth.ExtrusionHighlightID);
+            map.moveLayer(Choropleth.HighlightOutlineID, Choropleth.ExtrusionID);
+            map.moveLayer(Choropleth.HighlightID, Choropleth.HighlightOutlineID);
+            map.moveLayer(Choropleth.OutlineID, Choropleth.HighlightID);
+            map.moveLayer(Choropleth.ID, Choropleth.OutlineID);
+        }
+
         getSource(settings) {
             const choroSettings = settings.choropleth;
             if (choroSettings.show) {

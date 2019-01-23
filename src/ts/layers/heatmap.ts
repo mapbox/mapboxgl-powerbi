@@ -28,6 +28,10 @@ module powerbi.extensibility.visual {
             this.source.removeFromMap(map, Heatmap.ID);
         }
 
+        moveLayer(settings, beforeLayerId: string, roleMap) {
+            const map = this.parent.getMap();
+            map.moveLayer(Heatmap.ID, beforeLayerId)
+        }
 
         applySettings(settings, roleMap) {
             super.applySettings(settings, roleMap);
