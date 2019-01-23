@@ -4,6 +4,8 @@ module powerbi.extensibility.visual {
         protected source: data.Datasource;
         protected id: string;
 
+        protected colorStops: ColorStops;
+
         constructor(map: MapboxMap) {
             this.parent = map;
         }
@@ -34,6 +36,10 @@ module powerbi.extensibility.visual {
         }
 
         removeHighlight(roleMap) {
+        }
+
+        public getColorStops(): ColorStops {
+            return this.colorStops;
         }
 
         applySettings(settings, roleMap) {

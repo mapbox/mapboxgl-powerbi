@@ -411,6 +411,16 @@ module powerbi.extensibility.visual {
                 this.legend.removeLegends()
             }
 
+            if (!this.roleMap || !this.roleMap.color || !this.roleMap.color.displayName)
+            {
+                if (this.legend) {
+                    this.map.removeControl(this.legend)
+                    this.legend = null
+                }
+
+                return
+            }
+
             // If no legend is added to legendControl remove
             // legendControl at the end of the update
             let removeLegend = true;
@@ -424,13 +434,15 @@ module powerbi.extensibility.visual {
                     this.map.addControl(this.legend)
                 }
 
-                // TODO Get colorstops
+                const title = this.roleMap.color.displayName
+                const colorStops = layer.getColorStops()
+                this.legend.addLegend(layer.getId(), title, colorStops)
 
                 // Legend is added to legendControl
                 removeLegend = false
             });
 
-            if (removeLegend) {
+            if (removeLegend && this.legend) {
                 this.map.removeControl(this.legend)
                 this.legend = null
             }
