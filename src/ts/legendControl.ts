@@ -7,6 +7,8 @@ module powerbi.extensibility.visual {
         private legendContainer: HTMLElement;
         private legends: { [key: string] : HTMLElement } = {};
 
+        private static readonly DEFAULT_NUMBER_FORMAT = "0[.]0[0]"
+
         removeLegends() {
             if (this.legendContainer) {
                 Object.keys(this.legends).forEach(key => {
@@ -18,7 +20,7 @@ module powerbi.extensibility.visual {
             this.legends = {}
         }
 
-        addLegend(key: string, title: string, data: ColorStops) {
+        addLegend(key: string, title: string, data: ColorStops, format: string) {
             if (this.legends[key]) {
                 if (this.legendContainer) {
                     this.legendContainer.removeChild(this.legends[key])
@@ -26,7 +28,7 @@ module powerbi.extensibility.visual {
             }
 
             if (data) {
-                this.legends[key] = this.createLegendElement(title, data)
+                this.legends[key] = this.createLegendElement(title, data, format)
                 if (this.legendContainer) {
                     this.legendContainer.appendChild(this.legends[key])
                 }
@@ -64,7 +66,7 @@ module powerbi.extensibility.visual {
             return 'bottom-right';
         }
 
-        createLegendElement(title: string, data: ColorStops): HTMLElement {
+        createLegendElement(title: string, data: ColorStops, format: string): HTMLElement {
             const legend = document.createElement('div')
             legend.className = "mapbox-legend mapboxgl-ctrl-group"
 
@@ -79,7 +81,8 @@ module powerbi.extensibility.visual {
                 colorElement.style.backgroundColor = color;
 
                 const valueElement = document.createElement('span');
-                valueElement.innerHTML = colorStop.toString()
+                const value = numeral(colorStop)
+                valueElement.innerHTML = !value.value() ?  colorStop : value.format(format || LegendControl.DEFAULT_NUMBER_FORMAT)
 
                 item.appendChild(colorElement);
                 item.appendChild(valueElement);
