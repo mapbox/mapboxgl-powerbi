@@ -134,6 +134,10 @@ module powerbi.extensibility.visual {
             }
         }
 
+        showLegend(settings: MapboxSettings) {
+            return settings.circle.legend && super.showLegend(settings)
+        }
+
         private static getColors(colorLimits: mapboxUtils.Limits, isGradient: boolean, settings: any, colorPalette: Palette, colorField: any) {
             if (!colorField || colorLimits == null || colorLimits.min == null || colorLimits.max == null || colorLimits.values.length <= 0) {
                 return settings.circle.minColor;

@@ -101,6 +101,10 @@ module powerbi.extensibility.visual {
             }
         }
 
+        showLegend(settings: MapboxSettings) {
+            return settings.cluster.legend && super.showLegend(settings)
+        }
+
         hasTooltip(tooltips) {
             return true;
         }

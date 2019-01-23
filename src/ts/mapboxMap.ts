@@ -8,6 +8,7 @@ module powerbi.extensibility.visual {
         private controlsPopulated: boolean;
         private navigationControl: mapboxgl.NavigationControl;
         private autoZoomControl: AutoZoomControl;
+        private legend: LegendControl;
         private settings: MapboxSettings;
         private mapStyle: string = "";
         private updatedHandler: Function = () => { }
@@ -59,6 +60,8 @@ module powerbi.extensibility.visual {
                 this.layers.map(layer => {
                     layer.applySettings(settings, this.roleMap);
                 });
+
+                this.updateLegend(settings)
 
                 if (settings.api.autozoom) {
                     const bounds = this.layers.map(layer => {
@@ -400,6 +403,36 @@ module powerbi.extensibility.visual {
 
             if (this.geocoder) {
                 this.geocoder.update(this.map, this.settings)
+            }
+        }
+
+        private updateLegend(settings: MapboxSettings) {
+            if (this.legend) {
+                this.legend.removeLegends()
+            }
+
+            // If no legend is added to legendControl remove
+            // legendControl at the end of the update
+            let removeLegend = true;
+            this.layers.forEach(layer => {
+                if (!layer.showLegend(settings)) {
+                    return
+                }
+
+                if (!this.legend) {
+                    this.legend = new LegendControl()
+                    this.map.addControl(this.legend)
+                }
+
+                // TODO Get colorstops
+
+                // Legend is added to legendControl
+                removeLegend = false
+            });
+
+            if (removeLegend) {
+                this.map.removeControl(this.legend)
+                this.legend = null
             }
         }
 

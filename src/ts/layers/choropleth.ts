@@ -371,6 +371,10 @@ module powerbi.extensibility.visual {
             }
         }
 
+        showLegend(settings: MapboxSettings) {
+            return settings.choropleth.legend && super.showLegend(settings)
+        }
+
         handleTooltip(tooltipEvent, roleMap, settings: MapboxSettings) {
             const tooltipData = super.handleTooltip(tooltipEvent, roleMap, settings);
             let choroVectorData = null;

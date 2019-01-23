@@ -46,6 +46,10 @@ module powerbi.extensibility.visual {
                     1, settings.heatmap.maxColor]);
             }
         }
+
+        showLegend(settings: MapboxSettings) {
+            return settings.heatmap.legend && super.showLegend(settings)
+        }
     }
 }
 

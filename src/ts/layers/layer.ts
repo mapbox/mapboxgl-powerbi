@@ -137,5 +137,9 @@ module powerbi.extensibility.visual {
                 });
             }));
         }
+
+        showLegend(settings: MapboxSettings) {
+            return this.layerExists()
+        }
     }
 }
