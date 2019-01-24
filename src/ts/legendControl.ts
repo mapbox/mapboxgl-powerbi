@@ -1,6 +1,6 @@
 module powerbi.extensibility.visual {
 
-    export type ColorStops = {colorStop: string, color: string}[];
+    export type ColorStops = {colorStop: number | string, color: string}[];
 
     export class LegendControl implements mapboxgl.IControl {
         private map: mapboxgl.Map;
@@ -82,7 +82,7 @@ module powerbi.extensibility.visual {
 
                 const valueElement = document.createElement('span');
                 const value = numeral(colorStop)
-                valueElement.innerHTML = !value.value() ?  colorStop : value.format(format || LegendControl.DEFAULT_NUMBER_FORMAT)
+                valueElement.innerHTML = !value.value() ?  colorStop.toString() : value.format(format || LegendControl.DEFAULT_NUMBER_FORMAT)
 
                 item.appendChild(colorElement);
                 item.appendChild(valueElement);
