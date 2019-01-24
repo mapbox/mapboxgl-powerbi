@@ -1,5 +1,7 @@
 module powerbi.extensibility.visual {
     declare var turf: any;
+
+    export type RoleMap = {[key: string]: DataViewMetadataColumn}
     export module mapboxUtils {
         export interface Limits {
             min: number;
@@ -50,8 +52,8 @@ module powerbi.extensibility.visual {
             return stops;
         }
 
-        export function getRoleMap(metadata) {
-            let ret = {}
+        export function getRoleMap(metadata: DataViewMetadata): RoleMap {
+            const ret: RoleMap = {}
             metadata.columns.map(column => {
                 Object.keys(column.roles).map(role => {
                     ret[role] = column
