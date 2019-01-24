@@ -6,7 +6,9 @@ module powerbi.extensibility.visual {
         private settings: CircleSettings;
 
         public static readonly ID = 'circle';
-        private static HighlightID = 'circle-highlight'
+        private static readonly HighlightID = 'circle-highlight';
+
+        private static readonly LayerOrder = [Circle.ID, Circle.HighlightID];
 
         constructor(map: MapboxMap, filter: Filter, palette: Palette) {
             super(map)
@@ -28,22 +30,23 @@ module powerbi.extensibility.visual {
         addLayer(settings, beforeLayerId, roleMap) {
             const map = this.parent.getMap();
             const latitude = roleMap.latitude.displayName;
+            const layers = {};
 
-            const circleLayer = mapboxUtils.decorateLayer({
+            layers[Circle.ID] = mapboxUtils.decorateLayer({
                 id: Circle.ID,
                 source: 'data',
                 type: 'circle'
             });
 
             const zeroFilter = ["==", latitude, ""]
-            const highlightLayer = mapboxUtils.decorateLayer({
+            layers[Circle.HighlightID] = mapboxUtils.decorateLayer({
                 id: Circle.HighlightID,
                 type: 'circle',
                 source: 'data',
                 filter: zeroFilter
             });
-            map.addLayer(highlightLayer, beforeLayerId);
-            map.addLayer(circleLayer, Circle.HighlightID);
+
+            Circle.LayerOrder.forEach((layerId) => map.addLayer(layers[layerId], beforeLayerId));
 
             map.setPaintProperty(Circle.HighlightID, 'circle-color', settings.circle.highlightColor);
             map.setPaintProperty(Circle.HighlightID, 'circle-opacity', 1);
@@ -53,8 +56,7 @@ module powerbi.extensibility.visual {
 
         moveLayer(settings, beforeLayerId: string, roleMap) {
             const map = this.parent.getMap();
-            map.moveLayer(Circle.HighlightID, beforeLayerId)
-            map.moveLayer(Circle.ID, Circle.HighlightID)
+            Circle.LayerOrder.forEach((layerId) => map.moveLayer(layerId, beforeLayerId));
         }
 
         hoverHighLight(e) {
@@ -112,8 +114,7 @@ module powerbi.extensibility.visual {
 
         removeLayer() {
             const map = this.parent.getMap();
-            map.removeLayer(Circle.ID);
-            map.removeLayer(Circle.HighlightID);
+            Circle.LayerOrder.forEach(layerId => map.removeLayer(layerId));
             this.source.removeFromMap(map, Circle.ID);
         }
 
