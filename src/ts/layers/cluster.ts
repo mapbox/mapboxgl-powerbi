@@ -67,9 +67,9 @@ module powerbi.extensibility.visual {
         }
         moveLayer(settings, beforeLayerId: string, roleMap) {
             const map = this.parent.getMap();
-            map.moveLayer(Cluster.ID, beforeLayerId);
-            map.moveLayer(Cluster.UnclusterID, Cluster.ID);
-            map.moveLayer(Cluster.LabelID, Cluster.UnclusterID);
+            map.moveLayer(Cluster.UnclusterID, beforeLayerId);
+            map.moveLayer(Cluster.ID, Cluster.UnclusterID);
+            map.moveLayer(Cluster.LabelID); // cluster label should not be hidden by other labels
         }
 
         applySettings(settings, roleMap) {
