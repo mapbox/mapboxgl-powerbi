@@ -66,9 +66,25 @@ module powerbi.extensibility.visual {
             map.addLayer(clusterLabelLayer);
         }
 
+        generateColorStops(settings: MapboxSettings, limits: mapboxUtils.Limits): ColorStops {
+            const classCount = mapboxUtils.getClassCount(limits)
+
+            if (limits && limits.values && limits.values.length == 1) {
+                return []
+            }
+
+            const domain = chroma.limits(limits.values, 'e', classCount);
+            const colors = chroma.scale([settings.cluster.minColor, settings.cluster.maxColor]).colors(domain.length)
+            return domain.map((colorStop, idx) => {
+                const color = colors[idx].toString();
+                return {colorStop, color};
+            });
+        }
+
         applySettings(settings, roleMap) {
             super.applySettings(settings, roleMap);
             const map = this.parent.getMap();
+            this.colorStops = []
             if (settings.cluster.show) {
                 map.setLayerZoomRange(Cluster.ID, settings.cluster.minZoom, settings.cluster.maxZoom);
                 map.setPaintProperty(Cluster.ID, 'circle-stroke-width', settings.cluster.strokeWidth);
@@ -84,6 +100,7 @@ module powerbi.extensibility.visual {
                 map.setPaintProperty(Cluster.UnclusterID, 'circle-radius', settings.cluster.radius/2);
                 const limits = this.source.getLimits()
                 if (limits && limits.min && limits.max) {
+                    this.colorStops = this.generateColorStops(settings, limits)
                     map.setPaintProperty(Cluster.ID, 'circle-color', [
                         'interpolate', ['linear'], ['get', settings.cluster.aggregation],
                         limits.min, settings.cluster.minColor,
