@@ -279,8 +279,18 @@ module powerbi.extensibility.visual {
             if (isGradient) {
                 const fillClassCount = mapboxUtils.getClassCount(fillColorLimits);
                 const fillDomain = mapboxUtils.getNaturalBreaks(fillColorLimits, fillClassCount);
-                return chroma.scale(colorSettings).domain(fillDomain);
+                const getColorOfLocation = chroma.scale(colorSettings).domain(fillDomain);
+                this.colorStops = fillDomain.map((colorStop) => {
+                    const color = getColorOfLocation(colorStop).toString();
+                    return {colorStop, color};
+                });
+                return getColorOfLocation
             }
+
+            fillColorLimits.values.forEach((colorStop) => {
+                const color = this.palette.getColor(colorStop)
+                this.colorStops.push({colorStop, color})
+            });
             return (value => this.palette.getColor(value))
         }
 
@@ -333,6 +343,7 @@ module powerbi.extensibility.visual {
                 ChoroplethSettings.fillPredefinedProperties(choroSettings);
                 const choroColorSettings = [choroSettings.minColor, choroSettings.medColor, choroSettings.maxColor];
 
+                this.colorStops = []
                 const choroplethData = this.source.getData(map, settings);
                 const getColorOfLocation = this.getFunctionForColorOfLocation(roleMap, choroColorSettings, fillColorLimits)
                 const preprocessedData = this.preprocessData(roleMap, choroplethData, getColorOfLocation)
