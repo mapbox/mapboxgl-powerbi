@@ -226,6 +226,7 @@ module powerbi.extensibility.visual {
             const k = choroSettings.baseHeight + (size - sizeLimits.min) * (choroSettings.height - choroSettings.baseHeight) / (sizeLimits.max - sizeLimits.min)
             return k
         }
+
         setCalculatedProps(map: any, colors: object, sizes: object | number, roleMap) {
             map.setPaintProperty(Choropleth.ID, 'fill-color', colors);
             map.setPaintProperty(Choropleth.ExtrusionID, 'fill-extrusion-color', colors);
@@ -273,26 +274,51 @@ module powerbi.extensibility.visual {
             map.setLayerZoomRange(Choropleth.ID, settings.minZoom, settings.maxZoom);
         }
 
-        getColorStopPicker(isGradient: boolean, colorSettings: any, fillColorLimits: mapboxUtils.Limits, fillClassCount: number) {
-
-            let getColorStop = null;
+        getFunctionForColorOfLocation(roleMap: RoleMap, colorSettings: string[], fillColorLimits: mapboxUtils.Limits): any {
+            const isGradient = mapboxUtils.shouldUseGradient(roleMap.color);
             if (isGradient) {
-                let fillDomain: any[] = mapboxUtils.getNaturalBreaks(fillColorLimits, fillClassCount);
-                getColorStop = chroma.scale(colorSettings).domain(fillDomain);
+                const fillClassCount = mapboxUtils.getClassCount(fillColorLimits);
+                const fillDomain = mapboxUtils.getNaturalBreaks(fillColorLimits, fillClassCount);
+                return chroma.scale(colorSettings).domain(fillDomain);
             }
-            else {
-                let colorStops = {};
-                fillColorLimits.values.forEach(value => {
-                    colorStops[value] = chroma(this.palette.getColor(value))
-                });
-                getColorStop = (value) => {
-                    return colorStops[value]
-                }
-            }
-            return getColorStop
+            return (value => this.palette.getColor(value))
         }
 
-        applySettings(settings, roleMap) {
+        preprocessData(roleMap : RoleMap, choroplethData, getColorOfLocation ): {location: string, color: string, size: number}[] {
+            const existingStops = {};
+            const result = [];
+
+            for (let row of choroplethData) {
+
+                const location = row[roleMap.location.displayName];
+                const color = getColorOfLocation(row[roleMap.color.displayName]);
+
+                if (!location || !color) {
+                    // Stop value cannot be undefined or null; don't add this row to the stops
+                    continue;
+                }
+
+                const locationStr = location.toString()
+                if (existingStops[locationStr]) {
+                    // Duplicate stop found. In case there are many rows, Mapbox generates so many errors on the
+                    // console, that it can make the entire Power BI plugin unresponsive. This is why we validate
+                    // the stops here, and won't let invalid stops to be passed to Mapbox.
+                    return []
+                }
+                existingStops[locationStr] = true;
+
+                const size = roleMap.size ? row[roleMap.size.displayName] : null
+                result.push({
+                    location,
+                    color,
+                    size,
+                })
+            }
+
+            return result;
+        }
+
+        applySettings(settings:MapboxSettings, roleMap: RoleMap) {
             super.applySettings(settings, roleMap);
             const map = this.parent.getMap();
             this.settings = settings.choropleth
@@ -304,67 +330,39 @@ module powerbi.extensibility.visual {
 
             if (choroSettings.display()) {
                 const fillColorLimits = this.source.getLimits().color;
-                const sizeLimits = this.source.getLimits().size;
                 ChoroplethSettings.fillPredefinedProperties(choroSettings);
-                let fillClassCount = mapboxUtils.getClassCount(fillColorLimits);
                 const choroColorSettings = [choroSettings.minColor, choroSettings.medColor, choroSettings.maxColor];
-                let isGradient = mapboxUtils.shouldUseGradient(roleMap.color);
-                let getColorStop = this.getColorStopPicker(isGradient, choroColorSettings, fillColorLimits, fillClassCount)
 
-                // We use the old property function syntax here because the data-join technique is faster to parse still than expressions with this method
-                const defaultColor = 'rgba(0,0,0,0)';
-                const property = choroSettings.getCurrentVectorProperty()
-                let colors = { type: "categorical", property, default: defaultColor, stops: [] };
-                let sizes: any = roleMap.size ? { type: "categorical", property, default: 0, stops: [] } : choroSettings.height * Choropleth.HeightMultiplier
-                let outlineColors = { type: "categorical", property, default: defaultColor, stops: [] };
-                let filter = ['in', property];
                 const choroplethData = this.source.getData(map, settings);
+                const getColorOfLocation = this.getFunctionForColorOfLocation(roleMap, choroColorSettings, fillColorLimits)
+                const preprocessedData = this.preprocessData(roleMap, choroplethData, getColorOfLocation)
 
-                let existingStops = {};
-                let validStops = true;
+                if (preprocessedData) {
+                    // We use the old property function syntax here because the data-join technique is faster to parse still than expressions with this method
+                    const property = choroSettings.getCurrentVectorProperty()
 
-                for (let row of choroplethData) {
+                    const defaultColor = 'rgba(0,0,0,0)';
+                    const colors = { type: "categorical", property, default: defaultColor, stops: [] };
 
-                    const location = row[roleMap.location.displayName];
-                    let outlineColor: any = getColorStop(row[roleMap.color.displayName]);
-                    let color: any = getColorStop(row[roleMap.color.displayName]);
+                    const sizeLimits = this.source.getLimits().size;
+                    const sizes: any = roleMap.size ? { type: "categorical", property, default: 0, stops: [] } : choroSettings.height * Choropleth.HeightMultiplier
 
-                    if (!location || !color || !outlineColor) {
-                        // Stop value cannot be undefined or null; don't add this row to the stops
-                        continue;
-                    }
+                    const filter = ['in', property];
 
-                    const locationStr = location.toString()
-
-
-                    if (existingStops[locationStr]) {
-                        // Duplicate stop found. In case there are many rows, Mapbox generates so many errors on the
-                        // console, that it can make the entire Power BI plugin unresponsive. This is why we validate
-                        // the stops here, and won't let invalid stops to be passed to Mapbox.
-                        validStops = false;
-                        break;
-                    }
-
-
-                    existingStops[locationStr] = true;
-
-                    colors.stops.push([location, color.toString()]);
-                    if (roleMap.size) {
-                        const size = row[roleMap.size.displayName]
-                        sizes.stops.push([location, this.sizeInterpolate(sizeLimits, choroSettings, size) * Choropleth.HeightMultiplier])
-                    }
-                    filter.push(location);
-                    outlineColors.stops.push([location, outlineColor.toString()]);
-                }
-
-                if (validStops) {
+                    preprocessedData.forEach(({location, color, size}) => {
+                        filter.push(location);
+                        colors.stops.push([location, color.toString()]);
+                        if (roleMap.size) {
+                            sizes.stops.push([location, this.sizeInterpolate(sizeLimits, choroSettings, size) * Choropleth.HeightMultiplier])
+                        }
+                    })
                     this.setCalculatedProps(map, colors, sizes, roleMap)
+                    this.setFilters(map, filter, choroSettings)
                 } else {
                     map.setPaintProperty(Choropleth.ID, 'fill-color', 'rgb(0, 0, 0)');
                     map.setPaintProperty(Choropleth.ExtrusionID, 'fill-extrusion-color', 'rgb(0, 0, 0)');
                 }
 
-                this.setFilters(map, filter, choroSettings)
                 this.setLineProps(map, choroSettings)
                 this.setFillProps(map, choroSettings)
                 this.setZoom(map, choroSettings)
