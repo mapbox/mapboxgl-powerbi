@@ -129,12 +129,13 @@ module powerbi.extensibility.visual {
 
             let tooltipEventArgs : TooltipEventArgs<T> = null;
             try {
-                if (e.features && e.features.length > 0) {
+                const tooltipNames = Object.keys(getTooltips())
+                if (e.features && e.features.length > 0 && tooltipNames.length > 0) {
                     tooltipEventArgs = {
                         // Take only the first three element until we figure out how
                         // to add pager to powerbi native tooltips
                         data: e.features.slice(0, 3).map(feature => {
-                            return Object.keys(getTooltips()).map(tooltipName => {
+                            return tooltipNames.map(tooltipName => {
                                 return {
                                     key: tooltipName,
                                     value: feature.properties[tooltipName]
