@@ -1469,7 +1469,7 @@
         }
       }
     },
-    "colorSelector": {
+    "dataColorsPalette": {
         "displayName": "Data Colors",
         "properties": {
             "fill": {

@@ -1,58 +1,53 @@
 module powerbi.extensibility.visual {
-
-    interface GroupColor {
-        name: string,
-        selectionId: any, // ISelectionId,
-        color: string;
-    }
+    import DataViewObjects = powerbi.extensibility.utils.dataview.DataViewObjects;
+    import DataViewObject = powerbi.extensibility.utils.dataview.DataViewObject;
 
     export class Palette {
         private mapVisual: MapboxMap;
-        private groupColors: GroupColor[];
+        private dataColorGroupNames: string[];
         private colorMap: { [group: string]: string };
-        private host: IVisualHost;
         private colorPalette: IColorPalette;
 
         constructor(mapVisual: MapboxMap, host: IVisualHost) {
             this.mapVisual = mapVisual
-            this.host = host
             this.colorPalette = host.colorPalette
-            this.groupColors = []
+            this.dataColorGroupNames = []
             this.colorMap = {
             }
         }
 
-        public getColor(id: string | number, idx: number): string {
-            if (this.colorMap[id]) {
-                    return this.colorMap[id];
+        public getColor(id: string | number): string {
+            if (!this.colorMap[id]) {
+                this.colorMap[id] = this.colorPalette.getColor(id.toString()).value
             }
-            else {
-                return this.colorPalette.getColor(idx.toString()).value
-            }
+
+            return this.colorMap[id];
         }
 
         public enumerateObjectInstances(options: EnumerateVisualObjectInstancesOptions) {
-            let objectEnumeration: VisualObjectInstance[] = [];
-            for (let group of this.groupColors) {
-                objectEnumeration.push({
+            const objectEnumeration: VisualObjectInstance[] = this.dataColorGroupNames.map(name => {
+                return {
                     objectName: options.objectName,
-                    displayName: group.name,
+                    displayName: name,
                     properties: {
                         fill: {
                             solid: {
-                                color: group.color
+                                color: this.getColor(name)
                             }
                         }
                     },
-                    selector: group.selectionId.getSelector(),
-                });
-            }
+                    // Creates options under metadata.objects.dataColorsPalette.$instances
+                    selector: {
+                        id: name,
+                    },
+                };
+            });
             return objectEnumeration;
         }
 
         public update(dataView: DataView, features: any) {
             try {
-                this.groupColors = [];
+                this.dataColorGroupNames = [];
                 const roleMap = this.mapVisual.getRoleMap()
 
                 if (!roleMap.color) {
@@ -63,40 +58,38 @@ module powerbi.extensibility.visual {
                     return;
                 }
 
-                const cat = dataView.categorical.categories[0];
+                const colorPropertyName = roleMap.color.displayName;
 
-                let groups = {};
-                features.map(feature => {
-                    const name = feature.properties[roleMap.color.displayName];
-                    if (!groups[name]) {
-                        groups[name] = true;
-                    }
-                });
-                this.groupColors = this.createGroupColors(groups, cat);
+                this.updateDataColorGroupNames(features, colorPropertyName);
+                this.updateColorMap(dataView);
             }
             catch (err) {
                 console.log("Exception occured during group color creation: ", err);
             }
         }
 
-        createGroupColors(groups, cat) {
-            return Object.keys(groups).map( (group, i) => {
-                let defaultColor: Fill = {
-                    solid: {
-                        color: this.getColor(group, i)
-                    }
+        private updateDataColorGroupNames(features: any, colorPropertyName: string) {
+            const uniqueGroupNames: { [name: string]: boolean; } = {};
+            features.forEach(feature => {
+                const groupName = feature.properties[colorPropertyName];
+                uniqueGroupNames[groupName] = true;
+            });
+            this.dataColorGroupNames = Object.keys(uniqueGroupNames);
+        }
+
+        updateColorMap(dataView: DataView) {
+            const dataColorsPalette = dataView && dataView.metadata && dataView.metadata.objects ?
+                DataViewObjects.getObject(dataView.metadata.objects, "dataColorsPalette")
+                :
+                null;
+
+            this.dataColorGroupNames.forEach(name => {
+                let colorValue = this.getColor(name)
+                if (dataColorsPalette && dataColorsPalette.$instances) {
+                    colorValue = DataViewObject.getFillColorByPropertyName(dataColorsPalette.$instances[name], "fill", colorValue);
                 }
 
-                const colorValue = mapboxUtils.getCategoricalObjectValue<Fill>(cat, i, 'colorSelector', 'fill', defaultColor).solid.color
-                this.colorMap[group] = colorValue
-
-                return {
-                    name: group,
-                    color: colorValue,
-                    selectionId: this.host.createSelectionIdBuilder()
-                        .withCategory(cat, i)
-                        .createSelectionId()
-                }
+                this.colorMap[name] = colorValue
             })
         }
     }
