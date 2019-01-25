@@ -175,6 +175,7 @@ module powerbi.extensibility.visual {
                             layer.applySettings(this.settings, this.roleMap);
                         }
                     });
+                    this.updateLegend(this.settings);
                 }
             });
         }
