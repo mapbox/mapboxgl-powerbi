@@ -43,7 +43,7 @@ module powerbi.extensibility.visual {
         public addTooltip<T>(
             map,
             layer: Layer,
-            tooltips,
+            getTooltips: () => any,
             getTooltipInfoDelegate: (args: TooltipEventArgs<T>) => VisualTooltipDataItem[],
             reloadTooltipDataOnMouseMove?: boolean): void {
 
@@ -69,7 +69,7 @@ module powerbi.extensibility.visual {
                     if (!this.mapShowTooltip[layerId]) {
                         this.mapShowTooltip[layerId] = mapboxUtils.debounce((e) => {
                             rootNode.style.cursor = 'pointer';
-                            let tooltipEventArgs = this.makeTooltipEventArgs<T>(e);
+                            let tooltipEventArgs = this.makeTooltipEventArgs<T>(e, getTooltips);
                             if (!tooltipEventArgs)
                                 return;
 
@@ -93,7 +93,7 @@ module powerbi.extensibility.visual {
                     map.off('mouseleave', layerId, this.mapHideTooltip[layerId]);
                     map.off('mousemove', layerId, this.mapShowTooltip[layerId]);
 
-                    if (layer.hasTooltip(tooltips)) {
+                    if (layer.hasTooltip(getTooltips())) {
                         map.on('mouseleave', layerId, this.mapHideTooltip[layerId]);
                         map.on('mousemove', layerId, this.mapShowTooltip[layerId]);
                     }
@@ -125,7 +125,7 @@ module powerbi.extensibility.visual {
             });
         }
 
-        private makeTooltipEventArgs<T>(e: any): TooltipEventArgs<T> {
+        private makeTooltipEventArgs<T>(e: any, getTooltips: () => any): TooltipEventArgs<T> {
 
             let tooltipEventArgs : TooltipEventArgs<T> = null;
             try {
@@ -134,10 +134,10 @@ module powerbi.extensibility.visual {
                         // Take only the first three element until we figure out how
                         // to add pager to powerbi native tooltips
                         data: e.features.slice(0, 3).map(feature => {
-                            return Object.keys(feature.properties).map(prop => {
+                            return Object.keys(getTooltips()).map(tooltipName => {
                                 return {
-                                    key: prop,
-                                    value: feature.properties[prop]
+                                    key: tooltipName,
+                                    value: feature.properties[tooltipName]
                                 }
                             });
                         }),
