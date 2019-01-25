@@ -65,7 +65,8 @@ module powerbi.extensibility.visual {
             });
             map.addLayer(clusterLabelLayer);
         }
-        moveLayer(settings, beforeLayerId: string, roleMap) {
+
+        moveLayer(beforeLayerId: string) {
             const map = this.parent.getMap();
             Cluster.LayerOrder.forEach((layerId) => map.moveLayer(layerId, beforeLayerId));
             if (!beforeLayerId) {

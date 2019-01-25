@@ -198,7 +198,7 @@ module powerbi.extensibility.visual {
             this.source.removeFromMap(map, Choropleth.ID);
         }
 
-        moveLayer(settings, beforeLayerId: string, mapRoles) {
+        moveLayer(beforeLayerId: string) {
             const map = this.parent.getMap();
             Choropleth.LayerOrder.forEach((layerId) => map.moveLayer(layerId, beforeLayerId));
         }

@@ -48,7 +48,7 @@ module powerbi.extensibility.visual {
                     }
                 } else {
                     const firstSymbolId = this.calculateLabelPosition(settings, map)
-                    this.moveLayer(settings, firstSymbolId, roleMap)
+                    this.moveLayer(firstSymbolId)
                 }
             } else {
                 if (this.layerExists()) {
@@ -61,7 +61,7 @@ module powerbi.extensibility.visual {
         }
 
         addLayer(settings, beforeLayerId: string, roleMap) {}
-        moveLayer(settings, beforeLayerId: string, roleMap) {}
+        moveLayer(beforeLayerId: string) {}
         abstract removeLayer()
 
         layerExists() {

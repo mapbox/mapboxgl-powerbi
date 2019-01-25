@@ -54,7 +54,7 @@ module powerbi.extensibility.visual {
             map.setPaintProperty(Circle.HighlightID, 'circle-stroke-color', 'black');
         }
 
-        moveLayer(settings, beforeLayerId: string, roleMap) {
+        moveLayer(beforeLayerId: string) {
             const map = this.parent.getMap();
             Circle.LayerOrder.forEach((layerId) => map.moveLayer(layerId, beforeLayerId));
         }
