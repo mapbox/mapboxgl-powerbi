@@ -1,9 +1,11 @@
 module powerbi.extensibility.visual {
 
     export class Cluster extends Layer {
-        private static ID = 'cluster';
-        private static LabelID = 'cluster-label';
-        private static UnclusterID = 'uncluster';
+        private static readonly ID = 'cluster';
+        private static readonly UnclusterID = 'uncluster';
+        private static readonly LayerOrder = [Cluster.ID, Cluster.UnclusterID];
+        
+        private static readonly LabelID = 'cluster-label'; // cluster label is excluded because it has to be always on top
 
         private getClusterField: Function;
 
@@ -24,29 +26,27 @@ module powerbi.extensibility.visual {
 
         removeLayer() {
             const map = this.parent.getMap();
-            map.removeLayer(Cluster.ID);
-            map.removeLayer(Cluster.UnclusterID);
-            map.removeLayer(Cluster.LabelID);
+            Cluster.LayerOrder.forEach((layerId) => map.removeLayer(layerId));
+            map.removeLayer(Cluster.LabelID); // label should be removed separately
             map.removeSource('clusterData');
         }
 
         addLayer(settings, beforeLayerId, roleMap) {
             const map = this.parent.getMap();
-            const clusterLayer = mapboxUtils.decorateLayer({
+            const layers = {};
+            layers[Cluster.ID] = mapboxUtils.decorateLayer({
                 id: Cluster.ID,
                 source: 'clusterData',
                 type: 'cluster',
                 filter: ['has', 'Count']
             });
-            const unclusterLayer = mapboxUtils.decorateLayer({
+            layers[Cluster.UnclusterID] = mapboxUtils.decorateLayer({
                 id: Cluster.UnclusterID,
                 source: 'clusterData',
                 type: 'cluster',
                 filter: ['!has', 'Count']
             });
-
-            map.addLayer(clusterLayer, beforeLayerId);
-            map.addLayer(unclusterLayer, beforeLayerId);
+            Cluster.LayerOrder.forEach((layerId) => map.addLayer(layers[layerId], beforeLayerId));
 
             const clusterLabelLayer = mapboxUtils.decorateLayer({
                 id: Cluster.LabelID,
@@ -64,6 +64,15 @@ module powerbi.extensibility.visual {
                 }
             });
             map.addLayer(clusterLabelLayer);
+        }
+
+        moveLayer(beforeLayerId: string) {
+            const map = this.parent.getMap();
+            Cluster.LayerOrder.forEach((layerId) => map.moveLayer(layerId, beforeLayerId));
+            if (!beforeLayerId) {
+                // the cluster label should still be on top when the other layers are moved to top
+                map.moveLayer(Cluster.LabelID);
+            }
         }
 
         applySettings(settings, roleMap) {

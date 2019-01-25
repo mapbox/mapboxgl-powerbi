@@ -1,6 +1,7 @@
 module powerbi.extensibility.visual {
     export class Heatmap extends Layer {
-        private static ID = 'heatmap'
+        private static readonly ID = 'heatmap';
+        private static readonly LayerOrder = [Heatmap.ID];
 
         constructor(map: MapboxMap) {
             super(map)
@@ -14,20 +15,25 @@ module powerbi.extensibility.visual {
 
         addLayer(settings, beforeLayerId, roleMap) {
             const map = this.parent.getMap();
-            const heatmapLayer = mapboxUtils.decorateLayer({
+            const layers = {};
+            layers[Heatmap.ID] = mapboxUtils.decorateLayer({
                 id: Heatmap.ID,
                 source: 'data',
                 type: 'heatmap',
             });
-            map.addLayer(heatmapLayer, beforeLayerId);
+            Heatmap.LayerOrder.forEach((layerId) => map.addLayer(layers[layerId], beforeLayerId));
         }
 
         removeLayer() {
             const map = this.parent.getMap();
-            map.removeLayer(Heatmap.ID);
+            Heatmap.LayerOrder.forEach((layerId) => map.removeLayer(layerId));
             this.source.removeFromMap(map, Heatmap.ID);
         }
 
+        moveLayer(beforeLayerId: string) {
+            const map = this.parent.getMap();
+            Heatmap.LayerOrder.forEach((layerId) => map.moveLayer(layerId, beforeLayerId));
+        }
 
         applySettings(settings, roleMap) {
             super.applySettings(settings, roleMap);

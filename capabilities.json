@@ -265,6 +265,25 @@
           "displayName": "Map Style",
           "displayNameKey": "map_style"
         },
+        "labelPosition": {
+          "displayName": "Label position",
+          "displayNameKey": "labelPosition",
+          "description": "Position of the labels compared to data points.",
+          "type": {
+            "enumeration": [
+              {
+                "value": "above",
+                "displayName": "Above data",
+                "displayNameKey": "above_data"
+              },
+              {
+                "value": "below",
+                "displayName": "Below data",
+                "displayNameKey": "below_data"
+              }
+            ]
+          }
+        },
         "styleUrl": {
           "displayName": "Style URL",
           "displayNameKey": "styleUrl",

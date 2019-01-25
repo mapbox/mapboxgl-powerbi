@@ -7,6 +7,14 @@ module powerbi.extensibility.visual {
         public static readonly HighlightOutlineID = 'choropleth-highlight-outline'
         public static readonly ExtrusionID = 'choropleth-extrusion'
         public static readonly ExtrusionHighlightID = 'choropleth-extrusion-highlight'
+        private static readonly LayerOrder = [
+            Choropleth.ID,
+            Choropleth.OutlineID,
+            Choropleth.HighlightID,
+            Choropleth.HighlightOutlineID,
+            Choropleth.ExtrusionID,
+            Choropleth.ExtrusionHighlightID,
+        ]
 
         private static HeightMultiplier = 100
 
@@ -40,13 +48,14 @@ module powerbi.extensibility.visual {
             const vectorProperty = choroSettings.getCurrentVectorProperty()
             const zeroFilter = ["==", vectorProperty, ""]
 
-            const choroplethLayer = mapboxUtils.decorateLayer({
+            const layers = {};
+            layers[Choropleth.ID] = mapboxUtils.decorateLayer({
                 id: Choropleth.ID,
                 type: "fill",
                 source: 'choropleth-source',
                 "source-layer": sourceLayer
             });
-            const extrusionLayer = mapboxUtils.decorateLayer({
+            layers[Choropleth.ExtrusionID] = mapboxUtils.decorateLayer({
                 id: Choropleth.ExtrusionID,
                 type: "fill-extrusion",
                 source: 'choropleth-source',
@@ -54,8 +63,8 @@ module powerbi.extensibility.visual {
                 paint: {
 
                 },
-            })
-            const outlineLayer = mapboxUtils.decorateLayer({
+            });
+            layers[Choropleth.OutlineID] = mapboxUtils.decorateLayer({
                 id: Choropleth.OutlineID,
                 type: 'line',
                 layout: {
@@ -67,8 +76,7 @@ module powerbi.extensibility.visual {
                 source: 'choropleth-source',
                 "source-layer": sourceLayer
             });
-
-            const highlightLayer = mapboxUtils.decorateLayer({
+            layers[Choropleth.HighlightID] = mapboxUtils.decorateLayer({
                 id: Choropleth.HighlightID,
                 type: 'fill',
                 source: 'choropleth-source',
@@ -79,8 +87,7 @@ module powerbi.extensibility.visual {
                 "source-layer": sourceLayer,
                 filter: zeroFilter
             });
-
-            const highlightOutlineLayer = mapboxUtils.decorateLayer({
+            layers[Choropleth.HighlightOutlineID] = mapboxUtils.decorateLayer({
                 id: Choropleth.HighlightOutlineID,
                 type: 'line',
                 layout: {
@@ -94,8 +101,7 @@ module powerbi.extensibility.visual {
                 "source-layer": sourceLayer,
                 filter: zeroFilter,
             });
-
-            const extrusionHighlightLayer = mapboxUtils.decorateLayer({
+            layers[Choropleth.ExtrusionHighlightID] = mapboxUtils.decorateLayer({
                 id: Choropleth.ExtrusionHighlightID,
                 type: "fill-extrusion",
                 source: 'choropleth-source',
@@ -107,12 +113,7 @@ module powerbi.extensibility.visual {
                 filter: zeroFilter
             });
 
-            map.addLayer(extrusionHighlightLayer, beforeLayerId);
-            map.addLayer(extrusionLayer, Choropleth.ExtrusionHighlightID);
-            map.addLayer(highlightOutlineLayer, Choropleth.ExtrusionID);
-            map.addLayer(highlightLayer, Choropleth.HighlightOutlineID);
-            map.addLayer(outlineLayer, Choropleth.HighlightID);
-            map.addLayer(choroplethLayer, Choropleth.OutlineID);
+            Choropleth.LayerOrder.forEach((layerId) => map.addLayer(layers[layerId], beforeLayerId));
         }
 
         isExtruding() {
@@ -193,13 +194,13 @@ module powerbi.extensibility.visual {
 
         removeLayer() {
             const map = this.parent.getMap();
-            map.removeLayer(Choropleth.ID);
-            map.removeLayer(Choropleth.OutlineID);
-            map.removeLayer(Choropleth.HighlightID);
-            map.removeLayer(Choropleth.HighlightOutlineID);
-            map.removeLayer(Choropleth.ExtrusionID);
-            map.removeLayer(Choropleth.ExtrusionHighlightID);
+            Choropleth.LayerOrder.forEach((layerId) => map.removeLayer(layerId));
             this.source.removeFromMap(map, Choropleth.ID);
+        }
+
+        moveLayer(beforeLayerId: string) {
+            const map = this.parent.getMap();
+            Choropleth.LayerOrder.forEach((layerId) => map.moveLayer(layerId, beforeLayerId));
         }
 
         getSource(settings) {

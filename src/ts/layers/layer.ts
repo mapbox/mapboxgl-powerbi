@@ -3,9 +3,11 @@ module powerbi.extensibility.visual {
         protected parent: MapboxMap;
         protected source: data.Datasource;
         protected id: string;
+        protected prevLabelPositionSetting: string;
 
         constructor(map: MapboxMap) {
             this.parent = map;
+            this.prevLabelPositionSetting = map.getSettings().api.labelPosition;
         }
 
         updateSource(features, roleMap, settings) {
@@ -36,36 +38,30 @@ module powerbi.extensibility.visual {
         removeHighlight(roleMap) {
         }
 
-        applySettings(settings, roleMap) {
+        applySettings(settings: MapboxSettings, roleMap) {
             const map = this.parent.getMap();
             if (settings[this.id].show) {
-                if (!this.layerExists()) {
-                    // For default styles place data under waterway-label layer
-                    let firstSymbolId = 'waterway-label';
-
-                    if (settings.api.style == 'mapbox://styles/mapbox/satellite-v9?optimize=true' ||
-                        settings.api.style == 'custom') {
-                        // For custom style find the lowest symbol layer to place data underneath
-                        firstSymbolId = ''
-                        let layers = map.getStyle().layers;
-                        for (let i = 0; i < layers.length; i++) {
-                            if (layers[i].type === 'symbol') {
-                                firstSymbolId = layers[i].id;
-                                break;
-                            }
-                        }
+                if (this.prevLabelPositionSetting === settings.api.labelPosition) {
+                    if (!this.layerExists()) {
+                        let firstSymbolId = this.calculateLabelPosition(settings, map)
+                        this.addLayer(settings, firstSymbolId, roleMap);
                     }
-                    this.addLayer(settings, firstSymbolId, roleMap);
+                } else {
+                    const firstSymbolId = this.calculateLabelPosition(settings, map)
+                    this.moveLayer(firstSymbolId)
                 }
             } else {
                 if (this.layerExists()) {
                     this.removeLayer();
                 }
             }
+            if (this.prevLabelPositionSetting !== settings.api.labelPosition) { 
+                this.prevLabelPositionSetting = settings.api.labelPosition;
+            }
         }
 
-        addLayer(settings, beforeLayerId: string, roleMap) {
-        }
+        addLayer(settings, beforeLayerId: string, roleMap) {}
+        moveLayer(beforeLayerId: string) {}
         abstract removeLayer()
 
         layerExists() {
@@ -118,6 +114,28 @@ module powerbi.extensibility.visual {
                 }
                 return data;
             })
+        }
+
+        calculateLabelPosition(settings: MapboxSettings, map: mapboxgl.Map) {
+            // If there is no firstSymbolId specified, it adds the data as the last element.
+            let firstSymbolId = null;
+            if (settings.api.labelPosition === 'above') {
+                // For default styles place data under waterway-label layer
+                firstSymbolId = 'waterway-label';
+                if (settings.api.style == 'mapbox://styles/mapbox/satellite-v9?optimize=true' ||
+                    settings.api.style == 'custom') {
+                    // For custom style find the lowest symbol layer to place data underneath
+                    firstSymbolId = '';
+                    let layers = map.getStyle().layers;
+                    for (let i = 0; i < layers.length; i++) {
+                        if (layers[i].type === 'symbol') {
+                            firstSymbolId = layers[i].id;
+                            break;
+                        }
+                    }
+                }
+            }
+            return firstSymbolId;
         }
 
         static getTooltipData(value: any): VisualTooltipDataItem[] {
