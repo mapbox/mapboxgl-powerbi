@@ -111,6 +111,27 @@ module powerbi.extensibility.visual {
             this.source.removeFromMap(map, Circle.ID);
         }
 
+        generateColorStops(settings, roleMap, colorPalette): ColorStops {
+            const { color: colorLimits } = this.source.getLimits();
+            const classCount = mapboxUtils.getClassCount(colorLimits);
+            let isGradient = mapboxUtils.shouldUseGradient(roleMap.color);
+
+            if (isGradient) {
+                const domain: any[] = mapboxUtils.getNaturalBreaks(colorLimits, classCount);
+                const colors = chroma.scale([settings.circle.minColor, settings.circle.medColor, settings.circle.maxColor]).colors(domain.length)
+                return domain.map((colorStop, idx) => {
+                    const color = colors[idx].toString();
+                    return {colorStop, color};
+                });
+            }
+
+            return  colorLimits.values.map( (value, idx) => {
+                const colorStop = value.toString();
+                const color = colorPalette.getColor(value.toString(), idx);
+                return {colorStop, color};
+            });
+        }
+
         applySettings(settings, roleMap) {
             super.applySettings(settings, roleMap);
             const map = this.parent.getMap();
@@ -119,12 +140,13 @@ module powerbi.extensibility.visual {
                 const sizes = Circle.getSizes(limits.size, map, settings, roleMap.size);
 
                 let isGradient = mapboxUtils.shouldUseGradient(roleMap.color);
-                let colors = Circle.getColors(limits.color, isGradient, settings, this.palette, roleMap.color);
+                this.colorStops = this.generateColorStops(settings, roleMap, this.palette)
+                let colorStyle = Circle.getColorStyle(limits.color, isGradient, settings, roleMap.color, this.colorStops);
 
                 map.setPaintProperty(Circle.ID, 'circle-radius', sizes);
                 map.setPaintProperty(Circle.HighlightID, 'circle-radius', sizes);
                 map.setPaintProperty(Circle.HighlightID, 'circle-color', settings.circle.highlightColor);
-                map.setPaintProperty(Circle.ID, 'circle-color', colors);
+                map.setPaintProperty(Circle.ID, 'circle-color', colorStyle);
                 map.setLayerZoomRange(Circle.ID, settings.circle.minZoom, settings.circle.maxZoom);
                 map.setPaintProperty(Circle.ID, 'circle-blur', settings.circle.blur / 100);
                 map.setPaintProperty(Circle.ID, 'circle-opacity', settings.circle.opacity / 100);
@@ -138,40 +160,34 @@ module powerbi.extensibility.visual {
             return settings.circle.legend && super.showLegend(settings)
         }
 
-        private static getColors(colorLimits: mapboxUtils.Limits, isGradient: boolean, settings: any, colorPalette: Palette, colorField: any) {
+        private static getColorStyle(colorLimits: mapboxUtils.Limits, isGradient: boolean, settings: any, colorField: any, colorStops: ColorStops) {
             if (!colorField || colorLimits == null || colorLimits.min == null || colorLimits.max == null || colorLimits.values.length <= 0) {
                 return settings.circle.minColor;
             }
 
             if (isGradient) {
                 // Set colors for continuous value
-                const classCount = mapboxUtils.getClassCount(colorLimits);
-
-                const domain: any[] = mapboxUtils.getNaturalBreaks(colorLimits, classCount);
-                const colors = chroma.scale([settings.circle.minColor, settings.circle.medColor, settings.circle.maxColor]).colors(domain.length)
-                const style = ["interpolate", ["linear"], ["to-number", ['get', colorField.displayName]]]
-                domain.map((colorStop, idx) => {
-                    const color = colors[idx].toString();
-                    style.push(colorStop);
-                    style.push(color);
+                const continuousStyle: any = ["interpolate", ["linear"], ["to-number", ['get', colorField.displayName]]]
+                colorStops.forEach(({colorStop, color}) => {
+                    continuousStyle.push(colorStop);
+                    continuousStyle.push(color);
                 });
 
-                return style;
+                return continuousStyle;
             }
 
             // Set colors for categorical value
-            let colors = ['match', ['to-string', ['get', colorField.displayName]]];
-            colorLimits.values.forEach( value => {
-                colors.push(value.toString());
-                const color = colorPalette.getColor(value.toString());
-                colors.push(color);
+            let categoricalStyle: any = ['match', ['to-string', ['get', colorField.displayName]]];
+            colorStops.forEach(({colorStop, color}) => {
+                categoricalStyle.push(colorStop);
+                categoricalStyle.push(color);
             });
 
             // Add transparent as default so that we only see regions
             // for which we have data values
-            colors.push('rgba(255,0,0,255)');
+            categoricalStyle.push('rgba(255,0,0,255)');
 
-            return colors;
+            return categoricalStyle;
         }
 
         private static getSizes(sizeLimits: mapboxUtils.Limits, map: any, settings: any, sizeField: any) {
