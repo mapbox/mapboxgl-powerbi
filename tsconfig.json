@@ -41,6 +41,9 @@
     "src/ts/mapboxGeocoderControl.ts",
     "src/ts/lassoDraw.ts",
     "src/ts/mapboxMap.ts",
-    "src/ts/tooltipServiceWrapper.ts"
+    "src/ts/tooltipServiceWrapper.ts",
+    "node_modules/powerbi-visuals-utils-typeutils/lib/index.d.ts",
+    "node_modules/powerbi-visuals-utils-dataviewutils/lib/index.d.ts",
+    "node_modules/powerbi-visuals-utils-formattingutils/lib/index.d.ts"
   ]
 }

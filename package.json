@@ -35,6 +35,7 @@
     "powerbi-client": "^2.3.4",
     "powerbi-visuals-tools": "^1.10.1",
     "powerbi-visuals-utils-dataviewutils": "^1.2.0",
+    "powerbi-visuals-utils-formattingutils": "^3.1.0",
     "powerbi-visuals-utils-testutils": "^1.1.0",
     "powerbi-visuals-utils-typeutils": "^1.1.0",
     "supercluster": "^3.0.2",

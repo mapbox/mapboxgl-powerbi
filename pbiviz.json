@@ -27,7 +27,12 @@
     "node_modules/powerbi-visuals-utils-dataviewutils/lib/index.js",
     "node_modules/numeral/min/numeral.min.js",
     "src/js/fast-deep-equal.min.js",
-    "src/js/mapboxglAdaptor.js"
+    "src/js/mapboxglAdaptor.js",
+    "node_modules/globalize/lib/globalize.js",
+    "node_modules/globalize/lib/cultures/globalize.culture.en-US.js",
+    "node_modules/powerbi-visuals-utils-typeutils/lib/index.js",
+    "node_modules/powerbi-visuals-utils-dataviewutils/lib/index.js",
+    "node_modules/powerbi-visuals-utils-formattingutils/lib/index.js"
   ],
   "style": "style/visual.less",
   "capabilities": "capabilities.json",
