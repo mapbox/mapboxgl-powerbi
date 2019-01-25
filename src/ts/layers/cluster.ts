@@ -9,6 +9,8 @@ module powerbi.extensibility.visual {
 
         private getClusterField: Function;
 
+        public static ClusterDataId = "clusterData";
+
         constructor(map: MapboxMap, getClusterField) {
             super(map)
             this.id = Cluster.ID
@@ -28,7 +30,7 @@ module powerbi.extensibility.visual {
             const map = this.parent.getMap();
             Cluster.LayerOrder.forEach((layerId) => map.removeLayer(layerId));
             map.removeLayer(Cluster.LabelID); // label should be removed separately
-            map.removeSource('clusterData');
+            map.removeSource(Cluster.ClusterDataId);
         }
 
         addLayer(settings, beforeLayerId, roleMap) {
@@ -36,13 +38,13 @@ module powerbi.extensibility.visual {
             const layers = {};
             layers[Cluster.ID] = mapboxUtils.decorateLayer({
                 id: Cluster.ID,
-                source: 'clusterData',
+                source: Cluster.ClusterDataId,
                 type: 'cluster',
                 filter: ['has', 'Count']
             });
             layers[Cluster.UnclusterID] = mapboxUtils.decorateLayer({
                 id: Cluster.UnclusterID,
-                source: 'clusterData',
+                source: Cluster.ClusterDataId,
                 type: 'cluster',
                 filter: ['!has', 'Count']
             });
@@ -51,7 +53,7 @@ module powerbi.extensibility.visual {
             const clusterLabelLayer = mapboxUtils.decorateLayer({
                 id: Cluster.LabelID,
                 type: 'symbol',
-                source: 'clusterData',
+                source: Cluster.ClusterDataId,
                 filter: ["has", "Count"],
                 layout: {
                     'text-field': `{${settings.cluster.aggregation}}`,
@@ -114,11 +116,11 @@ module powerbi.extensibility.visual {
             return true;
         }
 
-        getToolTipFormat(roleMap, prop): string {
-            if (Object.keys(roleMap).indexOf(prop) < 0) {
-                return super.getToolTipFormat(roleMap, this.getClusterField())
+        getFormattedTooltipValue(roleMap, prop): string {
+            if (!roleMap.tooltips[prop.displayName]) {
+                return super.getFormattedTooltipValue(roleMap, prop)
             }
-            return super.getToolTipFormat(roleMap, prop)
+            return super.getFormattedTooltipValue(roleMap, prop)
         }
     }
 }

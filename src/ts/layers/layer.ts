@@ -1,4 +1,6 @@
 module powerbi.extensibility.visual {
+    import valueFormatter = powerbi.extensibility.utils.formatting.valueFormatter;
+
     export abstract class Layer {
         protected parent: MapboxMap;
         protected source: data.Datasource;
@@ -93,23 +95,31 @@ module powerbi.extensibility.visual {
             return true;
         }
 
-        getToolTipFormat(roleMap, displayName): string {
-            let format = undefined;
+        getFormattedTooltipValue(roleMap, data): string {
+            const displayName = data.displayName
             const tooltipData = roleMap.tooltips[displayName];
-            if (tooltipData) {
-                format = tooltipData.format;
+            let val = data.value
+            if (tooltipData && tooltipData.format) {
+                const formatter = valueFormatter.create({format: tooltipData.format});
+                const type = tooltipData.type
+                if (type.dateTime) {
+                    val = new Date(data.value);
+                    if (isNaN(val)) {
+                        // Print original text if the date string is invalid.
+                        val = data.value;
+                    }
+                } else if (type.numeric) {
+                    val = new Number(data.value);
+                }
+                val = formatter.format(val);
             }
-            return format
+            return val;
         }
 
         handleTooltip(tooltipEvent: TooltipEventArgs<number>, roleMap, settings) {
             const tooltipData = Layer.getTooltipData(tooltipEvent.data);
             return tooltipData.map(data => {
-                const prop = data.displayName
-                let format = this.getToolTipFormat(roleMap, prop)
-                if (format != undefined) {
-                    data.value = numeral(data.value).format(format);
-                }
+                data.value = this.getFormattedTooltipValue(roleMap, data)
                 return data;
             })
         }

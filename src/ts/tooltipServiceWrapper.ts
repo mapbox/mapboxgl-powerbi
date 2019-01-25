@@ -129,18 +129,26 @@ module powerbi.extensibility.visual {
 
             let tooltipEventArgs : TooltipEventArgs<T> = null;
             try {
-                const tooltipNames = Object.keys(getTooltips())
-                if (e.features && e.features.length > 0 && tooltipNames.length > 0) {
+                if (e.features && e.features.length > 0) {
                     tooltipEventArgs = {
                         // Take only the first three element until we figure out how
                         // to add pager to powerbi native tooltips
                         data: e.features.slice(0, 3).map(feature => {
-                            return tooltipNames.map(tooltipName => {
-                                return {
-                                    key: tooltipName,
-                                    value: feature.properties[tooltipName]
-                                }
-                            });
+                            if (feature.source === Cluster.ClusterDataId) {
+                                return Object.keys(feature.properties).map(clusterPropName => {
+                                    return {
+                                        key: clusterPropName,
+                                        value: feature.properties[clusterPropName]
+                                    }
+                                });
+                            } else {
+                                return Object.keys(getTooltips()).map(tooltipName => {
+                                    return {
+                                        key: tooltipName,
+                                        value: feature.properties[tooltipName]
+                                    }
+                                });
+                            }
                         }),
                         coordinates: [e.point.x, e.point.y],
                         isTouchEvent: false
