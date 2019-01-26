@@ -16,6 +16,8 @@ module powerbi.extensibility.visual {
             Choropleth.ExtrusionHighlightID,
         ]
 
+        public static ChoroplethSourceId = 'choropleth-source'
+
         private static HeightMultiplier = 100
 
         private filter: Filter;
@@ -52,13 +54,13 @@ module powerbi.extensibility.visual {
             layers[Choropleth.ID] = mapboxUtils.decorateLayer({
                 id: Choropleth.ID,
                 type: "fill",
-                source: 'choropleth-source',
+                source: Choropleth.ChoroplethSourceId,
                 "source-layer": sourceLayer
             });
             layers[Choropleth.ExtrusionID] = mapboxUtils.decorateLayer({
                 id: Choropleth.ExtrusionID,
                 type: "fill-extrusion",
-                source: 'choropleth-source',
+                source: Choropleth.ChoroplethSourceId,
                 "source-layer": sourceLayer,
                 paint: {
 
@@ -73,13 +75,13 @@ module powerbi.extensibility.visual {
                 paint: {
                     "line-width": 0
                 },
-                source: 'choropleth-source',
+                source: Choropleth.ChoroplethSourceId,
                 "source-layer": sourceLayer
             });
             layers[Choropleth.HighlightID] = mapboxUtils.decorateLayer({
                 id: Choropleth.HighlightID,
                 type: 'fill',
-                source: 'choropleth-source',
+                source: Choropleth.ChoroplethSourceId,
                 paint: {
                     "fill-color": choroSettings.highlightColor,
                     "fill-opacity": 1
@@ -97,14 +99,14 @@ module powerbi.extensibility.visual {
                     "line-width": 1,
                     "line-color": 'black',
                 },
-                source: 'choropleth-source',
+                source: Choropleth.ChoroplethSourceId,
                 "source-layer": sourceLayer,
                 filter: zeroFilter,
             });
             layers[Choropleth.ExtrusionHighlightID] = mapboxUtils.decorateLayer({
                 id: Choropleth.ExtrusionHighlightID,
                 type: "fill-extrusion",
-                source: 'choropleth-source',
+                source: Choropleth.ChoroplethSourceId,
                 paint: {
                     "fill-extrusion-color": choroSettings.highlightColor,
                     "fill-extrusion-opacity": 1
@@ -374,16 +376,7 @@ module powerbi.extensibility.visual {
 
         handleTooltip(tooltipEvent, roleMap, settings: MapboxSettings) {
             const tooltipData = super.handleTooltip(tooltipEvent, roleMap, settings);
-            let choroVectorData = null;
-            tooltipData.map(td => {
-                if (choroVectorData) {
-                    return;
-                }
-
-                if (td.displayName === settings.choropleth.getCurrentVectorProperty()) {
-                    choroVectorData = td;
-                }
-            });
+            let choroVectorData = tooltipData.filter(td => (td.displayName === settings.choropleth.getCurrentVectorProperty()))[0];
             if (!choroVectorData) {
                 // Error! Could not found choropleth data joining on selected vector property
                 return tooltipData;
@@ -397,45 +390,28 @@ module powerbi.extensibility.visual {
 
             const choroplethData = choroplethSource.getData(settings, this.parent.getMap());
             const locationProperty = roleMap.location.displayName;
-            let dataUnderLocation = null;
-            choroplethData.map(cd => {
-                if (dataUnderLocation) {
-                    return;
-                }
-
-                if (cd[locationProperty] == choroVectorData.value) {
-                    dataUnderLocation = cd;
-                }
-            });
+            const dataUnderLocation = choroplethData.filter((cd) => (cd[locationProperty] == choroVectorData.value))[0];
 
             if (!dataUnderLocation) {
                 return tooltipData;
             }
-
-            return Object.keys(dataUnderLocation).reduce((result, key) => {
-                let value = 'null';
-                if (dataUnderLocation[key] !== null && dataUnderLocation[key] !== undefined) {
-                    value = dataUnderLocation[key].toString();
-                }
-
-                let format = this.getToolTipFormat(roleMap, key)
-                if (format != undefined) {
-                    value = numeral(value).format(format);
-                }
-
-                const tooltipValue = {
+            const topTooltip = {
+                displayName: locationProperty,
+                value: dataUnderLocation[locationProperty].toString()
+            }
+            let result = Object.keys(roleMap.tooltips).map((key) => {
+                const data = {
                     displayName: key,
-                    value
+                    value: "null",
                 }
-                if (key == locationProperty) {
-                    // The location property should always be the first tooltip item...
-                    result.unshift(tooltipValue)
-                } else {
-                    // ... and then we can have the rest of the tooltip role items
-                    result.push(tooltipValue)
+                if (dataUnderLocation[key]) {
+                    data.value = dataUnderLocation[key];
+                    data.value = this.getFormattedTooltipValue(roleMap, data).toString()
                 }
-                return result
-            }, [])
+                return data
+            })
+            result.unshift(topTooltip)
+            return result
         }
     }
 }

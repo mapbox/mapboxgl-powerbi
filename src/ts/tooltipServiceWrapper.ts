@@ -141,6 +141,12 @@ module powerbi.extensibility.visual {
                                         value: feature.properties[clusterPropName]
                                     }
                                 });
+                            } if (feature.source === Choropleth.ChoroplethSourceId) {
+                                // TODO: get rid of this field without breaking the tooltips
+                                return [{
+                                    key: "name",
+                                    value: feature.properties["name"]
+                                }]
                             } else {
                                 return Object.keys(getTooltips()).map(tooltipName => {
                                     return {
