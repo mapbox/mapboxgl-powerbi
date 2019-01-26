@@ -134,19 +134,13 @@ module powerbi.extensibility.visual {
                         // Take only the first three element until we figure out how
                         // to add pager to powerbi native tooltips
                         data: e.features.slice(0, 3).map(feature => {
-                            if (feature.source === Cluster.ClusterDataId) {
-                                return Object.keys(feature.properties).map(clusterPropName => {
+                            if (feature.source === Cluster.ClusterDataId || feature.source === Choropleth.ChoroplethSourceId) {
+                                return Object.keys(feature.properties).map(propName => {
                                     return {
-                                        key: clusterPropName,
-                                        value: feature.properties[clusterPropName]
+                                        key: propName,
+                                        value: feature.properties[propName]
                                     }
                                 });
-                            } if (feature.source === Choropleth.ChoroplethSourceId) {
-                                // TODO: get rid of this field without breaking the tooltips
-                                return [{
-                                    key: "name",
-                                    value: feature.properties["name"]
-                                }]
                             } else {
                                 return Object.keys(getTooltips()).map(tooltipName => {
                                     return {
