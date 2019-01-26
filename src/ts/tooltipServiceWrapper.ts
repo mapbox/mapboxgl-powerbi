@@ -76,11 +76,10 @@ module powerbi.extensibility.visual {
                             let tooltipInfo: VisualTooltipDataItem[];
                             if (reloadTooltipDataOnMouseMove || true) {
                                 tooltipInfo = getTooltipInfoDelegate(tooltipEventArgs);
-                                if (tooltipInfo == null) {
+                                if (!tooltipInfo || tooltipInfo.length < 1) {
                                     return;
                                 }
                             }
-
                             this.visualHostTooltipService.show({
                                 coordinates: tooltipEventArgs.coordinates,
                                 isTouchEvent: false,
@@ -134,21 +133,12 @@ module powerbi.extensibility.visual {
                         // Take only the first three element until we figure out how
                         // to add pager to powerbi native tooltips
                         data: e.features.slice(0, 3).map(feature => {
-                            if (feature.source === Cluster.ClusterDataId || feature.source === Choropleth.ChoroplethSourceId) {
-                                return Object.keys(feature.properties).map(propName => {
-                                    return {
-                                        key: propName,
-                                        value: feature.properties[propName]
-                                    }
-                                });
-                            } else {
-                                return Object.keys(getTooltips()).map(tooltipName => {
-                                    return {
-                                        key: tooltipName,
-                                        value: feature.properties[tooltipName]
-                                    }
-                                });
-                            }
+                            return Object.keys(feature.properties).map(propName => {
+                                return {
+                                    key: propName,
+                                    value: feature.properties[propName]
+                                }
+                            });
                         }),
                         coordinates: [e.point.x, e.point.y],
                         isTouchEvent: false

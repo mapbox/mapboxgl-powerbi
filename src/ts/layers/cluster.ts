@@ -116,11 +116,22 @@ module powerbi.extensibility.visual {
             return true;
         }
 
-        getFormattedTooltipValue(roleMap, prop): string {
-            if (!roleMap.tooltips[prop.displayName]) {
-                return super.getFormattedTooltipValue(roleMap, prop)
+        handleTooltip(tooltipEvent: TooltipEventArgs<number>, roleMap, settings) {
+            const clusterFields = {
+                // clusterFields are defined in the cluster datasources, the field names must match with these.
+                Count: true, Sum: true, Minimum: true, Maximum: true, Average: true
             }
-            return super.getFormattedTooltipValue(roleMap, prop)
+            const tooltipData = Layer.getTooltipData(tooltipEvent.data)
+                .filter((elem) => (
+                    // elem.displayName === this.getClusterField() || // Add cluster variable to the data point
+                    roleMap.tooltips[elem.displayName] || // Show these fields on datapoints
+                    clusterFields[elem.displayName]       // Show these fields on clusters
+                ));
+
+            return tooltipData.map(data => {
+                data.value = this.getFormattedTooltipValue(roleMap, data)
+                return data;
+            })
         }
     }
 }
