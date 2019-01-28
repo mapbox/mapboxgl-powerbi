@@ -16,8 +16,6 @@ module powerbi.extensibility.visual {
             Choropleth.ExtrusionHighlightID,
         ]
 
-        public static ChoroplethSourceId = 'choropleth-source'
-
         private static HeightMultiplier = 100
 
         private filter: Filter;
@@ -54,13 +52,13 @@ module powerbi.extensibility.visual {
             layers[Choropleth.ID] = mapboxUtils.decorateLayer({
                 id: Choropleth.ID,
                 type: "fill",
-                source: Choropleth.ChoroplethSourceId,
+                source: 'choropleth-source',
                 "source-layer": sourceLayer
             });
             layers[Choropleth.ExtrusionID] = mapboxUtils.decorateLayer({
                 id: Choropleth.ExtrusionID,
                 type: "fill-extrusion",
-                source: Choropleth.ChoroplethSourceId,
+                source: 'choropleth-source',
                 "source-layer": sourceLayer,
                 paint: {
 
@@ -75,13 +73,13 @@ module powerbi.extensibility.visual {
                 paint: {
                     "line-width": 0
                 },
-                source: Choropleth.ChoroplethSourceId,
+                source: 'choropleth-source',
                 "source-layer": sourceLayer
             });
             layers[Choropleth.HighlightID] = mapboxUtils.decorateLayer({
                 id: Choropleth.HighlightID,
                 type: 'fill',
-                source: Choropleth.ChoroplethSourceId,
+                source: 'choropleth-source',
                 paint: {
                     "fill-color": choroSettings.highlightColor,
                     "fill-opacity": 1
@@ -99,14 +97,14 @@ module powerbi.extensibility.visual {
                     "line-width": 1,
                     "line-color": 'black',
                 },
-                source: Choropleth.ChoroplethSourceId,
+                source: 'choropleth-source',
                 "source-layer": sourceLayer,
                 filter: zeroFilter,
             });
             layers[Choropleth.ExtrusionHighlightID] = mapboxUtils.decorateLayer({
                 id: Choropleth.ExtrusionHighlightID,
                 type: "fill-extrusion",
-                source: Choropleth.ChoroplethSourceId,
+                source: 'choropleth-source',
                 paint: {
                     "fill-extrusion-color": choroSettings.highlightColor,
                     "fill-extrusion-opacity": 1

@@ -9,8 +9,6 @@ module powerbi.extensibility.visual {
 
         private getClusterField: Function;
 
-        public static ClusterDataId = "clusterData";
-
         constructor(map: MapboxMap, getClusterField) {
             super(map)
             this.id = Cluster.ID
@@ -30,7 +28,7 @@ module powerbi.extensibility.visual {
             const map = this.parent.getMap();
             Cluster.LayerOrder.forEach((layerId) => map.removeLayer(layerId));
             map.removeLayer(Cluster.LabelID); // label should be removed separately
-            map.removeSource(Cluster.ClusterDataId);
+            map.removeSource('clusterData');
         }
 
         addLayer(settings, beforeLayerId, roleMap) {
@@ -38,13 +36,13 @@ module powerbi.extensibility.visual {
             const layers = {};
             layers[Cluster.ID] = mapboxUtils.decorateLayer({
                 id: Cluster.ID,
-                source: Cluster.ClusterDataId,
+                source: 'clusterData',
                 type: 'cluster',
                 filter: ['has', 'Count']
             });
             layers[Cluster.UnclusterID] = mapboxUtils.decorateLayer({
                 id: Cluster.UnclusterID,
-                source: Cluster.ClusterDataId,
+                source: 'clusterData',
                 type: 'cluster',
                 filter: ['!has', 'Count']
             });
@@ -53,7 +51,7 @@ module powerbi.extensibility.visual {
             const clusterLabelLayer = mapboxUtils.decorateLayer({
                 id: Cluster.LabelID,
                 type: 'symbol',
-                source: Cluster.ClusterDataId,
+                source: 'clusterData',
                 filter: ["has", "Count"],
                 layout: {
                     'text-field': `{${settings.cluster.aggregation}}`,

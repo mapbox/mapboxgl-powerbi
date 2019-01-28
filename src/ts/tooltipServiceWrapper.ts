@@ -133,10 +133,10 @@ module powerbi.extensibility.visual {
                         // Take only the first three element until we figure out how
                         // to add pager to powerbi native tooltips
                         data: e.features.slice(0, 3).map(feature => {
-                            return Object.keys(feature.properties).map(propName => {
+                            return Object.keys(feature.properties).map(prop => {
                                 return {
-                                    key: propName,
-                                    value: feature.properties[propName]
+                                    key: prop,
+                                    value: feature.properties[prop]
                                 }
                             });
                         }),
