@@ -51,10 +51,16 @@ module powerbi.extensibility.visual {
         }
 
         export function getRoleMap(metadata) {
-            let ret = {}
+            const ret = {
+                tooltips: {}
+            }
             metadata.columns.map(column => {
                 Object.keys(column.roles).map(role => {
-                    ret[role] = column
+                    if (role === "tooltips") {
+                        ret.tooltips[column.displayName] = column;
+                    } else {
+                        ret[role] = column
+                    }
                 });
             });
             return ret;

@@ -373,17 +373,8 @@ module powerbi.extensibility.visual {
         }
 
         handleTooltip(tooltipEvent, roleMap, settings: MapboxSettings) {
-            const tooltipData = super.handleTooltip(tooltipEvent, roleMap, settings);
-            let choroVectorData = null;
-            tooltipData.map(td => {
-                if (choroVectorData) {
-                    return;
-                }
-
-                if (td.displayName === settings.choropleth.getCurrentVectorProperty()) {
-                    choroVectorData = td;
-                }
-            });
+            const tooltipData = Layer.getTooltipData(tooltipEvent.data);
+            let choroVectorData = tooltipData.find(td => (td.displayName === settings.choropleth.getCurrentVectorProperty()));
             if (!choroVectorData) {
                 // Error! Could not found choropleth data joining on selected vector property
                 return tooltipData;
@@ -397,45 +388,28 @@ module powerbi.extensibility.visual {
 
             const choroplethData = choroplethSource.getData(settings, this.parent.getMap());
             const locationProperty = roleMap.location.displayName;
-            let dataUnderLocation = null;
-            choroplethData.map(cd => {
-                if (dataUnderLocation) {
-                    return;
-                }
-
-                if (cd[locationProperty] == choroVectorData.value) {
-                    dataUnderLocation = cd;
-                }
-            });
+            const dataUnderLocation = choroplethData.find((cd) => (cd[locationProperty] == choroVectorData.value));
 
             if (!dataUnderLocation) {
                 return tooltipData;
             }
-
-            return Object.keys(dataUnderLocation).reduce((result, key) => {
-                let value = 'null';
-                if (dataUnderLocation[key] !== null && dataUnderLocation[key] !== undefined) {
-                    value = dataUnderLocation[key].toString();
-                }
-
-                let format = this.getToolTipFormat(roleMap, key)
-                if (format != undefined) {
-                    value = numeral(value).format(format);
-                }
-
-                const tooltipValue = {
+            const topTooltip = {
+                displayName: locationProperty,
+                value: dataUnderLocation[locationProperty].toString()
+            }
+            let result = Object.keys(roleMap.tooltips).map((key) => {
+                const data = {
                     displayName: key,
-                    value
+                    value: "null",
                 }
-                if (key == locationProperty) {
-                    // The location property should always be the first tooltip item...
-                    result.unshift(tooltipValue)
-                } else {
-                    // ... and then we can have the rest of the tooltip role items
-                    result.push(tooltipValue)
+                if (dataUnderLocation[key]) {
+                    data.value = dataUnderLocation[key];
+                    data.value = this.getFormattedTooltipValue(roleMap, data).toString()
                 }
-                return result
-            }, [])
+                return data
+            })
+            result.unshift(topTooltip)
+            return result
         }
     }
 }

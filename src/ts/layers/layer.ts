@@ -1,4 +1,6 @@
 module powerbi.extensibility.visual {
+    import valueFormatter = powerbi.extensibility.utils.formatting.valueFormatter;
+
     export abstract class Layer {
         protected parent: MapboxMap;
         protected source: data.Datasource;
@@ -55,7 +57,7 @@ module powerbi.extensibility.visual {
                     this.removeLayer();
                 }
             }
-            if (this.prevLabelPositionSetting !== settings.api.labelPosition) { 
+            if (this.prevLabelPositionSetting !== settings.api.labelPosition) {
                 this.prevLabelPositionSetting = settings.api.labelPosition;
             }
         }
@@ -93,27 +95,31 @@ module powerbi.extensibility.visual {
             return true;
         }
 
-        getToolTipFormat(roleMap, prop): string {
-            let format = undefined;
-            Object.keys(roleMap).map(role => {
-                if (roleMap[role].displayName === prop) {
-                    format = roleMap[role].format
-                    return
+        getFormattedTooltipValue(roleMap, data): string {
+            const displayName = data.displayName
+            const tooltipData = roleMap.tooltips[displayName];
+            let value = data.value
+            if (tooltipData && tooltipData.format) {
+                const { format, type } = tooltipData
+                if (type.dateTime) {
+                    value = new Date(data.value);
+                    if (isNaN(value)) {
+                        // Print original text if the date string is invalid.
+                        value = data.value;
+                    }
+                } else if (type.numeric) {
+                    value = Number(data.value);
                 }
-            })
-            return format
+                value = valueFormatter.format(value, format);
+            }
+            return value;
         }
 
-        handleTooltip(tooltipEvent: TooltipEventArgs<number>, roleMap, settings) {
-            const tooltipData = Layer.getTooltipData(tooltipEvent.data);
-            return tooltipData.map(data => {
-                const prop = data.displayName
-                let format = this.getToolTipFormat(roleMap, prop)
-                if (format != undefined) {
-                    data.value = numeral(data.value).format(format);
-                }
-                return data;
-            })
+        /*
+        Override this method and implement the custom logic to show tooltips for a custom layer
+        */
+        handleTooltip(tooltipEvent: TooltipEventArgs<number>, roleMap, settings): VisualTooltipDataItem[] {
+            return [];
         }
 
         calculateLabelPosition(settings: MapboxSettings, map: mapboxgl.Map) {

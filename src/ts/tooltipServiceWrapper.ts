@@ -43,7 +43,7 @@ module powerbi.extensibility.visual {
         public addTooltip<T>(
             map,
             layer: Layer,
-            tooltips,
+            getTooltips: () => any,
             getTooltipInfoDelegate: (args: TooltipEventArgs<T>) => VisualTooltipDataItem[],
             reloadTooltipDataOnMouseMove?: boolean): void {
 
@@ -69,18 +69,17 @@ module powerbi.extensibility.visual {
                     if (!this.mapShowTooltip[layerId]) {
                         this.mapShowTooltip[layerId] = mapboxUtils.debounce((e) => {
                             rootNode.style.cursor = 'pointer';
-                            let tooltipEventArgs = this.makeTooltipEventArgs<T>(e);
+                            let tooltipEventArgs = this.makeTooltipEventArgs<T>(e, getTooltips);
                             if (!tooltipEventArgs)
                                 return;
 
                             let tooltipInfo: VisualTooltipDataItem[];
                             if (reloadTooltipDataOnMouseMove || true) {
                                 tooltipInfo = getTooltipInfoDelegate(tooltipEventArgs);
-                                if (tooltipInfo == null) {
+                                if (!tooltipInfo || tooltipInfo.length < 1) {
                                     return;
                                 }
                             }
-
                             this.visualHostTooltipService.show({
                                 coordinates: tooltipEventArgs.coordinates,
                                 isTouchEvent: false,
@@ -93,7 +92,7 @@ module powerbi.extensibility.visual {
                     map.off('mouseleave', layerId, this.mapHideTooltip[layerId]);
                     map.off('mousemove', layerId, this.mapShowTooltip[layerId]);
 
-                    if (layer.hasTooltip(tooltips)) {
+                    if (layer.hasTooltip(getTooltips())) {
                         map.on('mouseleave', layerId, this.mapHideTooltip[layerId]);
                         map.on('mousemove', layerId, this.mapShowTooltip[layerId]);
                     }
@@ -125,7 +124,7 @@ module powerbi.extensibility.visual {
             });
         }
 
-        private makeTooltipEventArgs<T>(e: any): TooltipEventArgs<T> {
+        private makeTooltipEventArgs<T>(e: any, getTooltips: () => any): TooltipEventArgs<T> {
 
             let tooltipEventArgs : TooltipEventArgs<T> = null;
             try {

@@ -156,10 +156,6 @@
   version "0.1.0"
   resolved "https://registry.yarnpkg.com/@mapbox/point-geometry/-/point-geometry-0.1.0.tgz#8a83f9335c7860effa2eeeca254332aa0aeed8f2"
 
-"@mapbox/shelf-pack@^3.1.0":
-  version "3.1.0"
-  resolved "https://registry.yarnpkg.com/@mapbox/shelf-pack/-/shelf-pack-3.1.0.tgz#1edea9c0bf6715b217171ba60646c201af520f6a"
-
 "@mapbox/tiny-sdf@^1.1.0":
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/@mapbox/tiny-sdf/-/tiny-sdf-1.1.0.tgz#b0b8f5c22005e6ddb838f421ffd257c1f74f9a20"
@@ -180,9 +176,10 @@
   dependencies:
     "@mapbox/point-geometry" "~0.1.0"
 
-"@mapbox/whoots-js@^3.0.0":
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/@mapbox/whoots-js/-/whoots-js-3.0.0.tgz#c1de4293081424da3ac30c23afa850af1019bb54"
+"@mapbox/whoots-js@^3.1.0":
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/@mapbox/whoots-js/-/whoots-js-3.1.0.tgz#497c67a1cef50d1a2459ba60f315e448d2ad87fe"
+  integrity sha512-Es6WcD0nO5l+2BOQS4uLfNPYQaNDfbot3X1XUoloz+x0mPDS3eeORZJl06HXjwBG1fOGwCRnzK88LMdxKRrd6Q==
 
 "@turf/bbox-polygon@^6.0.1":
   version "6.0.1"
@@ -381,10 +378,6 @@
   resolved "https://registry.yarnpkg.com/@types/mapbox-gl/-/mapbox-gl-0.44.3.tgz#f3df2b03eec796b8a5fc9a488548380f15937acd"
   dependencies:
     "@types/geojson" "*"
-
-"@types/numeral@^0.0.25":
-  version "0.0.25"
-  resolved "https://registry.yarnpkg.com/@types/numeral/-/numeral-0.0.25.tgz#b6f55062827a4787fe4ab151cf3412a468e65271"
 
 JSONStream@^0.8.4:
   version "0.8.4"
@@ -3005,6 +2998,11 @@ global-prefix@^1.0.1:
     is-windows "^1.0.1"
     which "^1.2.14"
 
+globalize@0.1.0-a2:
+  version "0.1.0-a2"
+  resolved "https://registry.yarnpkg.com/globalize/-/globalize-0.1.0a2.tgz#7f28b382ebefd9ba0cb3d803635fbba64a87f294"
+  integrity sha1-fyizguvv2boMs9gDY1+7pkqH8pQ=
+
 globals@^11.0.1, globals@^11.1.0:
   version "11.5.0"
   resolved "https://registry.yarnpkg.com/globals/-/globals-11.5.0.tgz#6bc840de6771173b191f13d3a9c94d441ee92642"
@@ -4897,19 +4895,19 @@ map-visit@^1.0.0:
   dependencies:
     object-visit "^1.0.0"
 
-mapbox-gl@0.48.0:
-  version "0.48.0"
-  resolved "https://registry.yarnpkg.com/mapbox-gl/-/mapbox-gl-0.48.0.tgz#bf240edca9072bdeb94cc28652a543841f93b26e"
+mapbox-gl@0.49.0:
+  version "0.49.0"
+  resolved "https://registry.yarnpkg.com/mapbox-gl/-/mapbox-gl-0.49.0.tgz#701fe5ae750b7edc1398b985553c0e0690fc3d2b"
+  integrity sha512-2gbKNosaIQjHp6xgCcOLYAC+vnmgYQ89qiOtip5L8tQLPhsJ3vNwU7pXRaCm4sFU1i8JakvF13vu8Xnsi5/ssA==
   dependencies:
     "@mapbox/geojson-types" "^1.0.2"
     "@mapbox/jsonlint-lines-primitives" "^2.0.2"
     "@mapbox/mapbox-gl-supported" "^1.4.0"
     "@mapbox/point-geometry" "^0.1.0"
-    "@mapbox/shelf-pack" "^3.1.0"
     "@mapbox/tiny-sdf" "^1.1.0"
     "@mapbox/unitbezier" "^0.0.0"
     "@mapbox/vector-tile" "^1.3.1"
-    "@mapbox/whoots-js" "^3.0.0"
+    "@mapbox/whoots-js" "^3.1.0"
     brfs "^1.4.4"
     csscolorparser "~1.0.2"
     earcut "^2.1.3"
@@ -4918,7 +4916,9 @@ mapbox-gl@0.48.0:
     gl-matrix "^2.6.1"
     grid-index "^1.0.0"
     minimist "0.0.8"
+    murmurhash-js "^1.0.0"
     pbf "^3.0.5"
+    potpack "^1.0.1"
     quickselect "^1.0.0"
     rw "^1.3.3"
     supercluster "^4.1.1"
@@ -5172,6 +5172,11 @@ multipipe@^0.1.0, multipipe@^0.1.2:
   dependencies:
     duplexer2 "0.0.2"
 
+murmurhash-js@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/murmurhash-js/-/murmurhash-js-1.0.0.tgz#b06278e21fc6c37fa5313732b0412bcb6ae15f51"
+  integrity sha1-sGJ44h/Gw3+lMTcysEEry2rhX1E=
+
 mute-stdout@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/mute-stdout/-/mute-stdout-1.0.0.tgz#5b32ea07eb43c9ded6130434cf926f46b2a7fd4d"
@@ -5353,10 +5358,6 @@ num2fraction@^1.2.2:
 number-is-nan@^1.0.0:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/number-is-nan/-/number-is-nan-1.0.1.tgz#097b602b53422a522c1afb8790318336941a011d"
-
-numeral@^2.0.6:
-  version "2.0.6"
-  resolved "https://registry.yarnpkg.com/numeral/-/numeral-2.0.6.tgz#4ad080936d443c2561aed9f2197efffe25f4e506"
 
 oauth-sign@~0.8.1, oauth-sign@~0.8.2:
   version "0.8.2"
@@ -5780,6 +5781,11 @@ postcss@^5.0.0, postcss@^5.0.14, postcss@^5.0.18, postcss@^5.0.4, postcss@^5.0.8
     source-map "^0.5.6"
     supports-color "^3.2.3"
 
+potpack@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/potpack/-/potpack-1.0.1.tgz#d1b1afd89e4c8f7762865ec30bd112ab767e2ebf"
+  integrity sha512-15vItUAbViaYrmaB/Pbw7z6qX2xENbFSTA7Ii4tgbPtasxm5v6ryKhKtL91tpWovDJzTiZqdwzhcFBCwiMVdVw==
+
 powerbi-client@^2.3.4:
   version "2.4.2"
   resolved "https://registry.yarnpkg.com/powerbi-client/-/powerbi-client-2.4.2.tgz#831cb6b0c6dc6c4c034fa7de4e7dd339ff59c536"
@@ -5853,6 +5859,20 @@ powerbi-visuals-utils-dataviewutils@1.2.0, powerbi-visuals-utils-dataviewutils@^
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/powerbi-visuals-utils-dataviewutils/-/powerbi-visuals-utils-dataviewutils-1.2.0.tgz#59a1c983355c958a23d9901894f65f1575193213"
 
+powerbi-visuals-utils-dataviewutils@1.4.1:
+  version "1.4.1"
+  resolved "https://registry.yarnpkg.com/powerbi-visuals-utils-dataviewutils/-/powerbi-visuals-utils-dataviewutils-1.4.1.tgz#fb3f07abb7759a92d5904189cf2ae43113cbafd3"
+  integrity sha1-+z8Hq7d1mpLVkEGJzyrkMRPLr9M=
+
+powerbi-visuals-utils-formattingutils@^3.1.0:
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/powerbi-visuals-utils-formattingutils/-/powerbi-visuals-utils-formattingutils-3.1.0.tgz#a1954340086aa35ca5b7829d55b08a844d9f0baf"
+  integrity sha512-sqA/ZqAzqtsyT65JOh7eNiJHuQnbVzj5eQiu9jc9I/HBWENK6s8w6pJbOT01v5Oz/4c//hXeEKB6Raawp+TlUA==
+  dependencies:
+    globalize "0.1.0-a2"
+    powerbi-visuals-utils-dataviewutils "1.4.1"
+    powerbi-visuals-utils-typeutils "1.2.0"
+
 powerbi-visuals-utils-testutils@^1.1.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/powerbi-visuals-utils-testutils/-/powerbi-visuals-utils-testutils-1.1.0.tgz#b215bd3b9ef066c758a6bbfb308953e1ce76a0f7"
@@ -5861,6 +5881,11 @@ powerbi-visuals-utils-testutils@^1.1.0:
     jasmine-jquery "2.1.1"
     jquery "3.1.1"
     lodash "4.16.2"
+
+powerbi-visuals-utils-typeutils@1.2.0:
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/powerbi-visuals-utils-typeutils/-/powerbi-visuals-utils-typeutils-1.2.0.tgz#16a0938f3b94f455aa7ce2f8654cb433bb145ff8"
+  integrity sha512-7DX+kD+w1vURRDLlOxJHbLqh2ikuAZ6n0YweHg6gt5bheX5Yn80i582Q/iFAyDJwNFeD0nnFDwbEQumcEMD1aA==
 
 powerbi-visuals-utils-typeutils@^1.1.0:
   version "1.1.0"

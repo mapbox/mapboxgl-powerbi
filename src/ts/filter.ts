@@ -44,9 +44,9 @@ module powerbi.extensibility.visual {
             let category = this.categories[0];
 
             if (role) {
-                category = this.categories.filter(cat => {
+                category = this.categories.find(cat => {
                     return cat.source.displayName == role.displayName;
-                })[0]
+                })
 
                 indexes = values.map(value => category.values.indexOf(value));
             }
