@@ -79,7 +79,7 @@ module powerbi.extensibility.visual {
         public scaleFactor: number = 5;
         public diverging: boolean = false;
         public minColor: string = "#ffffcc";
-        public medColor: string = "#41b6c4";
+        public midColor: string = "#41b6c4";
         public maxColor: string = "#253494";
         public highlightColor: string = "#253494";
         public blur: number = 0.0;
@@ -97,7 +97,7 @@ module powerbi.extensibility.visual {
         public intensity: number = 0.5;
         public opacity: number = 100;
         public minColor: string = "#0571b0";
-        public medColor: string = "#f7f7f7";
+        public midColor: string = "#f7f7f7";
         public maxColor: string = "#ca0020";
         public minZoom: number = 0;
         public maxZoom: number = 22;
@@ -135,7 +135,7 @@ module powerbi.extensibility.visual {
         public show: boolean = false;
         public diverging: boolean = false;
         public minColor: string = "#edf8b1";
-        public medColor: string = "#7fcdbb";
+        public midColor: string = "#7fcdbb";
         public maxColor: string = "#2c7fb8";
         public highlightColor: string = "#2c7fb8";
         public minZoom: number = 0;

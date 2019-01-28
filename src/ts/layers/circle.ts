@@ -118,7 +118,7 @@ module powerbi.extensibility.visual {
             this.source.removeFromMap(map, Circle.ID);
         }
 
-        applySettings(settings, roleMap) {
+        applySettings(settings: MapboxSettings, roleMap) {
             super.applySettings(settings, roleMap);
             const map = this.parent.getMap();
             const limits = this.source.getLimits();
@@ -160,7 +160,7 @@ module powerbi.extensibility.visual {
                 const classCount = mapboxUtils.getClassCount(colorLimits);
 
                 const domain: any[] = mapboxUtils.getNaturalBreaks(colorLimits, classCount);
-                const colors = chroma.scale([settings.circle.minColor, settings.circle.medColor, settings.circle.maxColor]).colors(domain.length)
+                const colors = chroma.scale([settings.circle.minColor, settings.circle.midColor, settings.circle.maxColor]).colors(domain.length)
                 const style = ["interpolate", ["linear"], ["to-number", ['get', colorField.displayName]]]
                 domain.map((colorStop, idx) => {
                     const color = colors[idx].toString();

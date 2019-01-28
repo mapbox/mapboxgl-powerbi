@@ -450,7 +450,7 @@
           }
         },
         "minColor": {
-          "displayName": "Min Color",
+          "displayName": "Minimum",
           "displayNameKey": "minColor",
           "description": "Defines the color for the minimum value of the color field.",
           "type": {
@@ -461,10 +461,10 @@
             }
           }
         },
-        "medColor": {
-          "displayName": "Med Color",
-          "displayNameKey": "color",
-          "description": "Intermediate color for circle color ramp. ",
+        "midColor": {
+          "displayName": "Center",
+          "displayNameKey": "midColor",
+          "description": "Defines the color for the center value of the color field.",
           "type": {
             "fill": {
               "solid": {
@@ -474,7 +474,7 @@
           }
         },
         "maxColor": {
-          "displayName": "Max Color",
+          "displayName": "Maximum",
           "displayNameKey": "maxColor",
           "description": "Defines the color for the maximum value of the color field.",
           "type": {
@@ -551,9 +551,9 @@
           }
         },
         "minColor": {
-          "displayName": "Min Color",
-          "displayNameKey": "color",
-          "description": "Minimum color for heatmap color ramp. ",
+          "displayName": "Minimum",
+          "displayNameKey": "minColor",
+          "description": "Minimum color for heatmap color ramp.",
           "type": {
             "fill": {
               "solid": {
@@ -562,10 +562,10 @@
             }
           }
         },
-        "medColor": {
-          "displayName": "Med Color",
-          "displayNameKey": "color",
-          "description": "Intermediate color for heatmap color ramp. ",
+        "midColor": {
+          "displayName": "Center",
+          "displayNameKey": "midColor",
+          "description": "Center color for heatmap color ramp.",
           "type": {
             "fill": {
               "solid": {
@@ -575,8 +575,8 @@
           }
         },
         "maxColor": {
-          "displayName": "Max Color",
-          "displayNameKey": "color",
+          "displayName": "Maximum",
+          "displayNameKey": "maxColor",
           "description": "Maximum color for heatmap color ramp. ",
           "type": {
             "fill": {
@@ -681,7 +681,7 @@
           }
         },
         "minColor": {
-          "displayName": "Min Color",
+          "displayName": "Minimum",
           "displayNameKey": "minColor",
           "description": "Defines the color for the minimum value of the color field.",
           "type": {
@@ -693,7 +693,7 @@
           }
         },
         "maxColor": {
-          "displayName": "Max Color",
+          "displayName": "Maximum",
           "displayNameKey": "maxColor",
           "description": "Defines the color for the maximum value of the color field.",
           "type": {
@@ -769,7 +769,7 @@
           }
         },
         "minColor": {
-          "displayName": "Min Color",
+          "displayName": "Minimum",
           "displayNameKey": "minColor",
           "description": "Defines the color for the minimum value of the color field.",
           "type": {
@@ -780,10 +780,10 @@
             }
           }
         },
-        "medColor": {
-          "displayName": "Med Color",
-          "displayNameKey": "color",
-          "description": "Intermediate color for choropleth color ramp. ",
+        "midColor": {
+          "displayName": "Center",
+          "displayNameKey": "midColor",
+          "description": "Center color for choropleth color ramp. ",
           "type": {
             "fill": {
               "solid": {
@@ -793,7 +793,7 @@
           }
         },
         "maxColor": {
-          "displayName": "Max Color",
+          "displayName": "Maximum",
           "displayNameKey": "maxColor",
           "description": "Defines the color for the maximum value of the color field.",
           "type": {

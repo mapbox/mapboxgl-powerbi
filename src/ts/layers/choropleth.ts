@@ -293,7 +293,7 @@ module powerbi.extensibility.visual {
             return getColorStop
         }
 
-        applySettings(settings, roleMap) {
+        applySettings(settings: MapboxSettings, roleMap) {
             super.applySettings(settings, roleMap);
             const map = this.parent.getMap();
             this.settings = settings.choropleth
@@ -308,7 +308,7 @@ module powerbi.extensibility.visual {
                 const sizeLimits = this.source.getLimits().size;
                 ChoroplethSettings.fillPredefinedProperties(choroSettings);
                 let fillClassCount = mapboxUtils.getClassCount(fillColorLimits);
-                const choroColorSettings = [choroSettings.minColor, choroSettings.medColor, choroSettings.maxColor];
+                const choroColorSettings = [choroSettings.minColor, choroSettings.midColor, choroSettings.maxColor];
                 let isGradient = mapboxUtils.shouldUseGradient(roleMap.color);
                 let getColorStop = this.getColorStopPicker(isGradient, choroColorSettings, fillColorLimits, fillClassCount)
 
