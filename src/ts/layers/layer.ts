@@ -57,7 +57,7 @@ module powerbi.extensibility.visual {
                     this.removeLayer();
                 }
             }
-            if (this.prevLabelPositionSetting !== settings.api.labelPosition) { 
+            if (this.prevLabelPositionSetting !== settings.api.labelPosition) {
                 this.prevLabelPositionSetting = settings.api.labelPosition;
             }
         }
@@ -98,22 +98,22 @@ module powerbi.extensibility.visual {
         getFormattedTooltipValue(roleMap, data): string {
             const displayName = data.displayName
             const tooltipData = roleMap.tooltips[displayName];
-            let val = data.value
+            let value = data.value
             if (tooltipData && tooltipData.format) {
                 const formatter = valueFormatter.create({format: tooltipData.format});
                 const type = tooltipData.type
                 if (type.dateTime) {
-                    val = new Date(data.value);
-                    if (isNaN(val)) {
+                    value = new Date(data.value);
+                    if (isNaN(value)) {
                         // Print original text if the date string is invalid.
-                        val = data.value;
+                        value = data.value;
                     }
                 } else if (type.numeric) {
-                    val = new Number(data.value);
+                    value = new Number(data.value);
                 }
-                val = formatter.format(val);
+                value = formatter.format(value);
             }
-            return val;
+            return value;
         }
 
         /*
