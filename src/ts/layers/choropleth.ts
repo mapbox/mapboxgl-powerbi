@@ -374,7 +374,7 @@ module powerbi.extensibility.visual {
 
         handleTooltip(tooltipEvent, roleMap, settings: MapboxSettings) {
             const tooltipData = Layer.getTooltipData(tooltipEvent.data);
-            let choroVectorData = tooltipData.filter(td => (td.displayName === settings.choropleth.getCurrentVectorProperty()))[0];
+            let choroVectorData = tooltipData.find(td => (td.displayName === settings.choropleth.getCurrentVectorProperty()));
             if (!choroVectorData) {
                 // Error! Could not found choropleth data joining on selected vector property
                 return tooltipData;
@@ -388,7 +388,7 @@ module powerbi.extensibility.visual {
 
             const choroplethData = choroplethSource.getData(settings, this.parent.getMap());
             const locationProperty = roleMap.location.displayName;
-            const dataUnderLocation = choroplethData.filter((cd) => (cd[locationProperty] == choroVectorData.value))[0];
+            const dataUnderLocation = choroplethData.find((cd) => (cd[locationProperty] == choroVectorData.value));
 
             if (!dataUnderLocation) {
                 return tooltipData;
