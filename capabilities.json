@@ -382,6 +382,13 @@
             "bool": true
           }
         },
+        "diverging": {
+          "displayName": "Diverging",
+          "description": "Diverge colors by value",
+          "type": {
+            "bool": true
+          }
+        },
         "radius": {
           "displayName": "Radius",
           "displayNameKey": "radius",
@@ -750,6 +757,13 @@
       "properties": {
         "show": {
           "displayName": "Choropleth",
+          "type": {
+            "bool": true
+          }
+        },
+        "diverging": {
+          "displayName": "Diverging",
+          "description": "Diverge colors by value",
           "type": {
             "bool": true
           }

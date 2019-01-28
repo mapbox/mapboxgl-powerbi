@@ -77,6 +77,7 @@ module powerbi.extensibility.visual {
         public show: boolean = true;
         public radius: number = 3;
         public scaleFactor: number = 5;
+        public diverging: boolean = false;
         public minColor: string = "#ffffcc";
         public medColor: string = "#41b6c4";
         public maxColor: string = "#253494";
@@ -132,6 +133,7 @@ module powerbi.extensibility.visual {
         static readonly PREDEFINED_VECTOR_PROPERTY = "name";
 
         public show: boolean = false;
+        public diverging: boolean = false;
         public minColor: string = "#edf8b1";
         public medColor: string = "#7fcdbb";
         public maxColor: string = "#2c7fb8";
