@@ -108,7 +108,7 @@ module powerbi.extensibility.visual {
                         value = data.value;
                     }
                 } else if (type.numeric) {
-                    value = new Number(data.value);
+                    value = Number(data.value);
                 }
                 value = valueFormatter.format(value, format);
             }
