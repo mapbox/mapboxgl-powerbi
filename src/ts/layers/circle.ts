@@ -141,6 +141,15 @@ module powerbi.extensibility.visual {
             }
         }
 
+        handleTooltip(tooltipEvent, roleMap, settings: MapboxSettings) {
+            const tooltipData = Layer.getTooltipData(tooltipEvent.data)
+                .filter((elem) => roleMap.tooltips[elem.displayName]); // Only show the fields that are added to the tooltips
+            return tooltipData.map(data => {
+                data.value = this.getFormattedTooltipValue(roleMap, data)
+                return data;
+            })
+        }
+
         private static getColors(colorLimits: mapboxUtils.Limits, isGradient: boolean, settings: any, colorPalette: Palette, colorField: any) {
             if (!colorField || colorLimits == null || colorLimits.min == null || colorLimits.max == null || colorLimits.values.length <= 0) {
                 return settings.circle.minColor;

@@ -117,17 +117,10 @@ module powerbi.extensibility.visual {
         }
 
         /*
-        If a custom layer needs to add custom tooltips other
-        then the ones added to the tooltips field,
-        it should override this method and implement the custom logic.
+        Override this method and implement the custom logic to show tooltips for a custom layer
         */
-        handleTooltip(tooltipEvent: TooltipEventArgs<number>, roleMap, settings) {
-            const tooltipData = Layer.getTooltipData(tooltipEvent.data)
-                .filter((elem) => roleMap.tooltips[elem.displayName]); // SOnly show the fields that are added to the tooltips
-            return tooltipData.map(data => {
-                data.value = this.getFormattedTooltipValue(roleMap, data)
-                return data;
-            })
+        handleTooltip(tooltipEvent: TooltipEventArgs<number>, roleMap, settings): VisualTooltipDataItem[] {
+            return [];
         }
 
         calculateLabelPosition(settings: MapboxSettings, map: mapboxgl.Map) {
