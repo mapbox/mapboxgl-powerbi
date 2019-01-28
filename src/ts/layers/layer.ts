@@ -100,8 +100,7 @@ module powerbi.extensibility.visual {
             const tooltipData = roleMap.tooltips[displayName];
             let value = data.value
             if (tooltipData && tooltipData.format) {
-                const formatter = valueFormatter.create({format: tooltipData.format});
-                const type = tooltipData.type
+                const { format, type } = tooltipData
                 if (type.dateTime) {
                     value = new Date(data.value);
                     if (isNaN(value)) {
@@ -111,7 +110,7 @@ module powerbi.extensibility.visual {
                 } else if (type.numeric) {
                     value = new Number(data.value);
                 }
-                value = formatter.format(value);
+                value = valueFormatter.format(value, format);
             }
             return value;
         }
