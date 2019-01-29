@@ -88,6 +88,7 @@ module powerbi.extensibility.visual {
         public strokeOpacity: number = 50;
         public minZoom: number = 0;
         public maxZoom: number = 22;
+        public legend: boolean = true;
     }
 
     export class HeatmapSettings {
@@ -100,6 +101,7 @@ module powerbi.extensibility.visual {
         public maxColor: string = "#ca0020";
         public minZoom: number = 0;
         public maxZoom: number = 22;
+        public legend: boolean = true;
     }
 
     export class ClusterSettings {
@@ -116,6 +118,7 @@ module powerbi.extensibility.visual {
         public strokeOpacity: number = 50;
         public minZoom: number = 0;
         public maxZoom: number = 22;
+        public legend: boolean = true;
     }
 
     export class ChoroplethSettings {
@@ -201,6 +204,8 @@ module powerbi.extensibility.visual {
         public outlineColor: string = "#bdbdbd";
         public outlineWidth: number = 1;
         public outlineOpacity: number = 50;
+
+        public legend: boolean = true;
 
         public getCurrentSourceLayer(): string {
             return this[`sourceLayer${this.currentLevel}`]

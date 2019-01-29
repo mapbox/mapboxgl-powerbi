@@ -38,6 +38,7 @@
     "src/ts/mapboxUtils.ts",
     "src/ts/mapboxConverter.ts",
     "src/ts/autoZoomControl.ts",
+    "src/ts/legendControl.ts",
     "src/ts/mapboxGeocoderControl.ts",
     "src/ts/lassoDraw.ts",
     "src/ts/mapboxMap.ts",
