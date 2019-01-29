@@ -309,7 +309,7 @@ module powerbi.extensibility.visual {
                 ChoroplethSettings.fillPredefinedProperties(choroSettings);
                 let fillClassCount = mapboxUtils.getClassCount(fillColorLimits);
                 let choroColorSettings = [choroSettings.minColor, choroSettings.midColor, choroSettings.maxColor];
-                if (choroSettings.diverging) {
+                if (!choroSettings.diverging) {
                     choroColorSettings = [choroSettings.minColor, choroSettings.maxColor]
                 }
                 let isGradient = mapboxUtils.shouldUseGradient(roleMap.color);

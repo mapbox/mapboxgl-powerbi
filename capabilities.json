@@ -485,6 +485,30 @@
             }
           }
         },
+        "minValue": {
+          "displayName": "Minimum",
+          "displayNameKey": "minValue",
+          "description": "Minimum value to consider for colors",
+          "type": {
+            "numeric": true
+          }
+        },
+        "midValue": {
+          "displayName": "Center",
+          "displayNameKey": "midValue",
+          "description": "Center value to consider for colors",
+          "type": {
+            "numeric": true
+          }
+        },
+        "maxValue": {
+          "displayName": "Maximum",
+          "displayNameKey": "maxValue",
+          "description": "Maximum value to consider for colors",
+          "type": {
+            "numeric": true
+          }
+        },
         "highlightColor": {
           "displayName": "Highlight Color",
           "displayNameKey": "highlightColor",
@@ -802,6 +826,30 @@
                 "color": true
               }
             }
+          }
+        },
+        "minValue": {
+          "displayName": "Minimum",
+          "displayNameKey": "minValue",
+          "description": "Minimum value to consider for colors",
+          "type": {
+            "numeric": true
+          }
+        },
+        "midValue": {
+          "displayName": "Center",
+          "displayNameKey": "midValue",
+          "description": "Center value to consider for colors",
+          "type": {
+            "numeric": true
+          }
+        },
+        "maxValue": {
+          "displayName": "Maximum",
+          "displayNameKey": "maxValue",
+          "description": "Maximum value to consider for colors",
+          "type": {
+            "numeric": true
           }
         },
         "highlightColor": {

@@ -161,7 +161,7 @@ module powerbi.extensibility.visual {
 
                 const domain: any[] = mapboxUtils.getNaturalBreaks(colorLimits, classCount);
                 let circleColorSettings = [settings.circle.minColor, settings.circle.midColor, settings.circle.maxColor];
-                if (settings.circle.diverging) {
+                if (!settings.circle.diverging) {
                     circleColorSettings = [settings.circle.minColor, settings.circle.maxColor]
                 }
                 const colors = chroma.scale(circleColorSettings).colors(domain.length)
