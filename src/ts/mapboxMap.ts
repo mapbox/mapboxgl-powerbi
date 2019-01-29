@@ -8,6 +8,7 @@ module powerbi.extensibility.visual {
         private controlsPopulated: boolean;
         private navigationControl: mapboxgl.NavigationControl;
         private autoZoomControl: AutoZoomControl;
+        private legend: LegendControl;
         private settings: MapboxSettings;
         private mapStyle: string = "";
         private updatedHandler: Function = () => { }
@@ -59,6 +60,8 @@ module powerbi.extensibility.visual {
                 this.layers.map(layer => {
                     layer.applySettings(settings, this.roleMap);
                 });
+
+                this.updateLegend(settings)
 
                 if (settings.api.autozoom) {
                     const bounds = this.layers.map(layer => {
@@ -172,6 +175,7 @@ module powerbi.extensibility.visual {
                             layer.applySettings(this.settings, this.roleMap);
                         }
                     });
+                    this.updateLegend(this.settings);
                 }
             });
         }
@@ -400,6 +404,49 @@ module powerbi.extensibility.visual {
 
             if (this.geocoder) {
                 this.geocoder.update(this.map, this.settings)
+            }
+        }
+
+        private updateLegend(settings: MapboxSettings) {
+            if (this.legend) {
+                this.legend.removeLegends()
+            }
+
+            if (!this.roleMap || !this.roleMap.color)
+            {
+                if (this.legend) {
+                    this.map.removeControl(this.legend)
+                    this.legend = null
+                }
+
+                return
+            }
+
+            // If no legend is added to legendControl remove
+            // legendControl at the end of the update
+            let removeLegend = true;
+            this.layers.forEach(layer => {
+                if (!layer.showLegend(settings)) {
+                    return
+                }
+
+                if (!this.legend) {
+                    this.legend = new LegendControl()
+                    this.map.addControl(this.legend)
+                }
+
+                const title = this.roleMap.color.displayName
+                const format = this.roleMap.color.format
+                const colorStops = layer.getColorStops()
+                this.legend.addLegend(layer.getId(), title, colorStops, format)
+
+                // Legend is added to legendControl
+                removeLegend = false
+            });
+
+            if (removeLegend && this.legend) {
+                this.map.removeControl(this.legend)
+                this.legend = null
             }
         }
 

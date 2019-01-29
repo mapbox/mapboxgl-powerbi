@@ -7,6 +7,8 @@ module powerbi.extensibility.visual {
         protected id: string;
         protected prevLabelPositionSetting: string;
 
+        protected colorStops: ColorStops;
+
         constructor(map: MapboxMap) {
             this.parent = map;
             this.prevLabelPositionSetting = map.getSettings().api.labelPosition;
@@ -38,6 +40,10 @@ module powerbi.extensibility.visual {
         }
 
         removeHighlight(roleMap) {
+        }
+
+        public getColorStops(): ColorStops {
+            return this.colorStops;
         }
 
         applySettings(settings: MapboxSettings, roleMap) {
@@ -160,6 +166,10 @@ module powerbi.extensibility.visual {
                     };
                 });
             }));
+        }
+
+        showLegend(settings: MapboxSettings) {
+            return this.layerExists()
         }
     }
 }

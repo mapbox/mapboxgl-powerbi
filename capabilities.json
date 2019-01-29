@@ -536,6 +536,14 @@
           "type": {
             "numeric": true
           }
+        },
+        "legend": {
+          "displayName": "Legend",
+          "displayNameKey": "legend",
+          "description": "Enable legend",
+          "type": {
+            "bool": true
+          }
         }
       }
     },
@@ -624,6 +632,14 @@
           "description": "Maximum zoom level layer is visibile at.",
           "type": {
             "numeric": true
+          }
+        },
+        "legend": {
+          "displayName": "Legend",
+          "displayNameKey": "legend",
+          "description": "Enable legend",
+          "type": {
+            "bool": true
           }
         }
       }
@@ -770,6 +786,14 @@
           "description": "Maximum zoom level layer is visibile at.",
           "type": {
             "numeric": true
+          }
+        },
+        "legend": {
+          "displayName": "Legend",
+          "displayNameKey": "legend",
+          "description": "Enable legend",
+          "type": {
+            "bool": true
           }
         }
       }
@@ -1527,6 +1551,14 @@
           "description": "The global opacity in percentage at which the outline will be drawn.",
           "type": {
             "integer": true
+          }
+        },
+        "legend": {
+          "displayName": "Legend",
+          "displayNameKey": "legend",
+          "description": "Enable legend",
+          "type": {
+            "bool": true
           }
         }
       }
