@@ -150,7 +150,7 @@ module powerbi.extensibility.visual {
             })
         }
 
-        private static getColors(colorLimits: mapboxUtils.Limits, isGradient: boolean, settings: any, colorPalette: Palette, colorField: any) {
+        private static getColors(colorLimits: mapboxUtils.Limits, isGradient: boolean, settings: MapboxSettings, colorPalette: Palette, colorField: any) {
             if (!colorField || colorLimits == null || colorLimits.min == null || colorLimits.max == null || colorLimits.values.length <= 0) {
                 return settings.circle.minColor;
             }
@@ -160,7 +160,11 @@ module powerbi.extensibility.visual {
                 const classCount = mapboxUtils.getClassCount(colorLimits);
 
                 const domain: any[] = mapboxUtils.getNaturalBreaks(colorLimits, classCount);
-                const colors = chroma.scale([settings.circle.minColor, settings.circle.midColor, settings.circle.maxColor]).colors(domain.length)
+                let circleColorSettings = [settings.circle.minColor, settings.circle.midColor, settings.circle.maxColor];
+                if (settings.circle.diverging) {
+                    circleColorSettings = [settings.circle.minColor, settings.circle.maxColor]
+                }
+                const colors = chroma.scale(circleColorSettings).colors(domain.length)
                 const style = ["interpolate", ["linear"], ["to-number", ['get', colorField.displayName]]]
                 domain.map((colorStop, idx) => {
                     const color = colors[idx].toString();

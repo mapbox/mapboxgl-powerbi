@@ -22,6 +22,7 @@ module powerbi.extensibility.visual {
 
                 switch (options.objectName) {
                     case 'api':
+                    case 'circle':
                     case 'choropleth': {
                         return settings[options.objectName].enumerateObjectInstances(instanceEnumeration);
                     }
@@ -55,7 +56,6 @@ module powerbi.extensibility.visual {
             } else if (!properties.styleUrl) {
                 properties.styleUrl = "";
             }
-
             // If autozoom is enabled, there is no point in initial zoom and position
             if (properties.autozoom) {
                 delete properties.zoom
@@ -79,7 +79,7 @@ module powerbi.extensibility.visual {
         public scaleFactor: number = 5;
         public diverging: boolean = false;
         public minColor: string = "#ffffcc";
-        public midColor: string = "#41b6c4";
+        public midColor: string= "#41b6c4";
         public maxColor: string = "#253494";
         public highlightColor: string = "#253494";
         public blur: number = 0.0;
@@ -89,6 +89,16 @@ module powerbi.extensibility.visual {
         public strokeOpacity: number = 50;
         public minZoom: number = 0;
         public maxZoom: number = 22;
+
+        public enumerateObjectInstances(objectEnumeration) {
+            let instances = objectEnumeration.instances;
+            let properties = instances[0].properties;
+            // Hide / show center color according to diverging property
+            if (properties.diverging) {
+                delete properties.midColor;
+            }
+            return { instances }
+        }
     }
 
     export class HeatmapSettings {
@@ -312,6 +322,10 @@ module powerbi.extensibility.visual {
                         this.removeCustom(properties, i + 1)
                     }
                 }
+            }
+
+            if (properties.diverging) {
+                delete properties.midColor;
             }
 
             return { instances };
