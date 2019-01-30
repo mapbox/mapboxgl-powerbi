@@ -142,40 +142,12 @@ module powerbi.extensibility.visual {
             });
         }
 
-        getLimits(settings: MapboxSettings, isGradient: boolean) {
-            const result: {color: mapboxUtils.Limits, size: mapboxUtils.Limits} = { ...this.source.getLimits() };
-            
-            if (isGradient && settings.circle.diverging) {
-                const minVal = settings.circle.minValue;
-                const maxVal = settings.circle.maxValue;
-
-                if (minVal != null) {
-                    result.color.min = minVal;
-                }
-             
-                if (settings.circle.maxValue != null) {
-                    result.color.max = maxVal;
-                }
-
-                if (minVal != null || maxVal != null) {
-                    let filterFn = (val) => (val >= minVal) && (val <= maxVal);
-                    if (maxVal != null) {
-                        filterFn = (val) => val <= maxVal;
-                    } else if (minVal != null) {
-                        filterFn = (val) => val >= minVal;
-                    }
-                    result.color.values = result.color.values.filter(filterFn);
-                }
-            }
-            return result;
-        }
-
         applySettings(settings: MapboxSettings, roleMap) {
             super.applySettings(settings, roleMap);
             const map = this.parent.getMap();
             if (settings.circle.show) {
                 let isGradient = mapboxUtils.shouldUseGradient(roleMap.color);
-                const limits = this.getLimits(settings, isGradient)
+                const limits = this.getLimits(settings.circle, isGradient)
                 const sizes = Circle.getSizes(limits.size, map, settings, roleMap.size);
 
                 this.colorStops = this.generateColorStops(limits.color, settings, roleMap, this.palette)

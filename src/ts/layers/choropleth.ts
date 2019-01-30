@@ -275,8 +275,7 @@ module powerbi.extensibility.visual {
             map.setLayerZoomRange(Choropleth.ID, settings.minZoom, settings.maxZoom);
         }
 
-        getFunctionForColorOfLocation(roleMap: RoleMap, colorSettings: string[], fillColorLimits: mapboxUtils.Limits): any {
-            const isGradient = mapboxUtils.shouldUseGradient(roleMap.color);
+        getFunctionForColorOfLocation(colorSettings: string[], fillColorLimits: mapboxUtils.Limits, isGradient: boolean): any {
             if (isGradient) {
                 const fillClassCount = mapboxUtils.getClassCount(fillColorLimits);
                 const fillDomain = mapboxUtils.getNaturalBreaks(fillColorLimits, fillClassCount);
@@ -340,7 +339,6 @@ module powerbi.extensibility.visual {
             }
 
             if (choroSettings.display()) {
-                const fillColorLimits = this.source.getLimits().color;
                 ChoroplethSettings.fillPredefinedProperties(choroSettings);
                 let choroColorSettings = [choroSettings.minColor, choroSettings.midColor, choroSettings.maxColor];
                 if (!choroSettings.diverging) {
@@ -349,7 +347,9 @@ module powerbi.extensibility.visual {
 
                 this.colorStops = []
                 const choroplethData = this.source.getData(map, settings);
-                const getColorOfLocation = this.getFunctionForColorOfLocation(roleMap, choroColorSettings, fillColorLimits)
+                const isGradient = mapboxUtils.shouldUseGradient(roleMap.color);
+                const fillColorLimits = this.getLimits(settings.choropleth, isGradient).color;
+                const getColorOfLocation = this.getFunctionForColorOfLocation(choroColorSettings, fillColorLimits, isGradient)
                 const preprocessedData = this.preprocessData(roleMap, choroplethData, getColorOfLocation)
 
                 if (preprocessedData) {
