@@ -277,21 +277,38 @@ module powerbi.extensibility.visual {
 
         getFunctionForColorOfLocation(colorSettings: string[], fillColorLimits: mapboxUtils.Limits, isGradient: boolean): any {
             if (isGradient) {
+                if (fillColorLimits.values.length < 1) {
+                    return (_) => { return colorSettings[0]}
+                }
                 const fillClassCount = mapboxUtils.getClassCount(fillColorLimits);
                 const fillDomain = mapboxUtils.getNaturalBreaks(fillColorLimits, fillClassCount);
                 const getColorOfLocation = chroma.scale(colorSettings).domain(fillDomain);
-                this.colorStops = fillDomain.map((colorStop) => {
-                    const color = getColorOfLocation(colorStop).toString();
-                    return {colorStop, color};
-                });
                 return getColorOfLocation
             }
 
-            fillColorLimits.values.forEach((colorStop) => {
-                const color = this.palette.getColor(colorStop)
-                this.colorStops.push({colorStop, color})
-            });
             return (value => this.palette.getColor(value))
+        }
+
+        generateColorStops(choroSettings: ChoroplethSettings, isGradient: boolean, colorLimits: mapboxUtils.Limits, originalColorLimits: mapboxUtils.Limits, getColorOfLocation): ColorStops {
+            if (isGradient) {
+                if (colorLimits.values.length < 1) {
+                    return [{
+                        colorStop: originalColorLimits.min,
+                        color: choroSettings.minColor,
+                    }]
+                }
+                const fillClassCount = mapboxUtils.getClassCount(colorLimits);
+                const fillDomain = mapboxUtils.getNaturalBreaks(colorLimits, fillClassCount);
+                return fillDomain.map((colorStop) => {
+                    const color = getColorOfLocation(colorStop).toString();
+                    return {colorStop, color}
+                });
+            }
+
+            return colorLimits.values.map((colorStop) => {
+                const color = getColorOfLocation(colorStop).toString();
+                return {colorStop, color}
+            });
         }
 
         preprocessData(roleMap : RoleMap, choroplethData, getColorOfLocation ): {location: string, color: string, size: number}[] {
@@ -345,11 +362,13 @@ module powerbi.extensibility.visual {
                     choroColorSettings = [choroSettings.minColor, choroSettings.maxColor]
                 }
 
-                this.colorStops = []
                 const choroplethData = this.source.getData(map, settings);
                 const isGradient = mapboxUtils.shouldUseGradient(roleMap.color);
-                const fillColorLimits = this.getLimits(settings.choropleth, isGradient).color;
-                const getColorOfLocation = this.getFunctionForColorOfLocation(choroColorSettings, fillColorLimits, isGradient)
+                const limits = this.getLimits(settings.choropleth, isGradient);
+                const getColorOfLocation = this.getFunctionForColorOfLocation(choroColorSettings, limits.color, isGradient)
+                this.colorStops = this.generateColorStops(choroSettings, isGradient, limits.color, limits.originalColor, getColorOfLocation)
+
+
                 const preprocessedData = this.preprocessData(roleMap, choroplethData, getColorOfLocation)
 
                 if (preprocessedData) {

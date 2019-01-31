@@ -151,8 +151,8 @@ module powerbi.extensibility.visual {
         }
 
         getLimits(childSettings: ChoroplethSettings | CircleSettings, isGradient: boolean) {
-            const result: {color: mapboxUtils.Limits, size: mapboxUtils.Limits} = { ...this.source.getLimits() };
-            
+            const result: {color: mapboxUtils.Limits, size: mapboxUtils.Limits, originalColor?: mapboxUtils.Limits} = { ...this.source.getLimits() };
+            result.originalColor = { ...result.color};
             if (isGradient && childSettings.diverging) {
                 const minVal = childSettings.minValue;
                 const maxVal = childSettings.maxValue;
@@ -160,7 +160,7 @@ module powerbi.extensibility.visual {
                 if (minVal != null) {
                     result.color.min = minVal;
                 }
-             
+
                 if (childSettings.maxValue != null) {
                     result.color.max = maxVal;
                 }
