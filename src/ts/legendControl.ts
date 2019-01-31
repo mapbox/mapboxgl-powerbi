@@ -78,10 +78,11 @@ module powerbi.extensibility.visual {
             data.forEach(({colorStop, color}) => {
                 const item = document.createElement('div');
                 const colorElement = document.createElement('span');
-                colorElement.className = 'mapbox-legend-color';
+                colorElement.className = 'mapbox-legend-color middle';
                 colorElement.style.backgroundColor = color;
 
                 const valueElement = document.createElement('span');
+                valueElement.className = 'mapbox-legend-value middle'
                 if (typeof colorStop === "number") {
                     valueElement.innerHTML = valueFormatter.format(colorStop, format || LegendControl.DEFAULT_NUMBER_FORMAT);
                 } else {
