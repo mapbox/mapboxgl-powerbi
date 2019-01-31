@@ -118,15 +118,19 @@ module powerbi.extensibility.visual {
             this.source.removeFromMap(map, Circle.ID);
         }
 
-        generateColorStops(colorLimits: mapboxUtils.Limits, settings, roleMap, colorPalette): ColorStops {
-            const classCount = mapboxUtils.getClassCount(colorLimits);
-            let isGradient = mapboxUtils.shouldUseGradient(roleMap.color);
-
+        generateColorStops(circleSettings: CircleSettings, isGradient: boolean, colorLimits: mapboxUtils.Limits, originalColorLimits: mapboxUtils.Limits, colorPalette): ColorStops {
             if (isGradient) {
+                if (colorLimits.values.length < 1) {
+                    return [{
+                        colorStop: originalColorLimits.min,
+                        color: circleSettings.minColor,
+                    }]
+                }
+                const classCount = mapboxUtils.getClassCount(colorLimits);
                 const domain: any[] = mapboxUtils.getNaturalBreaks(colorLimits, classCount);
-                let circleColorSettings = [settings.circle.minColor, settings.circle.midColor, settings.circle.maxColor];
-                if (!settings.circle.diverging) {
-                    circleColorSettings = [settings.circle.minColor, settings.circle.maxColor]
+                let circleColorSettings = [circleSettings.minColor, circleSettings.midColor, circleSettings.maxColor];
+                if (!circleSettings.diverging) {
+                    circleColorSettings = [circleSettings.minColor, circleSettings.maxColor]
                 }
                 const colors = chroma.scale(circleColorSettings).colors(domain.length)
                 return domain.map((colorStop, idx) => {
@@ -146,11 +150,11 @@ module powerbi.extensibility.visual {
             super.applySettings(settings, roleMap);
             const map = this.parent.getMap();
             if (settings.circle.show) {
-                let isGradient = mapboxUtils.shouldUseGradient(roleMap.color);
+                const isGradient = mapboxUtils.shouldUseGradient(roleMap.color);
                 const limits = this.getLimits(settings.circle, isGradient)
                 const sizes = Circle.getSizes(limits.size, map, settings, roleMap.size);
 
-                this.colorStops = this.generateColorStops(limits.color, settings, roleMap, this.palette)
+                this.colorStops = this.generateColorStops(settings.circle, isGradient, limits.color, limits.originalColor, this.palette)
                 let colorStyle = Circle.getColorStyle(limits.color, isGradient, settings, roleMap.color, this.colorStops);
 
                 map.setPaintProperty(Circle.ID, 'circle-radius', sizes);
