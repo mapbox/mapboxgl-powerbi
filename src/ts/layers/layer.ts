@@ -46,6 +46,95 @@ module powerbi.extensibility.visual {
             return this.colorStops;
         }
 
+        static mapValuesToColorStops(colorInterval: string[], classCount:number, values: number[]): ColorStops {
+            const domain: number[] = mapboxUtils.getNaturalBreaks(values, classCount);
+            const colors = chroma.scale(colorInterval).colors(domain.length)
+            return domain.map((colorStop, idx) => {
+                const color = colors[idx].toString();
+                return {colorStop, color};
+            });
+        }
+
+        generateColorStops(settings: CircleSettings | ChoroplethSettings | ClusterSettings, isGradient: boolean, colorLimits: mapboxUtils.Limits, colorPalette: Palette): ColorStops {
+
+            if (colorLimits && colorLimits.values && colorLimits.values.length == 1) {
+                return []
+            }
+
+            if (!isGradient) {
+                return colorLimits.values.map(value => {
+                    const colorStop = value.toString();
+                    const color = colorPalette.getColor(colorStop);
+                    return { colorStop, color };
+                });
+            }
+
+            if ( settings instanceof ClusterSettings || !settings.diverging) {
+                const classCount = mapboxUtils.getClassCount(colorLimits.values);
+                return Layer.mapValuesToColorStops([settings.minColor, settings.maxColor], classCount, colorLimits.values)
+            }
+
+            const { minValue, midValue, maxValue, minColor, midColor, maxColor} = settings
+
+
+            if (minValue != null && minValue > colorLimits.max
+                || maxValue != null && maxValue < colorLimits.min
+                || colorLimits.values.length < 2
+            ) {
+                // If values is empty or has only one element all the datapoints should have the same color
+                // We use the max value because of the way mapboxUtils.getLimits is implemented (min = max-1)
+                // and the min color
+                return [{
+                    colorStop: colorLimits.max,
+                    color: minColor,
+                }]
+            }
+
+            const filteredValues = mapboxUtils.filterValues(colorLimits.values, minValue, maxValue)
+            const classCount = mapboxUtils.getClassCount(filteredValues);
+            // Split the interval into two halves when there is a middle value
+            if (midValue != null) {
+                const lowerHalf = []
+                const upperHalf = []
+                filteredValues.forEach(value => {
+                    if (value < minValue || value > maxValue) {
+                        // Skip value
+                        return
+                    }
+
+                    if (value < midValue) {
+                        lowerHalf.push(value)
+                    }
+                    else {
+                        upperHalf.push(value)
+                    }
+                })
+
+                if (minValue != null) {
+                    lowerHalf.push(minValue)
+                }
+
+                if (maxValue != null) {
+                    upperHalf.push(maxValue)
+                }
+
+                const lowerColorStops = Layer.mapValuesToColorStops([minColor, midColor], classCount / 2, lowerHalf)
+                const upperColorStops = Layer.mapValuesToColorStops([midColor, maxColor], classCount / 2, upperHalf)
+
+                return lowerColorStops.concat(upperColorStops)
+            }
+
+            if (minValue != null) {
+                filteredValues.push(minValue)
+            }
+
+            if (maxValue != null) {
+                filteredValues.push(maxValue)
+            }
+
+            return Layer.mapValuesToColorStops([minColor, midColor, maxColor], classCount, filteredValues)
+        }
+
         applySettings(settings: MapboxSettings, roleMap) {
             const map = this.parent.getMap();
             if (settings[this.id].show) {
