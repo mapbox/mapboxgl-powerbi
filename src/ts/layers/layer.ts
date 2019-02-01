@@ -267,8 +267,21 @@ module powerbi.extensibility.visual {
             }));
         }
 
-        showLegend(settings: MapboxSettings) {
+        showLegend(settings: MapboxSettings, roleMap: RoleMap) {
             return this.layerExists()
+        }
+
+        addLegend(
+            legend: LegendControl,
+            roleMap: RoleMap,
+            settings: MapboxSettings,
+        ): void
+        {
+            const id = this.getId();
+            const title = roleMap.color.displayName;
+            const colorStops = this.getColorStops();
+            const format = roleMap.color.format;
+            legend.addLegend(id, title, colorStops, format);
         }
     }
 }

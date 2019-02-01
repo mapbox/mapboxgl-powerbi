@@ -116,8 +116,22 @@ module powerbi.extensibility.visual {
             }
         }
 
-        showLegend(settings: MapboxSettings) {
-            return settings.cluster.legend && super.showLegend(settings)
+        showLegend(settings: MapboxSettings, roleMap: RoleMap) {
+            // should show the legend regardless of the color field
+            return settings.cluster.legend && super.showLegend(settings, roleMap)
+        }
+
+        addLegend(
+            legend: LegendControl,
+            roleMap: RoleMap,
+            settings: MapboxSettings,
+        ): void
+        {
+            const id = this.getId();
+            const title = settings.cluster.aggregation;
+            const colorStops = this.getColorStops();
+            const format = LegendControl.DEFAULT_NUMBER_FORMAT;
+            legend.addLegend(id, title, colorStops, format);
         }
 
         hasTooltip(tooltips) {

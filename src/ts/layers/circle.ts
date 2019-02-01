@@ -151,8 +151,8 @@ module powerbi.extensibility.visual {
             })
         }
 
-        showLegend(settings: MapboxSettings) {
-            return settings.circle.legend && super.showLegend(settings)
+        showLegend(settings: MapboxSettings, roleMap: RoleMap) {
+            return settings.circle.legend && roleMap.color && super.showLegend(settings, roleMap)
         }
 
         private static getColorStyle(isGradient: boolean, settings: MapboxSettings, colorField: any, colorStops: ColorStops) {

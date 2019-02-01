@@ -8,7 +8,7 @@ module powerbi.extensibility.visual {
         private legendContainer: HTMLElement;
         private legends: { [key: string] : HTMLElement } = {};
 
-        private static readonly DEFAULT_NUMBER_FORMAT = "0.##"
+        public static readonly DEFAULT_NUMBER_FORMAT = "0.##"
 
         removeLegends() {
             if (this.legendContainer) {

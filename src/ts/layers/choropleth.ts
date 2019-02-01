@@ -383,8 +383,8 @@ module powerbi.extensibility.visual {
             }
         }
 
-        showLegend(settings: MapboxSettings) {
-            return settings.choropleth.legend && super.showLegend(settings)
+        showLegend(settings: MapboxSettings, roleMap: RoleMap) {
+            return settings.choropleth.legend && roleMap.color && super.showLegend(settings, roleMap)
         }
 
         handleTooltip(tooltipEvent, roleMap, settings: MapboxSettings) {
