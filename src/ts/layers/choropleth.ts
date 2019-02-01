@@ -277,6 +277,11 @@ module powerbi.extensibility.visual {
 
         getFunctionForColorOfLocation(isGradient: boolean, colorStops: ColorStops): any {
             if (isGradient) {
+                if (colorStops.length == 1) {
+                    // chroma.scale fails to return any value with one color
+                    return (() => colorStops[0].color)
+                }
+
                 const colorSettings = colorStops.map(({colorStop, color}) => color)
                 const fillDomain = colorStops.map(({colorStop, color}) => Number(colorStop))
                 const getColorOfLocation = chroma.scale(colorSettings).domain(fillDomain);
