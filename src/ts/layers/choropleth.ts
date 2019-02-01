@@ -364,7 +364,7 @@ module powerbi.extensibility.visual {
 
                 const choroplethData = this.source.getData(map, settings);
                 const isGradient = mapboxUtils.shouldUseGradient(roleMap.color);
-                const limits = this.getLimits(settings.choropleth, isGradient);
+                const limits = this.source.getLimits();
                 const getColorOfLocation = this.getFunctionForColorOfLocation(choroColorSettings, limits.color, isGradient)
                 this.colorStops = this.generateColorStops(choroSettings, isGradient, limits.color, limits.originalColor, getColorOfLocation)
 

@@ -150,34 +150,6 @@ module powerbi.extensibility.visual {
             return firstSymbolId;
         }
 
-        getLimits(childSettings: ChoroplethSettings | CircleSettings, isGradient: boolean) {
-            const result: {color: mapboxUtils.Limits, size: mapboxUtils.Limits, originalColor?: mapboxUtils.Limits} = { ...this.source.getLimits() };
-            result.originalColor = { ...result.color};
-            if (isGradient && childSettings.diverging) {
-                const minVal = childSettings.minValue;
-                const maxVal = childSettings.maxValue;
-
-                if (minVal != null) {
-                    result.color.min = minVal;
-                }
-
-                if (childSettings.maxValue != null) {
-                    result.color.max = maxVal;
-                }
-
-                if (minVal != null || maxVal != null) {
-                    let filterFn = (val) => (val >= minVal) && (val <= maxVal);
-                    if (maxVal != null) {
-                        filterFn = (val) => val <= maxVal;
-                    } else if (minVal != null) {
-                        filterFn = (val) => val >= minVal;
-                    }
-                    result.color.values = result.color.values.filter(filterFn);
-                }
-            }
-            return result;
-        }
-
         static getTooltipData(value: any): VisualTooltipDataItem[] {
             if (!value) {
                 return [];
