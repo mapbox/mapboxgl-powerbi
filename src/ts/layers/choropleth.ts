@@ -320,6 +320,10 @@ module powerbi.extensibility.visual {
             return result;
         }
 
+        getClassificationMethod(): ClassificationMethod {
+            return ClassificationMethod.Equidistant
+        }
+
         applySettings(settings:MapboxSettings, roleMap: RoleMap) {
             super.applySettings(settings, roleMap);
             const map = this.parent.getMap();

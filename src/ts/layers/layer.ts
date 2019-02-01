@@ -46,8 +46,8 @@ module powerbi.extensibility.visual {
             return this.colorStops;
         }
 
-        static mapValuesToColorStops(colorInterval: string[], classCount:number, values: number[]): ColorStops {
-            const domain: number[] = mapboxUtils.getNaturalBreaks(values, classCount);
+        static mapValuesToColorStops(colorInterval: string[], method: ClassificationMethod, classCount:number, values: number[]): ColorStops {
+            const domain: number[] = mapboxUtils.getBreaks(values, method, classCount);
             const colors = chroma.scale(colorInterval).colors(domain.length)
             return domain.map((colorStop, idx) => {
                 const color = colors[idx].toString();
@@ -71,7 +71,7 @@ module powerbi.extensibility.visual {
 
             if ( settings instanceof ClusterSettings || !settings.diverging) {
                 const classCount = mapboxUtils.getClassCount(colorLimits.values);
-                return Layer.mapValuesToColorStops([settings.minColor, settings.maxColor], classCount, colorLimits.values)
+                return Layer.mapValuesToColorStops([settings.minColor, settings.maxColor], this.getClassificationMethod(), classCount, colorLimits.values)
             }
 
             const { minValue, midValue, maxValue, minColor, midColor, maxColor} = settings
@@ -118,8 +118,8 @@ module powerbi.extensibility.visual {
                     upperHalf.push(maxValue)
                 }
 
-                const lowerColorStops = Layer.mapValuesToColorStops([minColor, midColor], classCount / 2, lowerHalf)
-                const upperColorStops = Layer.mapValuesToColorStops([midColor, maxColor], classCount / 2, upperHalf)
+                const lowerColorStops = Layer.mapValuesToColorStops([minColor, midColor], this.getClassificationMethod(), classCount / 2, lowerHalf)
+                const upperColorStops = Layer.mapValuesToColorStops([midColor, maxColor], this.getClassificationMethod(), classCount / 2, upperHalf)
 
                 return lowerColorStops.concat(upperColorStops)
             }
@@ -132,7 +132,11 @@ module powerbi.extensibility.visual {
                 filteredValues.push(maxValue)
             }
 
-            return Layer.mapValuesToColorStops([minColor, midColor, maxColor], classCount, filteredValues)
+            return Layer.mapValuesToColorStops([minColor, midColor, maxColor], this.getClassificationMethod(), classCount, filteredValues)
+        }
+
+        getClassificationMethod(): ClassificationMethod {
+            return ClassificationMethod.Quantile
         }
 
         applySettings(settings: MapboxSettings, roleMap) {

@@ -2,6 +2,14 @@ module powerbi.extensibility.visual {
     declare var turf: any;
 
     export type RoleMap = {[key: string]: DataViewMetadataColumn}
+
+    export enum ClassificationMethod {
+        Quantile,
+        Equidistant,
+        Logarithmic,
+        NaturalBreaks,
+    }
+
     export module mapboxUtils {
         export interface Limits {
             min: number;
@@ -47,8 +55,27 @@ module powerbi.extensibility.visual {
             return classCount;
         }
 
-        export function getNaturalBreaks(values: number[], classCount: number): number[] {
-            return chroma.limits(values, 'q', classCount);
+        export function getBreaks(values: number[], method: ClassificationMethod, classCount: number): number[] {
+            let chromaMode: 'e' | 'q' | 'l' | 'k';
+
+            switch (method) {
+                case ClassificationMethod.Equidistant:
+                    chromaMode = 'e'
+                    break;
+                case ClassificationMethod.Logarithmic:
+                    chromaMode = 'l'
+                    break;
+                case ClassificationMethod.NaturalBreaks:
+                    chromaMode = 'k'
+                    break;
+                case ClassificationMethod.Quantile:
+                    chromaMode = 'q'
+                    break;
+                default:
+                    break;
+            }
+
+            return chroma.limits(values, chromaMode, classCount);
         }
 
         export function getRoleMap(metadata: DataViewMetadata) {

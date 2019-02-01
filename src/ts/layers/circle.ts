@@ -193,7 +193,7 @@ module powerbi.extensibility.visual {
                 ]
 
                 const classCount = mapboxUtils.getClassCount(sizeLimits.values);
-                const sizeStops: any[] = mapboxUtils.getNaturalBreaks(sizeLimits.values, classCount);
+                const sizeStops: any[] = mapboxUtils.getBreaks(sizeLimits.values, ClassificationMethod.Quantile, classCount);
                 const sizeDelta = (settings.circle.radius * settings.circle.scaleFactor - settings.circle.radius) / classCount
 
                 sizeStops.map((sizeStop, index) => {
