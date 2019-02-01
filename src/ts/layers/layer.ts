@@ -47,7 +47,17 @@ module powerbi.extensibility.visual {
         }
 
         static mapValuesToColorStops(colorInterval: string[], method: ClassificationMethod, classCount:number, values: number[]): ColorStops {
-            const domain: number[] = mapboxUtils.getBreaks(values, method, classCount);
+            if (!values || values.length == 0) {
+                return []
+            }
+
+            if (values.length == 1) {
+                const colorStop = values[0];
+                const color = colorInterval[0];
+                return [{colorStop, color}];
+            }
+
+            const domain: number[] = classCount ? mapboxUtils.getBreaks(values, method, classCount) : values;
             const colors = chroma.scale(colorInterval).colors(domain.length)
             return domain.map((colorStop, idx) => {
                 const color = colors[idx].toString();
@@ -91,17 +101,11 @@ module powerbi.extensibility.visual {
             }
 
             const filteredValues = mapboxUtils.filterValues(colorLimits.values, minValue, maxValue)
-            const classCount = mapboxUtils.getClassCount(filteredValues);
             // Split the interval into two halves when there is a middle value
             if (midValue != null) {
                 const lowerHalf = []
                 const upperHalf = []
                 filteredValues.forEach(value => {
-                    if (value < minValue || value > maxValue) {
-                        // Skip value
-                        return
-                    }
-
                     if (value < midValue) {
                         lowerHalf.push(value)
                     }
@@ -117,9 +121,10 @@ module powerbi.extensibility.visual {
                 if (maxValue != null) {
                     upperHalf.push(maxValue)
                 }
-
-                const lowerColorStops = Layer.mapValuesToColorStops([minColor, midColor], this.getClassificationMethod(), classCount / 2, lowerHalf)
-                const upperColorStops = Layer.mapValuesToColorStops([midColor, maxColor], this.getClassificationMethod(), classCount / 2, upperHalf)
+                const lowerHalfClassCount = mapboxUtils.getClassCount(lowerHalf);
+                const upperHalfClassCount = mapboxUtils.getClassCount(upperHalf);
+                const lowerColorStops = Layer.mapValuesToColorStops([minColor, midColor], this.getClassificationMethod(), lowerHalfClassCount, lowerHalf)
+                const upperColorStops = Layer.mapValuesToColorStops([midColor, maxColor], this.getClassificationMethod(), upperHalfClassCount, upperHalf)
 
                 return lowerColorStops.concat(upperColorStops)
             }
@@ -132,6 +137,7 @@ module powerbi.extensibility.visual {
                 filteredValues.push(maxValue)
             }
 
+            const classCount = mapboxUtils.getClassCount(filteredValues);
             return Layer.mapValuesToColorStops([minColor, midColor, maxColor], this.getClassificationMethod(), classCount, filteredValues)
         }
 
