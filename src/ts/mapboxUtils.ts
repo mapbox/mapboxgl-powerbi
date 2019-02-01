@@ -104,6 +104,20 @@ module powerbi.extensibility.visual {
             return layer;
         }
 
+        export function filterValues(values: number[], minValue: number, maxValue: number) {
+            if (minValue != null || maxValue != null) {
+                let filterFn = (val) => (val >= minValue) && (val <= maxValue);
+                if (maxValue != null) {
+                    filterFn = (val) => val <= maxValue;
+                } else if (minValue != null) {
+                    filterFn = (val) => val >= minValue;
+                }
+                return values.filter(filterFn);
+            }
+
+            return values
+        }
+
         export function getLimits(data, myproperty): Limits {
 
             let min = null;
