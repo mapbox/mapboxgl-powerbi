@@ -4,7 +4,7 @@ module powerbi.extensibility.visual {
         private static readonly ID = 'cluster';
         private static readonly UnclusterID = 'uncluster';
         private static readonly LayerOrder = [Cluster.ID, Cluster.UnclusterID];
-        
+
         private static readonly LabelID = 'cluster-label'; // cluster label is excluded because it has to be always on top
 
         private getClusterField: Function;
@@ -76,7 +76,7 @@ module powerbi.extensibility.visual {
         }
 
         generateColorStops(settings: MapboxSettings, limits: mapboxUtils.Limits): ColorStops {
-            const classCount = mapboxUtils.getClassCount(limits)
+            const classCount = mapboxUtils.getClassCount(limits.values)
 
             if (limits && limits.values && limits.values.length == 1) {
                 return []

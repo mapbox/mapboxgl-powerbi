@@ -280,7 +280,7 @@ module powerbi.extensibility.visual {
                 if (fillColorLimits.values.length < 1) {
                     return (_) => { return colorSettings[0]}
                 }
-                const fillClassCount = mapboxUtils.getClassCount(fillColorLimits);
+                const fillClassCount = mapboxUtils.getClassCount(fillColorLimits.values);
                 const fillDomain = mapboxUtils.getNaturalBreaks(fillColorLimits.values, fillClassCount);
                 const getColorOfLocation = chroma.scale(colorSettings).domain(fillDomain);
                 return getColorOfLocation
@@ -297,7 +297,7 @@ module powerbi.extensibility.visual {
                         color: choroSettings.minColor,
                     }]
                 }
-                const fillClassCount = mapboxUtils.getClassCount(colorLimits);
+                const fillClassCount = mapboxUtils.getClassCount(colorLimits.values);
                 const fillDomain = mapboxUtils.getNaturalBreaks(colorLimits.values, fillClassCount);
                 return fillDomain.map((colorStop) => {
                     const color = getColorOfLocation(colorStop).toString();

@@ -38,12 +38,12 @@ module powerbi.extensibility.visual {
         };
 
 
-        export function getClassCount(limits: { min: number; max: number; values: number[]; }) {
+        export function getClassCount(values: number[]) {
             const MAX_BOUND_COUNT = 6;
             // For example if you want 5 classes, you have to enter 6 bounds
             // (1 bound is the minimum value, 1 bound is the maximum value,
             // the rest are class separators)
-            const classCount = Math.min(limits.values.length, MAX_BOUND_COUNT) - 1;
+            const classCount = Math.min(values.length, MAX_BOUND_COUNT) - 1;
             return classCount;
         }
 
