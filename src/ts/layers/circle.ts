@@ -118,32 +118,87 @@ module powerbi.extensibility.visual {
             this.source.removeFromMap(map, Circle.ID);
         }
 
-        generateColorStops(circleSettings: CircleSettings, isGradient: boolean, colorLimits: mapboxUtils.Limits, originalColorLimits: mapboxUtils.Limits, colorPalette): ColorStops {
-            if (isGradient) {
-                if (colorLimits.values.length < 1) {
-                    return [{
-                        colorStop: originalColorLimits.min,
-                        color: circleSettings.minColor,
-                    }]
-                }
-                const classCount = mapboxUtils.getClassCount(colorLimits);
-                const domain: any[] = mapboxUtils.getNaturalBreaks(colorLimits, classCount);
-                let circleColorSettings = [circleSettings.minColor, circleSettings.midColor, circleSettings.maxColor];
-                if (!circleSettings.diverging) {
-                    circleColorSettings = [circleSettings.minColor, circleSettings.maxColor]
-                }
-                const colors = chroma.scale(circleColorSettings).colors(domain.length)
-                return domain.map((colorStop, idx) => {
-                    const color = colors[idx].toString();
-                    return {colorStop, color};
+        static mapValuesToColorStops(colorInterval: string[], classCount:number, values: number[]): ColorStops {
+            const domain: number[] = mapboxUtils.getNaturalBreaks(values, classCount);
+            const colors = chroma.scale(colorInterval).colors(domain.length)
+            return domain.map((colorStop, idx) => {
+                const color = colors[idx].toString();
+                return {colorStop, color};
+            });
+        }
+
+        generateColorStops(circleSettings: CircleSettings, isGradient: boolean, colorLimits: mapboxUtils.Limits, colorPalette: Palette): ColorStops {
+            if (!isGradient) {
+                return colorLimits.values.map(value => {
+                    const colorStop = value.toString();
+                    const color = colorPalette.getColor(colorStop);
+                    return { colorStop, color };
                 });
             }
 
-            return  colorLimits.values.map( (value, idx) => {
-                const colorStop = value.toString();
-                const color = colorPalette.getColor(value.toString(), idx);
-                return {colorStop, color};
-            });
+            const { minValue, midValue, maxValue, minColor, midColor, maxColor, diverging } = circleSettings
+
+            if (!diverging) {
+                const classCount = mapboxUtils.getClassCount(colorLimits.values);
+                return Circle.mapValuesToColorStops([minColor, maxColor], classCount, colorLimits.values)
+            }
+
+            if (minValue != null && minValue > colorLimits.max
+                || maxValue != null && maxValue < colorLimits.min
+                || colorLimits.values.length < 2
+            ) {
+                // If values is empty or has only one element all the datapoints should have the same color
+                // We use the max value because of the way mapboxUtils.getLimits is implemented (min = max-1)
+                // and the min color
+                return [{
+                    colorStop: colorLimits.max,
+                    color: minColor,
+                }]
+            }
+
+            const filteredValues = mapboxUtils.filterValues(colorLimits.values, minValue, maxValue)
+            const classCount = mapboxUtils.getClassCount(filteredValues);
+            // Split the interval into two halves when there is a middle value
+            if (midValue != null) {
+                const lowerHalf = []
+                const upperHalf = []
+                filteredValues.forEach(value => {
+                    if (value < minValue || value > maxValue) {
+                        // Skip value
+                        return
+                    }
+
+                    if (value < midValue) {
+                        lowerHalf.push(value)
+                    }
+                    else {
+                        upperHalf.push(value)
+                    }
+                })
+
+                if (minValue != null) {
+                    lowerHalf.push(minValue)
+                }
+
+                if (maxValue != null) {
+                    upperHalf.push(maxValue)
+                }
+
+                const lowerColorStops = Circle.mapValuesToColorStops([minColor, midColor], classCount / 2, lowerHalf)
+                const upperColorStops = Circle.mapValuesToColorStops([midColor, maxColor], classCount / 2, upperHalf)
+
+                return lowerColorStops.concat(upperColorStops)
+            }
+
+            if (minValue != null) {
+                filteredValues.push(minValue)
+            }
+
+            if (maxValue != null) {
+                filteredValues.push(maxValue)
+            }
+
+            return Circle.mapValuesToColorStops([minColor, midColor, maxColor], classCount, filteredValues)
         }
 
         applySettings(settings: MapboxSettings, roleMap) {
@@ -151,11 +206,11 @@ module powerbi.extensibility.visual {
             const map = this.parent.getMap();
             if (settings.circle.show) {
                 const isGradient = mapboxUtils.shouldUseGradient(roleMap.color);
-                const limits = this.getLimits(settings.circle, isGradient)
+                const limits = this.source.getLimits()
                 const sizes = Circle.getSizes(limits.size, map, settings, roleMap.size);
 
-                this.colorStops = this.generateColorStops(settings.circle, isGradient, limits.color, limits.originalColor, this.palette)
-                let colorStyle = Circle.getColorStyle(limits.color, isGradient, settings, roleMap.color, this.colorStops);
+                this.colorStops = this.generateColorStops(settings.circle, isGradient, limits.color, this.palette)
+                let colorStyle = Circle.getColorStyle(isGradient, settings, roleMap.color, this.colorStops);
 
                 map.setPaintProperty(Circle.ID, 'circle-radius', sizes);
                 map.setPaintProperty(Circle.HighlightID, 'circle-radius', sizes);
@@ -183,8 +238,8 @@ module powerbi.extensibility.visual {
             return settings.circle.legend && super.showLegend(settings)
         }
 
-        private static getColorStyle(colorLimits: mapboxUtils.Limits, isGradient: boolean, settings: MapboxSettings, colorField: any, colorStops: ColorStops) {
-            if (!colorField || colorLimits == null || colorLimits.min == null || colorLimits.max == null || colorLimits.values.length <= 0) {
+        private static getColorStyle(isGradient: boolean, settings: MapboxSettings, colorField: any, colorStops: ColorStops) {
+            if (!colorField) {
                 return settings.circle.minColor;
             }
 
@@ -220,7 +275,7 @@ module powerbi.extensibility.visual {
                     ["to-number", ['get', sizeField.displayName]]
                 ]
 
-                const classCount = mapboxUtils.getClassCount(sizeLimits);
+                const classCount = mapboxUtils.getClassCount(sizeLimits.values);
                 const sizeStops: any[] = mapboxUtils.getNaturalBreaks(sizeLimits.values, classCount);
                 const sizeDelta = (settings.circle.radius * settings.circle.scaleFactor - settings.circle.radius) / classCount
 
