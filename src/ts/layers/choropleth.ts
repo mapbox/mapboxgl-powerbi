@@ -281,7 +281,7 @@ module powerbi.extensibility.visual {
                     return (_) => { return colorSettings[0]}
                 }
                 const fillClassCount = mapboxUtils.getClassCount(fillColorLimits);
-                const fillDomain = mapboxUtils.getNaturalBreaks(fillColorLimits, fillClassCount);
+                const fillDomain = mapboxUtils.getNaturalBreaks(fillColorLimits.values, fillClassCount);
                 const getColorOfLocation = chroma.scale(colorSettings).domain(fillDomain);
                 return getColorOfLocation
             }
@@ -298,7 +298,7 @@ module powerbi.extensibility.visual {
                     }]
                 }
                 const fillClassCount = mapboxUtils.getClassCount(colorLimits);
-                const fillDomain = mapboxUtils.getNaturalBreaks(colorLimits, fillClassCount);
+                const fillDomain = mapboxUtils.getNaturalBreaks(colorLimits.values, fillClassCount);
                 return fillDomain.map((colorStop) => {
                     const color = getColorOfLocation(colorStop).toString();
                     return {colorStop, color}

@@ -47,9 +47,8 @@ module powerbi.extensibility.visual {
             return classCount;
         }
 
-        export function getNaturalBreaks(limits: { min: any; max: any; values: any[]; }, classCount: number) {
-            const stops: any[] = chroma.limits(limits.values, 'q', classCount);
-            return stops;
+        export function getNaturalBreaks(values: number[], classCount: number): number[] {
+            return chroma.limits(values, 'q', classCount);
         }
 
         export function getRoleMap(metadata: DataViewMetadata) {
