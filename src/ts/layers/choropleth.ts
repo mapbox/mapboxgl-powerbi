@@ -275,40 +275,15 @@ module powerbi.extensibility.visual {
             map.setLayerZoomRange(Choropleth.ID, settings.minZoom, settings.maxZoom);
         }
 
-        getFunctionForColorOfLocation(colorSettings: string[], fillColorLimits: mapboxUtils.Limits, isGradient: boolean): any {
+        getFunctionForColorOfLocation(isGradient: boolean, colorStops: ColorStops): any {
             if (isGradient) {
-                if (fillColorLimits.values.length < 1) {
-                    return (_) => { return colorSettings[0]}
-                }
-                const fillClassCount = mapboxUtils.getClassCount(fillColorLimits.values);
-                const fillDomain = mapboxUtils.getNaturalBreaks(fillColorLimits.values, fillClassCount);
+                const colorSettings = colorStops.map(({colorStop, color}) => color)
+                const fillDomain = colorStops.map(({colorStop, color}) => Number(colorStop))
                 const getColorOfLocation = chroma.scale(colorSettings).domain(fillDomain);
                 return getColorOfLocation
             }
 
             return (value => this.palette.getColor(value))
-        }
-
-        generateColorStops(choroSettings: ChoroplethSettings, isGradient: boolean, colorLimits: mapboxUtils.Limits, originalColorLimits: mapboxUtils.Limits, getColorOfLocation): ColorStops {
-            if (isGradient) {
-                if (colorLimits.values.length < 1) {
-                    return [{
-                        colorStop: originalColorLimits.min,
-                        color: choroSettings.minColor,
-                    }]
-                }
-                const fillClassCount = mapboxUtils.getClassCount(colorLimits.values);
-                const fillDomain = mapboxUtils.getNaturalBreaks(colorLimits.values, fillClassCount);
-                return fillDomain.map((colorStop) => {
-                    const color = getColorOfLocation(colorStop).toString();
-                    return {colorStop, color}
-                });
-            }
-
-            return colorLimits.values.map((colorStop) => {
-                const color = getColorOfLocation(colorStop).toString();
-                return {colorStop, color}
-            });
         }
 
         preprocessData(roleMap : RoleMap, choroplethData, getColorOfLocation ): {location: string, color: string, size: number}[] {
@@ -357,18 +332,14 @@ module powerbi.extensibility.visual {
 
             if (choroSettings.display()) {
                 ChoroplethSettings.fillPredefinedProperties(choroSettings);
-                let choroColorSettings = [choroSettings.minColor, choroSettings.midColor, choroSettings.maxColor];
-                if (!choroSettings.diverging) {
-                    choroColorSettings = [choroSettings.minColor, choroSettings.maxColor]
-                }
 
                 const choroplethData = this.source.getData(map, settings);
                 const isGradient = mapboxUtils.shouldUseGradient(roleMap.color);
                 const limits = this.source.getLimits();
-                const getColorOfLocation = this.getFunctionForColorOfLocation(choroColorSettings, limits.color, isGradient)
-                this.colorStops = this.generateColorStops(choroSettings, isGradient, limits.color, limits.originalColor, getColorOfLocation)
 
+                this.colorStops = this.generateColorStops(choroSettings, isGradient, limits.color, this.palette)
 
+                const getColorOfLocation = this.getFunctionForColorOfLocation(isGradient, this.colorStops)
                 const preprocessedData = this.preprocessData(roleMap, choroplethData, getColorOfLocation)
 
                 if (preprocessedData) {
@@ -378,7 +349,7 @@ module powerbi.extensibility.visual {
                     const defaultColor = 'rgba(0,0,0,0)';
                     const colors = { type: "categorical", property, default: defaultColor, stops: [] };
 
-                    const sizeLimits = this.source.getLimits().size;
+                    const sizeLimits = limits.size;
                     const sizes: any = roleMap.size ? { type: "categorical", property, default: 0, stops: [] } : choroSettings.height * Choropleth.HeightMultiplier
 
                     const filter = ['in', property];
