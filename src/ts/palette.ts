@@ -17,11 +17,12 @@ module powerbi.extensibility.visual {
         }
 
         public getColor(id: string | number): string {
-            if (!this.colorMap[id]) {
-                this.colorMap[id] = this.colorPalette.getColor(id.toString()).value
+            const idStr = id.toString()
+            if (!this.colorMap[idStr]) {
+                this.colorMap[idStr] = this.colorPalette.getColor(idStr).value
             }
 
-            return this.colorMap[id];
+            return this.colorMap[idStr];
         }
 
         public enumerateObjectInstances(options: EnumerateVisualObjectInstancesOptions) {

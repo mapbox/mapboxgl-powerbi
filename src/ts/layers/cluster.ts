@@ -4,7 +4,7 @@ module powerbi.extensibility.visual {
         private static readonly ID = 'cluster';
         private static readonly UnclusterID = 'uncluster';
         private static readonly LayerOrder = [Cluster.ID, Cluster.UnclusterID];
-        
+
         private static readonly LabelID = 'cluster-label'; // cluster label is excluded because it has to be always on top
 
         private getClusterField: Function;
@@ -75,19 +75,8 @@ module powerbi.extensibility.visual {
             }
         }
 
-        generateColorStops(settings: MapboxSettings, limits: mapboxUtils.Limits): ColorStops {
-            const classCount = mapboxUtils.getClassCount(limits)
-
-            if (limits && limits.values && limits.values.length == 1) {
-                return []
-            }
-
-            const domain = chroma.limits(limits.values, 'e', classCount);
-            const colors = chroma.scale([settings.cluster.minColor, settings.cluster.maxColor]).colors(domain.length)
-            return domain.map((colorStop, idx) => {
-                const color = colors[idx].toString();
-                return {colorStop, color};
-            });
+        getClassificationMethod(): ClassificationMethod {
+            return ClassificationMethod.Equidistant
         }
 
         applySettings(settings, roleMap) {
@@ -109,7 +98,7 @@ module powerbi.extensibility.visual {
                 map.setPaintProperty(Cluster.UnclusterID, 'circle-radius', settings.cluster.radius/2);
                 const limits = this.source.getLimits()
                 if (limits && limits.min && limits.max) {
-                    this.colorStops = this.generateColorStops(settings, limits)
+                    this.colorStops = this.generateColorStops(settings.cluster, true, limits, null)
                     map.setPaintProperty(Cluster.ID, 'circle-color', [
                         'interpolate', ['linear'], ['get', settings.cluster.aggregation],
                         limits.min, settings.cluster.minColor,
@@ -127,8 +116,22 @@ module powerbi.extensibility.visual {
             }
         }
 
-        showLegend(settings: MapboxSettings) {
-            return settings.cluster.legend && super.showLegend(settings)
+        showLegend(settings: MapboxSettings, roleMap: RoleMap) {
+            // should show the legend regardless of the color field
+            return settings.cluster.legend && super.showLegend(settings, roleMap)
+        }
+
+        addLegend(
+            legend: LegendControl,
+            roleMap: RoleMap,
+            settings: MapboxSettings,
+        ): void
+        {
+            const id = this.getId();
+            const title = settings.cluster.aggregation;
+            const colorStops = this.getColorStops();
+            const format = LegendControl.DEFAULT_NUMBER_FORMAT;
+            legend.addLegend(id, title, colorStops, format);
         }
 
         hasTooltip(tooltips) {

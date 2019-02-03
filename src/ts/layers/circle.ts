@@ -118,37 +118,16 @@ module powerbi.extensibility.visual {
             this.source.removeFromMap(map, Circle.ID);
         }
 
-        generateColorStops(settings, roleMap, colorPalette): ColorStops {
-            const { color: colorLimits } = this.source.getLimits();
-            const classCount = mapboxUtils.getClassCount(colorLimits);
-            let isGradient = mapboxUtils.shouldUseGradient(roleMap.color);
-
-            if (isGradient) {
-                const domain: any[] = mapboxUtils.getNaturalBreaks(colorLimits, classCount);
-                const colors = chroma.scale([settings.circle.minColor, settings.circle.medColor, settings.circle.maxColor]).colors(domain.length)
-                return domain.map((colorStop, idx) => {
-                    const color = colors[idx].toString();
-                    return {colorStop, color};
-                });
-            }
-
-            return  colorLimits.values.map( (value, idx) => {
-                const colorStop = value.toString();
-                const color = colorPalette.getColor(value.toString(), idx);
-                return {colorStop, color};
-            });
-        }
-
-        applySettings(settings, roleMap) {
+        applySettings(settings: MapboxSettings, roleMap) {
             super.applySettings(settings, roleMap);
             const map = this.parent.getMap();
-            const limits = this.source.getLimits();
             if (settings.circle.show) {
+                const isGradient = mapboxUtils.shouldUseGradient(roleMap.color);
+                const limits = this.source.getLimits()
                 const sizes = Circle.getSizes(limits.size, map, settings, roleMap.size);
 
-                let isGradient = mapboxUtils.shouldUseGradient(roleMap.color);
-                this.colorStops = this.generateColorStops(settings, roleMap, this.palette)
-                let colorStyle = Circle.getColorStyle(limits.color, isGradient, settings, roleMap.color, this.colorStops);
+                this.colorStops = this.generateColorStops(settings.circle, isGradient, limits.color, this.palette)
+                let colorStyle = Circle.getColorStyle(isGradient, settings, roleMap.color, this.colorStops);
 
                 map.setPaintProperty(Circle.ID, 'circle-radius', sizes);
                 map.setPaintProperty(Circle.HighlightID, 'circle-radius', sizes);
@@ -172,12 +151,12 @@ module powerbi.extensibility.visual {
             })
         }
 
-        showLegend(settings: MapboxSettings) {
-            return settings.circle.legend && super.showLegend(settings)
+        showLegend(settings: MapboxSettings, roleMap: RoleMap) {
+            return settings.circle.legend && roleMap.color && super.showLegend(settings, roleMap)
         }
 
-        private static getColorStyle(colorLimits: mapboxUtils.Limits, isGradient: boolean, settings: any, colorField: any, colorStops: ColorStops) {
-            if (!colorField || colorLimits == null || colorLimits.min == null || colorLimits.max == null || colorLimits.values.length <= 0) {
+        private static getColorStyle(isGradient: boolean, settings: MapboxSettings, colorField: any, colorStops: ColorStops) {
+            if (!colorField) {
                 return settings.circle.minColor;
             }
 
@@ -213,8 +192,8 @@ module powerbi.extensibility.visual {
                     ["to-number", ['get', sizeField.displayName]]
                 ]
 
-                const classCount = mapboxUtils.getClassCount(sizeLimits);
-                const sizeStops: any[] = mapboxUtils.getNaturalBreaks(sizeLimits, classCount);
+                const classCount = mapboxUtils.getClassCount(sizeLimits.values);
+                const sizeStops: any[] = mapboxUtils.getBreaks(sizeLimits.values, ClassificationMethod.Quantile, classCount);
                 const sizeDelta = (settings.circle.radius * settings.circle.scaleFactor - settings.circle.radius) / classCount
 
                 sizeStops.map((sizeStop, index) => {

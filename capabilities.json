@@ -216,27 +216,27 @@
           "type": {
             "enumeration": [
               {
-                "value": "mapbox:\/\/styles\/mapbox\/light-v9?optimize=true",
+                "value": "mapbox:\/\/styles\/mapbox\/light-v10?optimize=true",
                 "displayName": "Light",
                 "displayNameKey": "light_v9"
               },
               {
-                "value": "mapbox:\/\/styles\/mapbox\/dark-v9?optimize=true",
+                "value": "mapbox:\/\/styles\/mapbox\/dark-v10?optimize=true",
                 "displayName": "Dark",
                 "displayNameKey": "dark_v9"
               },
               {
-                "value": "mapbox:\/\/styles\/mapbox\/streets-v10?optimize=true",
+                "value": "mapbox:\/\/styles\/mapbox\/streets-v11?optimize=true",
                 "displayName": "Streets",
                 "displayNameKey": "streets_v10"
               },
               {
-                "value": "mapbox:\/\/styles\/mapbox\/outdoors-v10?optimize=true",
+                "value": "mapbox:\/\/styles\/mapbox\/outdoors-v11?optimize=true",
                 "displayName": "Outdoors",
                 "displayNameKey": "outdoors_v10"
               },
               {
-                "value": "mapbox:\/\/styles\/mapbox\/satellite-streets-v10?optimize=true",
+                "value": "mapbox:\/\/styles\/mapbox\/satellite-streets-v11?optimize=true",
                 "displayName": "Satellite Streets",
                 "displayNameKey": "satellite_streets_v10"
               },
@@ -246,12 +246,12 @@
                 "displayNameKey": "satellite_v9"
               },
               {
-                "value": "mapbox:\/\/styles\/mapbox\/navigation-preview-day-v2?optimize=true",
+                "value": "mapbox:\/\/styles\/mapbox\/navigation-preview-day-v4?optimize=true",
                 "displayName": "Traffic Light",
                 "displayNameKey": "navigation_preview_day_v2"
               },
               {
-                "value": "mapbox:\/\/styles\/mapbox\/navigation-preview-night-v2?optimize=true",
+                "value": "mapbox:\/\/styles\/mapbox\/navigation-preview-night-v4?optimize=true",
                 "displayName": "Traffic Dark",
                 "displayNameKey": "navigation_preview_night_v2"
               },
@@ -382,6 +382,13 @@
             "bool": true
           }
         },
+        "diverging": {
+          "displayName": "Diverging",
+          "description": "Diverge colors by value",
+          "type": {
+            "bool": true
+          }
+        },
         "radius": {
           "displayName": "Radius",
           "displayNameKey": "radius",
@@ -443,7 +450,7 @@
           }
         },
         "minColor": {
-          "displayName": "Min Color",
+          "displayName": "Minimum",
           "displayNameKey": "minColor",
           "description": "Defines the color for the minimum value of the color field.",
           "type": {
@@ -454,10 +461,10 @@
             }
           }
         },
-        "medColor": {
-          "displayName": "Med Color",
-          "displayNameKey": "color",
-          "description": "Intermediate color for circle color ramp. ",
+        "midColor": {
+          "displayName": "Center",
+          "displayNameKey": "midColor",
+          "description": "Defines the color for the center value of the color field.",
           "type": {
             "fill": {
               "solid": {
@@ -467,7 +474,7 @@
           }
         },
         "maxColor": {
-          "displayName": "Max Color",
+          "displayName": "Maximum",
           "displayNameKey": "maxColor",
           "description": "Defines the color for the maximum value of the color field.",
           "type": {
@@ -476,6 +483,30 @@
                 "color": true
               }
             }
+          }
+        },
+        "minValue": {
+          "displayName": "Minimum",
+          "displayNameKey": "minValue",
+          "description": "Minimum value to consider for colors",
+          "type": {
+            "numeric": true
+          }
+        },
+        "midValue": {
+          "displayName": "Center",
+          "displayNameKey": "midValue",
+          "description": "Center value to consider for colors",
+          "type": {
+            "numeric": true
+          }
+        },
+        "maxValue": {
+          "displayName": "Maximum",
+          "displayNameKey": "maxValue",
+          "description": "Maximum value to consider for colors",
+          "type": {
+            "numeric": true
           }
         },
         "highlightColor": {
@@ -552,9 +583,9 @@
           }
         },
         "minColor": {
-          "displayName": "Min Color",
-          "displayNameKey": "color",
-          "description": "Minimum color for heatmap color ramp. ",
+          "displayName": "Minimum",
+          "displayNameKey": "minColor",
+          "description": "Minimum color for heatmap color ramp.",
           "type": {
             "fill": {
               "solid": {
@@ -563,10 +594,10 @@
             }
           }
         },
-        "medColor": {
-          "displayName": "Med Color",
-          "displayNameKey": "color",
-          "description": "Intermediate color for heatmap color ramp. ",
+        "midColor": {
+          "displayName": "Center",
+          "displayNameKey": "midColor",
+          "description": "Center color for heatmap color ramp.",
           "type": {
             "fill": {
               "solid": {
@@ -576,8 +607,8 @@
           }
         },
         "maxColor": {
-          "displayName": "Max Color",
-          "displayNameKey": "color",
+          "displayName": "Maximum",
+          "displayNameKey": "maxColor",
           "description": "Maximum color for heatmap color ramp. ",
           "type": {
             "fill": {
@@ -690,7 +721,7 @@
           }
         },
         "minColor": {
-          "displayName": "Min Color",
+          "displayName": "Minimum",
           "displayNameKey": "minColor",
           "description": "Defines the color for the minimum value of the color field.",
           "type": {
@@ -702,7 +733,7 @@
           }
         },
         "maxColor": {
-          "displayName": "Max Color",
+          "displayName": "Maximum",
           "displayNameKey": "maxColor",
           "description": "Defines the color for the maximum value of the color field.",
           "type": {
@@ -778,8 +809,15 @@
             "bool": true
           }
         },
+        "diverging": {
+          "displayName": "Diverging",
+          "description": "Diverge colors by value",
+          "type": {
+            "bool": true
+          }
+        },
         "minColor": {
-          "displayName": "Min Color",
+          "displayName": "Minimum",
           "displayNameKey": "minColor",
           "description": "Defines the color for the minimum value of the color field.",
           "type": {
@@ -790,10 +828,10 @@
             }
           }
         },
-        "medColor": {
-          "displayName": "Med Color",
-          "displayNameKey": "color",
-          "description": "Intermediate color for choropleth color ramp. ",
+        "midColor": {
+          "displayName": "Center",
+          "displayNameKey": "midColor",
+          "description": "Center color for choropleth color ramp. ",
           "type": {
             "fill": {
               "solid": {
@@ -803,7 +841,7 @@
           }
         },
         "maxColor": {
-          "displayName": "Max Color",
+          "displayName": "Maximum",
           "displayNameKey": "maxColor",
           "description": "Defines the color for the maximum value of the color field.",
           "type": {
@@ -812,6 +850,30 @@
                 "color": true
               }
             }
+          }
+        },
+        "minValue": {
+          "displayName": "Minimum",
+          "displayNameKey": "minValue",
+          "description": "Minimum value to consider for colors",
+          "type": {
+            "numeric": true
+          }
+        },
+        "midValue": {
+          "displayName": "Center",
+          "displayNameKey": "midValue",
+          "description": "Center value to consider for colors",
+          "type": {
+            "numeric": true
+          }
+        },
+        "maxValue": {
+          "displayName": "Maximum",
+          "displayNameKey": "maxValue",
+          "description": "Maximum value to consider for colors",
+          "type": {
+            "numeric": true
           }
         },
         "highlightColor": {

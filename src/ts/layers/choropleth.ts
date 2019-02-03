@@ -275,23 +275,19 @@ module powerbi.extensibility.visual {
             map.setLayerZoomRange(Choropleth.ID, settings.minZoom, settings.maxZoom);
         }
 
-        getFunctionForColorOfLocation(roleMap: RoleMap, colorSettings: string[], fillColorLimits: mapboxUtils.Limits): any {
-            const isGradient = mapboxUtils.shouldUseGradient(roleMap.color);
+        getFunctionForColorOfLocation(isGradient: boolean, colorStops: ColorStops): any {
             if (isGradient) {
-                const fillClassCount = mapboxUtils.getClassCount(fillColorLimits);
-                const fillDomain = mapboxUtils.getNaturalBreaks(fillColorLimits, fillClassCount);
+                if (colorStops.length == 1) {
+                    // chroma.scale fails to return any value with one color
+                    return (() => colorStops[0].color)
+                }
+
+                const colorSettings = colorStops.map(({colorStop, color}) => color)
+                const fillDomain = colorStops.map(({colorStop, color}) => Number(colorStop))
                 const getColorOfLocation = chroma.scale(colorSettings).domain(fillDomain);
-                this.colorStops = fillDomain.map((colorStop) => {
-                    const color = getColorOfLocation(colorStop).toString();
-                    return {colorStop, color};
-                });
                 return getColorOfLocation
             }
 
-            fillColorLimits.values.forEach((colorStop) => {
-                const color = this.palette.getColor(colorStop)
-                this.colorStops.push({colorStop, color})
-            });
             return (value => this.palette.getColor(value))
         }
 
@@ -329,6 +325,10 @@ module powerbi.extensibility.visual {
             return result;
         }
 
+        getClassificationMethod(): ClassificationMethod {
+            return ClassificationMethod.Equidistant
+        }
+
         applySettings(settings:MapboxSettings, roleMap: RoleMap) {
             super.applySettings(settings, roleMap);
             const map = this.parent.getMap();
@@ -340,13 +340,15 @@ module powerbi.extensibility.visual {
             }
 
             if (choroSettings.display()) {
-                const fillColorLimits = this.source.getLimits().color;
                 ChoroplethSettings.fillPredefinedProperties(choroSettings);
-                const choroColorSettings = [choroSettings.minColor, choroSettings.medColor, choroSettings.maxColor];
 
-                this.colorStops = []
                 const choroplethData = this.source.getData(map, settings);
-                const getColorOfLocation = this.getFunctionForColorOfLocation(roleMap, choroColorSettings, fillColorLimits)
+                const isGradient = mapboxUtils.shouldUseGradient(roleMap.color);
+                const limits = this.source.getLimits();
+
+                this.colorStops = this.generateColorStops(choroSettings, isGradient, limits.color, this.palette)
+
+                const getColorOfLocation = this.getFunctionForColorOfLocation(isGradient, this.colorStops)
                 const preprocessedData = this.preprocessData(roleMap, choroplethData, getColorOfLocation)
 
                 if (preprocessedData) {
@@ -356,7 +358,7 @@ module powerbi.extensibility.visual {
                     const defaultColor = 'rgba(0,0,0,0)';
                     const colors = { type: "categorical", property, default: defaultColor, stops: [] };
 
-                    const sizeLimits = this.source.getLimits().size;
+                    const sizeLimits = limits.size;
                     const sizes: any = roleMap.size ? { type: "categorical", property, default: 0, stops: [] } : choroSettings.height * Choropleth.HeightMultiplier
 
                     const filter = ['in', property];
@@ -381,8 +383,8 @@ module powerbi.extensibility.visual {
             }
         }
 
-        showLegend(settings: MapboxSettings) {
-            return settings.choropleth.legend && super.showLegend(settings)
+        showLegend(settings: MapboxSettings, roleMap: RoleMap) {
+            return settings.choropleth.legend && roleMap.color && super.showLegend(settings, roleMap)
         }
 
         handleTooltip(tooltipEvent, roleMap, settings: MapboxSettings) {

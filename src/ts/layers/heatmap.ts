@@ -35,7 +35,7 @@ module powerbi.extensibility.visual {
             Heatmap.LayerOrder.forEach((layerId) => map.moveLayer(layerId, beforeLayerId));
         }
 
-        applySettings(settings, roleMap) {
+        applySettings(settings: MapboxSettings, roleMap) {
             super.applySettings(settings, roleMap);
             const map = this.parent.getMap();
             if (settings.heatmap.show) {
@@ -48,13 +48,13 @@ module powerbi.extensibility.visual {
                 map.setPaintProperty(Heatmap.ID, 'heatmap-color', [ "interpolate", ["linear"], ["heatmap-density"],
                     0, "rgba(0, 0, 255, 0)",
                     0.1, settings.heatmap.minColor,
-                    0.5, settings.heatmap.medColor,
+                    0.5, settings.heatmap.midColor,
                     1, settings.heatmap.maxColor]);
             }
         }
 
-        showLegend(settings: MapboxSettings) {
-            return settings.heatmap.legend && super.showLegend(settings)
+        showLegend(settings: MapboxSettings, roleMap: RoleMap) {
+            return settings.heatmap.legend && roleMap.color && super.showLegend(settings, roleMap)
         }
     }
 }

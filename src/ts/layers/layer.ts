@@ -46,6 +46,105 @@ module powerbi.extensibility.visual {
             return this.colorStops;
         }
 
+        static mapValuesToColorStops(colorInterval: string[], method: ClassificationMethod, classCount:number, values: number[]): ColorStops {
+            if (!values || values.length == 0) {
+                return []
+            }
+
+            if (values.length == 1) {
+                const colorStop = values[0];
+                const color = colorInterval[0];
+                return [{colorStop, color}];
+            }
+
+            const domain: number[] = classCount ? mapboxUtils.getBreaks(values, method, classCount) : values;
+            const colors = chroma.scale(colorInterval).colors(domain.length)
+            return domain.map((colorStop, idx) => {
+                const color = colors[idx].toString();
+                return {colorStop, color};
+            });
+        }
+
+        generateColorStops(settings: CircleSettings | ChoroplethSettings | ClusterSettings, isGradient: boolean, colorLimits: mapboxUtils.Limits, colorPalette: Palette): ColorStops {
+
+            if (colorLimits && colorLimits.values && colorLimits.values.length == 1) {
+                return []
+            }
+
+            if (!isGradient) {
+                return colorLimits.values.map(value => {
+                    const colorStop = value.toString();
+                    const color = colorPalette.getColor(colorStop);
+                    return { colorStop, color };
+                });
+            }
+
+            if ( settings instanceof ClusterSettings || !settings.diverging) {
+                const classCount = mapboxUtils.getClassCount(colorLimits.values);
+                return Layer.mapValuesToColorStops([settings.minColor, settings.maxColor], this.getClassificationMethod(), classCount, colorLimits.values)
+            }
+
+            const { minValue, midValue, maxValue, minColor, midColor, maxColor} = settings
+
+
+            if (minValue != null && minValue > colorLimits.max
+                || maxValue != null && maxValue < colorLimits.min
+                || colorLimits.values.length < 2
+            ) {
+                // If values is empty or has only one element all the datapoints should have the same color
+                // We use the max value because of the way mapboxUtils.getLimits is implemented (min = max-1)
+                // and the min color
+                return [{
+                    colorStop: colorLimits.max,
+                    color: minColor,
+                }]
+            }
+
+            const filteredValues = mapboxUtils.filterValues(colorLimits.values, minValue, maxValue)
+            // Split the interval into two halves when there is a middle value
+            if (midValue != null) {
+                const lowerHalf = []
+                const upperHalf = []
+                filteredValues.forEach(value => {
+                    if (value < midValue) {
+                        lowerHalf.push(value)
+                    }
+                    else {
+                        upperHalf.push(value)
+                    }
+                })
+
+                if (minValue != null) {
+                    lowerHalf.push(minValue)
+                }
+
+                if (maxValue != null) {
+                    upperHalf.push(maxValue)
+                }
+                const lowerHalfClassCount = mapboxUtils.getClassCount(lowerHalf);
+                const upperHalfClassCount = mapboxUtils.getClassCount(upperHalf);
+                const lowerColorStops = Layer.mapValuesToColorStops([minColor, midColor], this.getClassificationMethod(), lowerHalfClassCount, lowerHalf)
+                const upperColorStops = Layer.mapValuesToColorStops([midColor, maxColor], this.getClassificationMethod(), upperHalfClassCount, upperHalf)
+
+                return lowerColorStops.concat(upperColorStops)
+            }
+
+            if (minValue != null) {
+                filteredValues.push(minValue)
+            }
+
+            if (maxValue != null) {
+                filteredValues.push(maxValue)
+            }
+
+            const classCount = mapboxUtils.getClassCount(filteredValues);
+            return Layer.mapValuesToColorStops([minColor, midColor, maxColor], this.getClassificationMethod(), classCount, filteredValues)
+        }
+
+        getClassificationMethod(): ClassificationMethod {
+            return ClassificationMethod.Quantile
+        }
+
         applySettings(settings: MapboxSettings, roleMap) {
             const map = this.parent.getMap();
             if (settings[this.id].show) {
@@ -168,8 +267,21 @@ module powerbi.extensibility.visual {
             }));
         }
 
-        showLegend(settings: MapboxSettings) {
+        showLegend(settings: MapboxSettings, roleMap: RoleMap) {
             return this.layerExists()
+        }
+
+        addLegend(
+            legend: LegendControl,
+            roleMap: RoleMap,
+            settings: MapboxSettings,
+        ): void
+        {
+            const id = this.getId();
+            const title = roleMap.color.displayName;
+            const colorStops = this.getColorStops();
+            const format = roleMap.color.format;
+            legend.addLegend(id, title, colorStops, format);
         }
     }
 }

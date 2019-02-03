@@ -2,6 +2,14 @@ module powerbi.extensibility.visual {
     declare var turf: any;
 
     export type RoleMap = {[key: string]: DataViewMetadataColumn}
+
+    export enum ClassificationMethod {
+        Quantile,
+        Equidistant,
+        Logarithmic,
+        NaturalBreaks,
+    }
+
     export module mapboxUtils {
         export interface Limits {
             min: number;
@@ -38,18 +46,36 @@ module powerbi.extensibility.visual {
         };
 
 
-        export function getClassCount(limits: { min: number; max: number; values: number[]; }) {
+        export function getClassCount(values: number[]) {
             const MAX_BOUND_COUNT = 6;
             // For example if you want 5 classes, you have to enter 6 bounds
             // (1 bound is the minimum value, 1 bound is the maximum value,
             // the rest are class separators)
-            const classCount = Math.min(limits.values.length, MAX_BOUND_COUNT) - 1;
+            const classCount = Math.min(values.length, MAX_BOUND_COUNT) - 1;
             return classCount;
         }
 
-        export function getNaturalBreaks(limits: { min: any; max: any; values: any[]; }, classCount: number) {
-            const stops: any[] = chroma.limits(limits.values, 'q', classCount);
-            return stops;
+        export function getBreaks(values: number[], method: ClassificationMethod, classCount: number): number[] {
+            let chromaMode: 'e' | 'q' | 'l' | 'k';
+
+            switch (method) {
+                case ClassificationMethod.Equidistant:
+                    chromaMode = 'e'
+                    break;
+                case ClassificationMethod.Logarithmic:
+                    chromaMode = 'l'
+                    break;
+                case ClassificationMethod.NaturalBreaks:
+                    chromaMode = 'k'
+                    break;
+                case ClassificationMethod.Quantile:
+                    chromaMode = 'q'
+                    break;
+                default:
+                    break;
+            }
+
+            return chroma.limits(values, chromaMode, classCount);
         }
 
         export function getRoleMap(metadata: DataViewMetadata) {
@@ -103,6 +129,20 @@ module powerbi.extensibility.visual {
                 }
             }
             return layer;
+        }
+
+        export function filterValues(values: number[], minValue: number, maxValue: number) {
+            if (minValue != null || maxValue != null) {
+                let filterFn = (val) => (val >= minValue) && (val <= maxValue);
+                if (maxValue != null) {
+                    filterFn = (val) => val <= maxValue;
+                } else if (minValue != null) {
+                    filterFn = (val) => val >= minValue;
+                }
+                return values.filter(filterFn);
+            }
+
+            return values
         }
 
         export function getLimits(data, myproperty): Limits {
