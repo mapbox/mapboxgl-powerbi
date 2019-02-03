@@ -216,27 +216,27 @@
           "type": {
             "enumeration": [
               {
-                "value": "mapbox:\/\/styles\/mapbox\/light-v9?optimize=true",
+                "value": "mapbox:\/\/styles\/mapbox\/light-v10?optimize=true",
                 "displayName": "Light",
                 "displayNameKey": "light_v9"
               },
               {
-                "value": "mapbox:\/\/styles\/mapbox\/dark-v9?optimize=true",
+                "value": "mapbox:\/\/styles\/mapbox\/dark-v10?optimize=true",
                 "displayName": "Dark",
                 "displayNameKey": "dark_v9"
               },
               {
-                "value": "mapbox:\/\/styles\/mapbox\/streets-v10?optimize=true",
+                "value": "mapbox:\/\/styles\/mapbox\/streets-v11?optimize=true",
                 "displayName": "Streets",
                 "displayNameKey": "streets_v10"
               },
               {
-                "value": "mapbox:\/\/styles\/mapbox\/outdoors-v10?optimize=true",
+                "value": "mapbox:\/\/styles\/mapbox\/outdoors-v11?optimize=true",
                 "displayName": "Outdoors",
                 "displayNameKey": "outdoors_v10"
               },
               {
-                "value": "mapbox:\/\/styles\/mapbox\/satellite-streets-v10?optimize=true",
+                "value": "mapbox:\/\/styles\/mapbox\/satellite-streets-v11?optimize=true",
                 "displayName": "Satellite Streets",
                 "displayNameKey": "satellite_streets_v10"
               },
@@ -246,12 +246,12 @@
                 "displayNameKey": "satellite_v9"
               },
               {
-                "value": "mapbox:\/\/styles\/mapbox\/navigation-preview-day-v2?optimize=true",
+                "value": "mapbox:\/\/styles\/mapbox\/navigation-preview-day-v4?optimize=true",
                 "displayName": "Traffic Light",
                 "displayNameKey": "navigation_preview_day_v2"
               },
               {
-                "value": "mapbox:\/\/styles\/mapbox\/navigation-preview-night-v2?optimize=true",
+                "value": "mapbox:\/\/styles\/mapbox\/navigation-preview-night-v4?optimize=true",
                 "displayName": "Traffic Dark",
                 "displayNameKey": "navigation_preview_night_v2"
               },
