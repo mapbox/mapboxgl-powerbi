@@ -345,7 +345,6 @@ module powerbi.extensibility.visual {
                 const choroplethData = this.source.getData(map, settings);
                 const isGradient = mapboxUtils.shouldUseGradient(roleMap.color);
                 const limits = this.source.getLimits();
-
                 this.colorStops = this.generateColorStops(choroSettings, isGradient, limits.color, this.palette)
 
                 const getColorOfLocation = this.getFunctionForColorOfLocation(isGradient, this.colorStops)
@@ -403,16 +402,13 @@ module powerbi.extensibility.visual {
 
             const choroplethData = choroplethSource.getData(settings, this.parent.getMap());
             const locationProperty = roleMap.location.displayName;
-            const dataUnderLocation = choroplethData.find((cd) => (cd[locationProperty] == choroVectorData.value));
 
+            const dataUnderLocation = choroplethData.find((cd) => (cd[locationProperty] == choroVectorData.value));
             if (!dataUnderLocation) {
                 return tooltipData;
             }
-            const topTooltip = {
-                displayName: locationProperty,
-                value: dataUnderLocation[locationProperty].toString()
-            }
-            let result = Object.keys(roleMap.tooltips).map((key) => {
+
+            const result = Object.keys(roleMap.tooltips).map((key) => {
                 const data = {
                     displayName: key,
                     value: "null",
@@ -423,7 +419,7 @@ module powerbi.extensibility.visual {
                 }
                 return data
             })
-            result.unshift(topTooltip)
+
             return result
         }
     }
