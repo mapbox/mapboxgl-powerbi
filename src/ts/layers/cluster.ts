@@ -139,15 +139,9 @@ module powerbi.extensibility.visual {
         }
 
         handleTooltip(tooltipEvent: TooltipEventArgs<number>, roleMap, settings) {
-            const clusterFields = {
-                // clusterFields are defined in the cluster datasources, the field names must match with these.
-                Count: true, Sum: true, Minimum: true, Maximum: true, Average: true
-            }
             const tooltipData = Layer.getTooltipData(tooltipEvent.data)
                 .filter((elem) => (
-                    // elem.displayName === this.getClusterField() || // Add cluster variable to the data point
-                    roleMap.tooltips[elem.displayName] || // Show these fields on datapoints
-                    clusterFields[elem.displayName]       // Show these fields on clusters
+                    elem.displayName === settings.cluster.aggregation // Show only the value for the selected aggregation type
                 ));
 
             return tooltipData.map(data => {
