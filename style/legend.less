@@ -1,5 +1,11 @@
 #mapbox-legend-container {
   display: flex;
+  max-height: 50vh;
+}
+
+.mapbox-legend::-webkit-scrollbar, .mapbox-legend::-webkit-scrollbar-track, .mapbox-legend::-webkit-scrollbar-track-piece {
+    background-color: transparent;
+    width: 2px;
 }
 
 .mapbox-legend {
@@ -7,6 +13,7 @@
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
   width: 100px;
   margin-right: 10px;
+  overflow-y: scroll !important;
 }
 
 .mapbox-legend-color {
@@ -18,7 +25,6 @@
     border: 1px solid rgba(0, 0, 0, 0.1);
 }
 
-.mapbox-legend .middle,
- {
+.mapbox-legend .middle {
   vertical-align: middle;
 }

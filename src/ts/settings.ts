@@ -118,7 +118,6 @@ module powerbi.extensibility.visual {
         public maxColor: string = "#ca0020";
         public minZoom: number = 0;
         public maxZoom: number = 22;
-        public legend: boolean = true;
     }
 
     export class ClusterSettings {

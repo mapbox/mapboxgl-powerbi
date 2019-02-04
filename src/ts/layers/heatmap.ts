@@ -54,8 +54,7 @@ module powerbi.extensibility.visual {
         }
 
         showLegend(settings: MapboxSettings, roleMap: RoleMap) {
-            return settings.heatmap.legend && roleMap.color && super.showLegend(settings, roleMap)
+            return false && super.showLegend(settings, roleMap)
         }
     }
 }
-

@@ -66,11 +66,6 @@ module powerbi.extensibility.visual {
         }
 
         generateColorStops(settings: CircleSettings | ChoroplethSettings | ClusterSettings, isGradient: boolean, colorLimits: mapboxUtils.Limits, colorPalette: Palette): ColorStops {
-
-            if (colorLimits && colorLimits.values && colorLimits.values.length == 1) {
-                return []
-            }
-
             if (!isGradient) {
                 return colorLimits.values.map(value => {
                     const colorStop = value.toString();
@@ -86,25 +81,16 @@ module powerbi.extensibility.visual {
 
             const { minValue, midValue, maxValue, minColor, midColor, maxColor} = settings
 
-
-            if (minValue != null && minValue > colorLimits.max
-                || maxValue != null && maxValue < colorLimits.min
-                || colorLimits.values.length < 2
-            ) {
-                // If values is empty or has only one element all the datapoints should have the same color
-                // We use the max value because of the way mapboxUtils.getLimits is implemented (min = max-1)
-                // and the min color
-                return [{
-                    colorStop: colorLimits.max,
-                    color: minColor,
-                }]
-            }
-
             const filteredValues = mapboxUtils.filterValues(colorLimits.values, minValue, maxValue)
             // Split the interval into two halves when there is a middle value
             if (midValue != null) {
                 const lowerHalf = []
                 const upperHalf = []
+
+                if (minValue != null) {
+                    lowerHalf.push(minValue)
+                }
+
                 filteredValues.forEach(value => {
                     if (value < midValue) {
                         lowerHalf.push(value)
@@ -114,18 +100,23 @@ module powerbi.extensibility.visual {
                     }
                 })
 
-                if (minValue != null) {
-                    lowerHalf.push(minValue)
-                }
-
                 if (maxValue != null) {
                     upperHalf.push(maxValue)
                 }
-                const lowerHalfClassCount = mapboxUtils.getClassCount(lowerHalf);
-                const upperHalfClassCount = mapboxUtils.getClassCount(upperHalf);
+
+                // Add midValue to both interval
+                lowerHalf.push(midValue)
+                upperHalf.unshift(midValue)
+
+                // Divide the colorstops between the two intervals (halve them)
+                const lowerHalfClassCount = mapboxUtils.getClassCount(lowerHalf) >> 1;
+                const upperHalfClassCount = mapboxUtils.getClassCount(upperHalf) >> 1;
+
                 const lowerColorStops = Layer.mapValuesToColorStops([minColor, midColor], this.getClassificationMethod(), lowerHalfClassCount, lowerHalf)
                 const upperColorStops = Layer.mapValuesToColorStops([midColor, maxColor], this.getClassificationMethod(), upperHalfClassCount, upperHalf)
 
+                // Make sure the midValue included only once
+                lowerColorStops.pop()
                 return lowerColorStops.concat(upperColorStops)
             }
 

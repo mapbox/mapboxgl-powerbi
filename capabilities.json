@@ -633,14 +633,6 @@
           "type": {
             "numeric": true
           }
-        },
-        "legend": {
-          "displayName": "Legend",
-          "displayNameKey": "legend",
-          "description": "Enable legend",
-          "type": {
-            "bool": true
-          }
         }
       }
     },

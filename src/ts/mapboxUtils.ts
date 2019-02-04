@@ -132,17 +132,22 @@ module powerbi.extensibility.visual {
         }
 
         export function filterValues(values: number[], minValue: number, maxValue: number) {
-            if (minValue != null || maxValue != null) {
-                let filterFn = (val) => (val >= minValue) && (val <= maxValue);
-                if (maxValue != null) {
-                    filterFn = (val) => val <= maxValue;
-                } else if (minValue != null) {
-                    filterFn = (val) => val >= minValue;
-                }
-                return values.filter(filterFn);
+            let filterFn;
+
+            if (minValue != null && maxValue != null) {
+                filterFn = (val) => (val >= minValue) && (val <= maxValue);
+            }
+            else if (maxValue != null) {
+                filterFn = (val) => val <= maxValue;
+            }
+            else if (minValue != null) {
+                filterFn = (val) => val >= minValue;
+            }
+            else {
+                return values
             }
 
-            return values
+            return values.filter(filterFn);
         }
 
         export function getLimits(data, myproperty): Limits {
