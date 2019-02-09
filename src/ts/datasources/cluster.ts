@@ -21,7 +21,7 @@ module powerbi.extensibility.visual.data {
             map.addSource('clusterData', {
                 type: 'geojson',
                 data: turf.helpers.featureCollection([]),
-                buffer: 0
+                buffer: 10
             });
             return map.getSource('clusterData');
         }
