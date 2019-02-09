@@ -547,6 +547,51 @@
         }
       }
     },
+     "raster": {
+      "displayName": "WMS",
+      "displayNameKey": "raster",
+      "description": "WMS Display Settings",
+      "properties": {
+        "show": {
+          "displayName": "WMS",
+          "type": {
+            "bool": true
+          }
+        },
+        "url": {
+          "displayName": "URL",
+          "displayNameKey": "url",
+          "description": "The URL from which your raster tiles are loaded. ",
+          "type": {
+            "text": true
+          }
+        },
+        "opacity": {
+          "displayName": "Opacity",
+          "displayNameKey": "opacity",
+          "description": "The global opacity in percentage at which the layer will be drawn.",
+          "type": {
+            "numeric": true
+          }
+        },
+        "minZoom": {
+          "displayName": "Min Zoom",
+          "displayNameKey": "minZoom",
+          "description": "Minimum zoom level layer is visibile at.",
+          "type": {
+            "numeric": true
+          }
+        },
+        "maxZoom": {
+          "displayName": "Max Zoom",
+          "displayNameKey": "maxZoom",
+          "description": "Maximum zoom level layer is visibile at.",
+          "type": {
+            "numeric": true
+          }
+        }
+      }
+    },
     "heatmap": {
       "displayName": "Heatmap",
       "displayNameKey": "heatmap",

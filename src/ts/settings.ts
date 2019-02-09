@@ -11,6 +11,7 @@ module powerbi.extensibility.visual {
         public cluster: ClusterSettings = new ClusterSettings();
         public heatmap: HeatmapSettings = new HeatmapSettings();
         public circle: CircleSettings = new CircleSettings();
+        public raster: WMSSettings = new WMSSettings();
         public choropleth: ChoroplethSettings = new ChoroplethSettings();
 
         public static enumerateObjectInstances(
@@ -64,7 +65,7 @@ module powerbi.extensibility.visual {
             }
 
             return { instances }
-        }
+    }
     }
 
     export class GeocoderSettings {
@@ -106,6 +107,13 @@ module powerbi.extensibility.visual {
             }
             return { instances }
         }
+    }
+    export class WMSSettings {
+        public show: boolean = false;
+        public url: string = "https://geodata.state.nj.us/imagerywms/Natural2015?bbox={bbox-epsg-3857}&format=image/png&service=WMS&version=1.1.1&request=GetMap&srs=EPSG:3857&width=256&height=256&layers=Natural2015";
+        public opacity: number = 80;
+        public minZoom: number = 0;
+        public maxZoom: number = 22;
     }
 
     export class HeatmapSettings {
