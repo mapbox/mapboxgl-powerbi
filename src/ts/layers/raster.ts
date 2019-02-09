@@ -2,7 +2,8 @@ module powerbi.extensibility.visual {
     declare var turf: any;
 
     export class Raster extends Layer {
-        private static ID = 'raster';
+        private static readonly ID = 'raster';
+        private static readonly LayerOrder = [Raster.ID];
 
         constructor(map: MapboxMap) {
             super(map)
@@ -11,20 +12,21 @@ module powerbi.extensibility.visual {
         }
 
         getLayerIDs() {
-            return ['raster'];
+            return [Raster.ID];
         }
 
         addLayer(settings, beforeLayerId) {
             const map = this.parent.getMap();
-            const rasterLayer = mapboxUtils.decorateLayer({
-                id: 'raster',
+            const layers = {};
+            layers[Raster.ID] = mapboxUtils.decorateLayer({
+                id: Raster.ID,
                 source: 'raster',
                 type: 'raster',
                 paint: {
-                    'raster-opacity': 0.80
+                    'raster-opacity': 1
                 }
             });
-            map.addLayer(rasterLayer, beforeLayerId);
+            Raster.LayerOrder.forEach((layerId) => map.addLayer(layers[layerId], beforeLayerId));
         }
 
         removeLayer() {
