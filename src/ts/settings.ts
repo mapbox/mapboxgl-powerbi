@@ -11,26 +11,26 @@ module powerbi.extensibility.visual {
         public cluster: ClusterSettings = new ClusterSettings();
         public heatmap: HeatmapSettings = new HeatmapSettings();
         public circle: CircleSettings = new CircleSettings();
-        public raster: WMSSettings = new WMSSettings();
         public choropleth: ChoroplethSettings = new ChoroplethSettings();
+        public raster: RasterSettings = new RasterSettings();
 
         public static enumerateObjectInstances(
             dataViewObjectParser: DataViewObjectsParser,
             options: EnumerateVisualObjectInstancesOptions): VisualObjectInstanceEnumeration {
 
-                let settings: MapboxSettings = <MapboxSettings>dataViewObjectParser;
-                let instanceEnumeration = DataViewObjectsParser.enumerateObjectInstances(dataViewObjectParser, options);
+            let settings: MapboxSettings = <MapboxSettings>dataViewObjectParser;
+            let instanceEnumeration = DataViewObjectsParser.enumerateObjectInstances(dataViewObjectParser, options);
 
-                switch (options.objectName) {
-                    case 'api':
-                    case 'circle':
-                    case 'choropleth': {
-                        return settings[options.objectName].enumerateObjectInstances(instanceEnumeration);
-                    }
-                    default: {
-                        return instanceEnumeration;
-                    }
+            switch (options.objectName) {
+                case 'api':
+                case 'circle':
+                case 'choropleth': {
+                    return settings[options.objectName].enumerateObjectInstances(instanceEnumeration);
                 }
+                default: {
+                    return instanceEnumeration;
+                }
+            }
         }
     }
 
@@ -65,7 +65,7 @@ module powerbi.extensibility.visual {
             }
 
             return { instances }
-    }
+        }
     }
 
     export class GeocoderSettings {
@@ -80,7 +80,7 @@ module powerbi.extensibility.visual {
         public scaleFactor: number = 5;
         public diverging: boolean = false;
         public minColor: string = "#ffffcc";
-        public midColor: string= "#41b6c4";
+        public midColor: string = "#41b6c4";
         public maxColor: string = "#253494";
         public minValue: number = null;
         public midValue: number = null;
@@ -107,13 +107,6 @@ module powerbi.extensibility.visual {
             }
             return { instances }
         }
-    }
-    export class WMSSettings {
-        public show: boolean = false;
-        public url: string = "https://geodata.state.nj.us/imagerywms/Natural2015?bbox={bbox-epsg-3857}&format=image/png&service=WMS&version=1.1.1&request=GetMap&srs=EPSG:3857&width=256&height=256&layers=Natural2015";
-        public opacity: number = 80;
-        public minZoom: number = 0;
-        public maxZoom: number = 22;
     }
 
     export class HeatmapSettings {
@@ -368,7 +361,7 @@ module powerbi.extensibility.visual {
                 if (old[`vectorTileUrl${i + 1}`] != this[`vectorTileUrl${i + 1}`] ||
                     old[`sourceLayer${i + 1}`] != this[`sourceLayer${i + 1}`] ||
                     old[`vectorProperty${i + 1}`] != this[`vectorProperty${i + 1}`]) {
-                        return true;
+                    return true;
                 }
             }
             return false;
@@ -395,5 +388,14 @@ module powerbi.extensibility.visual {
                 }
             }
         }
+    }
+
+    export class RasterSettings {
+        public show: boolean = false;
+        public url: string = "https://geodata.state.nj.us/imagerywms/Natural2015?bbox={bbox-epsg-3857}&format=image/png&service=WMS&version=1.1.1&request=GetMap&srs=EPSG:3857&transparent=true&width=256&height=256&layers=Natural2015";
+        public rasterTileSize: number = 256;
+        public opacity: number = 80;
+        public minZoom: number = 0;
+        public maxZoom: number = 22;
     }
 }

@@ -1,5 +1,4 @@
 module powerbi.extensibility.visual.data {
-    declare var turf: any;
 
     export class Raster extends Datasource {
         // protected colorLimits: mapboxUtils.Limits;
@@ -15,7 +14,7 @@ module powerbi.extensibility.visual.data {
                 tiles: [
                     settings.raster.url
                 ],
-                tileSize: 256
+                tileSize: settings.raster.rasterTileSize
             }, );
             return map.getSource('raster');
         }
