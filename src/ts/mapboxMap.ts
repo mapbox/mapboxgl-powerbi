@@ -154,13 +154,13 @@ module powerbi.extensibility.visual {
             this.map = new mapboxgl.Map(mapOptions);
 
             this.layers = [];
+            this.layers.push(new Raster(this));
             this.layers.push(new Heatmap(this));
             this.layers.push(new Cluster(this, () => {
                 return this.roleMap.cluster.displayName;
             }))
             this.layers.push(new Circle(this, this.filter, this.palette));
             this.layers.push(new Choropleth(this, this.filter, this.palette));
-            this.layers.push(new Raster(this));
             mapboxgl.config.API_URL = this.settings.api.apiUrl;
 
 
