@@ -13,8 +13,7 @@ module powerbi.extensibility.visual.data {
             map.addSource('data', {
                 type: 'geojson',
                 data: turf.helpers.featureCollection([]),
-                buffer: 10,
-                generateId: true
+                buffer: 10
             });
             return map.getSource('data');
         }
