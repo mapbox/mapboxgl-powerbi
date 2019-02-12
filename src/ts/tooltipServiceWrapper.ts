@@ -86,7 +86,7 @@ module powerbi.extensibility.visual {
                                 dataItems: tooltipInfo,
                                 identities: [],
                             });
-                        }, 12, true)
+                        }, 6, true)
                     }
 
                     map.off('mouseleave', layerId, this.mapHideTooltip[layerId]);

@@ -8,7 +8,7 @@
       "preferredTypes": [
         {
           "geography": {
-              "stateorprovince": true
+            "stateorprovince": true
           }
         }
       ]
@@ -122,74 +122,74 @@
   ],
   "dataViewMappings": [
     {
-        "conditions": [
-            {
-                "location": {
-                    "max": 1
-                },
-                "latitude": {
-                    "max": 1
-                },
-                "longitude": {
-                    "max": 1
-                },
-                "color": {
-                    "max": 1
-                },
-                "size": {
-                    "max": 1
-                },
-                "cluster": {
-                    "max": 1
-                }
-            }
-        ],
-        "categorical": {
-            "categories": {
-                "dataReductionAlgorithm": {
-                    "sample": {
-                        "count": 30000
-                    }
-                },
-                "select": [
-                    {
-                        "for": {
-                            "in": "location"
-                        }
-                    },
-                    {
-                        "for": {
-                            "in": "latitude"
-                        }
-                    },
-                    {
-                        "for": {
-                            "in": "longitude"
-                        }
-                    },
-                    {
-                        "for": {
-                            "in": "color"
-                        }
-                    },
-                    {
-                        "for": {
-                            "in": "size"
-                        }
-                    },
-                    {
-                        "for": {
-                            "in": "cluster"
-                        }
-                    },
-                    {
-                        "for": {
-                            "in": "tooltips"
-                        }
-                    }
-                ]
-            }
+      "conditions": [
+        {
+          "location": {
+            "max": 1
+          },
+          "latitude": {
+            "max": 1
+          },
+          "longitude": {
+            "max": 1
+          },
+          "color": {
+            "max": 1
+          },
+          "size": {
+            "max": 1
+          },
+          "cluster": {
+            "max": 1
+          }
         }
+      ],
+      "categorical": {
+        "categories": {
+          "dataReductionAlgorithm": {
+            "sample": {
+              "count": 30000
+            }
+          },
+          "select": [
+            {
+              "for": {
+                "in": "location"
+              }
+            },
+            {
+              "for": {
+                "in": "latitude"
+              }
+            },
+            {
+              "for": {
+                "in": "longitude"
+              }
+            },
+            {
+              "for": {
+                "in": "color"
+              }
+            },
+            {
+              "for": {
+                "in": "size"
+              }
+            },
+            {
+              "for": {
+                "in": "cluster"
+              }
+            },
+            {
+              "for": {
+                "in": "tooltips"
+              }
+            }
+          ]
+        }
+      }
     }
   ],
   "drilldown": {
@@ -1555,20 +1555,73 @@
         }
       }
     },
-    "dataColorsPalette": {
-        "displayName": "Data Colors",
-        "properties": {
-            "fill": {
-                "displayName": "Color",
-                "type": {
-                    "fill": {
-                        "solid": {
-                            "color": true
-                        }
-                    }
-                }
-            }
+    "raster": {
+      "displayName": "Raster",
+      "displayNameKey": "raster",
+      "description": "Raster Tile layer settings from a WMS or ZXY tile url.",
+      "properties": {
+        "show": {
+          "displayName": "WMS",
+          "type": {
+            "bool": true
+          }
+        },
+        "url": {
+          "displayName": "URL",
+          "displayNameKey": "url",
+          "description": "The URL to load the raster tiles source from in WMS or ZXY format.  You must hide then show this layer for your raster source to see the changes from this field while developing  For an example WMS url compatible here, see https://docs.mapbox.com/mapbox-gl-js/example/wms/ - note that the `?bbox={bbox-epsg-3857}` URL parameter is required in a WMS URL.",
+          "type": {
+            "text": true
+          }
+        },
+        "rasterTileSize": {
+          "displayName": "Raster Tile Size",
+          "displayNameKey": "rasterTileSize",
+          "description": "The tile size in pixels of your rasters (256 or 512).  You must hide then show this layer to show the changes from this field while developing.",
+          "type": {
+            "numeric": true
+          }
+        },
+        "opacity": {
+          "displayName": "Opacity",
+          "displayNameKey": "opacity",
+          "description": "The global opacity in percentage at which the layer will be drawn.",
+          "type": {
+            "numeric": true
+          }
+        },
+        "minZoom": {
+          "displayName": "Min Zoom",
+          "displayNameKey": "minZoom",
+          "description": "Minimum zoom level layer is visibile at.",
+          "type": {
+            "numeric": true
+          }
+        },
+        "maxZoom": {
+          "displayName": "Max Zoom",
+          "displayNameKey": "maxZoom",
+          "description": "Maximum zoom level layer is visibile at.",
+          "type": {
+            "numeric": true
+          }
         }
+      }
+    },
+    "dataColorsPalette": {
+      "displayName": "Data Colors",
+      "properties": {
+        "fill": {
+          "displayName": "Color",
+          "type": {
+            "fill": {
+              "solid": {
+                "color": true
+              }
+            }
+          }
+        }
+      }
     }
   }
 }

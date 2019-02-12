@@ -73,6 +73,7 @@ module powerbi.extensibility.visual {
 
             const titleElement = document.createElement('div');
             titleElement.innerHTML = title
+            titleElement.className = 'mapbox-legend-title';
             legend.appendChild(titleElement)
 
             data.forEach(({colorStop, color}) => {

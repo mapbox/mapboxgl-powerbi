@@ -133,7 +133,7 @@ module powerbi.extensibility.visual {
                 zoom: this.settings.api.zoom,
                 center: [this.settings.api.startLong, this.settings.api.startLat],
                 transformRequest: (url, resourceType) => {
-                    if (url.slice(0, 22) == 'https://api.mapbox.com' ||
+                    if (url.slice(0, 25) == 'https://api.mapbox.com/v4' ||
                         url.slice(0, 26) == 'https://a.tiles.mapbox.com' ||
                         url.slice(0, 26) == 'https://b.tiles.mapbox.com' ||
                         url.slice(0, 26) == 'https://c.tiles.mapbox.com' ||
@@ -153,13 +153,14 @@ module powerbi.extensibility.visual {
             // If the map container doesn't exist yet, create it
             this.map = new mapboxgl.Map(mapOptions);
 
-            this.layers = []
-            this.layers.push(new Heatmap(this))
+            this.layers = [];
+            this.layers.push(new Raster(this));
+            this.layers.push(new Heatmap(this));
             this.layers.push(new Cluster(this, () => {
                 return this.roleMap.cluster.displayName;
             }))
-            this.layers.push(new Circle(this, this.filter, this.palette))
-            this.layers.push(new Choropleth(this, this.filter, this.palette))
+            this.layers.push(new Circle(this, this.filter, this.palette));
+            this.layers.push(new Choropleth(this, this.filter, this.palette));
             mapboxgl.config.API_URL = this.settings.api.apiUrl;
 
 
