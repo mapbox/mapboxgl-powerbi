@@ -24,7 +24,8 @@
   },
   "_requiredBy": [
     "/@types/mapbox-gl",
-    "/@types/turf"
+    "/@types/turf",
+    "/@types/axios"
   ],
   "_resolved": "https://registry.npmjs.org/@types/geojson/-/geojson-1.0.2.tgz",
   "_spec": "1.0.2",

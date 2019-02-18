@@ -1,5 +1,6 @@
 module powerbi.extensibility.visual {
     declare var MapboxGeocoder: any
+    declare var axios: any
 
     export class MapboxGeocoderControl implements mapboxgl.IControl {
         private geocoder: any
@@ -8,6 +9,7 @@ module powerbi.extensibility.visual {
         private dropPin: boolean
         private accessToken: string
         private zoom: number
+        private isochrone: any
 
 
         constructor(settings: MapboxSettings) {
@@ -30,6 +32,8 @@ module powerbi.extensibility.visual {
             this.accessToken = settings.api.accessToken
             this.zoom = settings.geocoder.zoom
             this.dropPin = settings.geocoder.dropPin
+
+            console.log('executing isochrone')
 
             if (reinitNeeded && this.geocoder) {
                 map.removeControl(this)
@@ -55,6 +59,8 @@ module powerbi.extensibility.visual {
                     self.subscribe(map)
                 })
             }
+
+
             return this.geocoder.onAdd(map)
         }
 
@@ -114,9 +120,54 @@ module powerbi.extensibility.visual {
             this.pin.remove()
         }
 
+        private addIsochrone(map: mapboxgl.Map) {
+            console.log(this.isochrone)
+
+           if (map.getLayer('isochrone')) {
+               map.removeLayer('isochrone')
+           }
+           if(map.getSource('isochrone-source')) {
+               map.removeSource('isochrone-source')
+           }
+            map.addSource('isochrone-source', {
+                type: 'geojson',
+                data: this.isochrone
+            });
+            // console.log(map)
+            map.addLayer({
+                'id': 'isochrone',
+                'type': 'line',
+                'source': 'isochrone-source',
+                'layout': {},
+                'paint': {
+                    'line-color': [
+                        'match',
+                        ['get', 'contour'],
+                        5, '#fbb03b',
+                        10, '#223b53',
+                        15, '#e55e5e',
+                        /* other */ '#ccc'
+                        ],
+                    'line-width': 5
+                }
+            })
+        }
+
         private addPin(map: mapboxgl.Map, position: number[]) {
             if (this.dropPin) {
                 this.pin.setLngLat(position).addTo(map)
+
+                console.log('updating location')
+                axios.get("https://api.mapbox.com/isochrone/v1/mapbox/driving/" + position + "?contours_minutes=5,10,15&contours_colors=6706ce,04e813,4286f4&polygons=true&access_token=pk.eyJ1Ijoic2FtZ2VocmV0IiwiYSI6ImNqZWExcDdwNTAxYnEyeG1tZnQ4MTNsODkifQ.68r_UjBeRkubf5eUs4uw-g")
+                    .then(response => {
+                        // console.log(response.data)
+                        this.isochrone = response.data
+                        this.addIsochrone(map)
+
+                    })
+                // console.log(this.isochrone)
+                // console.log(map)
+
             }
         }
 

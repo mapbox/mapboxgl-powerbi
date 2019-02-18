@@ -24,6 +24,7 @@
     "node_modules/@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.min.js",
     "src/js/turf-bundle-min.js",
     "node_modules/chroma-js/chroma.min.js",
+    "node_modules/axios/dist/axios.js",
     "src/js/fast-deep-equal.min.js",
     "node_modules/globalize/lib/globalize.js",
     "node_modules/globalize/lib/cultures/globalize.culture.en-US.js",
