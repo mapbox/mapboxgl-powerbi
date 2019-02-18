@@ -375,6 +375,30 @@
           "type": {
             "bool": true
           }
+        },
+        "isochroneProfile": {
+          "displayName": "Profile",
+          "displayNameKey": "isochroneProfile",
+          "description": "Profile to calculate isochrone times.",
+          "type": {
+            "enumeration": [
+              {
+                "value": "driving",
+                "displayName": "Driving",
+                "displayNameKey": "driving"
+              },
+              {
+                "value": "walking",
+                "displayName": "Walking",
+                "displayNameKey": "walking"
+              },
+              {
+                "value": "cycling",
+                "displayName": "Cycling",
+                "displayNameKey": "cycling"
+              }
+            ]
+          }
         }
       }
     },

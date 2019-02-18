@@ -11,6 +11,8 @@ module powerbi.extensibility.visual {
         private zoom: number
         private isochrone: any
         private enableIsochrone: boolean
+        private isochroneProfile: string
+        private position: any
 
 
         constructor(settings: MapboxSettings) {
@@ -18,6 +20,7 @@ module powerbi.extensibility.visual {
             this.zoom = settings.geocoder.zoom
             this.dropPin = settings.geocoder.dropPin
             this.enableIsochrone = settings.geocoder.isochrone
+            this.isochroneProfile = settings.geocoder.isochroneProfile
             this.pin = new mapboxgl.Marker()
         }
 
@@ -27,9 +30,6 @@ module powerbi.extensibility.visual {
                 this.removePin()
             }
 
-            if(!settings.geocoder.isochrone) {
-                this.removeIsoChrone(map)
-            }
 
 
             const reinitNeeded = false
@@ -40,15 +40,21 @@ module powerbi.extensibility.visual {
             this.zoom = settings.geocoder.zoom
             this.dropPin = settings.geocoder.dropPin
             this.enableIsochrone = settings.geocoder.isochrone
+            this.isochroneProfile = settings.geocoder.isochroneProfile
+
+            if (!settings.geocoder.isochrone) {
+                this.removeIsoChrone(map)
+            }
+            else {
+                this.addIsochrone(map)
+            }
+
 
             if (reinitNeeded && this.geocoder) {
                 map.removeControl(this)
                 map.addControl(this)
             }
 
-        
-
-         
         }
 
         public onAdd(map: mapboxgl.Map): HTMLElement {
@@ -131,58 +137,55 @@ module powerbi.extensibility.visual {
         }
 
         private removeIsoChrone(map: mapboxgl.Map) {
-
             if (map.getLayer('isochrone')) {
                 map.removeLayer('isochrone')
             }
-            if(map.getSource('isochrone-source')) {
+            if (map.getSource('isochrone-source')) {
                 map.removeSource('isochrone-source')
             }
 
         }
 
         private addIsochrone(map: mapboxgl.Map) {
-         this.removeIsoChrone(map)
 
-            map.addSource('isochrone-source', {
-                type: 'geojson',
-                data: this.isochrone
-            });
+            if (this.enableIsochrone && this.position) {
+                this.removeIsoChrone(map)
+                console.log(this.isochroneProfile)
+                axios.get("https://api.mapbox.com/isochrone/v1/mapbox/" + this.isochroneProfile + "/" + this.position + "?contours_minutes=5,10,15,60&contours_colors=6706ce,04e813,4286f4&polygons=true&access_token=" + this.accessToken)
+                    .then(response => {
+                        this.isochrone = response.data
+                        map.addSource('isochrone-source', {
+                            type: 'geojson',
+                            data: this.isochrone
+                        });
 
-            map.addLayer({
-                'id': 'isochrone',
-                'type': 'line',
-                'source': 'isochrone-source',
-                'layout': {},
-                'paint': {
-                    'line-color': [
-                        'match',
-                        ['get', 'contour'],
-                        5, '#fbb03b',
-                        10, '#223b53',
-                        15, '#e55e5e',
-                        60, '#e55e5e',
-                        /* other */ '#ccc'
-                        ],
-                    'line-width': 5
-                }
-            })
+                        map.addLayer({
+                            'id': 'isochrone',
+                            'type': 'line',
+                            'source': 'isochrone-source',
+                            'layout': {},
+                            'paint': {
+                                'line-color': ['get', 'color'],
+                                'line-width': 5
+                            }
+                        })
+                    })
+            }
+
         }
 
         private addPin(map: mapboxgl.Map, position: number[]) {
+            this.position = position
             if (this.dropPin) {
                 this.pin.setLngLat(position).addTo(map)
             }
-            console.log("enable iso", this.enableIsochrone)
+            console.log("profile", this.isochroneProfile)
             if (this.enableIsochrone) {
-                axios.get("https://api.mapbox.com/isochrone/v1/mapbox/driving/" + position + "?contours_minutes=5,10,15,60&contours_colors=6706ce,04e813,4286f4&polygons=true&access_token=" + this.accessToken)
-                    .then(response => {
-                        this.isochrone = response.data
-                        this.addIsochrone(map)
-                    })
-                }
 
-            
+                this.addIsochrone(map)
+
+            }
+
         }
 
         // This a workaround for the mapboxgl.Map to support the top-center position string

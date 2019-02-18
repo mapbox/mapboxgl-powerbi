@@ -23,6 +23,7 @@ module powerbi.extensibility.visual {
 
             switch (options.objectName) {
                 case 'api':
+                case 'geocoder':
                 case 'circle':
                 case 'choropleth': {
                     return settings[options.objectName].enumerateObjectInstances(instanceEnumeration);
@@ -73,6 +74,20 @@ module powerbi.extensibility.visual {
         public dropPin: boolean = true;
         public zoom: number = 10;
         public isochrone: boolean = true;
+        public isochroneProfile: string = "driving"
+
+        public enumerateObjectInstances(objectEnumeration) {
+            let instances = objectEnumeration.instances;
+            let properties = instances[0].properties;
+            // Hide / show custom map style URL control
+            if (!properties.isochrone) {
+                delete properties.isochroneProfile
+            }
+
+       
+
+            return { instances }
+        }
     }
 
     export class CircleSettings {
