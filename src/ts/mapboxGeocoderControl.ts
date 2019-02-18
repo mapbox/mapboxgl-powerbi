@@ -10,12 +10,14 @@ module powerbi.extensibility.visual {
         private accessToken: string
         private zoom: number
         private isochrone: any
+        private enableIsochrone: boolean
 
 
         constructor(settings: MapboxSettings) {
             this.accessToken = settings.api.accessToken
             this.zoom = settings.geocoder.zoom
             this.dropPin = settings.geocoder.dropPin
+            this.enableIsochrone = settings.geocoder.isochrone
             this.pin = new mapboxgl.Marker()
         }
 
@@ -25,6 +27,11 @@ module powerbi.extensibility.visual {
                 this.removePin()
             }
 
+            if(!settings.geocoder.isochrone) {
+                this.removeIsoChrone(map)
+            }
+
+
             const reinitNeeded = false
                 || this.accessToken != settings.api.accessToken
                 || this.zoom != settings.geocoder.zoom
@@ -32,13 +39,16 @@ module powerbi.extensibility.visual {
             this.accessToken = settings.api.accessToken
             this.zoom = settings.geocoder.zoom
             this.dropPin = settings.geocoder.dropPin
-
-            console.log('executing isochrone')
+            this.enableIsochrone = settings.geocoder.isochrone
 
             if (reinitNeeded && this.geocoder) {
                 map.removeControl(this)
                 map.addControl(this)
             }
+
+        
+
+         
         }
 
         public onAdd(map: mapboxgl.Map): HTMLElement {
@@ -120,20 +130,25 @@ module powerbi.extensibility.visual {
             this.pin.remove()
         }
 
-        private addIsochrone(map: mapboxgl.Map) {
-            console.log(this.isochrone)
+        private removeIsoChrone(map: mapboxgl.Map) {
 
-           if (map.getLayer('isochrone')) {
-               map.removeLayer('isochrone')
-           }
-           if(map.getSource('isochrone-source')) {
-               map.removeSource('isochrone-source')
-           }
+            if (map.getLayer('isochrone')) {
+                map.removeLayer('isochrone')
+            }
+            if(map.getSource('isochrone-source')) {
+                map.removeSource('isochrone-source')
+            }
+
+        }
+
+        private addIsochrone(map: mapboxgl.Map) {
+         this.removeIsoChrone(map)
+
             map.addSource('isochrone-source', {
                 type: 'geojson',
                 data: this.isochrone
             });
-            // console.log(map)
+
             map.addLayer({
                 'id': 'isochrone',
                 'type': 'line',
@@ -146,6 +161,7 @@ module powerbi.extensibility.visual {
                         5, '#fbb03b',
                         10, '#223b53',
                         15, '#e55e5e',
+                        60, '#e55e5e',
                         /* other */ '#ccc'
                         ],
                     'line-width': 5
@@ -156,19 +172,17 @@ module powerbi.extensibility.visual {
         private addPin(map: mapboxgl.Map, position: number[]) {
             if (this.dropPin) {
                 this.pin.setLngLat(position).addTo(map)
-
-                console.log('updating location')
-                axios.get("https://api.mapbox.com/isochrone/v1/mapbox/driving/" + position + "?contours_minutes=5,10,15&contours_colors=6706ce,04e813,4286f4&polygons=true&access_token=pk.eyJ1Ijoic2FtZ2VocmV0IiwiYSI6ImNqZWExcDdwNTAxYnEyeG1tZnQ4MTNsODkifQ.68r_UjBeRkubf5eUs4uw-g")
+            }
+            console.log("enable iso", this.enableIsochrone)
+            if (this.enableIsochrone) {
+                axios.get("https://api.mapbox.com/isochrone/v1/mapbox/driving/" + position + "?contours_minutes=5,10,15,60&contours_colors=6706ce,04e813,4286f4&polygons=true&access_token=" + this.accessToken)
                     .then(response => {
-                        // console.log(response.data)
                         this.isochrone = response.data
                         this.addIsochrone(map)
-
                     })
-                // console.log(this.isochrone)
-                // console.log(map)
+                }
 
-            }
+            
         }
 
         // This a workaround for the mapboxgl.Map to support the top-center position string

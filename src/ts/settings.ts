@@ -72,6 +72,7 @@ module powerbi.extensibility.visual {
         public show: boolean = true;
         public dropPin: boolean = true;
         public zoom: number = 10;
+        public isochrone: boolean = true;
     }
 
     export class CircleSettings {

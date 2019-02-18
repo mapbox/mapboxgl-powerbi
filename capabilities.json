@@ -368,6 +368,13 @@
           "type": {
             "numeric": true
           }
+        },
+        "isochrone": {
+          "displayName": "Enable Isochrones",
+          "description": "Show isochrone times after geocoder search",
+          "type": {
+            "bool": true
+          }
         }
       }
     },
