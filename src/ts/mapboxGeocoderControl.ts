@@ -23,6 +23,7 @@ module powerbi.extensibility.visual {
         private tenColor: string
         private thirtyColor: string
         private sixtyColor: string
+        private map: any
 
 
         constructor(settings: MapboxSettings) {
@@ -46,6 +47,7 @@ module powerbi.extensibility.visual {
 
         public update(map: mapboxgl.Map, settings: MapboxSettings) {
 
+            this.map = map
             if (!settings.geocoder.dropPin) {
                 this.removePin()
             }
@@ -72,12 +74,7 @@ module powerbi.extensibility.visual {
             // this.contourMinutes = ''
             // this.contourColors = ''
 
-            if (!settings.geocoder.isochrone) {
-                this.removeIsoChrone(map)
-            }
-            else {
-                this.addIsochrone(map)
-            }
+            this.addIsochrone(this.map)
 
 
             if (reinitNeeded && this.geocoder) {
@@ -137,6 +134,7 @@ module powerbi.extensibility.visual {
                 },
                 clear: () => {
                     this.removePin()
+                    this.removeIsoChrone(map)
                 },
             }
 
@@ -167,6 +165,8 @@ module powerbi.extensibility.visual {
         }
 
         private removeIsoChrone(map: mapboxgl.Map) {
+            console.log('remove map', map)
+            console.log('getLayer', map.getLayer('isochrone'))
             if (map.getLayer('isochrone')) {
                 map.removeLayer('isochrone')
             }
@@ -180,6 +180,8 @@ module powerbi.extensibility.visual {
         }
 
         private addIsochrone(map: mapboxgl.Map) {
+
+
 
             this.contourMinutes = ''
             this.contourColors = ''
@@ -279,6 +281,7 @@ module powerbi.extensibility.visual {
                         })
                 }
             }
+
 
         }
 
