@@ -13,6 +13,16 @@ module powerbi.extensibility.visual {
         private enableIsochrone: boolean
         private isochroneProfile: string
         private position: any
+        private five: boolean
+        private ten: boolean
+        private thirty: boolean
+        private sixty: boolean
+        private contourMinutes: string
+        private contourColors: string
+        private fiveColor: string
+        private tenColor: string
+        private thirtyColor: string
+        private sixtyColor: string
 
 
         constructor(settings: MapboxSettings) {
@@ -22,6 +32,16 @@ module powerbi.extensibility.visual {
             this.enableIsochrone = settings.geocoder.isochrone
             this.isochroneProfile = settings.geocoder.isochroneProfile
             this.pin = new mapboxgl.Marker()
+            this.five = settings.geocoder.five
+            this.ten = settings.geocoder.ten
+            this.thirty = settings.geocoder.thirty
+            this.sixty = settings.geocoder.sixty
+            this.fiveColor = settings.geocoder.fiveColor
+            this.tenColor = settings.geocoder.tenColor.substr(1)
+            this.thirtyColor = settings.geocoder.thirtyColor.substr(1)
+            this.sixtyColor = settings.geocoder.sixtyColor.substr(1)
+            this.contourMinutes = ''
+            this.contourColors = ''
         }
 
         public update(map: mapboxgl.Map, settings: MapboxSettings) {
@@ -41,6 +61,16 @@ module powerbi.extensibility.visual {
             this.dropPin = settings.geocoder.dropPin
             this.enableIsochrone = settings.geocoder.isochrone
             this.isochroneProfile = settings.geocoder.isochroneProfile
+            this.five = settings.geocoder.five
+            this.ten = settings.geocoder.ten
+            this.thirty = settings.geocoder.thirty
+            this.sixty = settings.geocoder.sixty
+            this.fiveColor = settings.geocoder.fiveColor.substr(1)
+            this.tenColor = settings.geocoder.tenColor.substr(1)
+            this.thirtyColor = settings.geocoder.thirtyColor.substr(1)
+            this.sixtyColor = settings.geocoder.sixtyColor.substr(1)
+            // this.contourMinutes = ''
+            // this.contourColors = ''
 
             if (!settings.geocoder.isochrone) {
                 this.removeIsoChrone(map)
@@ -140,6 +170,9 @@ module powerbi.extensibility.visual {
             if (map.getLayer('isochrone')) {
                 map.removeLayer('isochrone')
             }
+            // if (map.getLayer('isochrone-symbol')) {
+            //     map.removeLayer('isochrone-symbol')
+            // }
             if (map.getSource('isochrone-source')) {
                 map.removeSource('isochrone-source')
             }
@@ -148,28 +181,103 @@ module powerbi.extensibility.visual {
 
         private addIsochrone(map: mapboxgl.Map) {
 
+            this.contourMinutes = ''
+            this.contourColors = ''
             if (this.enableIsochrone && this.position) {
                 this.removeIsoChrone(map)
-                console.log(this.isochroneProfile)
-                axios.get("https://api.mapbox.com/isochrone/v1/mapbox/" + this.isochroneProfile + "/" + this.position + "?contours_minutes=5,10,15,60&contours_colors=6706ce,04e813,4286f4&polygons=true&access_token=" + this.accessToken)
-                    .then(response => {
-                        this.isochrone = response.data
-                        map.addSource('isochrone-source', {
-                            type: 'geojson',
-                            data: this.isochrone
-                        });
+                if (this.five) {
+                    this.contourMinutes = this.contourMinutes + "5"
+                    this.contourColors = this.contourColors + this.fiveColor
+                }
+                if (this.ten) {
+                    if (this.contourColors === '') {
+                        this.contourMinutes = this.contourMinutes + "10"
+                        // this.tenColor = this.tenColor.substr(1)
+                        this.contourColors = this.contourColors + this.tenColor
+                    }
+                    else {
+                        this.contourMinutes = this.contourMinutes + ",10"
+                        // this.tenColor = this.tenColor.substr(1)
+                        this.contourColors = this.contourColors + "," + this.tenColor
+                    }
 
-                        map.addLayer({
-                            'id': 'isochrone',
-                            'type': 'line',
-                            'source': 'isochrone-source',
-                            'layout': {},
-                            'paint': {
-                                'line-color': ['get', 'color'],
-                                'line-width': 5
-                            }
+
+                }
+                if (this.thirty) {
+                    if (this.contourColors === '') {
+                        this.contourMinutes = this.contourMinutes + "30"
+                        // this.thirtyColor = this.thirtyColor.substr(1)
+                        this.contourColors = this.contourColors + this.thirtyColor
+                    }
+                    else {
+                        this.contourMinutes = this.contourMinutes + ",30"
+                        // this.thirtyColor = this.thirtyColor.substr(1)
+                        this.contourColors = this.contourColors + "," + this.thirtyColor
+                    }
+
+                }
+                if (this.sixty) {
+                    if (this.contourColors === '') {
+                        this.contourMinutes = this.contourMinutes + "60"
+                        // this.sixtyColor = this.sixtyColor.substr(1)
+                        this.contourColors = this.contourColors + this.sixtyColor
+                    }
+                    else {
+                        this.contourMinutes = this.contourMinutes + ",60"
+                        // this.sixtyColor = this.sixtyColor.substr(1)
+                        this.contourColors = this.contourColors + "," + this.sixtyColor
+                    }
+
+                }
+
+                console.log('contour minutes', this.contourMinutes)
+                console.log('contour colors', this.contourColors)
+                console.log('request', "https://api.mapbox.com/isochrone/v1/mapbox/" + this.isochroneProfile + "/" + this.position + "?contours_minutes=" + this.contourMinutes + "&contours_colors=" + this.contourColors + "&polygons=true&access_token=" + this.accessToken)
+
+
+                if (this.contourColors && this.contourMinutes) {
+                    axios.get("https://api.mapbox.com/isochrone/v1/mapbox/" + this.isochroneProfile + "/" + this.position + "?contours_minutes=" + this.contourMinutes + "&contours_colors=" + this.contourColors + "&polygons=true&access_token=" + this.accessToken)
+                        .then(response => {
+                            this.isochrone = response.data
+                            map.addSource('isochrone-source', {
+                                type: 'geojson',
+                                data: this.isochrone
+                            });
+
+                            map.addLayer({
+                                'id': 'isochrone',
+                                'type': 'line',
+                                'source': 'isochrone-source',
+                                'layout': {},
+                                'paint': {
+                                    'line-color': ['get', 'color'],
+                                    'line-width': 5
+                                }
+                            })
+                            // map.addLayer({
+                            //     'id': 'isochrone-symbol',
+                            //     'type': 'symbol',
+                            //     'source': 'isochrone-source',
+                            //     'layout': {
+                            //         'text-field':'TEST',
+                            //         'symbol-placement': 'line',
+                            //         'text-allow-overlap': false,
+                            //         'text-padding': 1,
+                            //         'text-max-angle': 90,
+                            //         'text-size': 40,
+                            //         'text-letter-spacing': 0.1,
+                            //         'symbol-avoid-edges': true
+                            //     },
+                            //     'paint': {
+                            //         'text-halo-color': 'rgba(0, 0, 0, 0)',
+                            //         'text-color': ['get', 'color'],
+                            //         'text-halo-width': 12,
+                            //         'text-translate': [0,-40]
+                            //     }
+                            // })
+
                         })
-                    })
+                }
             }
 
         }

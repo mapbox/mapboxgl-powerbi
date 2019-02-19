@@ -399,6 +399,82 @@
               }
             ]
           }
+        },
+        "five": {
+          "displayName": "Five Minutes",
+          "description": "Display Five Minute Band",
+          "type": {
+            "bool": true
+          }
+        },
+        "fiveColor": {
+          "displayName": "Five Color",
+          "displayNameKey": "fiveColor",
+          "description": "Defines the band color for 5 minutes.",
+          "type": {
+            "fill": {
+              "solid": {
+                "color": true
+              }
+            }
+          }
+        },
+        "ten": {
+          "displayName": "Ten Minutes",
+          "description": "Display Ten Minute Bandh",
+          "type": {
+            "bool": true
+          }
+        },
+        "tenColor": {
+          "displayName": "Ten Color",
+          "displayNameKey": "ten",
+          "description": "Defines the band color for 10 minutes.",
+          "type": {
+            "fill": {
+              "solid": {
+                "color": true
+              }
+            }
+          }
+        },
+        "thirty": {
+          "displayName": "Thirty Minutes",
+          "description": "Display Thirty Minute Band",
+          "type": {
+            "bool": true
+          }
+        },
+        "thirtyColor": {
+          "displayName": "Thirty Color",
+          "displayNameKey": "thirty",
+          "description": "Defines the band color for 30 minutes.",
+          "type": {
+            "fill": {
+              "solid": {
+                "color": true
+              }
+            }
+          }
+        },
+        "sixty": {
+          "displayName": "Sixty Minutes",
+          "description": "SDisplay Sixty Minute Band",
+          "type": {
+            "bool": true
+          }
+        },
+        "sixtyColor": {
+          "displayName": "Sixty Color",
+          "displayNameKey": "sixtyColor",
+          "description": "Defines the band color for 60 minutes.",
+          "type": {
+            "fill": {
+              "solid": {
+                "color": true
+              }
+            }
+          }
         }
       }
     },

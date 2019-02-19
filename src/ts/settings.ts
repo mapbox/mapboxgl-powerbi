@@ -75,6 +75,14 @@ module powerbi.extensibility.visual {
         public zoom: number = 10;
         public isochrone: boolean = true;
         public isochroneProfile: string = "driving"
+        public five: boolean = true;
+        public fiveColor: string = "#ffffcc";
+        public ten: boolean = true;
+        public tenColor: string = "#ffffcc";
+        public thirty: boolean = true;
+        public thirtyColor: string = "#ffffcc";
+        public sixty: boolean = true;
+        public sixtyColor: string = "#ffffcc";
 
         public enumerateObjectInstances(objectEnumeration) {
             let instances = objectEnumeration.instances;
@@ -82,9 +90,15 @@ module powerbi.extensibility.visual {
             // Hide / show custom map style URL control
             if (!properties.isochrone) {
                 delete properties.isochroneProfile
-            }
-
-       
+                delete properties.five
+                delete properties.fiveColor
+                delete properties.ten
+                delete properties.tenColor
+                delete properties.thirty
+                delete properties.thirtyColor
+                delete properties.sixty
+                delete properties.sixtyColor
+            }       
 
             return { instances }
         }
