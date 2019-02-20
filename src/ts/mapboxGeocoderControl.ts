@@ -165,14 +165,9 @@ module powerbi.extensibility.visual {
         }
 
         private removeIsoChrone(map: mapboxgl.Map) {
-            console.log('remove map', map)
-            console.log('getLayer', map.getLayer('isochrone'))
             if (map.getLayer('isochrone')) {
                 map.removeLayer('isochrone')
             }
-            // if (map.getLayer('isochrone-symbol')) {
-            //     map.removeLayer('isochrone-symbol')
-            // }
             if (map.getSource('isochrone-source')) {
                 map.removeSource('isochrone-source')
             }
@@ -232,11 +227,6 @@ module powerbi.extensibility.visual {
 
                 }
 
-                console.log('contour minutes', this.contourMinutes)
-                console.log('contour colors', this.contourColors)
-                console.log('request', "https://api.mapbox.com/isochrone/v1/mapbox/" + this.isochroneProfile + "/" + this.position + "?contours_minutes=" + this.contourMinutes + "&contours_colors=" + this.contourColors + "&polygons=true&access_token=" + this.accessToken)
-
-
                 if (this.contourColors && this.contourMinutes) {
                     axios.get("https://api.mapbox.com/isochrone/v1/mapbox/" + this.isochroneProfile + "/" + this.position + "?contours_minutes=" + this.contourMinutes + "&contours_colors=" + this.contourColors + "&polygons=true&access_token=" + this.accessToken)
                         .then(response => {
@@ -290,7 +280,6 @@ module powerbi.extensibility.visual {
             if (this.dropPin) {
                 this.pin.setLngLat(position).addTo(map)
             }
-            console.log("profile", this.isochroneProfile)
             if (this.enableIsochrone) {
 
                 this.addIsochrone(map)
