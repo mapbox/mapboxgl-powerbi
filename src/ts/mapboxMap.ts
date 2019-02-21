@@ -199,10 +199,10 @@ module powerbi.extensibility.visual {
             this.errorDiv.innerText = '';
 
             //check for GL Support
-            if (!mapboxgl.supported()) {
-                this.errorDiv.innerHTML = Templates.noGlSupport
-                return false;
-            }
+            // if (!mapboxgl.supported()) {
+            //     this.errorDiv.innerHTML = Templates.noGlSupport
+            //     return false;
+            // }
 
             // Check for Access Token
             if (!this.settings.api.accessToken) {
