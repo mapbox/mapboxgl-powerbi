@@ -1,6 +1,6 @@
 {
   "name": "mapboxgl-powerbi",
-  "version": "1.2.3",
+  "version": "1.2.4",
   "description": "Mapbox Visual for Power BI",
   "main": "index.js",
   "scripts": {
