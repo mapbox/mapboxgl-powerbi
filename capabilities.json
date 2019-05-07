@@ -1673,6 +1673,13 @@
             "bool": true
           }
         },
+        "weather": {
+          "displayName": "Weather",
+          "description": "Turn on Weather Raster",
+          "type": {
+            "bool": true
+          }
+        },
         "url": {
           "displayName": "URL",
           "displayNameKey": "url",

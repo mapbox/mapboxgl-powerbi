@@ -29,7 +29,8 @@ module powerbi.extensibility.visual {
         }
 
         addLayer(settings, beforeLayerId) {
-            console.log('ADDING LAYER', this.timeSlice)
+
+            console.log('weather settings', settings.raster.weather)
             const map = this.parent.getMap();
             const layers = {};
             const weatherLayer = {
