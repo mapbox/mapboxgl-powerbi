@@ -33,25 +33,31 @@ module powerbi.extensibility.visual.data {
 
             console.log(map.getSource('weather'))
        
-            return map.getSource('raster');
+            // return map.getSource('raster');
         }
 
         removeSources(map) {
             map.removeSource('raster');
+            map.removeSource('weather');
         }
 
 
         ensure(map, layerId, settings): void {
             super.ensure(map, layerId, settings)
             const source: any = map.getSource('raster');
+            // const source2: any = map.getSource('weather');
             if (!source) {
                 this.addToMap(map, settings);
             }
+            // if (!source2) {
+            //     this.addToMap(map, settings);
+            // }
         }
 
         update(map, features, roleMap, settings) {
             super.update(map, features, roleMap, settings)
             const source: any = map.getSource('raster');
+            // const source2: any = map.getSource('weather');
         }
     }
 }

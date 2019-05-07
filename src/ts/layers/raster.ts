@@ -3,7 +3,7 @@ module powerbi.extensibility.visual {
 
     export class Raster extends Layer {
         private static readonly ID = 'raster';
-        private static readonly LayerOrder = [Raster.ID];
+        private static readonly LayerOrder = [Raster.ID, 'weather']
 
         constructor(map: MapboxMap) {
             super(map)
@@ -34,8 +34,10 @@ module powerbi.extensibility.visual {
                     'raster-opacity': 1
                 }
             });
+            console.log()
             layers['weather'] = weatherLayer
-            Raster.LayerOrder.push('weather')
+            
+            // Raster.LayerOrder.push('weather')
             console.log('layer order', Raster.LayerOrder)
             
             Raster.LayerOrder.forEach(function(layerId) {
@@ -48,7 +50,11 @@ module powerbi.extensibility.visual {
         removeLayer() {
             const map = this.parent.getMap();
             map.removeLayer('raster');
+            map.removeLayer('weather')
+            console.log('SOURCE', this.source)
             this.source.removeFromMap(map, 'raster');
+            // this.source2.removeFromMap(map, 'weather')
+            // this.source.removeFromMap(map, 'weather');
         }
 
         applySettings(settings, roleMap) {
