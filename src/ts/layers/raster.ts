@@ -1,14 +1,27 @@
 module powerbi.extensibility.visual {
     declare var turf: any;
+    declare var axios: any;
 
     export class Raster extends Layer {
         private static readonly ID = 'raster';
         private static readonly LayerOrder = [Raster.ID, 'weather']
+        private timeSlice: string;
 
         constructor(map: MapboxMap) {
             super(map)
             this.id = 'raster'
             this.source = data.Sources.Raster
+            console.log('intializing')
+            
+            
+            const self = this
+            axios.get("https://api.weather.com/v3/TileServer/series/productSet/PPAcore?apiKey=3f8ed76d96d94f1f8ed76d96d98f1fc0")
+            .then(function (response) {
+                console.log('layer response')
+                console.log(response.data.seriesInfo['radar'].series[0])
+                self.timeSlice = response.data.seriesInfo['radar'].series[0].ts
+                console.log('TIMESLICE', self.timeSlice)
+            })
         }
 
         getLayerIDs() {
@@ -16,11 +29,18 @@ module powerbi.extensibility.visual {
         }
 
         addLayer(settings, beforeLayerId) {
+            console.log('ADDING LAYER', this.timeSlice)
             const map = this.parent.getMap();
             const layers = {};
             const weatherLayer = {
                 id: 'weather',
-                source: 'weather',
+                source: {
+                    'type': 'raster',
+                    'tiles': [
+                        "https://api.weather.com/v3/TileServer/tile/radar?ts=" +  this.timeSlice + "&xyz={x}:{y}:{z}&apiKey=3f8ed76d96d94f1f8ed76d96d98f1fc0"
+                    ],
+                    'tileSize': 256
+                },
                 type: 'raster',
                 paint: {
 
@@ -37,7 +57,6 @@ module powerbi.extensibility.visual {
             console.log()
             layers['weather'] = weatherLayer
             
-            // Raster.LayerOrder.push('weather')
             console.log('layer order', Raster.LayerOrder)
             
             Raster.LayerOrder.forEach(function(layerId) {

@@ -1,13 +1,23 @@
 module powerbi.extensibility.visual.data {
+    declare var axios: any;
 
     export abstract class Datasource {
         protected bounds: any[];
         private references: Object;
         public ID: string;
+        public timeSlice: string;
 
         constructor(id) {
             this.references = {}
             this.ID = id
+            this.timeSlice = 'meow'
+
+            axios.get("https://api.weather.com/v3/TileServer/series/productSet/PPAcore?apiKey=3f8ed76d96d94f1f8ed76d96d98f1fc0")
+                .then(function (response) {
+                    console.log('datasource axios response', response.data)
+
+                })
+
         }
 
         abstract addSources(map, settings);

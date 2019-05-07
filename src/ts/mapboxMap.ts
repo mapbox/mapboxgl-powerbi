@@ -53,6 +53,7 @@ module powerbi.extensibility.visual {
             this.autoZoomControl = new AutoZoomControl(this.host);
             this.drawControl = new DrawControl(this.filter)
             this.controlsPopulated = false;
+
         }
 
         onUpdate(map, settings, updatedHandler: Function) {
