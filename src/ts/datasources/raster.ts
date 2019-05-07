@@ -1,4 +1,5 @@
 module powerbi.extensibility.visual.data {
+    declare var axios: any
 
     export class Raster extends Datasource {
         // protected colorLimits: mapboxUtils.Limits;
@@ -8,6 +9,11 @@ module powerbi.extensibility.visual.data {
             super('wms')
         }
 
+        // axios.get("https://test.com")
+        // .then(function(response) {
+        //     console.log('hello')
+        // })
+
         addSources(map, settings) {
             map.addSource('raster', {
                 type: 'raster',
@@ -16,6 +22,17 @@ module powerbi.extensibility.visual.data {
                 ],
                 tileSize: settings.raster.rasterTileSize
             }, );
+
+            map.addSource('weather', {
+                type: 'raster',
+                tiles: [
+                    "https://api.weather.com/v3/TileServer/tile/radar?ts=1557261300&xyz={x}:{y}:{z}&apiKey=3f8ed76d96d94f1f8ed76d96d98f1fc0"
+                ],
+                tileSize: 256
+            }, );
+
+            console.log(map.getSource('weather'))
+       
             return map.getSource('raster');
         }
 

@@ -18,6 +18,14 @@ module powerbi.extensibility.visual {
         addLayer(settings, beforeLayerId) {
             const map = this.parent.getMap();
             const layers = {};
+            const weatherLayer = {
+                id: 'weather',
+                source: 'weather',
+                type: 'raster',
+                paint: {
+
+                }
+            }
             layers[Raster.ID] = mapboxUtils.decorateLayer({
                 id: Raster.ID,
                 source: 'raster',
@@ -26,7 +34,15 @@ module powerbi.extensibility.visual {
                     'raster-opacity': 1
                 }
             });
-            Raster.LayerOrder.forEach((layerId) => map.addLayer(layers[layerId], beforeLayerId));
+            layers['weather'] = weatherLayer
+            Raster.LayerOrder.push('weather')
+            console.log('layer order', Raster.LayerOrder)
+            
+            Raster.LayerOrder.forEach(function(layerId) {
+                console.log('layer id', layerId)
+                map.addLayer(layers[layerId], beforeLayerId)
+            })
+
         }
 
         removeLayer() {
