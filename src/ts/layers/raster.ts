@@ -43,13 +43,13 @@ module powerbi.extensibility.visual {
                 axios.get("https://api.weather.com/v3/TileServer/series/productSet/PPAcore?apiKey=3f8ed76d96d94f1f8ed76d96d98f1fc0")
                     .then(function (response) {
                         if (!map.getLayer('weather')) {
-                            self.timeSlice = response.data.seriesInfo['radar'].series[0].ts
+                            self.timeSlice = response.data.seriesInfo['satrad'].series[0].ts
                             map.addLayer({
                                 id: 'weather',
                                 source: {
                                     'type': 'raster',
                                     'tiles': [
-                                        "https://api.weather.com/v3/TileServer/tile/radar?ts=" + "1557335400" + "&xyz={x}:{y}:{z}&apiKey=3f8ed76d96d94f1f8ed76d96d98f1fc0"
+                                        "https://api.weather.com/v3/TileServer/tile/satrad?ts=" + response.data.seriesInfo['satrad'].series[0].ts + "&xyz={x}:{y}:{z}&apiKey=3f8ed76d96d94f1f8ed76d96d98f1fc0"
                                     ],
                                     'tileSize': 256
                                 },
@@ -140,6 +140,11 @@ module powerbi.extensibility.visual {
             if (settings.raster.custom) {
                 map.setPaintProperty(Raster.ID, 'raster-opacity', settings.raster.opacity / 100);
                 map.setLayerZoomRange(Raster.ID, settings.raster.minZoom, settings.raster.maxZoom);
+            }
+
+            if(settings.raster.weather) {
+                map.setPaintProperty('weather', 'raster-opacity', settings.raster.opacity / 100);
+                map.setLayerZoomRange('weather', settings.raster.minZoom, settings.raster.maxZoom);
             }
         }
 
