@@ -423,6 +423,7 @@ module powerbi.extensibility.visual {
     export class RasterSettings {
         public show: boolean = false;
         public weather: boolean = false;
+        public custom: boolean = false;
         public url: string = "https://img.nj.gov/imagerywms/Natural2015?bbox={bbox-epsg-3857}&format=image/png&service=WMS&version=1.1.1&request=GetMap&srs=EPSG:3857&transparent=true&width=256&height=256&layers=Natural2015";
         public rasterTileSize: number = 256;
         public opacity: number = 80;

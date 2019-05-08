@@ -1680,6 +1680,13 @@
             "bool": true
           }
         },
+        "custom": {
+          "displayName": "Custom",
+          "description": "Turn on Custom Layer",
+          "type": {
+            "bool": true
+          }
+        },
         "url": {
           "displayName": "URL",
           "displayNameKey": "url",

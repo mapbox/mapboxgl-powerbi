@@ -37,19 +37,13 @@ module powerbi.extensibility.visual {
             // console.log('settings.raster.weather', settings.raster.weather)
             console.log('check if weather layer exists', !map.getLayer('weather'))
             console.log('adding', adding)
-            if(settings.raster.weather && !map.getLayer('weather')) {
-        
+            if (settings.raster.weather && !map.getLayer('weather')) {
+
                 const self = this
                 axios.get("https://api.weather.com/v3/TileServer/series/productSet/PPAcore?apiKey=3f8ed76d96d94f1f8ed76d96d98f1fc0")
                     .then(function (response) {
-                        if(!map.getLayer('weather')) {
-                            console.log('layer response')
-                            console.log(response.data.seriesInfo['radar'].series[0])
+                        if (!map.getLayer('weather')) {
                             self.timeSlice = response.data.seriesInfo['radar'].series[0].ts
-                            console.log('TIMESLICE', self.timeSlice)
-                            console.log("ADDING LAYER IN ADD WEATHER LAYERS")
-    
-                            
                             map.addLayer({
                                 id: 'weather',
                                 source: {
@@ -61,25 +55,59 @@ module powerbi.extensibility.visual {
                                 },
                                 type: 'raster',
                                 paint: {
-                
+
                                 }
                             })
-            
                         }
-                        
+
                     })
-                    
+
             }
-            else if (map.getLayer('weather')) {
+            else if (map.getLayer('weather') && !settings.raster.weather) {
                 console.log('removing weather layer else')
                 this.removeWeatherLayers()
+            }
+
+
+        }
+
+        addCustomLayer(settings) {
+            const map = this.parent.getMap();
+
+            if (settings.raster.custom && !map.getLayer('raster')) {
+                const layers = {};
+
+                layers[Raster.ID] = mapboxUtils.decorateLayer({
+                    id: Raster.ID,
+                    source: 'raster',
+                    type: 'raster',
+                    paint: {
+                        'raster-opacity': 1
+                    }
+                });
+
+                Raster.LayerOrder.forEach(function (layerId) {
+                    console.log('layer id', layerId)
+                    map.addLayer(layers[layerId])
+                })
+            }
+            else if (map.getLayer('raster') && !settings.raster.custom) {
+                console.log('removing weather layer else')
+                this.removeCustomLayer()
             }
             
 
         }
 
+        removeCustomLayer() {
+            console.log('removing custom layer')
+            const map = this.parent.getMap();
+            map.removeLayer('raster')
+            map.removeSource('raster')
+        }
+
         removeWeatherLayers() {
-            console.log('removing weather layer')
+            // console.log('removing weather layer')
             const map = this.parent.getMap();
             map.removeLayer('weather')
             map.removeSource('weather')
@@ -87,23 +115,10 @@ module powerbi.extensibility.visual {
 
 
         addLayer(settings, beforeLayerId) {
-            const map = this.parent.getMap();
-            const layers = {};
+
             this.addWeatherLayers(settings)
+            this.addCustomLayer(settings)
 
-            layers[Raster.ID] = mapboxUtils.decorateLayer({
-                id: Raster.ID,
-                source: 'raster',
-                type: 'raster',
-                paint: {
-                    'raster-opacity': 1
-                }
-            });
-
-            Raster.LayerOrder.forEach(function (layerId) {
-                console.log('layer id', layerId)
-                map.addLayer(layers[layerId])
-            })
 
         }
 
@@ -118,12 +133,11 @@ module powerbi.extensibility.visual {
 
         applySettings(settings, roleMap) {
             this.addWeatherLayers(settings)
+            this.addCustomLayer(settings)
             console.log('settings applied')
             super.applySettings(settings, roleMap);
             const map = this.parent.getMap();
-            console.log('settings applied')
-            console.log(settings.raster.weather.show)
-            if (settings.raster.show) {
+            if (settings.raster.custom) {
                 map.setPaintProperty(Raster.ID, 'raster-opacity', settings.raster.opacity / 100);
                 map.setLayerZoomRange(Raster.ID, settings.raster.minZoom, settings.raster.maxZoom);
             }
