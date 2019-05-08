@@ -32,30 +32,48 @@ module powerbi.extensibility.visual {
 
         addWeatherLayers(settings, beforeLayerId) {
             const map = this.parent.getMap();
-            const self = this
-            axios.get("https://api.weather.com/v3/TileServer/series/productSet/PPAcore?apiKey=3f8ed76d96d94f1f8ed76d96d98f1fc0")
-                .then(function (response) {
-                    console.log('layer response')
-                    console.log(response.data.seriesInfo['radar'].series[0])
-                    self.timeSlice = response.data.seriesInfo['radar'].series[0].ts
-                    console.log('TIMESLICE', self.timeSlice)
-                    console.log("ADDING LAYER IN ADD WEATHER LAYERS")
-                    map.addLayer({
-                        id: 'weather',
-                        source: {
-                            'type': 'raster',
-                            'tiles': [
-                                "https://api.weather.com/v3/TileServer/tile/radar?ts=" + "1557335400" + "&xyz={x}:{y}:{z}&apiKey=3f8ed76d96d94f1f8ed76d96d98f1fc0"
-                            ],
-                            'tileSize': 256
-                        },
-                        type: 'raster',
-                        paint: {
-        
-                        }
-                    })
-                })
+            console.log('calling addWeatherLayer')
+            console.log('settings.raster.weather', settings.raster.weather)
+            if(settings.raster.weather) {
+                const self = this
+                axios.get("https://api.weather.com/v3/TileServer/series/productSet/PPAcore?apiKey=3f8ed76d96d94f1f8ed76d96d98f1fc0")
+                    .then(function (response) {
+                        console.log('layer response')
+                        console.log(response.data.seriesInfo['radar'].series[0])
+                        self.timeSlice = response.data.seriesInfo['radar'].series[0].ts
+                        console.log('TIMESLICE', self.timeSlice)
+                        console.log("ADDING LAYER IN ADD WEATHER LAYERS")
 
+                        
+                        map.addLayer({
+                            id: 'weather',
+                            source: {
+                                'type': 'raster',
+                                'tiles': [
+                                    "https://api.weather.com/v3/TileServer/tile/radar?ts=" + "1557335400" + "&xyz={x}:{y}:{z}&apiKey=3f8ed76d96d94f1f8ed76d96d98f1fc0"
+                                ],
+                                'tileSize': 256
+                            },
+                            type: 'raster',
+                            paint: {
+            
+                            }
+                        })
+                    })
+            }
+            else if (map.getLayer('weather')) {
+                console.log('removing weather layer else')
+                this.removeWeatherLayers()
+            }
+            
+
+        }
+
+        removeWeatherLayers() {
+            console.log('removing weather layer')
+            const map = this.parent.getMap();
+            map.removeLayer('weather')
+            map.removeSource('weather')
         }
 
 
@@ -82,7 +100,6 @@ module powerbi.extensibility.visual {
         removeLayer() {
             const map = this.parent.getMap();
             map.removeLayer('raster');
-            map.removeLayer('weather')
 
 
             console.log('SOURCE', this.source)

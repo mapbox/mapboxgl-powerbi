@@ -139,19 +139,21 @@ module powerbi.extensibility.visual {
         }
 
         applySettings(settings: MapboxSettings, roleMap) {
-            console.log('calling super apply settings')
-            const map = this.parent.getMap();
-            if (settings.raster.weather) {
-                let firstSymbolId = this.calculateLabelPosition(settings, map)
-                this.addWeatherLayers(settings, firstSymbolId, roleMap)
-            }
+
+            const map = this.parent.getMap()
+
             if (settings[this.id].show) {
+                let firstSymbolId = this.calculateLabelPosition(settings, map)
+                console.log('calling this.addweatherlayers')
+                this.addWeatherLayers(settings, firstSymbolId, roleMap)
                 if (this.prevLabelPositionSetting === settings.api.labelPosition) {
                     if (!this.layerExists()) {
-                        let firstSymbolId = this.calculateLabelPosition(settings, map)
+
                         this.addLayer(settings, firstSymbolId, roleMap);
-                        console.log('rasster layer settings', settings.raster.weather)
-                        
+
+
+                        // console.log('rasster layer settings', settings.raster.weather)
+
                     }
                 } else {
                     const firstSymbolId = this.calculateLabelPosition(settings, map)
