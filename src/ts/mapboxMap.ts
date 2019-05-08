@@ -1,5 +1,6 @@
 module powerbi.extensibility.visual {
     declare var turf: any;
+    declare var axios: any;
 
     export class MapboxMap implements IVisual {
         private map: mapboxgl.Map;
@@ -125,6 +126,7 @@ module powerbi.extensibility.visual {
         }
 
         private addMap() {
+            
             if (this.map) {
                 return
             }
@@ -150,6 +152,8 @@ module powerbi.extensibility.visual {
                     }
                 }
             }
+
+       
 
             // If the map container doesn't exist yet, create it
             this.map = new mapboxgl.Map(mapOptions);

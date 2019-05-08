@@ -8,10 +8,12 @@ module powerbi.extensibility.visual {
         protected prevLabelPositionSetting: string;
 
         protected colorStops: ColorStops;
+        // private timeSlice: string;
 
         constructor(map: MapboxMap) {
             this.parent = map;
             this.prevLabelPositionSetting = map.getSettings().api.labelPosition;
+            console.log('LAYER CONSTRUCTOR')
         }
 
         updateSource(features, roleMap, settings) {
@@ -20,7 +22,7 @@ module powerbi.extensibility.visual {
             }
         }
 
-        getBounds(settings) : any[] {
+        getBounds(settings): any[] {
             if (settings[this.id].show) {
                 return this.source.getBounds();
             }
@@ -46,7 +48,7 @@ module powerbi.extensibility.visual {
             return this.colorStops;
         }
 
-        static mapValuesToColorStops(colorInterval: string[], method: ClassificationMethod, classCount:number, values: number[]): ColorStops {
+        static mapValuesToColorStops(colorInterval: string[], method: ClassificationMethod, classCount: number, values: number[]): ColorStops {
             if (!values || values.length == 0) {
                 return []
             }
@@ -54,14 +56,14 @@ module powerbi.extensibility.visual {
             if (values.length == 1) {
                 const colorStop = values[0];
                 const color = colorInterval[0];
-                return [{colorStop, color}];
+                return [{ colorStop, color }];
             }
 
             const domain: number[] = classCount ? mapboxUtils.getBreaks(values, method, classCount) : values;
             const colors = chroma.scale(colorInterval).colors(domain.length)
             return domain.map((colorStop, idx) => {
                 const color = colors[idx].toString();
-                return {colorStop, color};
+                return { colorStop, color };
             });
         }
 
@@ -74,12 +76,12 @@ module powerbi.extensibility.visual {
                 });
             }
 
-            if ( settings instanceof ClusterSettings || !settings.diverging) {
+            if (settings instanceof ClusterSettings || !settings.diverging) {
                 const classCount = mapboxUtils.getClassCount(colorLimits.values);
                 return Layer.mapValuesToColorStops([settings.minColor, settings.maxColor], this.getClassificationMethod(), classCount, colorLimits.values)
             }
 
-            const { minValue, midValue, maxValue, minColor, midColor, maxColor} = settings
+            const { minValue, midValue, maxValue, minColor, midColor, maxColor } = settings
 
             const filteredValues = mapboxUtils.filterValues(colorLimits.values, minValue, maxValue)
             // Split the interval into two halves when there is a middle value
@@ -137,12 +139,19 @@ module powerbi.extensibility.visual {
         }
 
         applySettings(settings: MapboxSettings, roleMap) {
+            console.log('calling super apply settings')
             const map = this.parent.getMap();
+            if (settings.raster.weather) {
+                let firstSymbolId = this.calculateLabelPosition(settings, map)
+                this.addWeatherLayers(settings, firstSymbolId, roleMap)
+            }
             if (settings[this.id].show) {
                 if (this.prevLabelPositionSetting === settings.api.labelPosition) {
                     if (!this.layerExists()) {
                         let firstSymbolId = this.calculateLabelPosition(settings, map)
                         this.addLayer(settings, firstSymbolId, roleMap);
+                        console.log('rasster layer settings', settings.raster.weather)
+                        
                     }
                 } else {
                     const firstSymbolId = this.calculateLabelPosition(settings, map)
@@ -158,8 +167,9 @@ module powerbi.extensibility.visual {
             }
         }
 
-        addLayer(settings, beforeLayerId: string, roleMap) {}
-        moveLayer(beforeLayerId: string) {}
+        addLayer(settings, beforeLayerId: string, roleMap) { }
+        addWeatherLayers(settings, beforeLayerId: string, roleMap) { }
+        moveLayer(beforeLayerId: string) { }
         abstract removeLayer()
 
         layerExists() {
@@ -176,7 +186,7 @@ module powerbi.extensibility.visual {
             return null;
         }
 
-        handleZoom(settings) : boolean {
+        handleZoom(settings): boolean {
             if (settings[this.id].show) {
                 return this.source.handleZoom(this.parent.getMap(), settings);
             }
@@ -266,8 +276,7 @@ module powerbi.extensibility.visual {
             legend: LegendControl,
             roleMap: RoleMap,
             settings: MapboxSettings,
-        ): void
-        {
+        ): void {
             const id = this.getId();
             const title = roleMap.color.displayName;
             const colorStops = this.getColorStops();

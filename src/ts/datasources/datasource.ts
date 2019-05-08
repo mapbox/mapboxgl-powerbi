@@ -10,13 +10,13 @@ module powerbi.extensibility.visual.data {
         constructor(id) {
             this.references = {}
             this.ID = id
-            this.timeSlice = 'meow'
+            // this.timeSlice = 'meow'
 
-            axios.get("https://api.weather.com/v3/TileServer/series/productSet/PPAcore?apiKey=3f8ed76d96d94f1f8ed76d96d98f1fc0")
-                .then(function (response) {
-                    console.log('datasource axios response', response.data)
+            // axios.get("https://api.weather.com/v3/TileServer/series/productSet/PPAcore?apiKey=3f8ed76d96d94f1f8ed76d96d98f1fc0")
+            //     .then(function (response) {
+            //         console.log('datasource axios response', response.data)
 
-                })
+            //     })
 
         }
 
