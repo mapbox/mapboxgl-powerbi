@@ -30,36 +30,45 @@ module powerbi.extensibility.visual {
             return [Raster.ID];
         }
 
-        addWeatherLayers(settings, beforeLayerId) {
+        addWeatherLayers(settings) {
             const map = this.parent.getMap();
-            console.log('calling addWeatherLayer')
-            console.log('settings.raster.weather', settings.raster.weather)
-            if(settings.raster.weather) {
+            var adding = 0
+            // console.log('calling addWeatherLayer')
+            // console.log('settings.raster.weather', settings.raster.weather)
+            console.log('check if weather layer exists', !map.getLayer('weather'))
+            console.log('adding', adding)
+            if(settings.raster.weather && !map.getLayer('weather')) {
+        
                 const self = this
                 axios.get("https://api.weather.com/v3/TileServer/series/productSet/PPAcore?apiKey=3f8ed76d96d94f1f8ed76d96d98f1fc0")
                     .then(function (response) {
-                        console.log('layer response')
-                        console.log(response.data.seriesInfo['radar'].series[0])
-                        self.timeSlice = response.data.seriesInfo['radar'].series[0].ts
-                        console.log('TIMESLICE', self.timeSlice)
-                        console.log("ADDING LAYER IN ADD WEATHER LAYERS")
-
-                        
-                        map.addLayer({
-                            id: 'weather',
-                            source: {
-                                'type': 'raster',
-                                'tiles': [
-                                    "https://api.weather.com/v3/TileServer/tile/radar?ts=" + "1557335400" + "&xyz={x}:{y}:{z}&apiKey=3f8ed76d96d94f1f8ed76d96d98f1fc0"
-                                ],
-                                'tileSize': 256
-                            },
-                            type: 'raster',
-                            paint: {
+                        if(!map.getLayer('weather')) {
+                            console.log('layer response')
+                            console.log(response.data.seriesInfo['radar'].series[0])
+                            self.timeSlice = response.data.seriesInfo['radar'].series[0].ts
+                            console.log('TIMESLICE', self.timeSlice)
+                            console.log("ADDING LAYER IN ADD WEATHER LAYERS")
+    
+                            
+                            map.addLayer({
+                                id: 'weather',
+                                source: {
+                                    'type': 'raster',
+                                    'tiles': [
+                                        "https://api.weather.com/v3/TileServer/tile/radar?ts=" + "1557335400" + "&xyz={x}:{y}:{z}&apiKey=3f8ed76d96d94f1f8ed76d96d98f1fc0"
+                                    ],
+                                    'tileSize': 256
+                                },
+                                type: 'raster',
+                                paint: {
+                
+                                }
+                            })
             
-                            }
-                        })
+                        }
+                        
                     })
+                    
             }
             else if (map.getLayer('weather')) {
                 console.log('removing weather layer else')
@@ -80,6 +89,7 @@ module powerbi.extensibility.visual {
         addLayer(settings, beforeLayerId) {
             const map = this.parent.getMap();
             const layers = {};
+            this.addWeatherLayers(settings)
 
             layers[Raster.ID] = mapboxUtils.decorateLayer({
                 id: Raster.ID,
@@ -107,6 +117,7 @@ module powerbi.extensibility.visual {
         }
 
         applySettings(settings, roleMap) {
+            this.addWeatherLayers(settings)
             console.log('settings applied')
             super.applySettings(settings, roleMap);
             const map = this.parent.getMap();

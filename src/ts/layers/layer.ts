@@ -145,7 +145,7 @@ module powerbi.extensibility.visual {
             if (settings[this.id].show) {
                 let firstSymbolId = this.calculateLabelPosition(settings, map)
                 console.log('calling this.addweatherlayers')
-                this.addWeatherLayers(settings, firstSymbolId, roleMap)
+                // this.addWeatherLayers(settings, firstSymbolId, roleMap)
                 if (this.prevLabelPositionSetting === settings.api.labelPosition) {
                     if (!this.layerExists()) {
 
@@ -170,7 +170,7 @@ module powerbi.extensibility.visual {
         }
 
         addLayer(settings, beforeLayerId: string, roleMap) { }
-        addWeatherLayers(settings, beforeLayerId: string, roleMap) { }
+        // addWeatherLayers(settings, beforeLayerId: string, roleMap) { }
         moveLayer(beforeLayerId: string) { }
         abstract removeLayer()
 
