@@ -10,7 +10,7 @@ module powerbi.extensibility.visual {
         private navigationControl: mapboxgl.NavigationControl;
         private autoZoomControl: AutoZoomControl;
         private legend: LegendControl;
-        private settings: MapboxSettings;
+        public settings: MapboxSettings;
         private mapStyle: string = "";
         private updatedHandler: Function = () => { }
         private tooltipServiceWrapper: ITooltipServiceWrapper;

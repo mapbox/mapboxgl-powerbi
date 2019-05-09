@@ -23,8 +23,8 @@ module powerbi.extensibility.visual {
         // private isoFeatures: 
 
 
-        constructor(mapVisual: MapboxMap, host: IVisualHost, map: MapboxMap) {
-            this.parent = map;
+        constructor(mapVisual: MapboxMap, host: IVisualHost) {
+            // this.parent = map;
             this.mapVisual = mapVisual
             this.selectionManager = host.createSelectionManager();
             this.host = host;
@@ -252,7 +252,7 @@ module powerbi.extensibility.visual {
 
 
         finish(bbox) {
-            console.log('get map', this.parent.getMap)
+            console.log('map visual', this.mapVisual.settings)
             // console.log(settings)
             this.selectionInProgress = false;
             const map = this.mapVisual.getMap();
