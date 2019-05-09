@@ -142,7 +142,8 @@ module powerbi.extensibility.visual {
                 map.setLayerZoomRange(Raster.ID, settings.raster.minZoom, settings.raster.maxZoom);
             }
 
-            if(settings.raster.weather) {
+            if(settings.raster.weather && map.getLayer('weather')) {
+                
                 map.setPaintProperty('weather', 'raster-opacity', settings.raster.opacity / 100);
                 map.setLayerZoomRange('weather', settings.raster.minZoom, settings.raster.maxZoom);
             }

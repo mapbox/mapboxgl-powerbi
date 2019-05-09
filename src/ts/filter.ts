@@ -15,6 +15,7 @@ module powerbi.extensibility.visual {
         private host: IVisualHost;
         private categories: any;
         private prevSelectionByLayer: { [layerId: string]: GeoJSON.Feature<mapboxgl.GeoJSONGeometry>[] };
+        private isoChroneSection: boolean
 
 
         constructor(mapVisual: MapboxMap, host: IVisualHost) {
@@ -22,6 +23,7 @@ module powerbi.extensibility.visual {
             this.selectionManager = host.createSelectionManager();
             this.host = host;
             this.prevSelectionByLayer = {};
+            this.isoChroneSection = true
 
             document.addEventListener('mousedown', (e) => this.onMouseDown(e));
             document.addEventListener('mousemove', (e) => this.onMouseMove(e));
@@ -256,7 +258,14 @@ module powerbi.extensibility.visual {
                     const roleMap = this.mapVisual.getRoleMap();
                     layers.map(layer => {
                         let features = map.queryRenderedFeatures(bbox, { layers: [layer.getId()] });
+
+                        if(this.isoChroneSection) {
+                            //write recursive function to draw isochrone around each selection.
+                        }
+                        else {
                         this.updateSelection(layer, features, roleMap);
+                        console.log('shift features', features)
+                        }
                     });
 
                 }
@@ -314,7 +323,7 @@ module powerbi.extensibility.visual {
                 return false;
             }
             let onClick: Function = (e) => {
-                const isoChroneSection = true
+            
                 console.log('click!')
                 const originalEvent = e.originalEvent;
                 if (originalEvent.shiftKey && originalEvent.button === 0 || this.selectionInProgress) {
@@ -354,7 +363,7 @@ module powerbi.extensibility.visual {
                         this.prevSelectionByLayer[layer.getId()] = []
                     }
 
-                    if (isoChroneSection) {
+                    if (this.isoChroneSection) {
                         console.log('latlong', e.lngLat['lat'])
                         // console.log(maxpoint)
                         if (map.getLayer('isochrone')) {
@@ -366,6 +375,14 @@ module powerbi.extensibility.visual {
                         if (map.getSource('isochrone-source')) {
                             map.removeSource('isochrone-source')
                         }
+
+                        let featuresIso: any = map.queryRenderedFeatures([minpoint, maxpoint], {
+                            "layers": [layer.getId()]
+                        });
+
+                        console.log('features iso', featuresIso)
+
+
                         axios.get(`https://api.mapbox.com/isochrone/v1/mapbox/driving/${e.lngLat['lng']},${e.lngLat['lat']}?contours_minutes=5&contours_colors=000000&polygons=true&access_token=pk.eyJ1Ijoic2FtZ2VocmV0IiwiYSI6ImNqaTI2Ynp5ajBjd3Iza3FzemFweGFyNzEifQ.65sXbbtJIMIH4rromlk6gw`)
                             .then(response => {
                                 console.log(response.data)
@@ -392,7 +409,7 @@ module powerbi.extensibility.visual {
                                     'layout': {},
                                     'paint': {
                                         'fill-color': '#088',
-                                        'fill-opacity': 0.2
+                                        'fill-opacity': .8
                                         }
                                 })
 
