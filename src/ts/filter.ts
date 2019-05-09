@@ -252,7 +252,7 @@ module powerbi.extensibility.visual {
 
 
         finish(bbox) {
-            console.log('map visual', this.mapVisual.settings)
+    
             // console.log(settings)
             this.selectionInProgress = false;
             const map = this.mapVisual.getMap();
@@ -260,10 +260,12 @@ module powerbi.extensibility.visual {
                 this.box.parentNode.removeChild(this.box);
                 this.box = null;
             }
+
+           
             let i = 0
 
             var isoFeatures = []
-            var profile = this.isoProfile
+            var profile = this.mapVisual.settings.gis.isochroneProfile
             var color = this.isoColor
             var time = this.isoTime
 
@@ -277,7 +279,7 @@ module powerbi.extensibility.visual {
                     console.log(i)
                     console.log('collection counter', collection[counter])
                     console.log('PROFILE shift', profile)
-                    axios.get(`https://api.mapbox.com/isochrone/v1/mapbox/${profile}/${collection[counter].properties['Longitude']},${collection[counter].properties['Latitude']}?contours_minutes=${time}&contours_colors=000000&polygons=true&access_token=pk.eyJ1Ijoic2FtZ2VocmV0IiwiYSI6ImNqaTI2Ynp5ajBjd3Iza3FzemFweGFyNzEifQ.65sXbbtJIMIH4rromlk6gw`)
+                    axios.get(`https://api.mapbox.com/isochrone/v1/mapbox/${this.mapVisual.settings.gis.isochroneProfile}/${collection[counter].properties['Longitude']},${collection[counter].properties['Latitude']}?contours_minutes=${this.mapVisual.settings.gis.isoTime}&contours_colors=000000&polygons=true&access_token=pk.eyJ1Ijoic2FtZ2VocmV0IiwiYSI6ImNqaTI2Ynp5ajBjd3Iza3FzemFweGFyNzEifQ.65sXbbtJIMIH4rromlk6gw`)
                         .then(response => {
                             // console.log(isoFeatures)
                             isoFeatures.push(response.data.features[0])
@@ -331,7 +333,7 @@ module powerbi.extensibility.visual {
                     layers.map(layer => {
                         let features = map.queryRenderedFeatures(bbox, { layers: [layer.getId()] });
 
-                        if (this.isoChroneSection) {
+                        if (this.mapVisual.settings.gis.isochrone) {
                             console.log('shift features', features)
                             if (map.getLayer('isochrone-multi-line')) {
                                 map.removeLayer('isochrone-multi-line')
@@ -457,7 +459,7 @@ module powerbi.extensibility.visual {
                         this.prevSelectionByLayer[layer.getId()] = []
                     }
 
-                    if (this.isoChroneSection) {
+                    if (this.mapVisual.settings.gis.isochrone) {
                         console.log('latlong', e.lngLat['lat'])
                         // console.log(maxpoint)
 
@@ -489,7 +491,7 @@ module powerbi.extensibility.visual {
 
                         if (featuresIso.length > 0) {
                             console.log('PROFILE', this.isoProfile)
-                            axios.get(`https://api.mapbox.com/isochrone/v1/mapbox/${this.isoProfile}/${e.lngLat['lng']},${e.lngLat['lat']}?contours_minutes=${this.isoTime}&contours_colors=000000&polygons=true&access_token=pk.eyJ1Ijoic2FtZ2VocmV0IiwiYSI6ImNqaTI2Ynp5ajBjd3Iza3FzemFweGFyNzEifQ.65sXbbtJIMIH4rromlk6gw`)
+                            axios.get(`https://api.mapbox.com/isochrone/v1/mapbox/${this.mapVisual.settings.gis.isochroneProfile}/${e.lngLat['lng']},${e.lngLat['lat']}?contours_minutes=${this.mapVisual.settings.gis.isoTime}&contours_colors=000000&polygons=true&access_token=pk.eyJ1Ijoic2FtZ2VocmV0IiwiYSI6ImNqaTI2Ynp5ajBjd3Iza3FzemFweGFyNzEifQ.65sXbbtJIMIH4rromlk6gw`)
                                 .then(response => {
                                     console.log(response.data)
                                     map.addSource('isochrone-source', {

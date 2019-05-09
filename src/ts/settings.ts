@@ -13,6 +13,7 @@ module powerbi.extensibility.visual {
         public circle: CircleSettings = new CircleSettings();
         public choropleth: ChoroplethSettings = new ChoroplethSettings();
         public raster: RasterSettings = new RasterSettings();
+        public gis: GisSettings = new GisSettings();
 
         public static enumerateObjectInstances(
             dataViewObjectParser: DataViewObjectsParser,
@@ -64,6 +65,29 @@ module powerbi.extensibility.visual {
                 delete properties.startLong
                 delete properties.startLat
             }
+
+            return { instances }
+        }
+    }
+
+    export class GisSettings {
+        public show: boolean = true;
+        public isochrone: boolean = true;
+        public isochroneProfile: string = "driving"
+        public isoTime: string = "5"
+       
+
+        public enumerateObjectInstances(objectEnumeration) {
+            let instances = objectEnumeration.instances;
+            let properties = instances[0].properties;
+            // Hide / show custom map style URL control
+            if (!properties.isochrone) {
+                delete properties.isochroneProfile
+                delete properties.isoTime
+                delete properties.five
+                delete properties.ten
+                delete properties.thirty
+            }       
 
             return { instances }
         }
