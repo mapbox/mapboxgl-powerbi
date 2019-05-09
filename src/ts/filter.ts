@@ -3,6 +3,7 @@ module powerbi.extensibility.visual {
     declare var axios: any;
 
     export class Filter {
+        protected parent: MapboxMap
         private box: HTMLElement;
         private start: any;
         private mapVisual: MapboxMap;
@@ -16,15 +17,23 @@ module powerbi.extensibility.visual {
         private categories: any;
         private prevSelectionByLayer: { [layerId: string]: GeoJSON.Feature<mapboxgl.GeoJSONGeometry>[] };
         private isoChroneSection: boolean
+        private isoProfile: string
+        private isoTime: string
+        private isoColor: string
         // private isoFeatures: 
 
 
-        constructor(mapVisual: MapboxMap, host: IVisualHost) {
+        constructor(mapVisual: MapboxMap, host: IVisualHost, map: MapboxMap) {
+            this.parent = map;
             this.mapVisual = mapVisual
             this.selectionManager = host.createSelectionManager();
             this.host = host;
             this.prevSelectionByLayer = {};
             this.isoChroneSection = true
+            this.isoProfile= "driving"
+            this.isoTime = "10"
+            this.isoColor = "#FFFFE0"
+
 
             document.addEventListener('mousedown', (e) => this.onMouseDown(e));
             document.addEventListener('mousemove', (e) => this.onMouseMove(e));
@@ -89,7 +98,6 @@ module powerbi.extensibility.visual {
         }
 
         public manageHandlers() {
-
             const map = this.mapVisual.getMap();
 
             // Disable box zoom in favour of rectangular selection (Shift + drag)
@@ -244,6 +252,8 @@ module powerbi.extensibility.visual {
 
 
         finish(bbox) {
+            console.log('get map', this.parent.getMap)
+            // console.log(settings)
             this.selectionInProgress = false;
             const map = this.mapVisual.getMap();
             if (this.box) {
@@ -253,36 +263,22 @@ module powerbi.extensibility.visual {
             let i = 0
 
             var isoFeatures = []
+            var profile = this.isoProfile
+            var color = this.isoColor
+            var time = this.isoTime
 
-            // map.addSource("pointData", {
-            //     type: 'geojson',
-            //     data: isoFeatures
-            //   });
-
+    
+      
             const drawIsochrones = function (collection, counter) {
-                // if (counter ===1 ) {
-
-                // }
-
 
                 if (counter < collection.length) {
                     // console.log(collection[counter])
                     i = counter + 1
                     console.log(i)
                     console.log('collection counter', collection[counter])
-
-                    axios.get(`https://api.mapbox.com/isochrone/v1/mapbox/walking/${collection[counter].properties['Longitude']},${collection[counter].properties['Latitude']}?contours_minutes=5&contours_colors=000000&polygons=true&access_token=pk.eyJ1Ijoic2FtZ2VocmV0IiwiYSI6ImNqaTI2Ynp5ajBjd3Iza3FzemFweGFyNzEifQ.65sXbbtJIMIH4rromlk6gw`)
+                    console.log('PROFILE shift', profile)
+                    axios.get(`https://api.mapbox.com/isochrone/v1/mapbox/${profile}/${collection[counter].properties['Longitude']},${collection[counter].properties['Latitude']}?contours_minutes=${time}&contours_colors=000000&polygons=true&access_token=pk.eyJ1Ijoic2FtZ2VocmV0IiwiYSI6ImNqaTI2Ynp5ajBjd3Iza3FzemFweGFyNzEifQ.65sXbbtJIMIH4rromlk6gw`)
                         .then(response => {
-                            // console.log(response.data)
-                            let newFeature = {
-                                "type": "Feature",
-                                "geometry": {
-                                    "type": "Polygon",
-                                    "coordinates": [response.data.features[0].geometry]
-                                }
-                            }
-
-                            console.log('response', response.data.features[0])
                             // console.log(isoFeatures)
                             isoFeatures.push(response.data.features[0])
                             drawIsochrones(collection, i)
@@ -290,11 +286,9 @@ module powerbi.extensibility.visual {
 
                 }
                 else {
-                    // return
-                    //draw isochrones
-                    // console.log('this.isofeatures')
+         
                     console.log('ISOFEATURES', isoFeatures)
-                    // console.log(isoFeatures.features[0])
+                 
 
                     map.addSource('isochrone-multi-source', {
                         type: 'geojson',
@@ -303,9 +297,6 @@ module powerbi.extensibility.visual {
                             "features": isoFeatures
                           }
                     });
-
-                    // map.getSource('isochrone-multi-source').setData(isoFeatures)
-
 
                     map.addLayer({
                         'id': 'isochrone-multi-line',
@@ -316,7 +307,7 @@ module powerbi.extensibility.visual {
                             'line-color': ['get', 'color'],
                             'line-width': 5
                         }
-                    })
+                    }, 'circle')
 
                     map.addLayer({
                         'id': 'isochrone-multi-fill',
@@ -324,10 +315,10 @@ module powerbi.extensibility.visual {
                         'source': 'isochrone-multi-source',
                         'layout': {},
                         'paint': {
-                            'fill-color': '#FFFFE0',
+                            'fill-color': color,
                             'fill-opacity': .8
                         }
-                    })
+                    },'circle')
                 }
             }
 
@@ -497,7 +488,8 @@ module powerbi.extensibility.visual {
                         console.log('features iso', featuresIso)
 
                         if (featuresIso.length > 0) {
-                            axios.get(`https://api.mapbox.com/isochrone/v1/mapbox/driving/${e.lngLat['lng']},${e.lngLat['lat']}?contours_minutes=5&contours_colors=000000&polygons=true&access_token=pk.eyJ1Ijoic2FtZ2VocmV0IiwiYSI6ImNqaTI2Ynp5ajBjd3Iza3FzemFweGFyNzEifQ.65sXbbtJIMIH4rromlk6gw`)
+                            console.log('PROFILE', this.isoProfile)
+                            axios.get(`https://api.mapbox.com/isochrone/v1/mapbox/${this.isoProfile}/${e.lngLat['lng']},${e.lngLat['lat']}?contours_minutes=${this.isoTime}&contours_colors=000000&polygons=true&access_token=pk.eyJ1Ijoic2FtZ2VocmV0IiwiYSI6ImNqaTI2Ynp5ajBjd3Iza3FzemFweGFyNzEifQ.65sXbbtJIMIH4rromlk6gw`)
                                 .then(response => {
                                     console.log(response.data)
                                     map.addSource('isochrone-source', {
@@ -514,7 +506,7 @@ module powerbi.extensibility.visual {
                                             'line-color': ['get', 'color'],
                                             'line-width': 5
                                         }
-                                    })
+                                    }, 'circle')
 
                                     map.addLayer({
                                         'id': 'isochrone-fill',
@@ -522,10 +514,10 @@ module powerbi.extensibility.visual {
                                         'source': 'isochrone-source',
                                         'layout': {},
                                         'paint': {
-                                            'fill-color': '#088',
+                                            'fill-color': this.isoColor,
                                             'fill-opacity': .8
                                         }
-                                    })
+                                    }, 'circle')
 
                                     var polygonBoundingBox = turf.bbox(response.data.features[0]);
                                     // console.log('bbox', polygonBoundingBox)

@@ -31,7 +31,7 @@ module powerbi.extensibility.visual {
             const map = this.parent.getMap();
             const latitude = roleMap.latitude.displayName;
             const layers = {};
-
+            console.log('circle id', Circle.ID)
             layers[Circle.ID] = mapboxUtils.decorateLayer({
                 id: Circle.ID,
                 source: 'data',
