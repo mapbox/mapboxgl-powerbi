@@ -32,7 +32,7 @@ module powerbi.extensibility.visual {
             this.isoChroneSection = true
             this.isoProfile = "driving"
             this.isoTime = "10"
-            this.isoColor = "#FFFFE0"
+            this.isoColor = "#FF0000"
 
 
             document.addEventListener('mousedown', (e) => this.onMouseDown(e));
@@ -358,7 +358,7 @@ module powerbi.extensibility.visual {
                     'layout': {},
                     'paint': {
                         'fill-color': color,
-                        'fill-opacity': .8
+                        'fill-opacity': .5
                     }
                 }, 'circle')
 
