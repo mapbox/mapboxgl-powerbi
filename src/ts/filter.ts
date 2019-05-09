@@ -30,7 +30,7 @@ module powerbi.extensibility.visual {
             this.host = host;
             this.prevSelectionByLayer = {};
             this.isoChroneSection = true
-            this.isoProfile= "driving"
+            this.isoProfile = "driving"
             this.isoTime = "10"
             this.isoColor = "#FFFFE0"
 
@@ -252,7 +252,7 @@ module powerbi.extensibility.visual {
 
 
         finish(bbox) {
-    
+
             // console.log(settings)
             this.selectionInProgress = false;
             const map = this.mapVisual.getMap();
@@ -261,7 +261,7 @@ module powerbi.extensibility.visual {
                 this.box = null;
             }
 
-           
+
             let i = 0
 
             var isoFeatures = []
@@ -269,13 +269,15 @@ module powerbi.extensibility.visual {
             var color = this.isoColor
             var time = this.mapVisual.settings.gis.isoTime
 
-    
+            var bufferFeatureCollection = []
+
+
             const drawIsochrones = function (collection, counter) {
 
                 if (counter < collection.length) {
                     // console.log(collection[counter])
                     i = counter + 1
-                    
+
                     axios.get(`https://api.mapbox.com/isochrone/v1/mapbox/${profile}/${collection[counter].properties['Longitude']},${collection[counter].properties['Latitude']}?contours_minutes=${time}&contours_colors=000000&polygons=true&access_token=pk.eyJ1Ijoic2FtZ2VocmV0IiwiYSI6ImNqaTI2Ynp5ajBjd3Iza3FzemFweGFyNzEifQ.65sXbbtJIMIH4rromlk6gw`)
                         .then(response => {
                             console.log('!!!!!!!!!!!!!!!!!!!')
@@ -285,16 +287,16 @@ module powerbi.extensibility.visual {
 
                 }
                 else {
-         
+
                     console.log('ISOFEATURES', isoFeatures)
-                 
+
 
                     map.addSource('isochrone-multi-source', {
                         type: 'geojson',
                         data: {
                             "type": "FeatureCollection",
                             "features": isoFeatures
-                          }
+                        }
                     });
 
                     map.addLayer({
@@ -317,8 +319,54 @@ module powerbi.extensibility.visual {
                             'fill-color': color,
                             'fill-opacity': .8
                         }
-                    },'circle')
+                    }, 'circle')
                 }
+            }
+
+            const bufferFeatures = function (collection) {
+                collection.forEach(feature => {
+                    // var point = turf.point([feature.properties['Longitude'], feature.properties['Latitude']])
+
+                    console.log('buffer', buffer)
+                    var newFeature = {
+                        "type": "Feature",
+                        "properties": {},
+                        "geometry": {
+                            "type": "Point",
+                            "coordinates": [
+                                feature.properties['Longitude'],
+                                feature.properties['Latitude']
+                            ]
+                        }
+                    }
+                    var buffer = turf.buffer(newFeature, 1, {units: 'kilometers'})
+                    bufferFeatureCollection.push(buffer)
+                })
+
+                map.addSource('buffer-source', {
+                    type: 'geojson',
+                    data: {
+                        "type": "FeatureCollection",
+                        "features": bufferFeatureCollection
+                    }
+                });
+
+                map.addLayer({
+                    'id': 'buffer-fill',
+                    'type': 'fill',
+                    'source': 'buffer-source',
+                    'layout': {},
+                    'paint': {
+                        'fill-color': color,
+                        'fill-opacity': .8
+                    }
+                }, 'circle')
+
+                
+
+                
+
+                console.log(bufferFeatureCollection)
             }
 
             // If bbox exists. use this value as the argument for `queryRenderedFeatures`
@@ -350,9 +398,18 @@ module powerbi.extensibility.visual {
                             if (map.getSource('isochrone-multi-source')) {
                                 map.removeSource('isochrone-multi-source')
                             }
+                            if (map.getLayer('buffer-fill')) {
+                                map.removeLayer('buffer-fill')
+                            }
+                            if (map.getSource('buffer-source')) {
+                                map.removeSource('buffer-source')
+                            }
+          
 
 
-                            drawIsochrones(features, i)
+                            // drawIsochrones(features, i)
+
+                            bufferFeatures(features)
 
                         }
                         else {
@@ -479,6 +536,12 @@ module powerbi.extensibility.visual {
                         if (map.getSource('isochrone-multi-source')) {
                             map.removeSource('isochrone-multi-source')
                         }
+                        if (map.getLayer('buffer-fill')) {
+                            map.removeLayer('buffer-fill')
+                        }
+                        if (map.getSource('buffer-source')) {
+                            map.removeSource('buffer-source')
+                        }
 
                         let featuresIso: any = map.queryRenderedFeatures([minpoint, maxpoint], {
                             "layers": [layer.getId()]
@@ -592,6 +655,12 @@ module powerbi.extensibility.visual {
                                         if (map.getSource('isochrone-multi-source')) {
                                             map.removeSource('isochrone-multi-source')
                                         }
+                                        if (map.getLayer('buffer-fill')) {
+                                            map.removeLayer('buffer-fill')
+                                        }
+                                        if (map.getSource('buffer-source')) {
+                                            map.removeSource('buffer-source')
+                                        }
                                     }
 
 
@@ -643,6 +712,12 @@ module powerbi.extensibility.visual {
                             }
                             if (map.getSource('isochrone-multi-source')) {
                                 map.removeSource('isochrone-multi-source')
+                            }
+                            if (map.getLayer('buffer-fill')) {
+                                map.removeLayer('buffer-fill')
+                            }
+                            if (map.getSource('buffer-source')) {
+                                map.removeSource('buffer-source')
                             }
                         }
 
