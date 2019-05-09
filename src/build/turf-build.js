@@ -7,4 +7,5 @@ module.exports = {
     booleanContains: require('@turf/boolean-contains').default,
     booleanOverlap: require('@turf/boolean-overlap').default,
     simplify: require('@turf/simplify').default,
+    intersect: require('@turf/line-intersect').default
 };

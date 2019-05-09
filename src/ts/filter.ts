@@ -1,4 +1,7 @@
 module powerbi.extensibility.visual {
+    declare var turf: any;
+    declare var axios: any;
+
     export class Filter {
         private box: HTMLElement;
         private start: any;
@@ -146,8 +149,8 @@ module powerbi.extensibility.visual {
                     this.dragScreenX + radius < e.originalEvent.screenX ||
                     this.dragScreenY - radius > e.originalEvent.screenY ||
                     this.dragScreenY + radius < e.originalEvent.screenY) {
-                        // It was a real drag event
-                        return;
+                    // It was a real drag event
+                    return;
                 }
 
                 // This drag event is considered to be click, so remove the highlight and selection
@@ -293,9 +296,26 @@ module powerbi.extensibility.visual {
 
             return (e.metaKey || e.ctrlKey) && e.button === 0
         }
+        
 
         createClickHandler(mapVisual: MapboxMap) {
+
+            const selectFeature = function(sel_pol, feature) {
+                if (feature.geometry.type === 'Point' && turf.booleanContains(sel_pol, feature)) {
+                    return true;
+                }
+                if ((feature.geometry.type === 'Polygon' || feature.geometry.type === 'Linestring') &&
+                   (turf.booleanOverlap(feature, sel_pol) || turf.booleanContains(sel_pol, feature) ||
+                    turf.booleanContains(feature, sel_pol)
+                )) {
+                    return true;
+                }
+
+                return false;
+            }
             let onClick: Function = (e) => {
+                const isoChroneSection = true
+                console.log('click!')
                 const originalEvent = e.originalEvent;
                 if (originalEvent.shiftKey && originalEvent.button === 0 || this.selectionInProgress) {
                     // Selection is considered to be still in progress
@@ -334,25 +354,151 @@ module powerbi.extensibility.visual {
                         this.prevSelectionByLayer[layer.getId()] = []
                     }
 
-                    let features: any = map.queryRenderedFeatures([minpoint, maxpoint], {
-                        "layers": [layer.getId()]
-                    });
+                    if (isoChroneSection) {
+                        console.log('latlong', e.lngLat['lat'])
+                        // console.log(maxpoint)
+                        if (map.getLayer('isochrone')) {
+                            map.removeLayer('isochrone')
+                        }
+                        if (map.getLayer('isochrone-fill')) {
+                            map.removeLayer('isochrone-fill')
+                        }
+                        if (map.getSource('isochrone-source')) {
+                            map.removeSource('isochrone-source')
+                        }
+                        axios.get(`https://api.mapbox.com/isochrone/v1/mapbox/driving/${e.lngLat['lng']},${e.lngLat['lat']}?contours_minutes=5&contours_colors=000000&polygons=true&access_token=pk.eyJ1Ijoic2FtZ2VocmV0IiwiYSI6ImNqaTI2Ynp5ajBjd3Iza3FzemFweGFyNzEifQ.65sXbbtJIMIH4rromlk6gw`)
+                            .then(response => {
+                                console.log(response.data)
+                                map.addSource('isochrone-source', {
+                                    type: 'geojson',
+                                    data: response.data
+                                });
+    
+                                map.addLayer({
+                                    'id': 'isochrone',
+                                    'type': 'line',
+                                    'source': 'isochrone-source',
+                                    'layout': {},
+                                    'paint': {
+                                        'line-color': ['get', 'color'],
+                                        'line-width': 5
+                                    }
+                                })
 
-                    if (features
-                        && features.length
-                        && features[0]
-                        && features[0].geometry
-                        && features[0].geometry.coordinates
-                    ) {
-                        mapVisual.hideTooltip()
-                        this.updateSelection(layer, features, roleMap, isToggleClick)
+                                map.addLayer({
+                                    'id': 'isochrone-fill',
+                                    'type': 'fill',
+                                    'source': 'isochrone-source',
+                                    'layout': {},
+                                    'paint': {
+                                        'fill-color': '#088',
+                                        'fill-opacity': 0.2
+                                        }
+                                })
+
+                                var polygonBoundingBox = turf.bbox(response.data.features[0]);
+                                console.log('bbox', polygonBoundingBox)
+                                console.log('minpoint', minpoint)
+                                console.log('maxpoint', maxpoint)
+                                console.log([polygonBoundingBox[0],polygonBoundingBox[1]], [polygonBoundingBox[2], polygonBoundingBox[3]])
+
+                                var southWest = [polygonBoundingBox[0], polygonBoundingBox[1]];
+                                var northEast = [polygonBoundingBox[2], polygonBoundingBox[3]];
+                                var northEastPointPixel = map.project(northEast);
+                                var southWestPointPixel = map.project(southWest);
+                                
+
+                                let features: any = map.queryRenderedFeatures([southWestPointPixel, northEastPointPixel], {
+                                    "layers": [layer.getId()]
+                                });
+
+                                let selectedFeatures = features.reduce(function (acc, feature) {
+                                    if (selectFeature(response.data.features[0], feature)) {
+                                        acc.push(feature);
+                                        return acc;
+                                    }
+                
+                                    // Split the feature into polygons, if it is a MultiPolygon
+                                    if (feature.geometry.type === 'MultiPolygon') {
+                                        for (let polygon of feature.geometry.coordinates) {
+                                            if (selectFeature(polygonBoundingBox, turf.helpers.polygon(polygon))) {
+                                                acc.push(feature);
+                                                return acc;
+                                            }
+                                        };
+                                    }
+                
+                                    return acc;
+                                }, [])
+
+                                console.log('selected features', selectedFeatures)
+                                console.log('features', features)
+
+        
+                                if (selectedFeatures
+                                    && selectedFeatures.length
+                                    && selectedFeatures[0]
+                                    && selectedFeatures[0].geometry
+                                    && selectedFeatures[0].geometry.coordinates
+                                ) {
+                                    mapVisual.hideTooltip()
+                                    console.log('features', selectedFeatures)
+                                    this.updateSelection(layer, selectedFeatures, roleMap, isToggleClick)
+                                }
+                                else if (isToggleClick) {
+                                    // Clicking on an empty space while holding down ctrl/cmd
+                                    // should not clear the previous selection
+                                    // (removeHighlightAndSelection has already cleared it)
+                                    // so it must be added back.
+                                    this.updateSelection(layer, [], roleMap, isToggleClick)
+
+                                    if (map.getLayer('isochrone')) {
+                                        map.removeLayer('isochrone')
+                                    }
+                                    if (map.getLayer('isochrone-fill')) {
+                                        map.removeLayer('isochrone-fill')
+                                    }
+                                    if (map.getSource('isochrone-source')) {
+                                        map.removeSource('isochrone-source')
+                                    }
+                                }
+
+
+                            })
+
                     }
-                    else if (isToggleClick) {
-                        // Clicking on an empty space while holding down ctrl/cmd
-                        // should not clear the previous selection
-                        // (removeHighlightAndSelection has already cleared it)
-                        // so it must be added back.
-                        this.updateSelection(layer, [], roleMap, isToggleClick)
+                    else {
+                        let features: any = map.queryRenderedFeatures([minpoint, maxpoint], {
+                            "layers": [layer.getId()]
+                        });
+
+                        if (features
+                            && features.length
+                            && features[0]
+                            && features[0].geometry
+                            && features[0].geometry.coordinates
+                        ) {
+                            mapVisual.hideTooltip()
+                            console.log('features', features)
+                            this.updateSelection(layer, features, roleMap, isToggleClick)
+                        }
+                        else if (isToggleClick) {
+                            // Clicking on an empty space while holding down ctrl/cmd
+                            // should not clear the previous selection
+                            // (removeHighlightAndSelection has already cleared it)
+                            // so it must be added back.
+                            this.updateSelection(layer, [], roleMap, isToggleClick)
+                            if (map.getLayer('isochrone')) {
+                                map.removeLayer('isochrone')
+                            }
+                            if (map.getLayer('isochrone-fill')) {
+                                map.removeLayer('isochrone-fill')
+                            }
+                            if (map.getSource('isochrone-source')) {
+                                map.removeSource('isochrone-source')
+                            }
+                        }
+
                     }
                 });
             }
