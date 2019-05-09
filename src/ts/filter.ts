@@ -16,6 +16,7 @@ module powerbi.extensibility.visual {
         private categories: any;
         private prevSelectionByLayer: { [layerId: string]: GeoJSON.Feature<mapboxgl.GeoJSONGeometry>[] };
         private isoChroneSection: boolean
+        // private isoFeatures: 
 
 
         constructor(mapVisual: MapboxMap, host: IVisualHost) {
@@ -249,6 +250,86 @@ module powerbi.extensibility.visual {
                 this.box.parentNode.removeChild(this.box);
                 this.box = null;
             }
+            let i = 0
+
+            var isoFeatures = []
+
+            // map.addSource("pointData", {
+            //     type: 'geojson',
+            //     data: isoFeatures
+            //   });
+
+            const drawIsochrones = function (collection, counter) {
+                // if (counter ===1 ) {
+
+                // }
+
+
+                if (counter < collection.length) {
+                    // console.log(collection[counter])
+                    i = counter + 1
+                    console.log(i)
+                    console.log('collection counter', collection[counter])
+
+                    axios.get(`https://api.mapbox.com/isochrone/v1/mapbox/walking/${collection[counter].properties['Longitude']},${collection[counter].properties['Latitude']}?contours_minutes=5&contours_colors=000000&polygons=true&access_token=pk.eyJ1Ijoic2FtZ2VocmV0IiwiYSI6ImNqaTI2Ynp5ajBjd3Iza3FzemFweGFyNzEifQ.65sXbbtJIMIH4rromlk6gw`)
+                        .then(response => {
+                            // console.log(response.data)
+                            let newFeature = {
+                                "type": "Feature",
+                                "geometry": {
+                                    "type": "Polygon",
+                                    "coordinates": [response.data.features[0].geometry]
+                                }
+                            }
+
+                            console.log('response', response.data.features[0])
+                            // console.log(isoFeatures)
+                            isoFeatures.push(response.data.features[0])
+                            drawIsochrones(collection, i)
+                        })
+
+                }
+                else {
+                    // return
+                    //draw isochrones
+                    // console.log('this.isofeatures')
+                    console.log('ISOFEATURES', isoFeatures)
+                    // console.log(isoFeatures.features[0])
+
+                    map.addSource('isochrone-multi-source', {
+                        type: 'geojson',
+                        data: {
+                            "type": "FeatureCollection",
+                            "features": isoFeatures
+                          }
+                    });
+
+                    // map.getSource('isochrone-multi-source').setData(isoFeatures)
+
+
+                    map.addLayer({
+                        'id': 'isochrone-multi-line',
+                        'type': 'line',
+                        'source': 'isochrone-multi-source',
+                        'layout': {},
+                        'paint': {
+                            'line-color': ['get', 'color'],
+                            'line-width': 5
+                        }
+                    })
+
+                    map.addLayer({
+                        'id': 'isochrone-multi-fill',
+                        'type': 'fill',
+                        'source': 'isochrone-multi-source',
+                        'layout': {},
+                        'paint': {
+                            'fill-color': '#FFFFE0',
+                            'fill-opacity': .8
+                        }
+                    })
+                }
+            }
 
             // If bbox exists. use this value as the argument for `queryRenderedFeatures`
             if (bbox) {
@@ -259,12 +340,34 @@ module powerbi.extensibility.visual {
                     layers.map(layer => {
                         let features = map.queryRenderedFeatures(bbox, { layers: [layer.getId()] });
 
-                        if(this.isoChroneSection) {
-                            //write recursive function to draw isochrone around each selection.
+                        if (this.isoChroneSection) {
+                            console.log('shift features', features)
+                            if (map.getLayer('isochrone-multi-line')) {
+                                map.removeLayer('isochrone-multi-line')
+                            }
+                            if (map.getLayer('isochrone-multi-fill')) {
+                                map.removeLayer('isochrone-multi-fill')
+                            }
+                            if (map.getSource('isochrone-source')) {
+                                map.removeSource('isochrone-multi-source')
+                            }
+                            if (map.getLayer('isochrone-multi-line')) {
+                                map.removeLayer('isochrone-multi-line')
+                            }
+                            if (map.getLayer('isochrone-multi-fill')) {
+                                map.removeLayer('isochrone-multi-fill')
+                            }
+                            if (map.getSource('isochrone-multi-source')) {
+                                map.removeSource('isochrone-multi-source')
+                            }
+
+
+                            drawIsochrones(features, i)
+
                         }
                         else {
-                        this.updateSelection(layer, features, roleMap);
-                        console.log('shift features', features)
+                            this.updateSelection(layer, features, roleMap);
+                            console.log('shift features', features)
                         }
                     });
 
@@ -305,25 +408,25 @@ module powerbi.extensibility.visual {
 
             return (e.metaKey || e.ctrlKey) && e.button === 0
         }
-        
+
 
         createClickHandler(mapVisual: MapboxMap) {
 
-            const selectFeature = function(sel_pol, feature) {
+            const selectFeature = function (sel_pol, feature) {
                 if (feature.geometry.type === 'Point' && turf.booleanContains(sel_pol, feature)) {
                     return true;
                 }
                 if ((feature.geometry.type === 'Polygon' || feature.geometry.type === 'Linestring') &&
-                   (turf.booleanOverlap(feature, sel_pol) || turf.booleanContains(sel_pol, feature) ||
-                    turf.booleanContains(feature, sel_pol)
-                )) {
+                    (turf.booleanOverlap(feature, sel_pol) || turf.booleanContains(sel_pol, feature) ||
+                        turf.booleanContains(feature, sel_pol)
+                    )) {
                     return true;
                 }
 
                 return false;
             }
             let onClick: Function = (e) => {
-            
+
                 console.log('click!')
                 const originalEvent = e.originalEvent;
                 if (originalEvent.shiftKey && originalEvent.button === 0 || this.selectionInProgress) {
@@ -366,6 +469,8 @@ module powerbi.extensibility.visual {
                     if (this.isoChroneSection) {
                         console.log('latlong', e.lngLat['lat'])
                         // console.log(maxpoint)
+
+                        // refactor recoming isochrones into remove function
                         if (map.getLayer('isochrone')) {
                             map.removeLayer('isochrone')
                         }
@@ -375,6 +480,15 @@ module powerbi.extensibility.visual {
                         if (map.getSource('isochrone-source')) {
                             map.removeSource('isochrone-source')
                         }
+                        if (map.getLayer('isochrone-multi-line')) {
+                            map.removeLayer('isochrone-multi-line')
+                        }
+                        if (map.getLayer('isochrone-multi-fill')) {
+                            map.removeLayer('isochrone-multi-fill')
+                        }
+                        if (map.getSource('isochrone-multi-source')) {
+                            map.removeSource('isochrone-multi-source')
+                        }
 
                         let featuresIso: any = map.queryRenderedFeatures([minpoint, maxpoint], {
                             "layers": [layer.getId()]
@@ -382,106 +496,122 @@ module powerbi.extensibility.visual {
 
                         console.log('features iso', featuresIso)
 
+                        if (featuresIso.length > 0) {
+                            axios.get(`https://api.mapbox.com/isochrone/v1/mapbox/driving/${e.lngLat['lng']},${e.lngLat['lat']}?contours_minutes=5&contours_colors=000000&polygons=true&access_token=pk.eyJ1Ijoic2FtZ2VocmV0IiwiYSI6ImNqaTI2Ynp5ajBjd3Iza3FzemFweGFyNzEifQ.65sXbbtJIMIH4rromlk6gw`)
+                                .then(response => {
+                                    console.log(response.data)
+                                    map.addSource('isochrone-source', {
+                                        type: 'geojson',
+                                        data: response.data
+                                    });
 
-                        axios.get(`https://api.mapbox.com/isochrone/v1/mapbox/driving/${e.lngLat['lng']},${e.lngLat['lat']}?contours_minutes=5&contours_colors=000000&polygons=true&access_token=pk.eyJ1Ijoic2FtZ2VocmV0IiwiYSI6ImNqaTI2Ynp5ajBjd3Iza3FzemFweGFyNzEifQ.65sXbbtJIMIH4rromlk6gw`)
-                            .then(response => {
-                                console.log(response.data)
-                                map.addSource('isochrone-source', {
-                                    type: 'geojson',
-                                    data: response.data
-                                });
-    
-                                map.addLayer({
-                                    'id': 'isochrone',
-                                    'type': 'line',
-                                    'source': 'isochrone-source',
-                                    'layout': {},
-                                    'paint': {
-                                        'line-color': ['get', 'color'],
-                                        'line-width': 5
-                                    }
-                                })
-
-                                map.addLayer({
-                                    'id': 'isochrone-fill',
-                                    'type': 'fill',
-                                    'source': 'isochrone-source',
-                                    'layout': {},
-                                    'paint': {
-                                        'fill-color': '#088',
-                                        'fill-opacity': .8
+                                    map.addLayer({
+                                        'id': 'isochrone',
+                                        'type': 'line',
+                                        'source': 'isochrone-source',
+                                        'layout': {},
+                                        'paint': {
+                                            'line-color': ['get', 'color'],
+                                            'line-width': 5
                                         }
+                                    })
+
+                                    map.addLayer({
+                                        'id': 'isochrone-fill',
+                                        'type': 'fill',
+                                        'source': 'isochrone-source',
+                                        'layout': {},
+                                        'paint': {
+                                            'fill-color': '#088',
+                                            'fill-opacity': .8
+                                        }
+                                    })
+
+                                    var polygonBoundingBox = turf.bbox(response.data.features[0]);
+                                    // console.log('bbox', polygonBoundingBox)
+                                    // console.log('minpoint', minpoint)
+                                    // console.log('maxpoint', maxpoint)
+                                    // console.log([polygonBoundingBox[0],polygonBoundingBox[1]], [polygonBoundingBox[2], polygonBoundingBox[3]])
+
+                                    var southWest = [polygonBoundingBox[0], polygonBoundingBox[1]];
+                                    var northEast = [polygonBoundingBox[2], polygonBoundingBox[3]];
+                                    var northEastPointPixel = map.project(northEast);
+                                    var southWestPointPixel = map.project(southWest);
+
+
+                                    let features: any = map.queryRenderedFeatures([southWestPointPixel, northEastPointPixel], {
+                                        "layers": [layer.getId()]
+                                    });
+
+                                    let selectedFeatures = features.reduce(function (acc, feature) {
+                                        if (selectFeature(response.data.features[0], feature)) {
+                                            acc.push(feature);
+                                            return acc;
+                                        }
+
+                                        // Split the feature into polygons, if it is a MultiPolygon
+                                        if (feature.geometry.type === 'MultiPolygon') {
+                                            for (let polygon of feature.geometry.coordinates) {
+                                                if (selectFeature(polygonBoundingBox, turf.helpers.polygon(polygon))) {
+                                                    acc.push(feature);
+                                                    return acc;
+                                                }
+                                            };
+                                        }
+
+                                        return acc;
+                                    }, [])
+
+                                    console.log('selected features', selectedFeatures)
+                                    console.log('features', features)
+
+
+                                    if (selectedFeatures
+                                        && selectedFeatures.length
+                                        && selectedFeatures[0]
+                                        && selectedFeatures[0].geometry
+                                        && selectedFeatures[0].geometry.coordinates
+                                    ) {
+                                        mapVisual.hideTooltip()
+                                        console.log('features', selectedFeatures)
+                                        this.updateSelection(layer, selectedFeatures, roleMap, isToggleClick)
+                                    }
+                                    else if (isToggleClick) {
+                                        // Clicking on an empty space while holding down ctrl/cmd
+                                        // should not clear the previous selection
+                                        // (removeHighlightAndSelection has already cleared it)
+                                        // so it must be added back.
+                                        this.updateSelection(layer, [], roleMap, isToggleClick)
+
+                                        if (map.getLayer('isochrone')) {
+                                            map.removeLayer('isochrone')
+                                        }
+                                        if (map.getLayer('isochrone-fill')) {
+                                            map.removeLayer('isochrone-fill')
+                                        }
+                                        if (map.getSource('isochrone-source')) {
+                                            map.removeSource('isochrone-source')
+                                        }
+                                        if (map.getLayer('isochrone-multi-line')) {
+                                            map.removeLayer('isochrone-multi-line')
+                                        }
+                                        if (map.getLayer('isochrone-multi-fill')) {
+                                            map.removeLayer('isochrone-multi-fill')
+                                        }
+                                        if (map.getSource('isochrone-multi-source')) {
+                                            map.removeSource('isochrone-multi-source')
+                                        }
+                                    }
+
+
                                 })
 
-                                var polygonBoundingBox = turf.bbox(response.data.features[0]);
-                                console.log('bbox', polygonBoundingBox)
-                                console.log('minpoint', minpoint)
-                                console.log('maxpoint', maxpoint)
-                                console.log([polygonBoundingBox[0],polygonBoundingBox[1]], [polygonBoundingBox[2], polygonBoundingBox[3]])
+                        }
+                        else {
+                            return
+                        }
+                        // Change isochrone to draw from lat long of feature if feature exists, not from click point
 
-                                var southWest = [polygonBoundingBox[0], polygonBoundingBox[1]];
-                                var northEast = [polygonBoundingBox[2], polygonBoundingBox[3]];
-                                var northEastPointPixel = map.project(northEast);
-                                var southWestPointPixel = map.project(southWest);
-                                
-
-                                let features: any = map.queryRenderedFeatures([southWestPointPixel, northEastPointPixel], {
-                                    "layers": [layer.getId()]
-                                });
-
-                                let selectedFeatures = features.reduce(function (acc, feature) {
-                                    if (selectFeature(response.data.features[0], feature)) {
-                                        acc.push(feature);
-                                        return acc;
-                                    }
-                
-                                    // Split the feature into polygons, if it is a MultiPolygon
-                                    if (feature.geometry.type === 'MultiPolygon') {
-                                        for (let polygon of feature.geometry.coordinates) {
-                                            if (selectFeature(polygonBoundingBox, turf.helpers.polygon(polygon))) {
-                                                acc.push(feature);
-                                                return acc;
-                                            }
-                                        };
-                                    }
-                
-                                    return acc;
-                                }, [])
-
-                                console.log('selected features', selectedFeatures)
-                                console.log('features', features)
-
-        
-                                if (selectedFeatures
-                                    && selectedFeatures.length
-                                    && selectedFeatures[0]
-                                    && selectedFeatures[0].geometry
-                                    && selectedFeatures[0].geometry.coordinates
-                                ) {
-                                    mapVisual.hideTooltip()
-                                    console.log('features', selectedFeatures)
-                                    this.updateSelection(layer, selectedFeatures, roleMap, isToggleClick)
-                                }
-                                else if (isToggleClick) {
-                                    // Clicking on an empty space while holding down ctrl/cmd
-                                    // should not clear the previous selection
-                                    // (removeHighlightAndSelection has already cleared it)
-                                    // so it must be added back.
-                                    this.updateSelection(layer, [], roleMap, isToggleClick)
-
-                                    if (map.getLayer('isochrone')) {
-                                        map.removeLayer('isochrone')
-                                    }
-                                    if (map.getLayer('isochrone-fill')) {
-                                        map.removeLayer('isochrone-fill')
-                                    }
-                                    if (map.getSource('isochrone-source')) {
-                                        map.removeSource('isochrone-source')
-                                    }
-                                }
-
-
-                            })
 
                     }
                     else {
@@ -513,6 +643,15 @@ module powerbi.extensibility.visual {
                             }
                             if (map.getSource('isochrone-source')) {
                                 map.removeSource('isochrone-source')
+                            }
+                            if (map.getLayer('isochrone-multi-line')) {
+                                map.removeLayer('isochrone-multi-line')
+                            }
+                            if (map.getLayer('isochrone-multi-fill')) {
+                                map.removeLayer('isochrone-multi-fill')
+                            }
+                            if (map.getSource('isochrone-multi-source')) {
+                                map.removeSource('isochrone-multi-source')
                             }
                         }
 
