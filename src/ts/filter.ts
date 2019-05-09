@@ -267,21 +267,18 @@ module powerbi.extensibility.visual {
             var isoFeatures = []
             var profile = this.mapVisual.settings.gis.isochroneProfile
             var color = this.isoColor
-            var time = this.isoTime
+            var time = this.mapVisual.settings.gis.isoTime
 
     
-      
             const drawIsochrones = function (collection, counter) {
 
                 if (counter < collection.length) {
                     // console.log(collection[counter])
                     i = counter + 1
-                    console.log(i)
-                    console.log('collection counter', collection[counter])
-                    console.log('PROFILE shift', profile)
-                    axios.get(`https://api.mapbox.com/isochrone/v1/mapbox/${this.mapVisual.settings.gis.isochroneProfile}/${collection[counter].properties['Longitude']},${collection[counter].properties['Latitude']}?contours_minutes=${this.mapVisual.settings.gis.isoTime}&contours_colors=000000&polygons=true&access_token=pk.eyJ1Ijoic2FtZ2VocmV0IiwiYSI6ImNqaTI2Ynp5ajBjd3Iza3FzemFweGFyNzEifQ.65sXbbtJIMIH4rromlk6gw`)
+                    
+                    axios.get(`https://api.mapbox.com/isochrone/v1/mapbox/${profile}/${collection[counter].properties['Longitude']},${collection[counter].properties['Latitude']}?contours_minutes=${time}&contours_colors=000000&polygons=true&access_token=pk.eyJ1Ijoic2FtZ2VocmV0IiwiYSI6ImNqaTI2Ynp5ajBjd3Iza3FzemFweGFyNzEifQ.65sXbbtJIMIH4rromlk6gw`)
                         .then(response => {
-                            // console.log(isoFeatures)
+                            console.log('!!!!!!!!!!!!!!!!!!!')
                             isoFeatures.push(response.data.features[0])
                             drawIsochrones(collection, i)
                         })
