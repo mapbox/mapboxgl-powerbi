@@ -33,7 +33,7 @@ The Mapbox Visual for Power BI supports:
 
 | Mapbox Visual  Version | PBI Report Server | PBI Mobile (iOS/Android) | PBI Embedded | PBI Publish to Web | PBI Desktop | Chrome | Firefox | Safari | Edge | IE11 |
 |------------------------|-------------------|-------------------|--------------|--------------------|-------------|--------|---------|--------|------|------|
-| v 1.2.4                | Yes             | Yes  | Yes          | Yes                | Yes         | Yes    | Yes     | Yes    | Yes  | Yes  |
+| v 1.2.4                | Yes             | Yes  | Yes          | Yes                | Yes         | Yes    | Yes     | Yes    | Yes  | No  |
 
 
 #### Firewall rules - Domain names and ports to use with Power BI in a secure environment
