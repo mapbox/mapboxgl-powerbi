@@ -3,12 +3,9 @@
     "allowJs": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
-    "target": "es5",
+    "target": "ES5",
     "sourceMap": true,
-    "typeRoots": [
-      "src/types",
-      "node_modules/@types"
-    ]
+    "out": "./.tmp/build/visual.js"
   },
   "exclude": [
     "node_modules",

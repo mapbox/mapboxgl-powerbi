@@ -25,19 +25,21 @@
             "double"
         ],
         "semicolon": [
-            false,
+            true,
             "always"
         ],
         "triple-equals": [
-            false,
+            true,
             "allow-null-check"
         ],
         "typedef-whitespace": [
             true,
             {
+                "call-signature": "nospace",
                 "index-signature": "nospace",
                 "parameter": "nospace",
-                "property-declaration": "nospace"
+                "property-declaration": "nospace",
+                "variable-declaration": "nospace"
             }
         ],
         "variable-name": [
@@ -68,7 +70,6 @@
         "no-string-based-set-immediate": true,
         "no-string-based-set-interval": true,
         "no-string-based-set-timeout": true,
-        "no-unused-variable": true,
         "non-literal-require": true,
         "possible-timing-attack": true,
         "react-anchor-blank-noopener": true,
