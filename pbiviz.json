@@ -9,7 +9,7 @@
     "supportUrl": "www.mapbox.com/help",
     "gitHubUrl": "https://github.com/mapbox/mapboxgl-powerbi"
   },
-  "apiVersion": "1.13.0",
+  "apiVersion": "2.6.0",
   "author": {
     "name": "Mapbox",
     "email": "ryan.baumann@mapbox.com"
