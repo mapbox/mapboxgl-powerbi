@@ -206,7 +206,7 @@ module powerbi.extensibility.visual {
 
             // Check for Access Token
             if (!this.settings.api.accessToken) {
-                this.errorDiv.innerHTML = Templates.MissingToken;
+                this.errorDiv.innerHTML = mapboxUtils.sanitizeHTML(Templates.MissingToken);
                 return false;
             }
 
@@ -227,11 +227,11 @@ module powerbi.extensibility.visual {
             }, {});
 
             if ((this.settings.circle.show || this.settings.cluster.show || this.settings.heatmap.show) && (!(roles.latitude && roles.longitude))) {
-                this.errorDiv.innerHTML = Templates.MissingGeo;
+                this.errorDiv.innerHTML = mapboxUtils.sanitizeHTML(Templates.MissingGeo);
                 return false;
             }
             else if (this.settings.choropleth.show && ((!roles.location || !roles.color) || (roles.latitude || roles.longitude))) {
-                this.errorDiv.innerHTML = Templates.MissingLocationOrColor;
+                this.errorDiv.innerHTML = mapboxUtils.sanitizeHTML(Templates.MissingLocationOrColor);
                 return false;
             }
             else if (this.settings.choropleth.show && (
@@ -243,7 +243,7 @@ module powerbi.extensibility.visual {
                 return false;
             }
             else if (this.settings.cluster.show && !roles.cluster) {
-                this.errorDiv.innerHTML = Templates.MissingCluster;
+                this.errorDiv.innerHTML = mapboxUtils.sanitizeHTML(Templates.MissingCluster);
                 return false;
             }
 

@@ -72,7 +72,7 @@ module powerbi.extensibility.visual {
             legend.className = "mapbox-legend mapboxgl-ctrl-group"
 
             const titleElement = document.createElement('div');
-            titleElement.innerHTML = title
+            titleElement.innerHTML = mapboxUtils.sanitizeHTML(title);
             titleElement.className = 'mapbox-legend-title';
             legend.appendChild(titleElement)
 
@@ -85,9 +85,9 @@ module powerbi.extensibility.visual {
                 const valueElement = document.createElement('span');
                 valueElement.className = 'mapbox-legend-value middle'
                 if (typeof colorStop === "number") {
-                    valueElement.innerHTML = valueFormatter.format(colorStop, format || LegendControl.DEFAULT_NUMBER_FORMAT);
+                    valueElement.innerHTML = mapboxUtils.sanitizeHTML(valueFormatter.format(colorStop, format || LegendControl.DEFAULT_NUMBER_FORMAT));
                 } else {
-                    valueElement.innerHTML = colorStop;
+                    valueElement.innerHTML = mapboxUtils.sanitizeHTML(colorStop);
                 }
 
                 item.appendChild(colorElement);
