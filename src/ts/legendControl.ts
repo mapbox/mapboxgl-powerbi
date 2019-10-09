@@ -72,7 +72,7 @@ module powerbi.extensibility.visual {
             legend.className = "mapbox-legend mapboxgl-ctrl-group"
 
             const titleElement = document.createElement('div');
-            titleElement.innerHTML = mapboxUtils.sanitizeHTML(title);
+            titleElement.innerHTML = title;
             titleElement.className = 'mapbox-legend-title';
             legend.appendChild(titleElement)
 
