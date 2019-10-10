@@ -218,27 +218,27 @@
               {
                 "value": "mapbox:\/\/styles\/mapbox\/light-v10?optimize=true",
                 "displayName": "Light",
-                "displayNameKey": "light_v9"
+                "displayNameKey": "light_v10"
               },
               {
                 "value": "mapbox:\/\/styles\/mapbox\/dark-v10?optimize=true",
                 "displayName": "Dark",
-                "displayNameKey": "dark_v9"
+                "displayNameKey": "dark_v10"
               },
               {
                 "value": "mapbox:\/\/styles\/mapbox\/streets-v11?optimize=true",
                 "displayName": "Streets",
-                "displayNameKey": "streets_v10"
+                "displayNameKey": "streets_v11"
               },
               {
                 "value": "mapbox:\/\/styles\/mapbox\/outdoors-v11?optimize=true",
                 "displayName": "Outdoors",
-                "displayNameKey": "outdoors_v10"
+                "displayNameKey": "outdoors_v11"
               },
               {
                 "value": "mapbox:\/\/styles\/mapbox\/satellite-streets-v11?optimize=true",
                 "displayName": "Satellite Streets",
-                "displayNameKey": "satellite_streets_v10"
+                "displayNameKey": "satellite_streets_v11"
               },
               {
                 "value": "mapbox:\/\/styles\/mapbox\/satellite-v9?optimize=true",
@@ -248,12 +248,12 @@
               {
                 "value": "mapbox:\/\/styles\/mapbox\/navigation-preview-day-v4?optimize=true",
                 "displayName": "Traffic Light",
-                "displayNameKey": "navigation_preview_day_v2"
+                "displayNameKey": "navigation_preview_day_v4"
               },
               {
                 "value": "mapbox:\/\/styles\/mapbox\/navigation-preview-night-v4?optimize=true",
                 "displayName": "Traffic Dark",
-                "displayNameKey": "navigation_preview_night_v2"
+                "displayNameKey": "navigation_preview_night_v4"
               },
               {
                 "value": "custom",
