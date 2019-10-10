@@ -200,13 +200,15 @@ module powerbi.extensibility.visual {
 
             //check for GL Support
             // if (!mapboxgl.supported()) {
-            //     this.errorDiv.innerHTML = Templates.noGlSupport
+            //     const text = document.createTextNode(Templates.noGlSupport);
+            //     this.errorDiv..appendChild(text);
             //     return false;
             // }
 
             // Check for Access Token
             if (!this.settings.api.accessToken) {
-                this.errorDiv.innerHTML = Templates.MissingToken;
+                const text = document.createTextNode(Templates.MissingToken);
+                this.errorDiv.appendChild(text);
                 return false;
             }
 
@@ -227,11 +229,13 @@ module powerbi.extensibility.visual {
             }, {});
 
             if ((this.settings.circle.show || this.settings.cluster.show || this.settings.heatmap.show) && (!(roles.latitude && roles.longitude))) {
-                this.errorDiv.innerHTML = Templates.MissingGeo;
+                const text = document.createTextNode(Templates.MissingGeo);
+                this.errorDiv.appendChild(text);
                 return false;
             }
             else if (this.settings.choropleth.show && ((!roles.location || !roles.color) || (roles.latitude || roles.longitude))) {
-                this.errorDiv.innerHTML = Templates.MissingLocationOrColor;
+                const text = document.createTextNode(Templates.MissingLocationOrColor);
+                this.errorDiv.appendChild(text);
                 return false;
             }
             else if (this.settings.choropleth.show && (
@@ -239,11 +243,13 @@ module powerbi.extensibility.visual {
                 !this.settings.choropleth.sourceLayer1 ||
                 !this.settings.choropleth.vectorProperty1)
             ) {
-                this.errorDiv.innerHTML = Templates.MissingChoroplethSettings;
+                const text = document.createTextNode(Templates.MissingChoroplethSettings);
+                this.errorDiv.appendChild(text);
                 return false;
             }
             else if (this.settings.cluster.show && !roles.cluster) {
-                this.errorDiv.innerHTML = Templates.MissingCluster;
+                const text = document.createTextNode(Templates.MissingCluster);
+                this.errorDiv.appendChild(text);
                 return false;
             }
 

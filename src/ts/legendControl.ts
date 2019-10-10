@@ -88,10 +88,10 @@ module powerbi.extensibility.visual {
                 valueElement.setAttribute("class", "mapbox-legend-value middle");
 
                 if (typeof colorStop === "number") {
-                    const valueText = d.createTextNode(mapboxUtils.sanitizeHTML(valueFormatter.format(colorStop, format || LegendControl.DEFAULT_NUMBER_FORMAT)));
+                    const valueText = d.createTextNode(valueFormatter.format(colorStop, format || LegendControl.DEFAULT_NUMBER_FORMAT));
                     valueElement.appendChild(valueText);
                 } else {
-                    const valueText = d.createTextNode(mapboxUtils.sanitizeHTML(colorStop));
+                    const valueText = d.createTextNode(colorStop);
                     valueElement.appendChild(valueText);
                 }
 
