@@ -228,13 +228,11 @@ module powerbi.extensibility.visual {
             }, {});
 
             if ((this.settings.circle.show || this.settings.cluster.show || this.settings.heatmap.show) && (!(roles.latitude && roles.longitude))) {
-                const text = document.createTextNode(Templates.MissingGeo);
-                this.errorDiv.appendChild(text);
+                this.errorDiv.innerHTML = Templates.MissingGeo;
                 return false;
             }
             else if (this.settings.choropleth.show && ((!roles.location || !roles.color) || (roles.latitude || roles.longitude))) {
-                const text = document.createTextNode(Templates.MissingLocationOrColor);
-                this.errorDiv.appendChild(text);
+                this.errorDiv.innerHTML = Templates.MissingLocationOrColor;
                 return false;
             }
             else if (this.settings.choropleth.show && (
@@ -242,13 +240,11 @@ module powerbi.extensibility.visual {
                 !this.settings.choropleth.sourceLayer1 ||
                 !this.settings.choropleth.vectorProperty1)
             ) {
-                const text = document.createTextNode(Templates.MissingChoroplethSettings);
-                this.errorDiv.appendChild(text);
+                this.errorDiv.innerHTML = Templates.MissingChoroplethSettings;
                 return false;
             }
             else if (this.settings.cluster.show && !roles.cluster) {
-                const text = document.createTextNode(Templates.MissingCluster);
-                this.errorDiv.appendChild(text);
+                this.errorDiv.innerHTML = Templates.MissingCluster;
                 return false;
             }
 
