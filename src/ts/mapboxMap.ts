@@ -206,8 +206,7 @@ module powerbi.extensibility.visual {
 
             // Check for Access Token
             if (!this.settings.api.accessToken) {
-                const text = document.createTextNode(Templates.MissingToken);
-                this.errorDiv.appendChild(text);
+                this.errorDiv.innerHTML = Templates.MissingToken;
                 return false;
             }
 
