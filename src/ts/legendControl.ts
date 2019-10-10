@@ -68,26 +68,31 @@ module powerbi.extensibility.visual {
         }
 
         createLegendElement(title: string, data: ColorStops, format: string): HTMLElement {
-            const legend = document.createElement('div')
-            legend.className = "mapbox-legend mapboxgl-ctrl-group"
+            const d = document;
+            const legend = d.createElement('div');
+            legend.setAttribute("class", "mapbox-legend mapboxgl-ctrl-group");
 
-            const titleElement = document.createElement('div');
-            titleElement.innerHTML = title;
+            const titleElement = d.createElement('div');
+            const titleText = d.createTextNode(title);
             titleElement.className = 'mapbox-legend-title';
+            titleElement.appendChild(titleText);
             legend.appendChild(titleElement)
 
             data.forEach(({colorStop, color}) => {
-                const item = document.createElement('div');
-                const colorElement = document.createElement('span');
-                colorElement.className = 'mapbox-legend-color middle';
-                colorElement.style.backgroundColor = color;
+                const item = d.createElement('div');
+                const colorElement = d.createElement('span');
+                colorElement.setAttribute("class", "mapbox-legend-color middle");
+                colorElement.setAttribute("style", "backgroundColor: color;");
 
                 const valueElement = document.createElement('span');
-                valueElement.className = 'mapbox-legend-value middle'
+                valueElement.setAttribute("class", "mapbox-legend-value middle");
+
                 if (typeof colorStop === "number") {
-                    valueElement.innerHTML = mapboxUtils.sanitizeHTML(valueFormatter.format(colorStop, format || LegendControl.DEFAULT_NUMBER_FORMAT));
+                    const valueText = d.createTextNode(mapboxUtils.sanitizeHTML(valueFormatter.format(colorStop, format || LegendControl.DEFAULT_NUMBER_FORMAT)));
+                    valueElement.appendChild(valueText);
                 } else {
-                    valueElement.innerHTML = mapboxUtils.sanitizeHTML(colorStop);
+                    const valueText = d.createTextNode(mapboxUtils.sanitizeHTML(colorStop));
+                    valueElement.appendChild(valueText);
                 }
 
                 item.appendChild(colorElement);
