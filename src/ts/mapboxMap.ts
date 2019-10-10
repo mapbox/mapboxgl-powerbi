@@ -195,13 +195,11 @@ module powerbi.extensibility.visual {
         }
 
         private validateOptions(options: VisualUpdateOptions) {
-            // Hide errorDiv
-            const element = this.errorDiv;
 
             // Hide div and remove any child elements
             this.errorDiv.setAttribute("style", "display: none;");
-            while (element.hasChildNodes()) { 
-                element.removeChild(element.firstChild) 
+            while (this.errorDiv.hasChildNodes()) { 
+                this.errorDiv.removeChild(this.errorDiv.firstChild) 
             }
 
             // Check for Access Token
