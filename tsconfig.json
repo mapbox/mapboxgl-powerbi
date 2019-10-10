@@ -3,11 +3,13 @@
     "allowJs": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
-    "target": "es5",
+    "target": "ES5",
     "sourceMap": true,
+    "out": "./.tmp/build/visual.js",
     "typeRoots": [
       "src/types",
-      "node_modules/@types"
+      "node_modules/@types/geojson",
+      "node_modules/@types/mapbox-gl"
     ]
   },
   "exclude": [

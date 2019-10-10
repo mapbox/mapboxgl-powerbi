@@ -63,7 +63,7 @@ module powerbi.extensibility.visual.data {
 
         createCluster() {
             const self = this
-            return supercluster({
+            return ({
                 radius: 50,
                 maxZoom: 12,
                 initial: function() {
@@ -112,7 +112,7 @@ module powerbi.extensibility.visual.data {
             this.cluster.options.maxZoom = settings.clusterMaxZoom;
             return this.cluster.getClusters(constants.WORLD_BOUNDS, Math.floor(map.getZoom()) ).
                 map( feature => {
-                    // Remove built-in supercluster properties
+                    // Remove built-in  properties
                     // as they are not needed and are ruining our tooltips
                     delete feature.properties.cluster;
                     delete feature.properties.cluster_id;

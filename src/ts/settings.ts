@@ -36,7 +36,7 @@ module powerbi.extensibility.visual {
 
     export class APISettings {
         public accessToken: string = "";
-        public style: string = "mapbox:\/\/styles\/mapbox\/light-v9?optimize=true";
+        public style: string = "mapbox:\/\/styles\/mapbox\/light-v10?optimize=true";
         public styleUrl: string = "";
         public zoom: number = 0;
         public startLong: number = 0;

@@ -195,14 +195,12 @@ module powerbi.extensibility.visual {
         }
 
         private validateOptions(options: VisualUpdateOptions) {
-            this.errorDiv.style.display = 'none';
-            this.errorDiv.innerText = '';
 
-            //check for GL Support
-            // if (!mapboxgl.supported()) {
-            //     this.errorDiv.innerHTML = Templates.noGlSupport
-            //     return false;
-            // }
+            // Hide div and remove any child elements
+            this.errorDiv.setAttribute("style", "display: none;");
+            while (this.errorDiv.hasChildNodes()) { 
+                this.errorDiv.removeChild(this.errorDiv.firstChild) 
+            }
 
             // Check for Access Token
             if (!this.settings.api.accessToken) {
