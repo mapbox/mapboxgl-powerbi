@@ -8,10 +8,11 @@ module powerbi.extensibility.visual {
         private dropPin: boolean
         private accessToken: string
         private zoom: number
-
+        private mapboxgl: any
 
         constructor(settings: MapboxSettings) {
             this.accessToken = settings.api.accessToken
+            this.mapboxgl = mapboxgl
             this.zoom = settings.geocoder.zoom
             this.dropPin = settings.geocoder.dropPin
             this.pin = new mapboxgl.Marker()
@@ -41,7 +42,8 @@ module powerbi.extensibility.visual {
             this.geocoder = new MapboxGeocoder({
                 accessToken: this.accessToken,
                 zoom: this.zoom,
-                trackProximity: false // BUG in mapbox-gl-geocoder
+                trackProximity: true,
+                mapboxgl: this.mapboxgl
             })
 
             this.quirkPosition(map)
