@@ -42,7 +42,6 @@ module powerbi.extensibility.visual {
             this.geocoder = new MapboxGeocoder({
                 accessToken: this.accessToken,
                 zoom: this.zoom,
-                trackProximity: true,
                 mapboxgl: this.mapboxgl
             })
 
