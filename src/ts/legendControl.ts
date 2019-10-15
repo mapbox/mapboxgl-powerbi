@@ -85,7 +85,7 @@ module powerbi.extensibility.visual {
                 // Create color element and add to item
                 const colorElement = d.createElement('span');
                 colorElement.setAttribute("class", "mapbox-legend-color middle");
-                colorElement.setAttribute("style", "background-color: " + color + ";");
+                colorElement.setAttribute("style", `background-color: ${color};`);
                 item.appendChild(colorElement);
 
                 // Create value element and add to item
