@@ -1,6 +1,6 @@
 module powerbi.extensibility.visual.data {
     declare var turf : any;
-    declare var supercluster : any;
+    declare var supercluster: any;
 
     export class Cluster extends Datasource {
         private cluster: any;
@@ -63,7 +63,7 @@ module powerbi.extensibility.visual.data {
 
         createCluster() {
             const self = this
-            return ({
+            return supercluster({
                 radius: 50,
                 maxZoom: 12,
                 initial: function() {

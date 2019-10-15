@@ -79,14 +79,18 @@ module powerbi.extensibility.visual {
             legend.appendChild(titleElement)
 
             data.forEach(({colorStop, color}) => {
+                // Create line item
                 const item = d.createElement('div');
+
+                // Create color element and add to item
                 const colorElement = d.createElement('span');
                 colorElement.setAttribute("class", "mapbox-legend-color middle");
-                colorElement.setAttribute("style", "backgroundColor: color;");
+                colorElement.setAttribute("style", `background-color: ${color};`);
+                item.appendChild(colorElement);
 
+                // Create value element and add to item
                 const valueElement = document.createElement('span');
                 valueElement.setAttribute("class", "mapbox-legend-value middle");
-
                 if (typeof colorStop === "number") {
                     const valueText = d.createTextNode(valueFormatter.format(colorStop, format || LegendControl.DEFAULT_NUMBER_FORMAT));
                     valueElement.appendChild(valueText);
@@ -94,9 +98,9 @@ module powerbi.extensibility.visual {
                     const valueText = d.createTextNode(colorStop);
                     valueElement.appendChild(valueText);
                 }
-
-                item.appendChild(colorElement);
                 item.appendChild(valueElement);
+
+                // Add line item to legend
                 legend.appendChild(item)
             })
 
