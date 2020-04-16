@@ -9,7 +9,7 @@
     "supportUrl": "www.mapbox.com/help",
     "gitHubUrl": "https://github.com/mapbox/mapboxgl-powerbi"
   },
-  "apiVersion": "1.13.0",
+  "apiVersion": "2.6.0",
   "author": {
     "name": "Mapbox",
     "email": "ryan.baumann@mapbox.com"
@@ -17,23 +17,10 @@
   "assets": {
     "icon": "assets/icon.png"
   },
-  "externalJS": [
-    "node_modules/mapbox-gl/dist/mapbox-gl.js",
-    "node_modules/@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.js",
-    "node_modules/supercluster/dist/supercluster.min.js",
-    "node_modules/@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.min.js",
-    "src/js/turf-bundle-min.js",
-    "node_modules/chroma-js/chroma.min.js",
-    "src/js/fast-deep-equal.min.js",
-    "node_modules/globalize/lib/globalize.js",
-    "node_modules/globalize/lib/cultures/globalize.culture.en-US.js",
-    "node_modules/powerbi-visuals-utils-typeutils/lib/index.js",
-    "node_modules/powerbi-visuals-utils-dataviewutils/lib/index.js",
-    "node_modules/powerbi-visuals-utils-formattingutils/lib/index.js",
-    "src/js/mdn-array-find.js",
-    "src/js/mapboxglAdaptor.js"
-  ],
+  "externalJS": null,
   "style": "style/visual.less",
   "capabilities": "capabilities.json",
+  "dependencies": null,
   "stringResources": []
 }
+
