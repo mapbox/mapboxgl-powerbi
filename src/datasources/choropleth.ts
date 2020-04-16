@@ -50,11 +50,18 @@ export class Choropleth extends Datasource {
 
     update(map, features, roleMap, settings: MapboxSettings) {
         super.update(map, features, roleMap, settings)
-        this.choroplethData = features.map(f => f.properties)
-
+        let featureNames = {}
+        this.choroplethData = features.map(f => f.properties).reduce( (acc, curr) => {
+            const location = curr[roleMap.location.displayName]
+            if (!featureNames[location]) {
+                featureNames[location] = curr[roleMap.location.displayName]
+                acc.push(curr)
+            }
+            return acc;
+        }, [])
         this.fillColorLimits = mapboxUtils.getLimits(this.choroplethData, roleMap.color ? roleMap.color.displayName : '')
         this.fillSizeLimits = mapboxUtils.getLimits(this.choroplethData, roleMap.size ? roleMap.size.displayName : '')
-        const featureNames = this.choroplethData.map(f => f[roleMap.location.displayName])
+        //const featureNames = this.choroplethData.map(f => f[roleMap.location.displayName])
         const apiSettings = settings.api
 
         // NOTE: this is a workaround because 'sourcedata' event of mapbox is received multiple times
@@ -75,7 +82,7 @@ export class Choropleth extends Datasource {
                     if (this.bounds) {
                         currentBounds = this.bounds.slice()
                     }
-                    this.bounds = this.bboxCache.getBBox(featureNames)
+                    this.bounds = this.bboxCache.getBBox(Object.keys(featureNames))
                     if (this.bounds == currentBounds) {
                         // Wait a bit more until we get the bounding box for the desired features
                         if (Date.now() - start > Choropleth.BBOX_TIMEOUT) {
@@ -109,7 +116,7 @@ export class Choropleth extends Datasource {
             }
 
             this.bboxCache.update(map, this.ID, settings.choropleth)
-            this.bounds = this.bboxCache.getBBox(featureNames)
+            this.bounds = this.bboxCache.getBBox(Object.keys(featureNames))
             if (this.bounds == null) {
                 // Source must be still loading, wait for it to finish
                 map.on('sourcedata', sourceLoaded)
