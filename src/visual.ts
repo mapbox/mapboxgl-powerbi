@@ -38,6 +38,7 @@ import DataView = powerbiVisualsApi.DataView;
 import VisualObjectInstanceEnumerationObject = powerbiVisualsApi.VisualObjectInstanceEnumerationObject;
 
 import { featureCollection } from "@turf/helpers"
+import { BBox, Feature, Id, Polygon, Properties } from "@turf/helpers"; // TODO
 import bbox from "@turf/bbox"
 import bboxPolygon from "@turf/bbox-polygon"
 
@@ -125,11 +126,11 @@ export class MapboxMap implements IVisual {
                         return bounds
                     }
                     const combined = featureCollection([
-                        //bboxPolygon(acc), // TODO
-                        //bboxPolygon(bounds)
+                        bboxPolygon(bbox(acc)),
+                        bboxPolygon(bbox(bounds))
                     ]);
                     return bbox(combined)
-                });
+                })
                 mapboxUtils.zoomToData(map, bounds);
             }
         }

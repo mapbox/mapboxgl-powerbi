@@ -27,13 +27,13 @@ export abstract class Layer {
 
     updateSource(features, roleMap, settings) {
         if (settings[this.id].show) {
-            //this.source.update(this.parent.getMap(), features, roleMap, settings);
+            this.source.update(this.parent.getMap(), features, roleMap, settings);
         }
     }
 
     getBounds(settings) : any[] {
         if (settings[this.id].show) {
-            //return this.source.getBounds();
+            return this.source.getBounds();
         }
         return null;
     }
