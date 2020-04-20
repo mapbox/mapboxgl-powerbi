@@ -43,6 +43,7 @@ import bboxPolygon from "@turf/bbox-polygon"
 
 import { Filter } from "./filter"
 import { Palette } from "./palette"
+import { RoleMap } from './roleMap'
 import { DrawControl } from "./drawControl"
 import { LegendControl } from "./legendControl"
 import { AutoZoomControl } from "./autoZoomControl"
@@ -50,7 +51,7 @@ import { MapboxGeocoderControl } from "./mapboxGeocoderControl"
 
 import * as mapboxgl from "mapbox-gl"
 import { MapboxSettings } from "./settings";
-import { mapboxUtils } from "./mapboxUtils";
+import { zoomToData  } from "./mapboxUtils";
 import { ITooltipServiceWrapper, createTooltipServiceWrapper, TooltipEventArgs } from "./tooltipServiceWrapper"
 import { mapboxConverter } from "./mapboxConverter";
 import { Templates } from "./templates";
@@ -130,7 +131,7 @@ export class MapboxMap implements IVisual {
                     ]);
                     return bbox(combined)
                 });
-                mapboxUtils.zoomToData(map, bounds);
+                zoomToData(map, bounds);
             }
         }
         catch (error) {
@@ -185,7 +186,7 @@ export class MapboxMap implements IVisual {
         this.layers.push(new Raster(this));
         this.layers.push(new Heatmap(this));
         this.layers.push(new Cluster(this, () => {
-            return this.roleMap.cluster.displayName;
+            return this.roleMap.cluster()
         }))
         this.layers.push(new Choropleth(this, this.filter, this.palette));
         this.layers.push(new Circle(this, this.filter, this.palette));
@@ -326,7 +327,7 @@ export class MapboxMap implements IVisual {
             this.filter.setCategories(dataView.categorical.categories);
         }
 
-        this.roleMap = mapboxUtils.getRoleMap(dataView.metadata);
+        this.roleMap = new RoleMap(dataView.metadata);
 
         //this.updateCurrentLevel(this.settings.choropleth, options); // TODO
 

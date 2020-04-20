@@ -1,5 +1,6 @@
 import powerbiVisualsApi from "powerbi-visuals-api";
-import { ClassificationMethod, mapboxUtils, RoleMap } from "../mapboxUtils"
+import { ClassificationMethod, decorateLayer } from "../mapboxUtils"
+import { RoleMap } from "../roleMap"
 import { Layer } from "./layer"
 import { LegendControl } from "../legendControl"
 import { MapboxSettings, ClusterSettings } from "../settings"
@@ -40,13 +41,13 @@ export class Cluster extends Layer {
     addLayer(settings, beforeLayerId, roleMap) {
         const map = this.parent.getMap();
         const layers = {};
-        layers[Cluster.ID] = mapboxUtils.decorateLayer({
+        layers[Cluster.ID] = decorateLayer({
             id: Cluster.ID,
             source: 'clusterData',
             type: 'cluster',
             filter: ['has', 'Count']
         });
-        layers[Cluster.UnclusterID] = mapboxUtils.decorateLayer({
+        layers[Cluster.UnclusterID] = decorateLayer({
             id: Cluster.UnclusterID,
             source: 'clusterData',
             type: 'cluster',
@@ -54,7 +55,7 @@ export class Cluster extends Layer {
         });
         Cluster.LayerOrder.forEach((layerId) => map.addLayer(layers[layerId], beforeLayerId));
 
-        const clusterLabelLayer = mapboxUtils.decorateLayer({
+        const clusterLabelLayer = decorateLayer({
             id: Cluster.LabelID,
             type: 'symbol',
             source: 'clusterData',

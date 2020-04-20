@@ -5,7 +5,8 @@ import * as tooltip from "powerbi-visuals-utils-tooltiputils"
 
 import * as chroma from "chroma-js"
 
-import { ClassificationMethod, mapboxUtils, RoleMap } from "../mapboxUtils"
+import { ClassificationMethod, filterValues, getBreaks, getClassCount, Limits } from "../mapboxUtils"
+import { RoleMap } from "../roleMap"
 import { ColorStops, LegendControl } from "../legendControl"
 import { MapboxSettings, CircleSettings, ChoroplethSettings, ClusterSettings } from "../settings"
 import { Palette } from "../palette"
@@ -27,13 +28,13 @@ export abstract class Layer {
 
     updateSource(features, roleMap, settings) {
         if (settings[this.id].show) {
-            //this.source.update(this.parent.getMap(), features, roleMap, settings);
+            this.source.update(this.parent.getMap(), features, roleMap, settings);
         }
     }
 
     getBounds(settings) : any[] {
         if (settings[this.id].show) {
-            //return this.source.getBounds();
+            return this.source.getBounds();
         }
         return null;
     }
@@ -68,7 +69,7 @@ export abstract class Layer {
             return [{colorStop, color}];
         }
 
-        const domain: number[] = classCount ? mapboxUtils.getBreaks(values, method, classCount) : values;
+        const domain: number[] = classCount ? getBreaks(values, method, classCount) : values;
         const colors = chroma.scale(colorInterval).colors(domain.length)
         return domain.map((colorStop, idx) => {
             const color = colors[idx].toString();
@@ -76,7 +77,7 @@ export abstract class Layer {
         });
     }
 
-    generateColorStops(settings: CircleSettings | ChoroplethSettings | ClusterSettings, isGradient: boolean, colorLimits: mapboxUtils.Limits, colorPalette: Palette): ColorStops {
+    generateColorStops(settings: CircleSettings | ChoroplethSettings | ClusterSettings, isGradient: boolean, colorLimits: Limits, colorPalette: Palette): ColorStops {
         if (!isGradient) {
             return colorLimits.values.map(value => {
                 const colorStop = value.toString();
@@ -86,13 +87,13 @@ export abstract class Layer {
         }
 
         if ( settings instanceof ClusterSettings || !settings.diverging) {
-            const classCount = mapboxUtils.getClassCount(colorLimits.values);
+            const classCount = getClassCount(colorLimits.values);
             return Layer.mapValuesToColorStops([settings.minColor, settings.maxColor], this.getClassificationMethod(), classCount, colorLimits.values)
         }
 
         const { minValue, midValue, maxValue, minColor, midColor, maxColor} = settings
 
-        const filteredValues = mapboxUtils.filterValues(colorLimits.values, minValue, maxValue)
+        const filteredValues = filterValues(colorLimits.values, minValue, maxValue)
         // Split the interval into two halves when there is a middle value
         if (midValue != null) {
             const lowerHalf = []
@@ -120,8 +121,8 @@ export abstract class Layer {
             upperHalf.unshift(midValue)
 
             // Divide the colorstops between the two intervals (halve them)
-            const lowerHalfClassCount = mapboxUtils.getClassCount(lowerHalf) >> 1;
-            const upperHalfClassCount = mapboxUtils.getClassCount(upperHalf) >> 1;
+            const lowerHalfClassCount = getClassCount(lowerHalf) >> 1;
+            const upperHalfClassCount = getClassCount(upperHalf) >> 1;
 
             const lowerColorStops = Layer.mapValuesToColorStops([minColor, midColor], this.getClassificationMethod(), lowerHalfClassCount, lowerHalf)
             const upperColorStops = Layer.mapValuesToColorStops([midColor, maxColor], this.getClassificationMethod(), upperHalfClassCount, upperHalf)
@@ -139,7 +140,7 @@ export abstract class Layer {
             filteredValues.push(maxValue)
         }
 
-        const classCount = mapboxUtils.getClassCount(filteredValues);
+        const classCount = getClassCount(filteredValues);
         return Layer.mapValuesToColorStops([minColor, midColor, maxColor], this.getClassificationMethod(), classCount, filteredValues)
     }
 
@@ -189,7 +190,7 @@ export abstract class Layer {
 
     handleZoom(settings) : boolean {
         if (settings[this.id].show) {
-            //return this.source.handleZoom(this.parent.getMap(), settings);
+            return this.source.handleZoom(this.parent.getMap(), settings);
         }
         return false;
     }
@@ -280,9 +281,9 @@ export abstract class Layer {
     ): void
     {
         const id = this.getId();
-        const title = roleMap.color.displayName;
+        const title = roleMap.color()
         const colorStops = this.getColorStops();
-        const format = roleMap.color.format;
+        const format = roleMap.getColumn('color').format;
         legend.addLegend(id, title, colorStops, format);
     }
 }

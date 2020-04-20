@@ -1,5 +1,5 @@
 import powerbiVisualsApi from "powerbi-visuals-api";
-import { mapboxUtils  } from "../mapboxUtils"
+import { decorateLayer  } from "../mapboxUtils"
 import { Layer } from "./layer"
 import { Sources } from "../datasources/sources"
 
@@ -20,7 +20,7 @@ export class Raster extends Layer {
     addLayer(settings, beforeLayerId) {
         const map = this.parent.getMap();
         const layers = {};
-        layers[Raster.ID] = mapboxUtils.decorateLayer({
+        layers[Raster.ID] = decorateLayer({
             id: Raster.ID,
             source: 'raster',
             type: 'raster',

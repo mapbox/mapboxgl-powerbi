@@ -3,7 +3,7 @@ import IVisualHost = powerbiVisualsApi.extensibility.visual.IVisualHost;
 import { GeoJSONGeometry } from "@mapbox/geojson-types"
 import * as mapboxgl from "mapbox-gl"
 
-import { mapboxUtils } from "./mapboxUtils"
+import { debounce } from "./mapboxUtils"
 import { Circle } from "./layers/circle"
 import { Choropleth } from "./layers/choropleth"
 import { Layer } from "./layers/layer"
@@ -103,14 +103,14 @@ export class Filter {
         map.off('click', clickHandler);
         map.on('click', clickHandler);
 
-        const mouseMoveHandler = mapboxUtils.debounce((e) => {
+        const mouseMoveHandler = debounce((e) => {
             if (!this.hasSelection() && !this.selectionInProgress) {
                 const layers = this.mapVisual.getExistingLayers();
                 layers.map(layer => layer.hoverHighLight(e));
             }
         }, 12, true);
 
-        const mouseLeaveHandler = mapboxUtils.debounce((e) => {
+        const mouseLeaveHandler = debounce((e) => {
             if (!this.hasSelection() && !this.selectionInProgress) {
                 const layers = this.mapVisual.getExistingLayers();
                 layers.map(layer => layer.removeHighlight(this.mapVisual.getRoleMap()));

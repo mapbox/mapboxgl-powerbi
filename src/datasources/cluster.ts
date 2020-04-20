@@ -1,6 +1,6 @@
 import Supercluster from "supercluster"
 import { Datasource } from "./datasource"
-import { mapboxUtils } from "../mapboxUtils"
+import { Limits, getLimits } from "../mapboxUtils"
 import { constants } from "../constants"
 import { featureCollection } from "@turf/helpers"
 import bbox from "@turf/bbox"
@@ -8,7 +8,7 @@ import bbox from "@turf/bbox"
 export class Cluster extends Datasource {
     private cluster: any;
     private getClusterField: Function;
-    public limits: mapboxUtils.Limits;
+    public limits: Limits;
 
     constructor() {
         super('cluster')

@@ -1,12 +1,13 @@
 import { Datasource } from "./datasource"
-import { mapboxUtils } from "../mapboxUtils"
+import { Limits, getLimits, zoomToData } from "../mapboxUtils"
 import { MapboxSettings } from "../settings"
 import { BBoxCache } from "./bboxCache"
+import { RoleMap } from "../roleMap"
 
 export class Choropleth extends Datasource {
     private choroplethData: any[];
-    private fillColorLimits: mapboxUtils.Limits;
-    private fillSizeLimits: mapboxUtils.Limits;
+    private fillColorLimits: Limits;
+    private fillSizeLimits: Limits;
     private bboxCache: BBoxCache;
 
     private static readonly BBOX_TIMEOUT = 1500
@@ -48,19 +49,19 @@ export class Choropleth extends Datasource {
         return this.choroplethData;
     }
 
-    update(map, features, roleMap, settings: MapboxSettings) {
+    update(map, features, roleMap: RoleMap, settings: MapboxSettings) {
         super.update(map, features, roleMap, settings)
         let featureNames = {}
         this.choroplethData = features.map(f => f.properties).reduce( (acc, curr) => {
-            const location = curr[roleMap.location.displayName]
-            if (!featureNames[location]) {
-                featureNames[location] = curr[roleMap.location.displayName]
+            const location = curr[roleMap.location()]
+            if (location && !featureNames[location]) {
+                featureNames[location] = curr[roleMap.location()]
                 acc.push(curr)
             }
             return acc;
         }, [])
-        this.fillColorLimits = mapboxUtils.getLimits(this.choroplethData, roleMap.color ? roleMap.color.displayName : '')
-        this.fillSizeLimits = mapboxUtils.getLimits(this.choroplethData, roleMap.size ? roleMap.size.displayName : '')
+        this.fillColorLimits = getLimits(this.choroplethData, roleMap.color())
+        this.fillSizeLimits = getLimits(this.choroplethData, roleMap.size())
         //const featureNames = this.choroplethData.map(f => f[roleMap.location.displayName])
         const apiSettings = settings.api
 
@@ -96,7 +97,7 @@ export class Choropleth extends Datasource {
                                 const source = map.getSource(this.ID)
                                 this.bounds = source.bounds
                                 console.log('Waiting for getting bounds of desired features has timed out. Falling back to source bounds:', this.bounds)
-                                mapboxUtils.zoomToData(map, this.bounds)
+                                zoomToData(map, this.bounds)
                                 map.on('zoomend', sourceLoaded)
                                 return
                             }
@@ -111,7 +112,7 @@ export class Choropleth extends Datasource {
                     map.off('sourcedata', sourceLoaded)
                     map.off('zoomend', sourceLoaded)
                     clearInterval(boundsPoll)
-                    mapboxUtils.zoomToData(map, this.bounds)
+                    zoomToData(map, this.bounds)
                 }
             }
 

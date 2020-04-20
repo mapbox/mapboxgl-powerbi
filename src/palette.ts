@@ -3,7 +3,7 @@ import DataView = powerbiVisualsApi.DataView;
 import IVisualHost = powerbiVisualsApi.extensibility.visual.IVisualHost;
 import { dataViewObject, dataViewObjects } from "powerbi-visuals-utils-dataviewutils"
 
-import { mapboxUtils } from "./mapboxUtils"
+import { shouldUseGradient } from "./mapboxUtils"
 
 export class Palette {
     private mapVisual: any; // TODO
@@ -54,15 +54,16 @@ export class Palette {
             this.dataColorGroupNames = [];
             const roleMap = this.mapVisual.getRoleMap()
 
-            if (!roleMap.color) {
+            const colorCol = roleMap.getColumn('color')
+            if (!colorCol) {
                 return;
             }
 
-            if (mapboxUtils.shouldUseGradient(roleMap.color)) {
+            if (shouldUseGradient(colorCol)) {
                 return;
             }
 
-            const colorPropertyName = roleMap.color.displayName;
+            const colorPropertyName = colorCol.displayName;
 
             this.updateDataColorGroupNames(features, colorPropertyName);
             this.updateColorMap(dataView);

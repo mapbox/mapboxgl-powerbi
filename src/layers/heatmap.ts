@@ -1,5 +1,6 @@
 import powerbiVisualsApi from "powerbi-visuals-api";
-import { mapboxUtils, RoleMap } from "../mapboxUtils"
+import { decorateLayer } from "../mapboxUtils"
+import { RoleMap } from "../roleMap"
 import { Layer } from "./layer"
 import { MapboxSettings  } from "../settings"
 import { Sources } from "../datasources/sources"
@@ -21,7 +22,7 @@ export class Heatmap extends Layer {
     addLayer(settings, beforeLayerId, roleMap) {
         const map = this.parent.getMap();
         const layers = {};
-        layers[Heatmap.ID] = mapboxUtils.decorateLayer({
+        layers[Heatmap.ID] = decorateLayer({
             id: Heatmap.ID,
             source: 'data',
             type: 'heatmap',
