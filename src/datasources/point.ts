@@ -44,7 +44,7 @@ export class Point extends Datasource {
         const fCollection = featureCollection(features);
         const source: any = map.getSource('data');
         source.setData(fCollection);
-        this.colorLimits = getLimits(features, roleMap.color());
+        this.colorLimits = getLimits(features, roleMap.getColumn('color', 'circle').displayName); // TODO
         this.sizeLimits = getLimits(features, roleMap.size());
         this.bounds = bbox(fCollection);
     }

@@ -42,9 +42,9 @@ export class Choropleth extends Layer {
     }
 
     getId() {
-        if (this.isExtruding()) {
-            return Choropleth.ExtrusionID
-        }
+        //if (this.isExtruding()) { // TODO
+            //return Choropleth.ExtrusionID
+        //}
         return Choropleth.ID
     }
     getLayerIDs() {
@@ -309,7 +309,7 @@ export class Choropleth extends Layer {
         for (let row of choroplethData) {
 
             const location = row[roleMap.location()]
-            const color = getColorOfLocation(row[roleMap.color()])
+            const color = getColorOfLocation(row[roleMap.color(this)])
 
             if (!location || !color) {
                 // Stop value cannot be undefined or null; don't add this row to the stops
@@ -354,10 +354,14 @@ export class Choropleth extends Layer {
             ChoroplethSettings.fillPredefinedProperties(choroSettings);
 
             const choroplethData = this.source.getData(map, settings);
-            const isGradient = shouldUseGradient(roleMap.getColumn('color'));
+            console.log("choroplethData: ", choroplethData);
+            const isGradient = shouldUseGradient(roleMap.getColumn('color', Choropleth.ID));
             const limits = this.source.getLimits();
+            console.log("Limits: ", limits)
             this.colorStops = this.generateColorStops(choroSettings, isGradient, limits.color, this.palette)
 
+            console.log("isGradient: ", isGradient);
+            console.log("colorStops: ", this.colorStops);
             const getColorOfLocation = this.getFunctionForColorOfLocation(isGradient, this.colorStops)
             const preprocessedData = this.preprocessData(roleMap, choroplethData, getColorOfLocation)
 
@@ -394,7 +398,7 @@ export class Choropleth extends Layer {
     }
 
     showLegend(settings: MapboxSettings, roleMap: RoleMap) {
-        return settings.choropleth.legend && roleMap.color() !== '' && super.showLegend(settings, roleMap)
+        return settings.choropleth.legend && roleMap.color(this) !== '' && super.showLegend(settings, roleMap)
     }
 
     handleTooltip(tooltipEvent, roleMap, settings: MapboxSettings) {

@@ -1,4 +1,7 @@
 import powerbiVisualsApi from "powerbi-visuals-api";
+import { Layer } from "./layers/layer"
+import { Cluster } from "./layers/cluster"
+import { Choropleth } from "./layers/choropleth"
 
 export class RoleMap {
     map: any;
@@ -8,38 +11,42 @@ export class RoleMap {
     }
 
     cluster() : string{
-        const col = this.getColumn('cluster');
+        const col = this.getColumn('cluster', Cluster.ID);
         return col ? col.displayName : "";
     }
 
-    color() : string{
-        const col = this.getColumn('color');
+    color(layer : Layer) : string{
+        const col = this.getColumn('color', layer.getId());
         return col ? col.displayName : "";
     }
 
     location() : string {
-        const col = this.getColumn('location');
+        const col = this.getColumn('location', Choropleth.ID);
         return col ? col.displayName : "";
     }
 
     size() : string {
-        const col = this.getColumn('size');
+        const col = this.getColumn('size', 'circle'); // TODO
         return col ? col.displayName : "";
     }
 
     latitude() : string {
-        const col = this.getColumn('latitude');
+        const col = this.getColumn('latitude', 'circle'); // TODO
         return col ? col.displayName : "";
     }
 
     longitude() : string {
-        const col = this.getColumn('longitude');
+        const col = this.getColumn('longitude', 'circle'); // TODO
         return col ? col.displayName : "";
     }
 
-    getColumn(role: string) : powerbiVisualsApi.DataViewMetadataColumn {
+    getColumn(role: string, layerID: string) : powerbiVisualsApi.DataViewMetadataColumn {
         if (!this.map[role] || this.map[role].length <= 0) {
             return null;
+        }
+
+        if (layerID === Choropleth.ID && this.map[role].length > 1) {
+            return this.map[role][1];
         }
         return this.map[role][0];
     }
@@ -67,8 +74,6 @@ function getRoleMap(metadata: powerbiVisualsApi.DataViewMetadata) {
             return a.rolesIndex[key] - b.rolesIndex[key];
         });
     });
-    console.log("Built rolemap. From: ", metadata);
-    console.log("Built rolemap. To: ", ret);
     return ret;
 }
 

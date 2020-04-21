@@ -59,7 +59,7 @@ export class Cluster extends Datasource {
         const source: any = map.getSource('clusterData');
         const clusterData = this.getData(map, settings.cluster);
         source.setData(featureCollection(clusterData));
-        this.limits = mapboxUtils.getLimits(clusterData, settings.cluster.aggregation);
+        this.limits = getLimits(clusterData, settings.cluster.aggregation);
         return true;
     }
 

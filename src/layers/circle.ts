@@ -135,7 +135,7 @@ export class Circle extends Layer {
             const sizes = Circle.getSizes(limits.size, map, settings, roleMap.size());
 
             this.colorStops = this.generateColorStops(settings.circle, isGradient, limits.color, this.palette)
-            let colorStyle = Circle.getColorStyle(isGradient, settings, roleMap.color(), this.colorStops);
+            let colorStyle = Circle.getColorStyle(isGradient, settings, roleMap.color(this), this.colorStops);
 
             map.setPaintProperty(Circle.ID, 'circle-radius', sizes);
             map.setPaintProperty(Circle.HighlightID, 'circle-radius', sizes);
@@ -160,7 +160,7 @@ export class Circle extends Layer {
     }
 
     showLegend(settings: MapboxSettings, roleMap: RoleMap) {
-        return settings.circle.legend && roleMap.color() && super.showLegend(settings, roleMap)
+        return settings.circle.legend && roleMap.color(this) && super.showLegend(settings, roleMap)
     }
 
     private static getColorStyle(isGradient: boolean, settings: MapboxSettings, colorField: string, colorStops: ColorStops) {

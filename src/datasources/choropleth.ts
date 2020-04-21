@@ -60,7 +60,7 @@ export class Choropleth extends Datasource {
             }
             return acc;
         }, [])
-        this.fillColorLimits = getLimits(this.choroplethData, roleMap.color())
+        this.fillColorLimits = getLimits(this.choroplethData, roleMap.getColumn('color', 'choropleth').displayName) // TODO
         this.fillSizeLimits = getLimits(this.choroplethData, roleMap.size())
         //const featureNames = this.choroplethData.map(f => f[roleMap.location.displayName])
         const apiSettings = settings.api

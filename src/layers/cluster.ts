@@ -8,7 +8,7 @@ import { Sources } from "../datasources/sources"
 import { TooltipEventArgs } from "../tooltipServiceWrapper"
 
 export class Cluster extends Layer {
-    private static readonly ID = 'cluster';
+    public static readonly ID = 'cluster';
     private static readonly UnclusterID = 'uncluster';
     private static readonly LayerOrder = [Cluster.ID, Cluster.UnclusterID];
 
