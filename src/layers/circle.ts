@@ -152,7 +152,7 @@ export class Circle extends Layer {
 
     handleTooltip(tooltipEvent, roleMap, settings: MapboxSettings) {
         const tooltipData = Layer.getTooltipData(tooltipEvent.data)
-            .filter((elem) => roleMap.tooltips.some( t => t.displayName === elem.displayName)); // Only show the fields that are added to the tooltips
+            .filter((elem) => roleMap.tooltips().some( t => t.displayName === elem.displayName)); // Only show the fields that are added to the tooltips
         return tooltipData.map(data => {
             data.value = this.getFormattedTooltipValue(roleMap, data)
             return data;

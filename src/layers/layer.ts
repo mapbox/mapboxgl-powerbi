@@ -205,7 +205,7 @@ export abstract class Layer {
 
     getFormattedTooltipValue(roleMap, data): string {
         const displayName = data.displayName
-        const tooltipData = roleMap.tooltips[displayName];
+        const tooltipData = roleMap.tooltips().find( column => column.displayName === displayName);
         let value = data.value
         if (tooltipData && tooltipData.format) {
             const { format, type } = tooltipData

@@ -40,6 +40,10 @@ export class RoleMap {
         return col ? col.displayName : "";
     }
 
+    tooltips() : any[] {
+        return this.map['tooltips'];
+    }
+
     getColumn(role: string, layerID: string) : powerbiVisualsApi.DataViewMetadataColumn {
         if (!this.map[role] || this.map[role].length <= 0) {
             return null;
