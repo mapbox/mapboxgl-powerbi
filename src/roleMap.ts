@@ -16,7 +16,7 @@ export class RoleMap {
     }
 
     color(layer : Layer) : string{
-        const col = this.getColumn('color', layer.getId());
+        const col = this.getColumn('color', layer.id);
         return col ? col.displayName : "";
     }
 

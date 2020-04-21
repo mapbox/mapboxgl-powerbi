@@ -19,8 +19,7 @@ export class Circle extends Layer {
     private static readonly LayerOrder = [Circle.ID, Circle.HighlightID];
 
     constructor(map: any, filter: any, palette: Palette) { // TODO + TODO
-        super(map)
-        this.id = Circle.ID
+        super(map, Circle.ID)
         this.filter = filter
         this.palette = palette
         this.source = Sources.Point
@@ -76,11 +75,13 @@ export class Circle extends Layer {
         const latitude = roleMap.latitude()
         const longitude = roleMap.longitude()
         const eventProps = e.features[0].properties;
-        const lngLatFilter = ["all",
-            ["==", latitude, eventProps[latitude]],
-            ["==", longitude, eventProps[longitude]],
-        ]
-        this.parent.getMap().setFilter(Circle.HighlightID, lngLatFilter);
+        if (eventProps[latitude] && eventProps[longitude]) {
+            const lngLatFilter = ["all",
+                ["==", latitude, eventProps[latitude]],
+                ["==", longitude, eventProps[longitude]],
+            ]
+            this.parent.getMap().setFilter(Circle.HighlightID, lngLatFilter);
+        }
     }
 
     removeHighlight(roleMap) {
@@ -153,7 +154,11 @@ export class Circle extends Layer {
     handleTooltip(tooltipEvent, roleMap, settings: MapboxSettings) {
         const tooltipData = Layer.getTooltipData(tooltipEvent.data)
             .filter((elem) => roleMap.tooltips().some( t => t.displayName === elem.displayName)); // Only show the fields that are added to the tooltips
-        return tooltipData.map(data => {
+        return tooltipData.sort( (a, b) => {
+            const aIndex = roleMap.tooltips().findIndex( t => t.displayName === a.displayName)
+            const bIndex = roleMap.tooltips().findIndex( t => t.displayName === b.displayName)
+            return aIndex - bIndex;
+        }).map(data => {
             data.value = this.getFormattedTooltipValue(roleMap, data)
             return data;
         })

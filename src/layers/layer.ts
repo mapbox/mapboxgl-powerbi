@@ -15,13 +15,14 @@ import { TooltipEventArgs } from "../tooltipServiceWrapper"
 export abstract class Layer {
     protected parent: any;
     protected source: any; // TODO data.Datasource;
-    protected id: string;
+    public readonly id: string;
     protected prevLabelPositionSetting: string;
 
     protected colorStops: ColorStops;
 
-    constructor(map: any) {
+    constructor(map: any, id: string) {
         this.parent = map;
+        this.id = id;
         const settings = map.getSettings();
         this.prevLabelPositionSetting = settings.api.labelPosition;
     }

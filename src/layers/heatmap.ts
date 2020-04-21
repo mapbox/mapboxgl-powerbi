@@ -10,8 +10,7 @@ export class Heatmap extends Layer {
     private static readonly LayerOrder = [Heatmap.ID];
 
     constructor(map: any) { // TODO
-        super(map)
-        this.id = Heatmap.ID
+        super(map, Heatmap.ID)
         this.source = Sources.Point
     }
 

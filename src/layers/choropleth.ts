@@ -34,17 +34,16 @@ export class Choropleth extends Layer {
     private settings: ChoroplethSettings;
 
     constructor(map: any, filter: Filter, palette: Palette) { // TODO
-        super(map);
-        this.id = Choropleth.ID;
+        super(map, Choropleth.ID);
         this.source = Sources.Choropleth;
         this.filter = filter;
         this.palette = palette;
     }
 
     getId() {
-        //if (this.isExtruding()) { // TODO
-            //return Choropleth.ExtrusionID
-        //}
+        if (this.isExtruding()) {
+            return Choropleth.ExtrusionID
+        }
         return Choropleth.ID
     }
     getLayerIDs() {
@@ -128,7 +127,7 @@ export class Choropleth extends Layer {
     }
 
     isExtruding() {
-        return this.parent.getRoleMap().size && this.settings.height > 0
+        return this.parent.getRoleMap().size() && this.settings && this.settings.height > 0
     }
 
     hoverHighLight(e) {
@@ -140,6 +139,10 @@ export class Choropleth extends Layer {
         const choroSettings = this.settings;
         const vectorProperty = choroSettings.getCurrentVectorProperty()
         const featureVectorProperty = e.features[0].properties[vectorProperty]
+        if (!featureVectorProperty) {
+            return;
+        }
+
         if (this.isExtruding()) {
             map.setFilter(Choropleth.ExtrusionHighlightID, ["==", vectorProperty, featureVectorProperty]);
         }

@@ -49,13 +49,13 @@ export class Filter {
         return this.selectionManager.hasSelection();
     }
 
-    public addSelection(values, role?) {
+    public addSelection(values, role? : string) {
         let indexes = values;
         let category = this.categories[0];
 
         if (role) {
             category = this.categories.find(cat => {
-                return cat.source.displayName == role.displayName;
+                return cat.source.displayName == role;
             })
 
             indexes = values.map(value => category.values.indexOf(value));

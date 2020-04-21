@@ -126,8 +126,8 @@ export class MapboxMap implements IVisual {
                         return bounds
                     }
                     const combined = featureCollection([
-                        //bboxPolygon(acc), // TODO
-                        //bboxPolygon(bounds)
+                        bboxPolygon(bbox(acc)),
+                        bboxPolygon(bbox(bounds))
                     ]);
                     return bbox(combined)
                 });
@@ -275,6 +275,10 @@ export class MapboxMap implements IVisual {
         return true;
     }
 
+    public hideTooltip(): void {
+        this.tooltipServiceWrapper.hide(true)
+    }
+   
     public updateLayers(dataView: DataView) {
         const features = mapboxConverter.convert(dataView);
 

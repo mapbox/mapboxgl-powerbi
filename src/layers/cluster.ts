@@ -17,8 +17,7 @@ export class Cluster extends Layer {
     private getClusterField: Function;
 
     constructor(map: any, getClusterField) { // TODO
-        super(map)
-        this.id = Cluster.ID
+        super(map, Cluster.ID)
         this.getClusterField = getClusterField
         this.source = Sources.Cluster.withGetter(getClusterField)
     }

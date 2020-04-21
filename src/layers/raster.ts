@@ -8,8 +8,7 @@ export class Raster extends Layer {
     private static readonly LayerOrder = [Raster.ID];
 
     constructor(map: any) { // TODO
-        super(map)
-        this.id = 'raster'
+        super(map, Raster.ID)
         this.source = Sources.Raster
     }
 
