@@ -49,17 +49,39 @@ export class Choropleth extends Datasource {
         return this.choroplethData;
     }
 
+    getReducer(roleMap: RoleMap, type: string, features: Object) {
+        const reducers = {
+            first: (acc, curr) => {
+                const location = curr[roleMap.location()]
+                if (location && !features[location]) {
+                    features[location] = curr[roleMap.getColumn('color', 'choropleth').displayName] // TODO
+                    acc.push(curr)
+                }
+                return acc;
+            },
+            sum: (acc, curr) => {
+                const location = curr[roleMap.location()]
+                if (!features[location]) {
+                    features[location] = 0;
+                    acc.push(curr)
+                }
+                features[location] += curr[roleMap.getColumn('color', 'choropleth').displayName] // TODO
+                return acc;
+            },
+        }
+
+        return reducers[type]
+    }
+
     update(map, features, roleMap: RoleMap, settings: MapboxSettings) {
         super.update(map, features, roleMap, settings)
         let featureNames = {}
-        this.choroplethData = features.map(f => f.properties).reduce( (acc, curr) => {
-            const location = curr[roleMap.location()]
-            if (location && !featureNames[location]) {
-                featureNames[location] = curr[roleMap.location()]
-                acc.push(curr)
-            }
-            return acc;
-        }, [])
+        this.choroplethData = features.map(f => f.properties).reduce(this.getReducer(roleMap, "sum", featureNames), []).map( row => {
+            const colorFieldName = roleMap.getColumn('color', 'choropleth').displayName;
+            const location = row[roleMap.location()]
+            row[colorFieldName] = featureNames[location];
+            return row;
+        });
         this.fillColorLimits = getLimits(this.choroplethData, roleMap.getColumn('color', 'choropleth').displayName) // TODO
         this.fillSizeLimits = getLimits(this.choroplethData, roleMap.size())
         //const featureNames = this.choroplethData.map(f => f[roleMap.location.displayName])
