@@ -14,14 +14,28 @@ process.env.CHROME_BIN = require("puppeteer").executablePath();
 import { Config, ConfigOptions } from "karma";
 
 module.exports = (config: Config) => {
+    const browsers = [];
+
+    if (process.env.TRAVIS) {
+        browsers.push('ChromeTravisCI');
+    } else {
+        browsers.push('Chrome');
+    }
+
     config.set(<ConfigOptions>{
         mode: "development",
         client: {
             accessToken: process.env.MAPBOX_TOKEN || "",
         },
         browserNoActivityTimeout: 100000,
-        browsers: ["ChromeHeadless"], // or Chrome to use locally installed Chrome browser
+        browsers: browsers,
         colors: true,
+        customLaunchers: {
+            ChromeTravisCI: {
+                base: 'Chrome',
+                flags: ['--no-sandbox']
+            }
+        },
         frameworks: ["jasmine"],
         reporters: [
             "progress",
