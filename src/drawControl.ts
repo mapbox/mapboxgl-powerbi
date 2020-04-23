@@ -1,4 +1,4 @@
-import { Filter } from "./Filter"
+import { Filter } from "./filter"
 import { constants } from "./constants"
 //import { MapboxDraw, MapboxDrawConstants, LassoDraw } from "@mapbox/mapbox-gl-draw"
 import MapboxDrawConstants from '@mapbox/mapbox-gl-draw/src/constants.js';
