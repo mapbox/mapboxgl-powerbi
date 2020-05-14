@@ -3,10 +3,6 @@ import * as chroma from "chroma-js"
 import { featureCollection } from "@turf/helpers"
 import { propEach } from "@turf/meta"
 
-//import * as dataview from "powerbi-visuals-utils-dataviewutils"
-
-//export type RoleMap = {[key: string]: powerbiVisualsApi.DataViewMetadataColumn}
-
 export enum ClassificationMethod {
     Quantile,
     Equidistant,

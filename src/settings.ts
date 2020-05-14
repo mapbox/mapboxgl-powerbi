@@ -179,6 +179,7 @@ export class ChoroplethSettings {
     static readonly PREDEFINED_VECTOR_PROPERTY = "name";
 
     public show: boolean = false;
+    public aggregation: string = "Count";
     public diverging: boolean = false;
     public minColor: string = "#edf8b1";
     public midColor: string = "#7fcdbb";

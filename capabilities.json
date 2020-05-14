@@ -166,7 +166,11 @@
               "for": {
                 "in": "longitude"
               }
-            },
+            }
+          ]
+        },
+        "values": {
+          "select": [
             {
               "for": {
                 "in": "color"
@@ -800,6 +804,39 @@
               "type": {
                 "bool": true
               }
+            },
+            "aggregation": {
+              "type": {
+                "enumeration": [
+                  {
+                    "value": "Count",
+                    "displayName": "Count",
+                    "displayNameKey": "Count"
+                  },
+                  {
+                    "value": "Sum",
+                    "displayName": "Sum",
+                    "displayNameKey": "Sum"
+                  },
+                  {
+                    "value": "Average",
+                    "displayName": "Average",
+                    "displayNameKey": "Average"
+                  },
+                  {
+                    "value": "Minimum",
+                    "displayName": "Minimum",
+                    "displayNameKey": "Minimum"
+                  },
+                  {
+                    "value": "Maximum",
+                    "displayName": "Maximum",
+                    "displayNameKey": "Maximum"
+                  }
+                ]
+              },
+              "displayName": "Aggregation function",
+              "displayNameKey": "aggregation"
             },
             "diverging": {
               "displayName": "Diverging",

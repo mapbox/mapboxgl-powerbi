@@ -280,7 +280,7 @@ export class MapboxMap implements IVisual {
     }
    
     public updateLayers(dataView: DataView) {
-        const features = mapboxConverter.convert(dataView);
+        const features = mapboxConverter.convert(dataView, this.roleMap);
 
         this.palette.update(dataView, features);
 

@@ -357,14 +357,10 @@ export class Choropleth extends Layer {
             ChoroplethSettings.fillPredefinedProperties(choroSettings);
 
             const choroplethData = this.source.getData(map, settings);
-            console.log("choroplethData: ", choroplethData);
             const isGradient = shouldUseGradient(roleMap.getColumn('color', Choropleth.ID));
             const limits = this.source.getLimits();
-            console.log("Limits: ", limits)
             this.colorStops = this.generateColorStops(choroSettings, isGradient, limits.color, this.palette)
 
-            console.log("isGradient: ", isGradient);
-            console.log("colorStops: ", this.colorStops);
             const getColorOfLocation = this.getFunctionForColorOfLocation(isGradient, this.colorStops)
             const preprocessedData = this.preprocessData(roleMap, choroplethData, getColorOfLocation)
 

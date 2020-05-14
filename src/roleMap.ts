@@ -5,9 +5,11 @@ import { Choropleth } from "./layers/choropleth"
 
 export class RoleMap {
     map: any;
+    columns: powerbiVisualsApi.DataViewMetadataColumn[];
 
     constructor(metadata: powerbiVisualsApi.DataViewMetadata) {
         this.map = getRoleMap(metadata)
+        this.columns = metadata.columns;
     }
 
     cluster() : string{
@@ -59,9 +61,6 @@ export class RoleMap {
 //
 // TODO: tests
 function getRoleMap(metadata: powerbiVisualsApi.DataViewMetadata) {
-    //const ret = {
-        //tooltips: {}
-    //}
     let ret = {}
     metadata.columns.map(column => {
         Object.keys(column.roles).map(role => {
