@@ -69,21 +69,7 @@
       "name": "color",
       "kind": "Measure",
       "displayName": "Color",
-      "description": "Measure or Dimension to color circles and heatmaps.  Can be numeric or text data type.",
-      "requiredTypes": [
-        {
-          "numeric": true
-        },
-        {
-          "integer": true
-        },
-        {
-          "text": true
-        },
-        {
-          "bool": true
-        }
-      ]
+      "description": "Measure or Dimension to color circles and heatmaps.  Can be numeric or text data type."
     },
     {
       "name": "size",
@@ -1645,7 +1631,7 @@
             }
           }
         },
-        "dataColorsPalette": {
+        "colorSelector": {
           "displayName": "Data Colors",
           "properties": {
             "fill": {

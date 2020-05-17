@@ -50,6 +50,9 @@ export module mapboxConverter {
 
         const categories = categorical.categories.length > 0 ? categorical.categories.map(transformCategory) : []
         const values = categorical.values && categorical.values.length > 0 ? categorical.values.map(transformCategory) : []
+
+        const longitudeCol = roleMap.longitude();
+        const latitudeCol = roleMap.latitude();
         const ret = [...categories, ...values]
         if (ret.length > 0) {
             const reduced = ret[0].map( (value, index) => {
@@ -63,7 +66,7 @@ export module mapboxConverter {
                     type: "Feature",
                     geometry: {
                         type: "Point",
-                        coordinates: [prop[roleMap.longitude()] || null, prop[roleMap.latitude()] || null]
+                        coordinates: [prop[longitudeCol] || null, prop[latitudeCol] || null]
                     },
                     id: index,
                     properties: prop

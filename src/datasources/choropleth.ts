@@ -49,30 +49,6 @@ export class Choropleth extends Datasource {
         return this.choroplethData;
     }
 
-    getReducer(roleMap: RoleMap, type: string, features: Object) {
-        const reducers = {
-            first: (acc, curr) => {
-                const location = curr[roleMap.location()]
-                if (location && !features[location]) {
-                    features[location] = curr[roleMap.getColumn('color', 'choropleth').displayName] // TODO
-                    acc.push(curr)
-                }
-                return acc;
-            },
-            sum: (acc, curr) => {
-                const location = curr[roleMap.location()]
-                if (!features[location]) {
-                    features[location] = 0;
-                    acc.push(curr)
-                }
-                features[location] += curr[roleMap.getColumn('color', 'choropleth').displayName] // TODO
-                return acc;
-            },
-        }
-
-        return reducers[type]
-    }
-
     update(map, features, roleMap: RoleMap, settings: MapboxSettings) {
         super.update(map, features, roleMap, settings)
         let featureNames = {}
@@ -81,10 +57,11 @@ export class Choropleth extends Datasource {
         const f = features.map(f => f.properties);
         const aggregation = settings.choropleth.aggregation;
         let dataByLocation = {}
+        const locationCol = roleMap.location();
         roleMap.columns.map( (column: any) => {
             // group values by location for given column
             const rawValues = f.reduce( (acc, curr) => {
-                const location = curr[roleMap.location()];
+                const location = curr[locationCol];
                 if (acc[location] === undefined) {
                     acc[location] = []
                 }
@@ -98,8 +75,12 @@ export class Choropleth extends Datasource {
                     dataByLocation[location] = {}
                 }
 
-                // For the categories don't do aggregation, take the first value
-                if (column.roles.location || column.roles.latitude || column.roles.longitude) {
+                // For the categories don't do aggregation, take the first value. Also for non-numeric fields
+                if (column.roles.location || 
+                    column.roles.latitude || 
+                    column.roles.longitude ||
+                    !column.type.numeric
+                ) {
                     dataByLocation[location][column.displayName] = rawValues[location].length ? rawValues[location][0] : 0
                     return;
                 }

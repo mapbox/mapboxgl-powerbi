@@ -472,12 +472,16 @@ export class MapboxMap implements IVisual {
         }
     }
 
-    /**
-     * This function gets called for each of the objects defined in the capabilities files and allows you to select which of the
-     * objects and properties you want to expose to the users in the property pane.
-     *
-     */
-    public enumerateObjectInstances(options: EnumerateVisualObjectInstancesOptions): VisualObjectInstance[] | VisualObjectInstanceEnumerationObject {
-        return MapboxSettings.enumerateObjectInstances(this.settings || MapboxSettings.getDefault(), options);
-    }
+        /**
+        * This function returns the values to be displayed in the property pane for each object.
+        * Usually it is a bind pass of what the property pane gave you, but sometimes you may want to do
+        * validation and return other values/defaults
+        */
+        public enumerateObjectInstances(options: EnumerateVisualObjectInstancesOptions): VisualObjectInstance[] | VisualObjectInstanceEnumerationObject {
+            if (options.objectName == 'colorSelector') {
+                return this.palette.enumerateObjectInstances(options);
+            } else {
+                return MapboxSettings.enumerateObjectInstances(this.settings || MapboxSettings.getDefault(), options);
+            }
+        }
 }

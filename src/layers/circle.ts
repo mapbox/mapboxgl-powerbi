@@ -131,7 +131,7 @@ export class Circle extends Layer {
         super.applySettings(settings, roleMap);
         const map = this.parent.getMap();
         if (settings.circle.show) {
-            const isGradient = shouldUseGradient(roleMap.getColumn('color'));
+            const isGradient = shouldUseGradient(roleMap.getColumn('color', Circle.ID));
             const limits = this.source.getLimits()
             const sizes = Circle.getSizes(limits.size, map, settings, roleMap.size());
 

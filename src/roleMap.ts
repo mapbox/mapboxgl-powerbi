@@ -54,6 +54,10 @@ export class RoleMap {
         if (layerID === Choropleth.ID && this.map[role].length > 1) {
             return this.map[role][1];
         }
+
+        if (layerID === "all") { // TODO 
+            return this.map[role];
+        }
         return this.map[role][0];
     }
 }

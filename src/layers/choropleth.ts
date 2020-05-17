@@ -309,10 +309,13 @@ export class Choropleth extends Layer {
         const existingStops = {};
         const result = [];
 
+        const locationCol = roleMap.location()
+        const colorCol = roleMap.color(this)
+        const sizeCol = roleMap.size()
         for (let row of choroplethData) {
 
-            const location = row[roleMap.location()]
-            const color = getColorOfLocation(row[roleMap.color(this)])
+            const location = row[locationCol]
+            const color = getColorOfLocation(row[colorCol])
 
             if (!location || !color) {
                 // Stop value cannot be undefined or null; don't add this row to the stops
@@ -328,7 +331,7 @@ export class Choropleth extends Layer {
             }
             existingStops[locationStr] = true;
 
-            const size = roleMap.size() !== '' ? row[roleMap.size()] : null
+            const size = sizeCol !== '' ? row[sizeCol] : null
             result.push({
                 location,
                 color,
@@ -348,6 +351,7 @@ export class Choropleth extends Layer {
         const map = this.parent.getMap();
         this.settings = settings.choropleth
         const choroSettings = settings.choropleth;
+        const sizeCol = roleMap.size();
 
         if (map.getLayer(Choropleth.ID)) {
             map.setLayoutProperty(Choropleth.ID, 'visibility', choroSettings.display() ? 'visible' : 'none');
@@ -372,14 +376,14 @@ export class Choropleth extends Layer {
                 const colors = { type: "categorical", property, default: defaultColor, stops: [] };
 
                 const sizeLimits = limits.size;
-                const sizes: any = roleMap.size() !== '' ? { type: "categorical", property, default: 0, stops: [] } : choroSettings.height * Choropleth.HeightMultiplier
+                const sizes: any = sizeCol !== '' ? { type: "categorical", property, default: 0, stops: [] } : choroSettings.height * Choropleth.HeightMultiplier
 
                 const filter = ['in', property];
 
                 preprocessedData.forEach(({location, color, size}) => {
                     filter.push(location);
                     colors.stops.push([location, color.toString()]);
-                    if (roleMap.size() !== '') {
+                    if (sizeCol !== '') {
                         sizes.stops.push([location, this.sizeInterpolate(sizeLimits, choroSettings, size) * Choropleth.HeightMultiplier])
                     }
                 })
@@ -424,8 +428,12 @@ export class Choropleth extends Layer {
 
         const result = roleMap.tooltips().map( column => {
             const key = column.displayName;
+            let prefix = "";
+            if (!column.roles.location && !column.roles.latitude && !column.roles.longitude && column.type.numeric) {
+                prefix = settings.choropleth.aggregation;
+            }
             const data = {
-                displayName: key,
+                displayName: `${prefix} ${key}`,
                 value: "null",
             }
             if (dataUnderLocation[key]) {
