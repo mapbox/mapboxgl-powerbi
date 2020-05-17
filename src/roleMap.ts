@@ -3,9 +3,14 @@ import { Layer } from "./layers/layer"
 import { Cluster } from "./layers/cluster"
 import { Choropleth } from "./layers/choropleth"
 
+export interface Column extends powerbiVisualsApi.DataViewMetadataColumn {
+    /** The index of the column under the property  that this column provides to the visualization. */
+    rolesIndex?: { [name: string]: number };
+}
+
 export class RoleMap {
     map: any;
-    columns: powerbiVisualsApi.DataViewMetadataColumn[];
+    columns: Column[];
 
     constructor(metadata: powerbiVisualsApi.DataViewMetadata) {
         this.map = getRoleMap(metadata)
@@ -46,7 +51,15 @@ export class RoleMap {
         return this.map['tooltips'];
     }
 
-    getColumn(role: string, layerID: string) : powerbiVisualsApi.DataViewMetadataColumn {
+    getAll(role: string) : Column[] {
+        if (!this.map[role] || this.map[role].length <= 0) {
+            return null;
+        }
+
+        return this.map[role]
+    }
+
+    getColumn(role: string, layerID: string) : Column {
         if (!this.map[role] || this.map[role].length <= 0) {
             return null;
         }
@@ -55,9 +68,6 @@ export class RoleMap {
             return this.map[role][1];
         }
 
-        if (layerID === "all") { // TODO 
-            return this.map[role];
-        }
         return this.map[role][0];
     }
 }

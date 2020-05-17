@@ -54,7 +54,7 @@ export class Palette {
             this.dataColorGroupNames = [];
             const roleMap = this.mapVisual.getRoleMap()
 
-            const colors = roleMap.getColumn('color', 'all');
+            const colors = roleMap.getAll('color');
             colors.map(colorCol => {
                 if (!colorCol) {
                     return;

@@ -2,12 +2,13 @@ import powerbiVisualsApi from "powerbi-visuals-api";
 import { decorateLayer  } from "../mapboxUtils"
 import { Layer } from "./layer"
 import { Sources } from "../datasources/sources"
+import { MapboxMap } from "../visual"
 
 export class Raster extends Layer {
     private static readonly ID = 'raster';
     private static readonly LayerOrder = [Raster.ID];
 
-    constructor(map: any) { // TODO
+    constructor(map: MapboxMap) {
         super(map, Raster.ID)
         this.source = Sources.Raster
     }

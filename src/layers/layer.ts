@@ -11,16 +11,18 @@ import { ColorStops, LegendControl } from "../legendControl"
 import { MapboxSettings, CircleSettings, ChoroplethSettings, ClusterSettings } from "../settings"
 import { Palette } from "../palette"
 import { TooltipEventArgs } from "../tooltipServiceWrapper"
+import { MapboxMap } from "../visual"
+import { Datasource } from "../datasources/datasource"
 
 export abstract class Layer {
-    protected parent: any;
-    protected source: any; // TODO data.Datasource;
+    protected parent: MapboxMap;
+    protected source: Datasource;
     public readonly id: string;
     protected prevLabelPositionSetting: string;
 
     protected colorStops: ColorStops;
 
-    constructor(map: any, id: string) {
+    constructor(map: MapboxMap, id: string) {
         this.parent = map;
         this.id = id;
         const settings = map.getSettings();

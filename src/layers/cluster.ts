@@ -6,6 +6,7 @@ import { LegendControl } from "../legendControl"
 import { MapboxSettings, ClusterSettings } from "../settings"
 import { Sources } from "../datasources/sources"
 import { TooltipEventArgs } from "../tooltipServiceWrapper"
+import { MapboxMap } from "../visual"
 
 export class Cluster extends Layer {
     public static readonly ID = 'cluster';
@@ -16,7 +17,7 @@ export class Cluster extends Layer {
 
     private getClusterField: Function;
 
-    constructor(map: any, getClusterField) { // TODO
+    constructor(map: MapboxMap, getClusterField) {
         super(map, Cluster.ID)
         this.getClusterField = getClusterField
         this.source = Sources.Cluster.withGetter(getClusterField)

@@ -1,15 +1,17 @@
 import powerbiVisualsApi from "powerbi-visuals-api";
 import { ClassificationMethod, Limits, decorateLayer, shouldUseGradient, getClassCount, getBreaks } from "../mapboxUtils"
 import { Palette } from "../palette"
+import { Filter } from "../filter"
 import { RoleMap } from "../roleMap"
 import { Layer } from "./layer"
 import { MapboxSettings, CircleSettings } from "../settings"
 import { ColorStops } from "../legendControl"
 import { Sources } from "../datasources/sources"
 import { constants } from "../constants"
+import { MapboxMap } from "../visual"
 
 export class Circle extends Layer {
-    private filter: any; // TODO
+    private filter: Filter;
     private palette: Palette;
     private settings: CircleSettings;
 
@@ -18,7 +20,7 @@ export class Circle extends Layer {
 
     private static readonly LayerOrder = [Circle.ID, Circle.HighlightID];
 
-    constructor(map: any, filter: any, palette: Palette) { // TODO + TODO
+    constructor(map: MapboxMap, filter: Filter, palette: Palette) {
         super(map, Circle.ID)
         this.filter = filter
         this.palette = palette

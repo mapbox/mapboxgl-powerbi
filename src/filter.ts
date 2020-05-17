@@ -8,11 +8,12 @@ import { Circle } from "./layers/circle"
 import { Choropleth } from "./layers/choropleth"
 import { Layer } from "./layers/layer"
 import { FeatureOps } from "./featureOps"
+import { MapboxMap } from "./visual"
 
 export class Filter {
     private box: HTMLElement;
     private start: any;
-    private mapVisual: any; // TODO
+    private mapVisual: MapboxMap;
     private selectionInProgress: boolean;
     private selectionFinish: number;
     private dragScreenX: number;
@@ -24,7 +25,7 @@ export class Filter {
     private prevSelectionByLayer: { [layerId: string]: GeoJSON.Feature<GeoJSONGeometry>[] };
 
 
-    constructor(mapVisual: any, host: IVisualHost) { // TODO
+    constructor(mapVisual: MapboxMap, host: IVisualHost) {
         this.mapVisual = mapVisual
         this.selectionManager = host.createSelectionManager();
         this.host = host;
@@ -304,7 +305,7 @@ export class Filter {
         return (e.metaKey || e.ctrlKey) && e.button === 0
     }
 
-    createClickHandler(mapVisual: any) { // TODO
+    createClickHandler(mapVisual: MapboxMap) {
         let onClick: Function = (e) => {
             const originalEvent = e.originalEvent;
             if (originalEvent.shiftKey && originalEvent.button === 0 || this.selectionInProgress) {

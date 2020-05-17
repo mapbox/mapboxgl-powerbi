@@ -50,7 +50,7 @@ import { AutoZoomControl } from "./autoZoomControl"
 import { MapboxGeocoderControl } from "./mapboxGeocoderControl"
 
 import * as mapboxgl from "mapbox-gl"
-import { MapboxSettings } from "./settings";
+import { MapboxSettings, ChoroplethSettings } from "./settings";
 import { zoomToData  } from "./mapboxUtils";
 import { ITooltipServiceWrapper, createTooltipServiceWrapper, TooltipEventArgs } from "./tooltipServiceWrapper"
 import { mapboxConverter } from "./mapboxConverter";
@@ -311,7 +311,25 @@ export class MapboxMap implements IVisual {
         this.onUpdate(this.map, this.settings, this.updatedHandler);
     }
 
+    private updateCurrentLevel(settings : ChoroplethSettings, roleMap : RoleMap) {
+        try {
+            let location_index = 0;
+            roleMap.getAll('location').map( col => {
+                if (col.rolesIndex.location[0] > location_index) { // TODO
+                    location_index = col.rolesIndex.location[0]
+                }
+            })
+
+            settings.currentLevel = location_index + 1;
+        } catch( e) {
+            console.log(e)
+        }
+    }
+
+
+
     public update(options: VisualUpdateOptions) {
+        // TODO fetch all data instead of first page
         this.settings = MapboxMap.parseSettings(options && options.dataViews && options.dataViews[0]);
 
         const dataView: DataView = options.dataViews[0];
@@ -333,8 +351,7 @@ export class MapboxMap implements IVisual {
 
         this.roleMap = new RoleMap(dataView.metadata);
 
-        //this.updateCurrentLevel(this.settings.choropleth, options); // TODO
-
+        this.updateCurrentLevel(this.settings.choropleth, this.roleMap);
 
         if (!this.map) {
             this.addMap();

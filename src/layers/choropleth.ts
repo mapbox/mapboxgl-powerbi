@@ -10,6 +10,7 @@ import { MapboxSettings, ChoroplethSettings } from "../settings"
 import { ColorStops } from "../legendControl"
 import { Sources } from "../datasources/sources"
 import { constants } from "../constants"
+import { MapboxMap } from "../visual"
 
 export class Choropleth extends Layer {
     public static readonly ID = 'choropleth'
@@ -33,7 +34,7 @@ export class Choropleth extends Layer {
     private palette: Palette;
     private settings: ChoroplethSettings;
 
-    constructor(map: any, filter: Filter, palette: Palette) { // TODO
+    constructor(map: MapboxMap, filter: Filter, palette: Palette) {
         super(map, Choropleth.ID);
         this.source = Sources.Choropleth;
         this.filter = filter;

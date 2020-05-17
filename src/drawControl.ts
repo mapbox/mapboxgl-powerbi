@@ -1,5 +1,6 @@
 import { Filter } from "./filter"
 import { constants } from "./constants"
+import { MapboxMap } from "./visual"
 //import { MapboxDraw, MapboxDrawConstants, LassoDraw } from "@mapbox/mapbox-gl-draw"
 import MapboxDrawConstants from '@mapbox/mapbox-gl-draw/src/constants.js';
 import { LassoDraw } from "./lassoDraw"
@@ -11,7 +12,7 @@ import booleanContains from "@turf/boolean-contains"
 import booleanOverlap from "@turf/boolean-overlap"
 
 export class DrawControl implements mapboxgl.IControl {
-    private draw: any;  // TODO: this should not be any
+    private draw: MapboxDraw;
     private filter: Filter;
 
     constructor(filter: Filter) {
@@ -30,7 +31,7 @@ export class DrawControl implements mapboxgl.IControl {
 
     }
 
-    manageHandlers(mapVisual: any) { // TODO
+    manageHandlers(mapVisual: MapboxMap) {
         const map: mapboxgl.Map = mapVisual.getMap()
 
         map.on('draw.create', (e) => {

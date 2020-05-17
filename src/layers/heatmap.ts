@@ -4,12 +4,13 @@ import { RoleMap } from "../roleMap"
 import { Layer } from "./layer"
 import { MapboxSettings  } from "../settings"
 import { Sources } from "../datasources/sources"
+import { MapboxMap } from "../visual"
 
 export class Heatmap extends Layer {
     private static readonly ID = 'heatmap';
     private static readonly LayerOrder = [Heatmap.ID];
 
-    constructor(map: any) { // TODO
+    constructor(map: MapboxMap) {
         super(map, Heatmap.ID)
         this.source = Sources.Point
     }
