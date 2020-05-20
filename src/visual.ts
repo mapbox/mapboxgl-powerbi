@@ -198,18 +198,6 @@ export class MapboxMap implements IVisual {
         this.filter.manageHandlers();
         this.drawControl.manageHandlers(this);
 
-        this.map.on('zoom', () => {
-            const newZoom = Math.floor(this.map.getZoom())
-            if (this.previousZoom != newZoom) {
-                this.previousZoom = newZoom;
-                this.layers.map(layer => {
-                    if (layer.handleZoom(this.settings)) {
-                        layer.applySettings(this.settings, this.roleMap);
-                    }
-                });
-                this.updateLegend(this.settings);
-            }
-        });
     }
 
     private removeMap() {
@@ -297,6 +285,23 @@ export class MapboxMap implements IVisual {
             datasource.update(this.map, features, this.roleMap, this.settings);
         };
 
+        this.map.on('zoom', () => {
+            try {
+                const newZoom = Math.floor(this.map.getZoom())
+                if (this.previousZoom != newZoom) {
+                    this.previousZoom = newZoom;
+                    this.layers.map(layer => {
+                        if (layer.handleZoom(this.settings)) {
+                            layer.applySettings(this.settings, this.roleMap);
+                        }
+                    });
+                    this.updateLegend(this.settings);
+                }
+            } catch (e) {
+                console.error("Error in zoom handler: ", e)
+            }
+        });
+
         this.layers.map(layer => {
             this.tooltipServiceWrapper.addTooltip(
                 this.map,
@@ -312,13 +317,19 @@ export class MapboxMap implements IVisual {
     }
 
     private updateCurrentLevel(settings : ChoroplethSettings, roleMap : RoleMap) {
+        // TODO when we have more values in location, that means, Expand all down 1 level was selected.
+        // In that case all levels of information is in the data but in different fields
+        // maybe we should take them into consideration when matchin choropleth regions with the data.
         try {
             let location_index = 0;
-            roleMap.getAll('location').map( col => {
-                if (col.rolesIndex.location[0] > location_index) { // TODO
-                    location_index = col.rolesIndex.location[0]
-                }
-            })
+            let locations = roleMap.getAll('location');
+            if (locations) {
+                locations.map( col => {
+                    if (col.rolesIndex.location[0] > location_index) { // TODO
+                        location_index = col.rolesIndex.location[0]
+                    }
+                })
+            }
 
             settings.currentLevel = location_index + 1;
         } catch( e) {

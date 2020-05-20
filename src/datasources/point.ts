@@ -9,6 +9,9 @@ export class Point extends Datasource {
 
     constructor() {
         super('point')
+
+        this.colorLimits = { min: null, max: null, values: [] }
+        this.sizeLimits = { min: null, max: null, values: [] }
     }
 
     addSources(map, settings) {

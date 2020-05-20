@@ -55,20 +55,22 @@ export class Palette {
             const roleMap = this.mapVisual.getRoleMap()
 
             const colors = roleMap.getAll('color');
-            colors.map(colorCol => {
-                if (!colorCol) {
-                    return;
-                }
+            if (colors) {
+                colors.map(colorCol => {
+                    if (!colorCol) {
+                        return;
+                    }
 
-                if (shouldUseGradient(colorCol)) {
-                    return;
-                }
+                    if (shouldUseGradient(colorCol)) {
+                        return;
+                    }
 
-                const colorPropertyName = colorCol.displayName;
+                    const colorPropertyName = colorCol.displayName;
 
-                this.updateDataColorGroupNames(features, colorPropertyName);
-            })
-            this.updateColorMap(dataView);
+                    this.updateDataColorGroupNames(features, colorPropertyName);
+                })
+                this.updateColorMap(dataView);
+            }
         }
         catch (err) {
             console.log("Exception occured during group color creation: ", err);
