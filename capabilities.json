@@ -15,7 +15,7 @@
     },
     {
       "name": "latitude",
-      "kind": "GroupingOrMeasure",
+      "kind": "Grouping",
       "displayName": "Latitude",
       "description": "Latitude geographic point dimension",
       "preferredTypes": [
@@ -41,7 +41,7 @@
     },
     {
       "name": "longitude",
-      "kind": "GroupingOrMeasure",
+      "kind": "Grouping",
       "displayName": "Longitude",
       "description": "Longitude geographic point dimension",
       "preferredTypes": [
