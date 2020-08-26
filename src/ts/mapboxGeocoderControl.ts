@@ -9,6 +9,7 @@ module powerbi.extensibility.visual {
         private accessToken: string
         private zoom: number
         private mapboxgl: any
+        private countries: string
 
         constructor(settings: MapboxSettings) {
             this.accessToken = settings.api.accessToken
@@ -16,6 +17,7 @@ module powerbi.extensibility.visual {
             this.zoom = settings.geocoder.zoom
             this.dropPin = settings.geocoder.dropPin
             this.pin = new mapboxgl.Marker()
+            this.countries = settings.geocoder.countries
         }
 
         public update(map: mapboxgl.Map, settings: MapboxSettings) {
@@ -31,6 +33,7 @@ module powerbi.extensibility.visual {
             this.accessToken = settings.api.accessToken
             this.zoom = settings.geocoder.zoom
             this.dropPin = settings.geocoder.dropPin
+            this.countries = settings.geocoder.countries
 
             if (reinitNeeded && this.geocoder) {
                 map.removeControl(this)
@@ -42,7 +45,8 @@ module powerbi.extensibility.visual {
             this.geocoder = new MapboxGeocoder({
                 accessToken: this.accessToken,
                 zoom: this.zoom,
-                mapboxgl: this.mapboxgl
+                mapboxgl: this.mapboxgl,
+                countries: this.countries
             })
 
             this.quirkPosition(map)
