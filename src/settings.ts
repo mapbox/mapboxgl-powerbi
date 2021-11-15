@@ -31,32 +31,32 @@ import DataViewObjectsParser = dataViewObjectsParser.DataViewObjectsParser;
 import powerbiVisualsApi from "powerbi-visuals-api";
 
 export class MapboxSettings extends DataViewObjectsParser {
-        public api: APISettings = new APISettings();
-        public geocoder: GeocoderSettings = new GeocoderSettings();
-        public cluster: ClusterSettings = new ClusterSettings();
-        public heatmap: HeatmapSettings = new HeatmapSettings();
-        public circle: CircleSettings = new CircleSettings();
-        public choropleth: ChoroplethSettings = new ChoroplethSettings();
-        public raster: RasterSettings = new RasterSettings();
+    public api: APISettings = new APISettings();
+    public geocoder: GeocoderSettings = new GeocoderSettings();
+    public cluster: ClusterSettings = new ClusterSettings();
+    public heatmap: HeatmapSettings = new HeatmapSettings();
+    public circle: CircleSettings = new CircleSettings();
+    public choropleth: ChoroplethSettings = new ChoroplethSettings();
+    public raster: RasterSettings = new RasterSettings();
 
-        public static enumerateObjectInstances(
-            dataViewObjectParser: DataViewObjectsParser,
-            options: powerbiVisualsApi.EnumerateVisualObjectInstancesOptions): powerbiVisualsApi.VisualObjectInstanceEnumeration {
+    public static enumerateObjectInstances(
+        dataViewObjectParser: DataViewObjectsParser,
+        options: powerbiVisualsApi.EnumerateVisualObjectInstancesOptions): powerbiVisualsApi.VisualObjectInstanceEnumeration {
 
-            let settings: MapboxSettings = <MapboxSettings>dataViewObjectParser;
-            let instanceEnumeration = DataViewObjectsParser.enumerateObjectInstances(dataViewObjectParser, options);
+        let settings: MapboxSettings = <MapboxSettings>dataViewObjectParser;
+        let instanceEnumeration = DataViewObjectsParser.enumerateObjectInstances(dataViewObjectParser, options);
 
-            switch (options.objectName) {
-                case 'api':
-                case 'circle':
-                case 'choropleth': {
-                    return settings[options.objectName].enumerateObjectInstances(instanceEnumeration);
-                }
-                default: {
-                    return instanceEnumeration;
-                }
+        switch (options.objectName) {
+            case 'api':
+            case 'circle':
+            case 'choropleth': {
+                return settings[options.objectName].enumerateObjectInstances(instanceEnumeration);
+            }
+            default: {
+                return instanceEnumeration;
             }
         }
+    }
 }
 
 export class APISettings {
@@ -93,11 +93,11 @@ export class APISettings {
     }
 }
 
-    export class GeocoderSettings {
-        public show: boolean = true;
-        public dropPin: boolean = true;
-        public zoom: number = 10;
-    }
+export class GeocoderSettings {
+    public show: boolean = true;
+    public dropPin: boolean = true;
+    public zoom: number = 10;
+}
 
 
 
@@ -419,7 +419,7 @@ export class ChoroplethSettings {
 
 export class RasterSettings {
     public show: boolean = false;
-    public url: string = "https://geodata.state.nj.us/imagerywms/Natural2015?bbox={bbox-epsg-3857}&format=image/png&service=WMS&version=1.1.1&request=GetMap&srs=EPSG:3857&transparent=true&width=256&height=256&layers=Natural2015";
+    public url: string = "https://img.nj.gov/imagerywms/Natural2015?bbox={bbox-epsg-3857}&format=image/png&service=WMS&version=1.1.1&request=GetMap&srs=EPSG:3857&transparent=true&width=256&height=256&layers=Natural2015";
     public rasterTileSize: number = 256;
     public opacity: number = 80;
     public minZoom: number = 0;
