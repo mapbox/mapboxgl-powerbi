@@ -51,7 +51,7 @@ import { MapboxGeocoderControl } from "./mapboxGeocoderControl"
 
 import * as mapboxgl from "mapbox-gl"
 import { MapboxSettings, ChoroplethSettings } from "./settings";
-import { zoomToData  } from "./mapboxUtils";
+import { zoomToData } from "./mapboxUtils";
 import { ITooltipServiceWrapper, createTooltipServiceWrapper, TooltipEventArgs } from "./tooltipServiceWrapper"
 import { mapboxConverter } from "./mapboxConverter";
 import { Templates } from "./templates";
@@ -107,7 +107,7 @@ export class MapboxMap implements IVisual {
         this.tooltipServiceWrapper = createTooltipServiceWrapper(options.host.tooltipService, options.element);
     }
 
-    onUpdate(map, settings, updatedHandler: Function) {
+    onUpdate(map: mapboxgl.Map, settings, updatedHandler: Function) {
         try {
             this.layers.map(layer => {
                 layer.applySettings(settings, this.roleMap);
@@ -178,7 +178,7 @@ export class MapboxMap implements IVisual {
                 }
             }
         }
-
+        this.previousZoom = this.settings.api.zoom;
         // If the map container doesn't exist yet, create it
         this.map = new mapboxgl.Map(mapOptions);
 
@@ -213,8 +213,8 @@ export class MapboxMap implements IVisual {
 
         // Hide div and remove any child elements
         this.errorDiv.setAttribute("style", "display: none;");
-        while (this.errorDiv.hasChildNodes()) { 
-            this.errorDiv.removeChild(this.errorDiv.firstChild) 
+        while (this.errorDiv.hasChildNodes()) {
+            this.errorDiv.removeChild(this.errorDiv.firstChild)
         }
 
         // Check for Access Token
@@ -266,7 +266,7 @@ export class MapboxMap implements IVisual {
     public hideTooltip(): void {
         this.tooltipServiceWrapper.hide(true)
     }
-   
+
     public updateLayers(dataView: DataView) {
         const features = mapboxConverter.convert(dataView, this.roleMap);
 
@@ -301,7 +301,9 @@ export class MapboxMap implements IVisual {
                 console.error("Error in zoom handler: ", e)
             }
         });
-
+        this.map.on("moveend", () => {
+            this.previousZoom = this.map.getZoom()
+        });
         this.layers.map(layer => {
             this.tooltipServiceWrapper.addTooltip(
                 this.map,
@@ -316,7 +318,7 @@ export class MapboxMap implements IVisual {
         this.onUpdate(this.map, this.settings, this.updatedHandler);
     }
 
-    private updateCurrentLevel(settings : ChoroplethSettings, roleMap : RoleMap) {
+    private updateCurrentLevel(settings: ChoroplethSettings, roleMap: RoleMap) {
         // TODO when we have more values in location, that means, Expand all down 1 level was selected.
         // In that case all levels of information is in the data but in different fields
         // maybe we should take them into consideration when matchin choropleth regions with the data.
@@ -324,7 +326,7 @@ export class MapboxMap implements IVisual {
             let location_index = 0;
             let locations = roleMap.getAll('location');
             if (locations) {
-                locations.map( col => {
+                locations.map(col => {
                     if (col.rolesIndex.location[0] > location_index) { // TODO
                         location_index = col.rolesIndex.location[0]
                     }
@@ -332,7 +334,7 @@ export class MapboxMap implements IVisual {
             }
 
             settings.currentLevel = location_index + 1;
-        } catch( e) {
+        } catch (e) {
             console.log(e)
         }
     }
@@ -377,6 +379,8 @@ export class MapboxMap implements IVisual {
         // the other is referring to 'enabled' state, this is why we have the equality check and the negation)
         if (this.autoZoomControl.isPinned() == this.settings.api.autozoom) {
             this.autoZoomControl.setPin(!this.settings.api.autozoom);
+        } else if (this.previousZoom != this.settings.api.zoom) {
+            this.map.zoomTo(this.settings.api.zoom)
         }
 
         if (mapboxgl.accessToken != this.settings.api.accessToken) {
@@ -427,8 +431,7 @@ export class MapboxMap implements IVisual {
             this.legend.removeLegends()
         }
 
-        if (!this.roleMap)
-        {
+        if (!this.roleMap) {
             if (this.legend) {
                 this.map.removeControl(this.legend)
                 this.legend = null
@@ -500,16 +503,16 @@ export class MapboxMap implements IVisual {
         }
     }
 
-        /**
-        * This function returns the values to be displayed in the property pane for each object.
-        * Usually it is a bind pass of what the property pane gave you, but sometimes you may want to do
-        * validation and return other values/defaults
-        */
-        public enumerateObjectInstances(options: EnumerateVisualObjectInstancesOptions): VisualObjectInstance[] | VisualObjectInstanceEnumerationObject {
-            if (options.objectName == 'colorSelector') {
-                return this.palette.enumerateObjectInstances(options);
-            } else {
-                return MapboxSettings.enumerateObjectInstances(this.settings || MapboxSettings.getDefault(), options);
-            }
+    /**
+    * This function returns the values to be displayed in the property pane for each object.
+    * Usually it is a bind pass of what the property pane gave you, but sometimes you may want to do
+    * validation and return other values/defaults
+    */
+    public enumerateObjectInstances(options: EnumerateVisualObjectInstancesOptions): VisualObjectInstance[] | VisualObjectInstanceEnumerationObject {
+        if (options.objectName == 'colorSelector') {
+            return this.palette.enumerateObjectInstances(options);
+        } else {
+            return MapboxSettings.enumerateObjectInstances(this.settings || MapboxSettings.getDefault(), options);
         }
+    }
 }

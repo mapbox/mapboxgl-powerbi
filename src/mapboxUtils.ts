@@ -22,6 +22,7 @@ export function zoomToData(map, bounds) {
             padding: 20,
             maxZoom: 15,
         });
+
     }
 }
 
@@ -77,7 +78,7 @@ export function getBreaks(values: number[], method: ClassificationMethod, classC
     return chroma.limits(values, chromaMode, classCount);
 }
 
- export function positionInArray(array: any[], element: any) {
+export function positionInArray(array: any[], element: any) {
     let found = false
     for (let i = 0; i <= array.length; i++) {
         if (array[i] == element) {
@@ -88,7 +89,7 @@ export function getBreaks(values: number[], method: ClassificationMethod, classC
     if (!found) {
         return -1
     }
- }
+}
 
 export function pushIfNotExist(array: any[], element: any) {
     if (positionInArray(array, element) === -1) {
