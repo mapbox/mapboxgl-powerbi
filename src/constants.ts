@@ -3,4 +3,5 @@ export module constants {
     export const HIGHLIGHT_COLOR = "#627BC1";
     export const MAX_SELECTION_COUNT = 1000;
     export const MAPBOX_CTRL_ICON_CLASS = 'mapboxgl-ctrl-icon';
+    export const CONTROL_BUTTON_LASSO = 'mapbox-gl-draw_lasso';
 }

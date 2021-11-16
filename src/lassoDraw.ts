@@ -3,16 +3,16 @@ import { Filter } from "./filter"
 import MapboxDrawConstants from '@mapbox/mapbox-gl-draw/src/constants.js';
 import MapboxDraw from '@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.js';
 import simplify from "@turf/simplify"
+import { constants } from "./constants";
 
 export module LassoDraw {
-
     export function create(filter: Filter) {
 
         // Set up cooperation between Mapbox GL Draw tools and our filtering component (filter.ts) by
         // "hooking" into Mapbox GL Draw functions, so that we can disable hover highlights during
         // drawing and not to clear selection on draw finish, etc.
         let original_polygon_onClick = MapboxDraw.modes.draw_polygon.onClick;
-        MapboxDraw.modes.draw_polygon.onClick = function(state, e) {
+        MapboxDraw.modes.draw_polygon.onClick = function (state, e) {
             if (filter) {
                 filter.setSelectionInProgress(true);
             }
@@ -20,7 +20,7 @@ export module LassoDraw {
         }
 
         let original_polygon_onStop = MapboxDraw.modes.draw_polygon.onStop
-        MapboxDraw.modes.draw_polygon.onStop = function(state) {
+        MapboxDraw.modes.draw_polygon.onStop = function (state) {
             if (filter) {
                 filter.setSelectionInProgress(false);
             }
@@ -33,7 +33,7 @@ export module LassoDraw {
         }
 
         MapboxDraw.modes.draw_polygon.onSetup_original = MapboxDraw.modes.draw_polygon.onSetup
-        MapboxDraw.modes.draw_polygon.onSetup = function(state) {
+        MapboxDraw.modes.draw_polygon.onSetup = function (state) {
             if (filter) {
                 filter.setSelectionInProgress(true);
             }
@@ -48,25 +48,25 @@ export module LassoDraw {
         }
 
         // Lasso draw is based on polygon drawing tool, but some of its functions are going to be replaced
-        const LassoDraw = {...MapboxDraw.modes.draw_polygon};
+        const LassoDraw = { ...MapboxDraw.modes.draw_polygon };
 
         // Toggle buttons
-        MapboxDraw.modes.draw_polygon.toggleButton = function() {
+        MapboxDraw.modes.draw_polygon.toggleButton = function () {
             toggleIcon(MapboxDrawConstants.classes.CONTROL_BUTTON_POLYGON, true);
         }
-        LassoDraw.toggleButton = function() {
-            toggleIcon(MapboxDrawConstants.classes.CONTROL_BUTTON_LASSO, true);
+        LassoDraw.toggleButton = function () {
+            toggleIcon(constants.CONTROL_BUTTON_LASSO, true);
         }
 
         // Untoggle buttons
-        MapboxDraw.modes.draw_polygon.untoggleButton = function() {
+        MapboxDraw.modes.draw_polygon.untoggleButton = function () {
             toggleIcon(MapboxDrawConstants.classes.CONTROL_BUTTON_POLYGON, false);
         }
-        LassoDraw.untoggleButton = function() {
-            toggleIcon(MapboxDrawConstants.classes.CONTROL_BUTTON_LASSO, false);
+        LassoDraw.untoggleButton = function () {
+            toggleIcon(constants.CONTROL_BUTTON_LASSO, false);
         }
 
-        LassoDraw.onSetup_original = function() {
+        LassoDraw.onSetup_original = function () {
             const polygon = this.newFeature({
                 type: MapboxDrawConstants.geojsonTypes.FEATURE,
                 properties: {},
@@ -93,7 +93,7 @@ export module LassoDraw {
             };
         };
 
-        LassoDraw.onClick = function(state, e) {
+        LassoDraw.onClick = function (state, e) {
             state.toggled = !state.toggled;
 
             if (!state.toggled) {
@@ -115,7 +115,7 @@ export module LassoDraw {
             }
         }
 
-        LassoDraw.onMouseMove = LassoDraw.onTouchMove = function (state, e){
+        LassoDraw.onMouseMove = LassoDraw.onTouchMove = function (state, e) {
             state.dragMoving = true;
             if (state.toggled) {
                 this.updateUIClasses({ mouse: MapboxDrawConstants.cursors.ADD });
@@ -125,7 +125,7 @@ export module LassoDraw {
             }
         }
 
-        LassoDraw.fireUpdate = function() {
+        LassoDraw.fireUpdate = function () {
             this.map.fire(MapboxDrawConstants.events.UPDATE, {
                 action: MapboxDrawConstants.updateActions.MOVE,
                 features: this.getSelected().map(f => f.toGeoJSON())
@@ -139,7 +139,7 @@ export module LassoDraw {
         // Replace the line string tool icon and title to the lasso's icon and title
         try {
             let buttonClassName = MapboxDrawConstants.classes.CONTROL_BUTTON;
-            buttonClassName += ` ${MapboxDrawConstants.classes.CONTROL_BUTTON_LASSO}`;
+            buttonClassName += ` ${constants.CONTROL_BUTTON_LASSO}`;
             surrogateControl.className = buttonClassName;
             surrogateControl.title = 'Lasso tool (l)';
         } catch (error) {

@@ -41,14 +41,14 @@ export class DrawControl implements mapboxgl.IControl {
             // Get the feature the user has drawn
             const selection_poly = e.features[0];
 
-            const selectFeature = function(sel_pol, feature) {
+            const selectFeature = function (sel_pol, feature) {
                 if (feature.geometry.type === 'Point' && booleanContains(sel_pol, feature)) {
                     return true;
                 }
                 if ((feature.geometry.type === 'Polygon' || feature.geometry.type === 'Linestring') &&
-                   (booleanOverlap(feature, sel_pol) || booleanContains(sel_pol, feature) ||
-                    booleanContains(feature, sel_pol)
-                )) {
+                    (booleanOverlap(feature, sel_pol) || booleanContains(sel_pol, feature) ||
+                        booleanContains(feature, sel_pol)
+                    )) {
                     return true;
                 }
 
@@ -63,7 +63,7 @@ export class DrawControl implements mapboxgl.IControl {
             // Find features in a layer the user selected bbox
             const layers = mapVisual.getExistingLayers();
             const layerIDs = layers.map(layer => layer.getId());
-            const bbox_features : any[] = map.queryRenderedFeatures([southWest, northEast], {
+            const bbox_features: any[] = map.queryRenderedFeatures([southWest, northEast], {
                 layers: layerIDs
             });
 
@@ -92,7 +92,7 @@ export class DrawControl implements mapboxgl.IControl {
                 if (selectedFeatures.length > constants.MAX_SELECTION_COUNT) {
                     selectedFeatures = selectedFeatures.slice(0, constants.MAX_SELECTION_COUNT);
                 }
-                layers.map( layer => {
+                layers.map(layer => {
                     this.filter.updateSelection(layer, selectedFeatures, roleMap)
                 })
             }
@@ -107,7 +107,7 @@ export class DrawControl implements mapboxgl.IControl {
 
         // Replace the line string draw icon to the lasso icon
         const drawLineGroup = drawControlHTML.getElementsByClassName(MapboxDrawConstants.classes.CONTROL_BUTTON_LINE);
-        const drawLineControl: HTMLElement = drawLineGroup[0] as HTMLElement;
+        const drawLineControl: HTMLElement = <HTMLElement>drawLineGroup[0];
         LassoDraw.makeIcon(drawLineControl);
 
         return drawControlHTML
