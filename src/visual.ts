@@ -63,6 +63,7 @@ import { Heatmap } from "./layers/heatmap"
 import { Raster } from "./layers/raster"
 import { Choropleth } from "./layers/choropleth"
 
+// tslint:disable-next-line: export-name
 export class MapboxMap implements IVisual {
     private target: HTMLElement;
     private settings: MapboxSettings;
@@ -76,6 +77,7 @@ export class MapboxMap implements IVisual {
     private controlsPopulated: boolean;
     private roleMap: any;
     private previousZoom: number;
+    private previousCoordinates: mapboxgl.LngLat;
     private updatedHandler: Function = () => { }
     private layers: Layer[] = [];
     private legend: LegendControl;
@@ -132,6 +134,23 @@ export class MapboxMap implements IVisual {
                     return bbox(combined)
                 });
                 zoomToData(map, bounds);
+            } else {
+                // maps lat/long change must be processed before zoom changes
+                if (this.previousCoordinates.lat != this.settings.api.startLat ||
+                    this.previousCoordinates.lng != this.settings.api.startLong) {
+                    let lnglat = new mapboxgl.LngLat(this.settings.api.startLong, this.settings.api.startLat)
+
+                    this.map.setCenter(lnglat)
+                    this.map.zoomTo(this.settings.api.zoom)
+                    this.previousCoordinates = lnglat
+                } else if (this.previousZoom != this.settings.api.zoom) {
+                    const newZoom = Math.floor(this.settings.api.zoom)
+                    if (this.previousZoom != newZoom) {
+
+                        this.updateLegend(this.settings);
+                    }
+                    this.map.zoomTo(this.settings.api.zoom)
+                }
             }
         }
         catch (error) {
@@ -149,7 +168,6 @@ export class MapboxMap implements IVisual {
             }
         }
     }
-
 
     private addMap() {
         if (this.map) {
@@ -181,6 +199,7 @@ export class MapboxMap implements IVisual {
         this.previousZoom = this.settings.api.zoom;
         // If the map container doesn't exist yet, create it
         this.map = new mapboxgl.Map(mapOptions);
+        this.previousCoordinates = this.map.getCenter();
 
         this.layers = [];
         this.layers.push(new Raster(this));
@@ -302,7 +321,8 @@ export class MapboxMap implements IVisual {
             }
         });
         this.map.on("moveend", () => {
-            this.previousZoom = this.map.getZoom()
+            this.previousZoom = Math.floor(this.map.getZoom());
+            this.previousCoordinates = this.map.getCenter()
         });
         this.layers.map(layer => {
             this.tooltipServiceWrapper.addTooltip(
@@ -338,8 +358,6 @@ export class MapboxMap implements IVisual {
             console.log(e)
         }
     }
-
-
 
     public update(options: VisualUpdateOptions) {
         // TODO fetch all data instead of first page
@@ -379,8 +397,6 @@ export class MapboxMap implements IVisual {
         // the other is referring to 'enabled' state, this is why we have the equality check and the negation)
         if (this.autoZoomControl.isPinned() == this.settings.api.autozoom) {
             this.autoZoomControl.setPin(!this.settings.api.autozoom);
-        } else if (this.previousZoom != this.settings.api.zoom) {
-            this.map.zoomTo(this.settings.api.zoom)
         }
 
         if (mapboxgl.accessToken != this.settings.api.accessToken) {
