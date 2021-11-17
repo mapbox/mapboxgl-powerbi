@@ -43,7 +43,13 @@ export const Templates = {
        <img style="padding-bottom: 20px;" src="https://dl.dropbox.com/s/io61ltmj69xlt75/add-cluster.png"></img><br>
         <img src="https://dl.dropbox.com/s/5io6dvr1l8gcgtp/mapbox-logo-color.png"></img>
     `,
-    noGlSupport: `<h4>It looks like this machine doesn't support Web GL. The Mapbox visual requires access to a GPU to run Web GL. This is most often caused by running Power BI Desktop from a Virtual Machine. Please try from a physical machine instead. </h4>`
+    noGlSupport: `<h4>It looks like this machine doesn't support Web GL. The Mapbox visual requires access to a GPU to run Web GL. This is most often caused by running Power BI Desktop from a Virtual Machine. Please try from a physical machine instead. </h4>`,
+    invalidStyleUrl: `
+        <h4>
+            Your Custom Style URL is invalid.
+            <a href="https://docs.mapbox.com/help/glossary/style-url/">Mapbox docs style URL</a>
+        </h4>
+    `
 }
 
 
