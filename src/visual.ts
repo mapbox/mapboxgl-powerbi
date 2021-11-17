@@ -243,7 +243,7 @@ export class MapboxMap implements IVisual {
         }
 
         // Check if style url is valid
-        if (!this.settings.api.styleUrl || !this.settings.api.styleUrl.startsWith("mapbox://"))
+        if (this.settings.api.style == 'custom' && (!this.settings.api.styleUrl || !this.settings.api.styleUrl.startsWith("mapbox://")))
         {
             this.errorDiv.innerHTML = Templates.invalidStyleUrl
             return false;
