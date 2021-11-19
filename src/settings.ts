@@ -179,6 +179,7 @@ export class ChoroplethSettings {
     static readonly PREDEFINED_VECTOR_PROPERTY = "name";
 
     public show: boolean = false;
+    public aggregation: string = "Count";
     public diverging: boolean = false;
     public minColor: string = "#edf8b1";
     public midColor: string = "#7fcdbb";
@@ -419,7 +420,7 @@ export class ChoroplethSettings {
 
 export class RasterSettings {
     public show: boolean = false;
-    public url: string = "https://geodata.state.nj.us/imagerywms/Natural2015?bbox={bbox-epsg-3857}&format=image/png&service=WMS&version=1.1.1&request=GetMap&srs=EPSG:3857&transparent=true&width=256&height=256&layers=Natural2015";
+    public url: string = "https://img.nj.gov/imagerywms/Natural2015?bbox={bbox-epsg-3857}&format=image/png&service=WMS&version=1.1.1&request=GetMap&srs=EPSG:3857&transparent=true&width=256&height=256&layers=Natural2015";
     public rasterTileSize: number = 256;
     public opacity: number = 80;
     public minZoom: number = 0;

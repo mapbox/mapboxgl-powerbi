@@ -15,7 +15,7 @@
     },
     {
       "name": "latitude",
-      "kind": "GroupingOrMeasure",
+      "kind": "Grouping",
       "displayName": "Latitude",
       "description": "Latitude geographic point dimension",
       "preferredTypes": [
@@ -41,7 +41,7 @@
     },
     {
       "name": "longitude",
-      "kind": "GroupingOrMeasure",
+      "kind": "Grouping",
       "displayName": "Longitude",
       "description": "Longitude geographic point dimension",
       "preferredTypes": [
@@ -69,21 +69,7 @@
       "name": "color",
       "kind": "Measure",
       "displayName": "Color",
-      "description": "Measure or Dimension to color circles and heatmaps.  Can be numeric or text data type.",
-      "requiredTypes": [
-        {
-          "numeric": true
-        },
-        {
-          "integer": true
-        },
-        {
-          "text": true
-        },
-        {
-          "bool": true
-        }
-      ]
+      "description": "Measure or Dimension to color circles and heatmaps.  Can be numeric or text data type."
     },
     {
       "name": "size",
@@ -134,7 +120,7 @@
             "max": 1
           },
           "color": {
-            "max": 1
+            "max": 2
           },
           "size": {
             "max": 1
@@ -166,7 +152,11 @@
               "for": {
                 "in": "longitude"
               }
-            },
+            }
+          ]
+        },
+        "values": {
+          "select": [
             {
               "for": {
                 "in": "color"
@@ -800,6 +790,39 @@
               "type": {
                 "bool": true
               }
+            },
+            "aggregation": {
+              "type": {
+                "enumeration": [
+                  {
+                    "value": "Count",
+                    "displayName": "Count",
+                    "displayNameKey": "Count"
+                  },
+                  {
+                    "value": "Sum",
+                    "displayName": "Sum",
+                    "displayNameKey": "Sum"
+                  },
+                  {
+                    "value": "Average",
+                    "displayName": "Average",
+                    "displayNameKey": "Average"
+                  },
+                  {
+                    "value": "Minimum",
+                    "displayName": "Minimum",
+                    "displayNameKey": "Minimum"
+                  },
+                  {
+                    "value": "Maximum",
+                    "displayName": "Maximum",
+                    "displayNameKey": "Maximum"
+                  }
+                ]
+              },
+              "displayName": "Aggregation function",
+              "displayNameKey": "aggregation"
             },
             "diverging": {
               "displayName": "Diverging",
@@ -1608,7 +1631,7 @@
             }
           }
         },
-        "dataColorsPalette": {
+        "colorSelector": {
           "displayName": "Data Colors",
           "properties": {
             "fill": {

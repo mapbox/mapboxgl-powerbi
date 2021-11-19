@@ -24,41 +24,36 @@
  *  THE SOFTWARE.
  */
 
-/// <reference path="_references.ts"/>
+import { VisualBuilderBase } from "powerbi-visuals-utils-testutils"
+import powerbiVisualsApi from "powerbi-visuals-api";
+import { MapboxMap as VisualClass } from "../src/visual"
+import VisualConstructorOptions = powerbiVisualsApi.extensibility.visual.VisualConstructorOptions;
 
-module powerbi.extensibility.visual.test {
-    // powerbi.extensibility.utils.test
-    import VisualBuilderBase = powerbi.extensibility.utils.test.VisualBuilderBase;
-
-    //
-    import VisualClass = powerbi.extensibility.visual.PBI_CV_EB3A4088_75C5_4746_9D8B_255A7B7ECD6C.MapboxMap;
-
-    export class MapboxChartBuilder extends VisualBuilderBase<VisualClass> {
-        constructor(width: number, height: number) {
-            super(width, height, "PBI_CV_EB3A4088_75C5_4746_9D8B_255A7B7ECD6C");
-        }
-
-        protected build(options: VisualConstructorOptions): VisualClass {
-            return new VisualClass(options);
-        }
-
-        public get error(): JQuery {
-            return this.element
-                .children("div.error")
-                .children("h4")
-        }
-
-        public get map(): JQuery {
-            return this.element
-                .children("div.mapboxgl-map")
-                .children("div.mapboxgl-canvas-container")
-                .children("canvas")
-            //.children("canvas.mapgboxgl-canvas")
-        }
-
-        public get viz(): VisualClass {
-            return this.visual
-        }
-
+export class MapboxChartBuilder extends VisualBuilderBase<VisualClass> {
+    constructor(width: number, height: number) {
+        super(width, height, "PBI_CV_EB3A4088_75C5_4746_9D8B_255A7B7ECD6C");
     }
+
+    protected build(options: VisualConstructorOptions): VisualClass {
+        return new VisualClass(options);
+    }
+
+    public get error(): JQuery {
+        return this.element
+            .children("div.error")
+            .children("h4")
+    }
+
+    public get map(): JQuery {
+        return this.element
+            .children("div.mapboxgl-map")
+            .children("div.mapboxgl-canvas-container")
+            .children("canvas")
+        //.children("canvas.mapgboxgl-canvas")
+    }
+
+    public get viz(): VisualClass {
+        return this.visual
+    }
+
 }

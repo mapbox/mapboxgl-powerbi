@@ -1,14 +1,17 @@
 import { Datasource } from "./datasource"
-import { mapboxUtils } from "../mapboxUtils"
+import { Limits, getLimits } from "../mapboxUtils"
 import { featureCollection } from "@turf/helpers"
 import bbox from "@turf/bbox"
 
 export class Point extends Datasource {
-    protected colorLimits: mapboxUtils.Limits;
-    protected sizeLimits: mapboxUtils.Limits;
+    protected colorLimits: Limits;
+    protected sizeLimits: Limits;
 
     constructor() {
         super('point')
+
+        this.colorLimits = { min: null, max: null, values: [] }
+        this.sizeLimits = { min: null, max: null, values: [] }
     }
 
     addSources(map, settings) {
@@ -44,8 +47,11 @@ export class Point extends Datasource {
         const fCollection = featureCollection(features);
         const source: any = map.getSource('data');
         source.setData(fCollection);
-        this.colorLimits = mapboxUtils.getLimits(features, roleMap.color ? roleMap.color.displayName : '');
-        this.sizeLimits = mapboxUtils.getLimits(features, roleMap.size ? roleMap.size.displayName : '');
+        const colorCol = roleMap.getColumn('color', 'circle')
+        if (colorCol) {
+            this.colorLimits = getLimits(features, colorCol.displayName); // TODO
+        }
+        this.sizeLimits = getLimits(features, roleMap.size());
         this.bounds = bbox(fCollection);
     }
 }

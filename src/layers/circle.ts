@@ -1,14 +1,17 @@
 import powerbiVisualsApi from "powerbi-visuals-api";
-import { ClassificationMethod, mapboxUtils, RoleMap } from "../mapboxUtils"
+import { ClassificationMethod, Limits, decorateLayer, shouldUseGradient, getClassCount, getBreaks } from "../mapboxUtils"
 import { Palette } from "../palette"
+import { Filter } from "../filter"
+import { RoleMap } from "../roleMap"
 import { Layer } from "./layer"
 import { MapboxSettings, CircleSettings } from "../settings"
 import { ColorStops } from "../legendControl"
 import { Sources } from "../datasources/sources"
 import { constants } from "../constants"
+import { MapboxMap } from "../visual"
 
 export class Circle extends Layer {
-    private filter: any; // TODO
+    private filter: Filter;
     private palette: Palette;
     private settings: CircleSettings;
 
@@ -17,9 +20,8 @@ export class Circle extends Layer {
 
     private static readonly LayerOrder = [Circle.ID, Circle.HighlightID];
 
-    constructor(map: any, filter: any, palette: Palette) { // TODO + TODO
-        super(map)
-        this.id = Circle.ID
+    constructor(map: MapboxMap, filter: Filter, palette: Palette) {
+        super(map, Circle.ID)
         this.filter = filter
         this.palette = palette
         this.source = Sources.Point
@@ -36,17 +38,17 @@ export class Circle extends Layer {
 
     addLayer(settings, beforeLayerId, roleMap) {
         const map = this.parent.getMap();
-        const latitude = roleMap.latitude.displayName;
+        const latitude = roleMap.latitude()
         const layers = {};
 
-        layers[Circle.ID] = mapboxUtils.decorateLayer({
+        layers[Circle.ID] = decorateLayer({
             id: Circle.ID,
             source: 'data',
             type: 'circle'
         });
 
         const zeroFilter = ["==", latitude, ""]
-        layers[Circle.HighlightID] = mapboxUtils.decorateLayer({
+        layers[Circle.HighlightID] = decorateLayer({
             id: Circle.HighlightID,
             type: 'circle',
             source: 'data',
@@ -72,21 +74,23 @@ export class Circle extends Layer {
         }
 
         const roleMap = this.parent.getRoleMap();
-        const latitude = roleMap.latitude.displayName;
-        const longitude = roleMap.longitude.displayName;
+        const latitude = roleMap.latitude()
+        const longitude = roleMap.longitude()
         const eventProps = e.features[0].properties;
-        const lngLatFilter = ["all",
-            ["==", latitude, eventProps[latitude]],
-            ["==", longitude, eventProps[longitude]],
-        ]
-        this.parent.getMap().setFilter(Circle.HighlightID, lngLatFilter);
+        if (eventProps[latitude] && eventProps[longitude]) {
+            const lngLatFilter = ["all",
+                ["==", latitude, eventProps[latitude]],
+                ["==", longitude, eventProps[longitude]],
+            ]
+            this.parent.getMap().setFilter(Circle.HighlightID, lngLatFilter);
+        }
     }
 
     removeHighlight(roleMap) {
         if (!this.layerExists()) {
             return;
         }
-        const latitude = roleMap.latitude.displayName;
+        const latitude = roleMap.latitude()
         const map = this.parent.getMap();
         const zeroFilter = ["==", latitude, ""];
         map.setFilter(Circle.HighlightID, zeroFilter);
@@ -97,8 +101,8 @@ export class Circle extends Layer {
 
     updateSelection(features, roleMap) {
         const map = this.parent.getMap();
-        const latitude = roleMap.latitude.displayName;
-        const longitude = roleMap.longitude.displayName;
+        const latitude = roleMap.latitude()
+        const longitude = roleMap.longitude()
 
         let lngLatFilter = [];
         lngLatFilter.push("any");
@@ -129,12 +133,12 @@ export class Circle extends Layer {
         super.applySettings(settings, roleMap);
         const map = this.parent.getMap();
         if (settings.circle.show) {
-            const isGradient = mapboxUtils.shouldUseGradient(roleMap.color);
+            const isGradient = shouldUseGradient(roleMap.getColumn('color', Circle.ID));
             const limits = this.source.getLimits()
-            const sizes = Circle.getSizes(limits.size, map, settings, roleMap.size);
+            const sizes = Circle.getSizes(limits.size, map, settings, roleMap.size());
 
             this.colorStops = this.generateColorStops(settings.circle, isGradient, limits.color, this.palette)
-            let colorStyle = Circle.getColorStyle(isGradient, settings, roleMap.color, this.colorStops);
+            let colorStyle = Circle.getColorStyle(isGradient, settings, roleMap.color(this), this.colorStops);
 
             map.setPaintProperty(Circle.ID, 'circle-radius', sizes);
             map.setPaintProperty(Circle.HighlightID, 'circle-radius', sizes);
@@ -151,25 +155,29 @@ export class Circle extends Layer {
 
     handleTooltip(tooltipEvent, roleMap, settings: MapboxSettings) {
         const tooltipData = Layer.getTooltipData(tooltipEvent.data)
-            .filter((elem) => roleMap.tooltips[elem.displayName]); // Only show the fields that are added to the tooltips
-        return tooltipData.map(data => {
+            .filter((elem) => roleMap.tooltips().some( t => t.displayName === elem.displayName)); // Only show the fields that are added to the tooltips
+        return tooltipData.sort( (a, b) => {
+            const aIndex = roleMap.tooltips().findIndex( t => t.displayName === a.displayName)
+            const bIndex = roleMap.tooltips().findIndex( t => t.displayName === b.displayName)
+            return aIndex - bIndex;
+        }).map(data => {
             data.value = this.getFormattedTooltipValue(roleMap, data)
             return data;
         })
     }
 
     showLegend(settings: MapboxSettings, roleMap: RoleMap) {
-        return settings.circle.legend && roleMap.color && super.showLegend(settings, roleMap)
+        return settings.circle.legend && roleMap.color(this) && super.showLegend(settings, roleMap)
     }
 
-    private static getColorStyle(isGradient: boolean, settings: MapboxSettings, colorField: any, colorStops: ColorStops) {
-        if (!colorField) {
+    private static getColorStyle(isGradient: boolean, settings: MapboxSettings, colorField: string, colorStops: ColorStops) {
+        if (colorField === '') {
             return settings.circle.minColor;
         }
 
         if (isGradient) {
             // Set colors for continuous value
-            const continuousStyle: any = ["interpolate", ["linear"], ["to-number", ['get', colorField.displayName]]]
+            const continuousStyle: any = ["interpolate", ["linear"], ["to-number", ['get', colorField]]]
             colorStops.forEach(({colorStop, color}) => {
                 continuousStyle.push(colorStop);
                 continuousStyle.push(color);
@@ -179,7 +187,7 @@ export class Circle extends Layer {
         }
 
         // Set colors for categorical value
-        let categoricalStyle: any = ['match', ['to-string', ['get', colorField.displayName]]];
+        let categoricalStyle: any = ['match', ['to-string', ['get', colorField]]];
         colorStops.forEach(({colorStop, color}) => {
             categoricalStyle.push(colorStop);
             categoricalStyle.push(color);
@@ -192,15 +200,15 @@ export class Circle extends Layer {
         return categoricalStyle;
     }
 
-    private static getSizes(sizeLimits: mapboxUtils.Limits, map: any, settings: any, sizeField: any) {
-        if (sizeField && sizeLimits && sizeLimits.min != null && sizeLimits.max != null && sizeLimits.min != sizeLimits.max) {
+    private static getSizes(sizeLimits: Limits, map: any, settings: any, sizeField: string) {
+        if (sizeField !== '' && sizeLimits && sizeLimits.min != null && sizeLimits.max != null && sizeLimits.min != sizeLimits.max) {
             const style: any[] = [
                 "interpolate", ["linear"],
-                ["to-number", ['get', sizeField.displayName]]
+                ["to-number", ['get', sizeField]]
             ]
 
-            const classCount = mapboxUtils.getClassCount(sizeLimits.values);
-            const sizeStops: any[] = mapboxUtils.getBreaks(sizeLimits.values, ClassificationMethod.Quantile, classCount);
+            const classCount = getClassCount(sizeLimits.values);
+            const sizeStops: any[] = getBreaks(sizeLimits.values, ClassificationMethod.Quantile, classCount);
             const sizeDelta = (settings.circle.radius * settings.circle.scaleFactor - settings.circle.radius) / classCount
 
             sizeStops.map((sizeStop, index) => {

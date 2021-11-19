@@ -1,7 +1,8 @@
 import powerbiVisualsApi from "powerbi-visuals-api";
 import * as chroma from "chroma-js"
 
-import { ClassificationMethod, mapboxUtils, RoleMap } from "../mapboxUtils"
+import { ClassificationMethod, Limits, shouldUseGradient, decorateLayer  } from "../mapboxUtils"
+import { RoleMap } from "../roleMap"
 import { Palette } from "../palette"
 import { Layer } from "./layer"
 import { Filter } from "../filter"
@@ -9,6 +10,7 @@ import { MapboxSettings, ChoroplethSettings } from "../settings"
 import { ColorStops } from "../legendControl"
 import { Sources } from "../datasources/sources"
 import { constants } from "../constants"
+import { MapboxMap } from "../visual"
 
 export class Choropleth extends Layer {
     public static readonly ID = 'choropleth'
@@ -32,9 +34,8 @@ export class Choropleth extends Layer {
     private palette: Palette;
     private settings: ChoroplethSettings;
 
-    constructor(map: any, filter: Filter, palette: Palette) { // TODO
-        super(map);
-        this.id = Choropleth.ID;
+    constructor(map: MapboxMap, filter: Filter, palette: Palette) {
+        super(map, Choropleth.ID);
         this.source = Sources.Choropleth;
         this.filter = filter;
         this.palette = palette;
@@ -59,13 +60,13 @@ export class Choropleth extends Layer {
         const zeroFilter = ["==", vectorProperty, ""]
 
         const layers = {};
-        layers[Choropleth.ID] = mapboxUtils.decorateLayer({
+        layers[Choropleth.ID] = decorateLayer({
             id: Choropleth.ID,
             type: "fill",
             source: 'choropleth-source',
             "source-layer": sourceLayer
         });
-        layers[Choropleth.ExtrusionID] = mapboxUtils.decorateLayer({
+        layers[Choropleth.ExtrusionID] = decorateLayer({
             id: Choropleth.ExtrusionID,
             type: "fill-extrusion",
             source: 'choropleth-source',
@@ -74,7 +75,7 @@ export class Choropleth extends Layer {
 
             },
         });
-        layers[Choropleth.OutlineID] = mapboxUtils.decorateLayer({
+        layers[Choropleth.OutlineID] = decorateLayer({
             id: Choropleth.OutlineID,
             type: 'line',
             layout: {
@@ -86,7 +87,7 @@ export class Choropleth extends Layer {
             source: 'choropleth-source',
             "source-layer": sourceLayer
         });
-        layers[Choropleth.HighlightID] = mapboxUtils.decorateLayer({
+        layers[Choropleth.HighlightID] = decorateLayer({
             id: Choropleth.HighlightID,
             type: 'fill',
             source: 'choropleth-source',
@@ -97,7 +98,7 @@ export class Choropleth extends Layer {
             "source-layer": sourceLayer,
             filter: zeroFilter
         });
-        layers[Choropleth.HighlightOutlineID] = mapboxUtils.decorateLayer({
+        layers[Choropleth.HighlightOutlineID] = decorateLayer({
             id: Choropleth.HighlightOutlineID,
             type: 'line',
             layout: {
@@ -111,7 +112,7 @@ export class Choropleth extends Layer {
             "source-layer": sourceLayer,
             filter: zeroFilter,
         });
-        layers[Choropleth.ExtrusionHighlightID] = mapboxUtils.decorateLayer({
+        layers[Choropleth.ExtrusionHighlightID] = decorateLayer({
             id: Choropleth.ExtrusionHighlightID,
             type: "fill-extrusion",
             source: 'choropleth-source',
@@ -127,7 +128,7 @@ export class Choropleth extends Layer {
     }
 
     isExtruding() {
-        return this.parent.getRoleMap().size && this.settings.height > 0
+        return this.parent.getRoleMap().size() && this.settings && this.settings.height > 0
     }
 
     hoverHighLight(e) {
@@ -139,6 +140,10 @@ export class Choropleth extends Layer {
         const choroSettings = this.settings;
         const vectorProperty = choroSettings.getCurrentVectorProperty()
         const featureVectorProperty = e.features[0].properties[vectorProperty]
+        if (!featureVectorProperty) {
+            return;
+        }
+
         if (this.isExtruding()) {
             map.setFilter(Choropleth.ExtrusionHighlightID, ["==", vectorProperty, featureVectorProperty]);
         }
@@ -189,7 +194,7 @@ export class Choropleth extends Layer {
                 return feature.properties[vectorProperty];
             });
 
-        this.filter.addSelection(selectionIds, roleMap.location)
+        this.filter.addSelection(selectionIds, roleMap.location())
 
         const opacity = this.filter.getSelectionOpacity(choroSettings.opacity)
         map.setPaintProperty(Choropleth.ID, 'fill-opacity', opacity);
@@ -230,7 +235,7 @@ export class Choropleth extends Layer {
         return super.getSource(settings);
     }
 
-    sizeInterpolate(sizeLimits: mapboxUtils.Limits, choroSettings: ChoroplethSettings, size: number): number {
+    sizeInterpolate(sizeLimits: Limits, choroSettings: ChoroplethSettings, size: number): number {
         if (size === null) {
             return 0
         }
@@ -241,7 +246,7 @@ export class Choropleth extends Layer {
     setCalculatedProps(map: any, colors: object, sizes: object | number, roleMap) {
         map.setPaintProperty(Choropleth.ID, 'fill-color', colors);
         map.setPaintProperty(Choropleth.ExtrusionID, 'fill-extrusion-color', colors);
-        if (roleMap.size) {
+        if (roleMap.size() !== '') {
             map.setPaintProperty(Choropleth.ExtrusionID, 'fill-extrusion-height', sizes)
             map.setPaintProperty(Choropleth.ExtrusionHighlightID, 'fill-extrusion-height', sizes)
         }
@@ -305,10 +310,13 @@ export class Choropleth extends Layer {
         const existingStops = {};
         const result = [];
 
+        const locationCol = roleMap.location()
+        const colorCol = roleMap.color(this)
+        const sizeCol = roleMap.size()
         for (let row of choroplethData) {
 
-            const location = row[roleMap.location.displayName];
-            const color = getColorOfLocation(row[roleMap.color.displayName]);
+            const location = row[locationCol]
+            const color = getColorOfLocation(row[colorCol])
 
             if (!location || !color) {
                 // Stop value cannot be undefined or null; don't add this row to the stops
@@ -324,7 +332,7 @@ export class Choropleth extends Layer {
             }
             existingStops[locationStr] = true;
 
-            const size = roleMap.size ? row[roleMap.size.displayName] : null
+            const size = sizeCol !== '' ? row[sizeCol] : null
             result.push({
                 location,
                 color,
@@ -344,6 +352,7 @@ export class Choropleth extends Layer {
         const map = this.parent.getMap();
         this.settings = settings.choropleth
         const choroSettings = settings.choropleth;
+        const sizeCol = roleMap.size();
 
         if (map.getLayer(Choropleth.ID)) {
             map.setLayoutProperty(Choropleth.ID, 'visibility', choroSettings.display() ? 'visible' : 'none');
@@ -353,7 +362,7 @@ export class Choropleth extends Layer {
             ChoroplethSettings.fillPredefinedProperties(choroSettings);
 
             const choroplethData = this.source.getData(map, settings);
-            const isGradient = mapboxUtils.shouldUseGradient(roleMap.color);
+            const isGradient = shouldUseGradient(roleMap.getColumn('color', Choropleth.ID));
             const limits = this.source.getLimits();
             this.colorStops = this.generateColorStops(choroSettings, isGradient, limits.color, this.palette)
 
@@ -368,14 +377,14 @@ export class Choropleth extends Layer {
                 const colors = { type: "categorical", property, default: defaultColor, stops: [] };
 
                 const sizeLimits = limits.size;
-                const sizes: any = roleMap.size ? { type: "categorical", property, default: 0, stops: [] } : choroSettings.height * Choropleth.HeightMultiplier
+                const sizes: any = sizeCol !== '' ? { type: "categorical", property, default: 0, stops: [] } : choroSettings.height * Choropleth.HeightMultiplier
 
                 const filter = ['in', property];
 
                 preprocessedData.forEach(({location, color, size}) => {
                     filter.push(location);
                     colors.stops.push([location, color.toString()]);
-                    if (roleMap.size) {
+                    if (sizeCol !== '') {
                         sizes.stops.push([location, this.sizeInterpolate(sizeLimits, choroSettings, size) * Choropleth.HeightMultiplier])
                     }
                 })
@@ -393,7 +402,7 @@ export class Choropleth extends Layer {
     }
 
     showLegend(settings: MapboxSettings, roleMap: RoleMap) {
-        return settings.choropleth.legend && roleMap.color && super.showLegend(settings, roleMap)
+        return settings.choropleth.legend && roleMap.color(this) !== '' && super.showLegend(settings, roleMap)
     }
 
     handleTooltip(tooltipEvent, roleMap, settings: MapboxSettings) {
@@ -411,16 +420,21 @@ export class Choropleth extends Layer {
         }
 
         const choroplethData = choroplethSource.getData(settings, this.parent.getMap());
-        const locationProperty = roleMap.location.displayName;
+        const locationProperty = roleMap.location()
 
         const dataUnderLocation = choroplethData.find((cd) => (cd[locationProperty] == choroVectorData.value));
         if (!dataUnderLocation) {
             return tooltipData;
         }
 
-        const result = Object.keys(roleMap.tooltips).map((key) => {
+        const result = roleMap.tooltips().map( column => {
+            const key = column.displayName;
+            let prefix = "";
+            if (!column.roles.location && !column.roles.latitude && !column.roles.longitude && column.type.numeric) {
+                prefix = settings.choropleth.aggregation;
+            }
             const data = {
-                displayName: key,
+                displayName: `${prefix} ${key}`,
                 value: "null",
             }
             if (dataUnderLocation[key]) {

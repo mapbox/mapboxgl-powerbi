@@ -38,20 +38,20 @@ import DataView = powerbiVisualsApi.DataView;
 import VisualObjectInstanceEnumerationObject = powerbiVisualsApi.VisualObjectInstanceEnumerationObject;
 
 import { featureCollection } from "@turf/helpers"
-import { BBox, Feature, Id, Polygon, Properties } from "@turf/helpers"; // TODO
 import bbox from "@turf/bbox"
 import bboxPolygon from "@turf/bbox-polygon"
 
 import { Filter } from "./filter"
 import { Palette } from "./palette"
+import { RoleMap } from './roleMap'
 import { DrawControl } from "./drawControl"
 import { LegendControl } from "./legendControl"
 import { AutoZoomControl } from "./autoZoomControl"
 import { MapboxGeocoderControl } from "./mapboxGeocoderControl"
 
 import * as mapboxgl from "mapbox-gl"
-import { MapboxSettings } from "./settings";
-import { mapboxUtils } from "./mapboxUtils";
+import { MapboxSettings, ChoroplethSettings } from "./settings";
+import { zoomToData } from "./mapboxUtils";
 import { ITooltipServiceWrapper, createTooltipServiceWrapper, TooltipEventArgs } from "./tooltipServiceWrapper"
 import { mapboxConverter } from "./mapboxConverter";
 import { Templates } from "./templates";
@@ -63,6 +63,7 @@ import { Heatmap } from "./layers/heatmap"
 import { Raster } from "./layers/raster"
 import { Choropleth } from "./layers/choropleth"
 
+// tslint:disable-next-line: export-name
 export class MapboxMap implements IVisual {
     private target: HTMLElement;
     private settings: MapboxSettings;
@@ -76,6 +77,7 @@ export class MapboxMap implements IVisual {
     private controlsPopulated: boolean;
     private roleMap: any;
     private previousZoom: number;
+    private previousCoordinates: mapboxgl.LngLat;
     private updatedHandler: Function = () => { }
     private layers: Layer[] = [];
     private legend: LegendControl;
@@ -107,7 +109,7 @@ export class MapboxMap implements IVisual {
         this.tooltipServiceWrapper = createTooltipServiceWrapper(options.host.tooltipService, options.element);
     }
 
-    onUpdate(map, settings, updatedHandler: Function) {
+    onUpdate(map: mapboxgl.Map, settings, updatedHandler: Function) {
         try {
             this.layers.map(layer => {
                 layer.applySettings(settings, this.roleMap);
@@ -130,8 +132,25 @@ export class MapboxMap implements IVisual {
                         bboxPolygon(bbox(bounds))
                     ]);
                     return bbox(combined)
-                })
-                mapboxUtils.zoomToData(map, bounds);
+                });
+                zoomToData(map, bounds);
+            } else {
+                // maps lat/long change must be processed before zoom changes
+                if (this.previousCoordinates.lat != this.settings.api.startLat ||
+                    this.previousCoordinates.lng != this.settings.api.startLong) {
+                    let lnglat = new mapboxgl.LngLat(this.settings.api.startLong, this.settings.api.startLat)
+
+                    this.map.setCenter(lnglat)
+                    this.map.zoomTo(this.settings.api.zoom)
+                    this.previousCoordinates = lnglat
+                } else if (this.previousZoom != this.settings.api.zoom) {
+                    const newZoom = Math.floor(this.settings.api.zoom)
+                    if (this.previousZoom != newZoom) {
+
+                        this.updateLegend(this.settings);
+                    }
+                    this.map.zoomTo(this.settings.api.zoom)
+                }
             }
         }
         catch (error) {
@@ -149,7 +168,6 @@ export class MapboxMap implements IVisual {
             }
         }
     }
-
 
     private addMap() {
         if (this.map) {
@@ -178,15 +196,16 @@ export class MapboxMap implements IVisual {
                 }
             }
         }
-
+        this.previousZoom = this.settings.api.zoom;
         // If the map container doesn't exist yet, create it
         this.map = new mapboxgl.Map(mapOptions);
+        this.previousCoordinates = this.map.getCenter();
 
         this.layers = [];
         this.layers.push(new Raster(this));
         this.layers.push(new Heatmap(this));
         this.layers.push(new Cluster(this, () => {
-            return this.roleMap.cluster.displayName;
+            return this.roleMap.cluster()
         }))
         this.layers.push(new Choropleth(this, this.filter, this.palette));
         this.layers.push(new Circle(this, this.filter, this.palette));
@@ -198,18 +217,6 @@ export class MapboxMap implements IVisual {
         this.filter.manageHandlers();
         this.drawControl.manageHandlers(this);
 
-        this.map.on('zoom', () => {
-            const newZoom = Math.floor(this.map.getZoom())
-            if (this.previousZoom != newZoom) {
-                this.previousZoom = newZoom;
-                this.layers.map(layer => {
-                    if (layer.handleZoom(this.settings)) {
-                        layer.applySettings(this.settings, this.roleMap);
-                    }
-                });
-                this.updateLegend(this.settings);
-            }
-        });
     }
 
     private removeMap() {
@@ -222,16 +229,23 @@ export class MapboxMap implements IVisual {
     }
 
     private validateOptions(options: VisualUpdateOptions) {
-
+        
         // Hide div and remove any child elements
         this.errorDiv.setAttribute("style", "display: none;");
-        while (this.errorDiv.hasChildNodes()) { 
-            this.errorDiv.removeChild(this.errorDiv.firstChild) 
+        while (this.errorDiv.hasChildNodes()) {
+            this.errorDiv.removeChild(this.errorDiv.firstChild)
         }
 
         // Check for Access Token
         if (!this.settings.api.accessToken) {
             this.errorDiv.innerHTML = Templates.MissingToken;
+            return false;
+        }
+
+        // Check if style url is valid
+        if (this.settings.api.style == 'custom' && (!this.settings.api.styleUrl || !this.settings.api.styleUrl.startsWith("mapbox://")))
+        {
+            this.errorDiv.innerHTML = Templates.invalidStyleUrl
             return false;
         }
 
@@ -255,7 +269,7 @@ export class MapboxMap implements IVisual {
             this.errorDiv.innerHTML = Templates.MissingGeo;
             return false;
         }
-        else if (this.settings.choropleth.show && ((!roles.location || !roles.color) || (roles.latitude || roles.longitude))) {
+        else if (this.settings.choropleth.show && ((!roles.location || !roles.color))) {
             this.errorDiv.innerHTML = Templates.MissingLocationOrColor;
             return false;
         }
@@ -275,8 +289,12 @@ export class MapboxMap implements IVisual {
         return true;
     }
 
+    public hideTooltip(): void {
+        this.tooltipServiceWrapper.hide(true)
+    }
+
     public updateLayers(dataView: DataView) {
-        const features = mapboxConverter.convert(dataView);
+        const features = mapboxConverter.convert(dataView, this.roleMap);
 
         this.palette.update(dataView, features);
 
@@ -293,11 +311,31 @@ export class MapboxMap implements IVisual {
             datasource.update(this.map, features, this.roleMap, this.settings);
         };
 
+        this.map.on('zoom', () => {
+            try {
+                const newZoom = Math.floor(this.map.getZoom())
+                if (this.previousZoom != newZoom) {
+                    this.previousZoom = newZoom;
+                    this.layers.map(layer => {
+                        if (layer.handleZoom(this.settings)) {
+                            layer.applySettings(this.settings, this.roleMap);
+                        }
+                    });
+                    this.updateLegend(this.settings);
+                }
+            } catch (e) {
+                console.error("Error in zoom handler: ", e)
+            }
+        });
+        this.map.on("moveend", () => {
+            this.previousZoom = Math.floor(this.map.getZoom());
+            this.previousCoordinates = this.map.getCenter()
+        });
         this.layers.map(layer => {
             this.tooltipServiceWrapper.addTooltip(
                 this.map,
                 layer,
-                () => this.roleMap.tooltips,
+                () => this.roleMap.tooltips(),
                 (tooltipEvent: TooltipEventArgs<number>) => {
                     return layer.handleTooltip(tooltipEvent, this.roleMap, this.settings);
                 }
@@ -307,7 +345,29 @@ export class MapboxMap implements IVisual {
         this.onUpdate(this.map, this.settings, this.updatedHandler);
     }
 
+    private updateCurrentLevel(settings: ChoroplethSettings, roleMap: RoleMap) {
+        // TODO when we have more values in location, that means, Expand all down 1 level was selected.
+        // In that case all levels of information is in the data but in different fields
+        // maybe we should take them into consideration when matchin choropleth regions with the data.
+        try {
+            let location_index = 0;
+            let locations = roleMap.getAll('location');
+            if (locations) {
+                locations.map(col => {
+                    if (col.rolesIndex.location[0] > location_index) { // TODO
+                        location_index = col.rolesIndex.location[0]
+                    }
+                })
+            }
+
+            settings.currentLevel = location_index + 1;
+        } catch (e) {
+            console.log(e)
+        }
+    }
+
     public update(options: VisualUpdateOptions) {
+        // TODO fetch all data instead of first page
         this.settings = MapboxMap.parseSettings(options && options.dataViews && options.dataViews[0]);
 
         const dataView: DataView = options.dataViews[0];
@@ -327,10 +387,9 @@ export class MapboxMap implements IVisual {
             this.filter.setCategories(dataView.categorical.categories);
         }
 
-        this.roleMap = mapboxUtils.getRoleMap(dataView.metadata);
+        this.roleMap = new RoleMap(dataView.metadata);
 
-        //this.updateCurrentLevel(this.settings.choropleth, options); // TODO
-
+        this.updateCurrentLevel(this.settings.choropleth, this.roleMap);
 
         if (!this.map) {
             this.addMap();
@@ -395,8 +454,7 @@ export class MapboxMap implements IVisual {
             this.legend.removeLegends()
         }
 
-        if (!this.roleMap)
-        {
+        if (!this.roleMap) {
             if (this.legend) {
                 this.map.removeControl(this.legend)
                 this.legend = null
@@ -469,11 +527,15 @@ export class MapboxMap implements IVisual {
     }
 
     /**
-     * This function gets called for each of the objects defined in the capabilities files and allows you to select which of the
-     * objects and properties you want to expose to the users in the property pane.
-     *
-     */
+    * This function returns the values to be displayed in the property pane for each object.
+    * Usually it is a bind pass of what the property pane gave you, but sometimes you may want to do
+    * validation and return other values/defaults
+    */
     public enumerateObjectInstances(options: EnumerateVisualObjectInstancesOptions): VisualObjectInstance[] | VisualObjectInstanceEnumerationObject {
-        return MapboxSettings.enumerateObjectInstances(this.settings || MapboxSettings.getDefault(), options);
+        if (options.objectName == 'colorSelector') {
+            return this.palette.enumerateObjectInstances(options);
+        } else {
+            return MapboxSettings.enumerateObjectInstances(this.settings || MapboxSettings.getDefault(), options);
+        }
     }
 }

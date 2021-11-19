@@ -3,16 +3,17 @@ import IVisualHost = powerbiVisualsApi.extensibility.visual.IVisualHost;
 import { GeoJSONGeometry } from "@mapbox/geojson-types"
 import * as mapboxgl from "mapbox-gl"
 
-import { mapboxUtils } from "./mapboxUtils"
+import { debounce } from "./mapboxUtils"
 import { Circle } from "./layers/circle"
 import { Choropleth } from "./layers/choropleth"
 import { Layer } from "./layers/layer"
 import { FeatureOps } from "./featureOps"
+import { MapboxMap } from "./visual"
 
 export class Filter {
     private box: HTMLElement;
     private start: any;
-    private mapVisual: any; // TODO
+    private mapVisual: MapboxMap;
     private selectionInProgress: boolean;
     private selectionFinish: number;
     private dragScreenX: number;
@@ -24,7 +25,7 @@ export class Filter {
     private prevSelectionByLayer: { [layerId: string]: GeoJSON.Feature<GeoJSONGeometry>[] };
 
 
-    constructor(mapVisual: any, host: IVisualHost) { // TODO
+    constructor(mapVisual: MapboxMap, host: IVisualHost) {
         this.mapVisual = mapVisual
         this.selectionManager = host.createSelectionManager();
         this.host = host;
@@ -49,13 +50,13 @@ export class Filter {
         return this.selectionManager.hasSelection();
     }
 
-    public addSelection(values, role?) {
+    public addSelection(values, role? : string) {
         let indexes = values;
         let category = this.categories[0];
 
         if (role) {
             category = this.categories.find(cat => {
-                return cat.source.displayName == role.displayName;
+                return cat.source.displayName == role;
             })
 
             indexes = values.map(value => category.values.indexOf(value));
@@ -103,14 +104,14 @@ export class Filter {
         map.off('click', clickHandler);
         map.on('click', clickHandler);
 
-        const mouseMoveHandler = mapboxUtils.debounce((e) => {
+        const mouseMoveHandler = debounce((e) => {
             if (!this.hasSelection() && !this.selectionInProgress) {
                 const layers = this.mapVisual.getExistingLayers();
                 layers.map(layer => layer.hoverHighLight(e));
             }
         }, 12, true);
 
-        const mouseLeaveHandler = mapboxUtils.debounce((e) => {
+        const mouseLeaveHandler = debounce((e) => {
             if (!this.hasSelection() && !this.selectionInProgress) {
                 const layers = this.mapVisual.getExistingLayers();
                 layers.map(layer => layer.removeHighlight(this.mapVisual.getRoleMap()));
@@ -304,7 +305,7 @@ export class Filter {
         return (e.metaKey || e.ctrlKey) && e.button === 0
     }
 
-    createClickHandler(mapVisual: any) { // TODO
+    createClickHandler(mapVisual: MapboxMap) {
         let onClick: Function = (e) => {
             const originalEvent = e.originalEvent;
             if (originalEvent.shiftKey && originalEvent.button === 0 || this.selectionInProgress) {

@@ -1,12 +1,13 @@
 import { Datasource } from "./datasource"
-import { mapboxUtils } from "../mapboxUtils"
+import { Limits, getLimits, zoomToData } from "../mapboxUtils"
 import { MapboxSettings } from "../settings"
 import { BBoxCache } from "./bboxCache"
+import { RoleMap } from "../roleMap"
 
 export class Choropleth extends Datasource {
     private choroplethData: any[];
-    private fillColorLimits: mapboxUtils.Limits;
-    private fillSizeLimits: mapboxUtils.Limits;
+    private fillColorLimits: Limits;
+    private fillSizeLimits: Limits;
     private bboxCache: BBoxCache;
 
     private static readonly BBOX_TIMEOUT = 1500
@@ -48,13 +49,78 @@ export class Choropleth extends Datasource {
         return this.choroplethData;
     }
 
-    update(map, features, roleMap, settings: MapboxSettings) {
+    update(map, features, roleMap: RoleMap, settings: MapboxSettings) {
         super.update(map, features, roleMap, settings)
-        this.choroplethData = features.map(f => f.properties)
+        let featureNames = {}
 
-        this.fillColorLimits = mapboxUtils.getLimits(this.choroplethData, roleMap.color ? roleMap.color.displayName : '')
-        this.fillSizeLimits = mapboxUtils.getLimits(this.choroplethData, roleMap.size ? roleMap.size.displayName : '')
-        const featureNames = this.choroplethData.map(f => f[roleMap.location.displayName])
+        let featuresByLocation = [];
+        const f = features.map(f => f.properties);
+        const aggregation = settings.choropleth.aggregation;
+        let dataByLocation = {}
+        const locationCol = roleMap.location();
+        roleMap.columns.map( (column: any) => {
+            // group values by location for given column
+            const rawValues = f.reduce( (acc, curr) => {
+                const location = curr[locationCol];
+                if (acc[location] === undefined) {
+                    acc[location] = []
+                }
+                acc[location].push(curr[column.displayName])
+                return acc;
+            }, {})
+            
+            // based on func aggregate those values for each of these locations
+            Object.keys(rawValues).map( location => {
+                if (dataByLocation[location] === undefined) {
+                    dataByLocation[location] = {}
+                }
+
+                // For the categories don't do aggregation, take the first value. Also for non-numeric fields
+                if (column.roles.location || 
+                    column.roles.latitude || 
+                    column.roles.longitude ||
+                    !column.type.numeric
+                ) {
+                    dataByLocation[location][column.displayName] = rawValues[location].length ? rawValues[location][0] : 0
+                    return;
+                }
+
+                // Aggreagate the values
+                const values = rawValues[location]
+                switch (aggregation) {
+                    case "Count": {
+                        dataByLocation[location][column.displayName] = values.length;
+                        break;
+                    }
+                    case "Sum": {
+                        dataByLocation[location][column.displayName] = values.reduce( (a,b) => a + b, 0)
+                        break;
+                    }
+                    case "Average": {
+                        dataByLocation[location][column.displayName] = values.length ? values.reduce( (a,b) => a + b, 0) / values.length : 0
+                        break;
+                    }
+                    case "Minimum": {
+                        dataByLocation[location][column.displayName] = values.reduce( (a, b) => a && (a < b || !b) ? a : b, null);
+                        break;
+                    }
+                    case "Maximum": {
+                        dataByLocation[location][column.displayName] = values.reduce( (a, b) => a && (a > b || !b) ? a : b, null);
+                        break;
+                    }
+                    default: {
+                        dataByLocation[location][column.displayName] = rawValues[location].length ? rawValues[location][0] : 0
+                        break;
+                    }
+                }
+            })
+        });
+
+        this.choroplethData = Object.keys(dataByLocation).map( location => dataByLocation[location]);
+
+        this.fillColorLimits = getLimits(this.choroplethData, roleMap.getColumn('color', 'choropleth').displayName) // TODO
+        this.fillSizeLimits = getLimits(this.choroplethData, roleMap.size())
+        //const featureNames = this.choroplethData.map(f => f[roleMap.location.displayName])
         const apiSettings = settings.api
 
         // NOTE: this is a workaround because 'sourcedata' event of mapbox is received multiple times
@@ -75,7 +141,7 @@ export class Choropleth extends Datasource {
                     if (this.bounds) {
                         currentBounds = this.bounds.slice()
                     }
-                    this.bounds = this.bboxCache.getBBox(featureNames)
+                    this.bounds = this.bboxCache.getBBox(Object.keys(featureNames))
                     if (this.bounds == currentBounds) {
                         // Wait a bit more until we get the bounding box for the desired features
                         if (Date.now() - start > Choropleth.BBOX_TIMEOUT) {
@@ -89,7 +155,7 @@ export class Choropleth extends Datasource {
                                 const source = map.getSource(this.ID)
                                 this.bounds = source.bounds
                                 console.log('Waiting for getting bounds of desired features has timed out. Falling back to source bounds:', this.bounds)
-                                mapboxUtils.zoomToData(map, this.bounds)
+                                zoomToData(map, this.bounds)
                                 map.on('zoomend', sourceLoaded)
                                 return
                             }
@@ -104,12 +170,12 @@ export class Choropleth extends Datasource {
                     map.off('sourcedata', sourceLoaded)
                     map.off('zoomend', sourceLoaded)
                     clearInterval(boundsPoll)
-                    mapboxUtils.zoomToData(map, this.bounds)
+                    zoomToData(map, this.bounds)
                 }
             }
 
             this.bboxCache.update(map, this.ID, settings.choropleth)
-            this.bounds = this.bboxCache.getBBox(featureNames)
+            this.bounds = this.bboxCache.getBBox(Object.keys(featureNames))
             if (this.bounds == null) {
                 // Source must be still loading, wait for it to finish
                 map.on('sourcedata', sourceLoaded)

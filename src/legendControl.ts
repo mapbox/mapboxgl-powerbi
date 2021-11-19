@@ -64,7 +64,7 @@ export class LegendControl implements mapboxgl.IControl {
     }
 
     getDefaultPosition(): string {
-        return 'bottom-right';
+        return 'bottom-right'; // TODO why not from settings?
     }
 
     createLegendElement(title: string, data: ColorStops, format: string): HTMLElement {

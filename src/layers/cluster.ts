@@ -1,13 +1,15 @@
 import powerbiVisualsApi from "powerbi-visuals-api";
-import { ClassificationMethod, mapboxUtils, RoleMap } from "../mapboxUtils"
+import { ClassificationMethod, decorateLayer } from "../mapboxUtils"
+import { RoleMap } from "../roleMap"
 import { Layer } from "./layer"
 import { LegendControl } from "../legendControl"
 import { MapboxSettings, ClusterSettings } from "../settings"
 import { Sources } from "../datasources/sources"
 import { TooltipEventArgs } from "../tooltipServiceWrapper"
+import { MapboxMap } from "../visual"
 
 export class Cluster extends Layer {
-    private static readonly ID = 'cluster';
+    public static readonly ID = 'cluster';
     private static readonly UnclusterID = 'uncluster';
     private static readonly LayerOrder = [Cluster.ID, Cluster.UnclusterID];
 
@@ -15,9 +17,8 @@ export class Cluster extends Layer {
 
     private getClusterField: Function;
 
-    constructor(map: any, getClusterField) { // TODO
-        super(map)
-        this.id = Cluster.ID
+    constructor(map: MapboxMap, getClusterField) {
+        super(map, Cluster.ID)
         this.getClusterField = getClusterField
         this.source = Sources.Cluster.withGetter(getClusterField)
     }
@@ -40,13 +41,13 @@ export class Cluster extends Layer {
     addLayer(settings, beforeLayerId, roleMap) {
         const map = this.parent.getMap();
         const layers = {};
-        layers[Cluster.ID] = mapboxUtils.decorateLayer({
+        layers[Cluster.ID] = decorateLayer({
             id: Cluster.ID,
             source: 'clusterData',
             type: 'cluster',
             filter: ['has', 'Count']
         });
-        layers[Cluster.UnclusterID] = mapboxUtils.decorateLayer({
+        layers[Cluster.UnclusterID] = decorateLayer({
             id: Cluster.UnclusterID,
             source: 'clusterData',
             type: 'cluster',
@@ -54,7 +55,7 @@ export class Cluster extends Layer {
         });
         Cluster.LayerOrder.forEach((layerId) => map.addLayer(layers[layerId], beforeLayerId));
 
-        const clusterLabelLayer = mapboxUtils.decorateLayer({
+        const clusterLabelLayer = decorateLayer({
             id: Cluster.LabelID,
             type: 'symbol',
             source: 'clusterData',

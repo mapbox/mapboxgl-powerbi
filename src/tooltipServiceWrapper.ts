@@ -2,7 +2,7 @@ import powerbiVisualsApi from "powerbi-visuals-api";
 import ITooltipService = powerbiVisualsApi.extensibility.ITooltipService;
 import VisualTooltipDataItem = powerbiVisualsApi.extensibility.VisualTooltipDataItem;
 import { Layer } from "./layers/layer"
-import { mapboxUtils } from "./mapboxUtils"
+import { debounce } from "./mapboxUtils"
 
 export interface TooltipEventArgs<TData> {
     data: TData;
@@ -72,7 +72,7 @@ class TooltipServiceWrapper implements ITooltipServiceWrapper {
                 }
 
                 if (!this.mapShowTooltip[layerId]) {
-                    this.mapShowTooltip[layerId] = mapboxUtils.debounce((e) => {
+                    this.mapShowTooltip[layerId] = debounce((e) => {
                         rootNode.style.cursor = 'pointer';
                         let tooltipEventArgs = this.makeTooltipEventArgs<T>(e, getTooltips);
                         if (!tooltipEventArgs)

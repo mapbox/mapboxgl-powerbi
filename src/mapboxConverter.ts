@@ -1,5 +1,6 @@
 import powerbiVisualsApi from "powerbi-visuals-api";
 import DataView = powerbiVisualsApi.DataView;
+import { RoleMap } from "./roleMap"
 
 export module mapboxConverter {
     const convertToFeatures = (rows, columns) => {
@@ -42,25 +43,30 @@ export module mapboxConverter {
         })
     }
 
-    const convertCategoricalToFeatures = (categorical, columns) => {
+    const convertCategoricalToFeatures = (categorical, roleMap) => {
         if (!categorical.categories || !categorical.categories.length) {
             return []
         }
 
         const categories = categorical.categories.length > 0 ? categorical.categories.map(transformCategory) : []
-        const values = categorical.values.length > 0 ? categorical.values.map(transformCategory) : []
+        const values = categorical.values && categorical.values.length > 0 ? categorical.values.map(transformCategory) : []
+
+        const longitudeCol = roleMap.longitude();
+        const latitudeCol = roleMap.latitude();
         const ret = [...categories, ...values]
         if (ret.length > 0) {
-            return ret[0].map( (value, index) => {
+            const reduced = ret[0].map( (value, index) => {
                 return ret.reduce( (acc, column) => {
                     return {...acc, ...column[index]}
                 }, {})
-            }).map( (prop, index) => {
+            })
+
+            return reduced.map( (prop, index) => {
                 return {
                     type: "Feature",
                     geometry: {
                         type: "Point",
-                        coordinates: [prop.longitude || null, prop.latitude || null]
+                        coordinates: [prop[longitudeCol] || null, prop[latitudeCol] || null]
                     },
                     id: index,
                     properties: prop
@@ -70,11 +76,9 @@ export module mapboxConverter {
         return []
     }
 
-    export function convert(dataView: DataView) {
-        //const { rows } = dataView.table;
+    export function convert(dataView: DataView, roleMap: RoleMap) {
         const { columns } = dataView.metadata;
-        const features = convertCategoricalToFeatures(dataView.categorical, columns)
+        const features = convertCategoricalToFeatures(dataView.categorical, roleMap)
         return features;
-        //return convertToFeatures(rows, columns);
     }
 }

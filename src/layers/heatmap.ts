@@ -1,16 +1,17 @@
 import powerbiVisualsApi from "powerbi-visuals-api";
-import { mapboxUtils, RoleMap } from "../mapboxUtils"
+import { decorateLayer } from "../mapboxUtils"
+import { RoleMap } from "../roleMap"
 import { Layer } from "./layer"
 import { MapboxSettings  } from "../settings"
 import { Sources } from "../datasources/sources"
+import { MapboxMap } from "../visual"
 
 export class Heatmap extends Layer {
     private static readonly ID = 'heatmap';
     private static readonly LayerOrder = [Heatmap.ID];
 
-    constructor(map: any) { // TODO
-        super(map)
-        this.id = Heatmap.ID
+    constructor(map: MapboxMap) {
+        super(map, Heatmap.ID)
         this.source = Sources.Point
     }
 
@@ -21,7 +22,7 @@ export class Heatmap extends Layer {
     addLayer(settings, beforeLayerId, roleMap) {
         const map = this.parent.getMap();
         const layers = {};
-        layers[Heatmap.ID] = mapboxUtils.decorateLayer({
+        layers[Heatmap.ID] = decorateLayer({
             id: Heatmap.ID,
             source: 'data',
             type: 'heatmap',

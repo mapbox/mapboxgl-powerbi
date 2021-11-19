@@ -1,10 +1,6 @@
 import { Datasource } from "./datasource"
-import { mapboxUtils } from "../mapboxUtils"
 
 export class Raster extends Datasource {
-    // protected colorLimits: mapboxUtils.Limits;
-    // protected sizeLimits: mapboxUtils.Limits;
-
     constructor() {
         super('wms')
     }

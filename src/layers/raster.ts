@@ -1,15 +1,15 @@
 import powerbiVisualsApi from "powerbi-visuals-api";
-import { mapboxUtils  } from "../mapboxUtils"
+import { decorateLayer  } from "../mapboxUtils"
 import { Layer } from "./layer"
 import { Sources } from "../datasources/sources"
+import { MapboxMap } from "../visual"
 
 export class Raster extends Layer {
     private static readonly ID = 'raster';
     private static readonly LayerOrder = [Raster.ID];
 
-    constructor(map: any) { // TODO
-        super(map)
-        this.id = 'raster'
+    constructor(map: MapboxMap) {
+        super(map, Raster.ID)
         this.source = Sources.Raster
     }
 
@@ -20,7 +20,7 @@ export class Raster extends Layer {
     addLayer(settings, beforeLayerId) {
         const map = this.parent.getMap();
         const layers = {};
-        layers[Raster.ID] = mapboxUtils.decorateLayer({
+        layers[Raster.ID] = decorateLayer({
             id: Raster.ID,
             source: 'raster',
             type: 'raster',
