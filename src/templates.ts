@@ -12,19 +12,19 @@ export const Templates = {
 
             <li style="font-size: 18px;"> 1. Copy your Mapbox access token from the link above.</li>
 
-            <img style="padding-bottom: 20px;" src="https://github.com/starschema/mapboxgl-powerbi/blob/master/assets/copy_mapbox_access_token.png"></img><br>
+            <img style="padding-bottom: 20px;" src="https://github.com/starschema/mapboxgl-powerbi/blob/master/assets/copy_mapbox_access_token.png?raw=true"></img><br>
 
             <li style="font-size: 18px;"> 2. Paste your Mapbox access token into the PowerBI Viz format pannel.</li>
 
-            <img style="padding-bottom: 20px;" src="https://github.com/starschema/mapboxgl-powerbi/blob/master/assets/add-access-token.png"></img><br>
+            <img style="padding-bottom: 20px;" src="https://github.com/starschema/mapboxgl-powerbi/blob/master/assets/add-access-token.png?raw=true"></img><br>
 
             <li style="font-size: 18px;"> 3. Add latitude and longitude OR location & color fields to your viz.</li><br>
 
-            <img style="padding-bottom: 20px;" src="https://github.com/starschema/mapboxgl-powerbi/blob/master/assets/add-long-lat.png"></img><br>
+            <img style="padding-bottom: 20px;" src="https://github.com/starschema/mapboxgl-powerbi/blob/master/assets/add-long-lat.png?raw=true"></img><br>
 
             <li style="font-size: 18px;"> Select a map style, then design heatmaps, circles, and cluster visualizations in the format pannel.</li><br>
 
-            <img style="padding-bottom: 20px;" src="https://github.com/starschema/mapboxgl-powerbi/blob/master/assets/start-visualizing.png"></img><br>
+            <img style="padding-bottom: 20px;" src="https://github.com/starschema/mapboxgl-powerbi/blob/master/assets/start-visualizing.png?raw=true"></img><br>
 
         </ol>
 
@@ -38,7 +38,7 @@ export const Templates = {
 
         </h4>
 
-        <img style="padding-bottom: 20px;" src="https://github.com/starschema/mapboxgl-powerbi/blob/master/assets/add-long-lat.png"></img><br>
+        <img style="padding-bottom: 20px;" src="https://github.com/starschema/mapboxgl-powerbi/blob/master/assets/add-long-lat.png?raw=true"></img><br>
 
     `,
 
@@ -70,7 +70,7 @@ export const Templates = {
 
         </h4>
 
-       <img style="padding-bottom: 20px;" src="https://github.com/starschema/mapboxgl-powerbi/blob/master/assets/add-cluster.png"></img><br>
+       <img style="padding-bottom: 20px;" src="https://github.com/starschema/mapboxgl-powerbi/blob/master/assets/add-cluster.png?raw=true"></img><br>
 
     `,
 
