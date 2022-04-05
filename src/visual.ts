@@ -36,6 +36,8 @@ import EnumerateVisualObjectInstancesOptions = powerbiVisualsApi.EnumerateVisual
 import VisualObjectInstance = powerbiVisualsApi.VisualObjectInstance;
 import DataView = powerbiVisualsApi.DataView;
 import VisualObjectInstanceEnumerationObject = powerbiVisualsApi.VisualObjectInstanceEnumerationObject;
+import ISelectionManager = powerbiVisualsApi.extensibility.ISelectionManager;
+import ISelectionId =  powerbiVisualsApi.visuals.ISelectionId
 
 import { featureCollection } from "@turf/helpers"
 import bbox from "@turf/bbox"
@@ -63,6 +65,15 @@ import { Heatmap } from "./layers/heatmap"
 import { Raster } from "./layers/raster"
 import { Choropleth } from "./layers/choropleth"
 
+import {
+    event as d3Event,
+    select as d3Select
+} from "d3-selection";
+
+type Selection<T1, T2 = T1> = d3.Selection<any, T1, any, T2>;
+import ScaleLinear = d3.ScaleLinear;
+const getEvent = () => require("d3-selection").event;
+
 // tslint:disable-next-line: export-name
 export class MapboxMap implements IVisual {
     private target: HTMLElement;
@@ -86,6 +97,9 @@ export class MapboxMap implements IVisual {
     private host: IVisualHost;
     private drawControl: DrawControl;
     private tooltipServiceWrapper: ITooltipServiceWrapper;
+    private selection: Selection<any>;
+    private selectionManager: ISelectionManager;
+    private mapSelection: d3.Selection<d3.BaseType, any, d3.BaseType, any>;
 
     constructor(options: VisualConstructorOptions) {
         this.target = options.element;
@@ -107,9 +121,26 @@ export class MapboxMap implements IVisual {
         this.autoZoomControl = new AutoZoomControl(this.host);
         this.drawControl = new DrawControl(this.filter)
         this.tooltipServiceWrapper = createTooltipServiceWrapper(options.host.tooltipService, options.element);
+
+        this.selection = d3Select(options.element)
+            .append('selection')
+            .classed('barChart', true);
+
+
+        console.log('-----1-----');
+        this.selectionManager = options.host.createSelectionManager();
+
+        this.selectionManager.registerOnSelectCallback(() => {
+            console.log('----- registerOnSelectCallback  -----')
+            this.syncSelectionState(this.mapSelection, <ISelectionId[]>this.selectionManager.getSelectionIds());
+        });
+        console.log('-----2-----');
+        this.handleContextMenu();
+        console.log('-----3-----');
     }
 
     onUpdate(map: mapboxgl.Map, settings, updatedHandler: Function) {
+        console.log('-----  onUpdate  -----')
         try {
             this.layers.map(layer => {
                 layer.applySettings(settings, this.roleMap);
@@ -170,6 +201,7 @@ export class MapboxMap implements IVisual {
     }
 
     private addMap() {
+        console.log('-----  addMap  -----')
         if (this.map) {
             return
         }
@@ -431,7 +463,71 @@ export class MapboxMap implements IVisual {
             this.updateLayers(dataView)
             return;
         }
+        console.log('a')
+        const mapSelectionMerged = this.mapSelection
+            .enter()
+            .append('rect')
+            .merge(<any>this.mapSelection)
+        console.log('b')
+        this.syncSelectionState(
+            mapSelectionMerged,
+            <ISelectionId[]>this.selectionManager.getSelectionIds()
+        );
+
+        console.log('c')
+        mapSelectionMerged.on('click', (d) => {
+            console.log("---- mapSelectionMerged.on('click' ----")
+            // Allow selection only if the visual is rendered in a view that supports interactivity (e.g. Report)
+            if (this.host.hostCapabilities.allowInteractions) {
+                const isCtrlPressed: boolean = (<MouseEvent>d3Event).ctrlKey;
+                this.selectionManager
+                    .select(d.selectionId, isCtrlPressed)
+                    .then((ids: ISelectionId[]) => {
+                        this.syncSelectionState(mapSelectionMerged, ids);
+                    });
+                (<Event>d3Event).stopPropagation();
+            }
+        });
+        console.log('d')
+//     this.mapSelection
+//          .exit()
+//          .remove();
+
+
     }
+
+    private syncSelectionState(
+        selection: Selection<MapboxMap>,
+        selectionIds: ISelectionId[]
+    ): void {
+        console.log('e')        
+        console.log("---- SYNC SELECTION STATE ----")
+        if (!selection || !selectionIds) {
+            return;
+        }
+        /*if (!selectionIds.length) {
+            const opacity: number = this.barChartSettings.generalView.opacity / 100;
+            selection
+                .style("fill-opacity", opacity)
+                .style("stroke-opacity", opacity);
+            return;
+        }*/
+        console.log('f')
+        const self: this = this;
+
+       /* selection.each(function (barDataPoint: BarChartDataPoint) {
+            const isSelected: boolean = self.isSelectionIdInArray(selectionIds, barDataPoint.selectionId);
+
+            const opacity: number = isSelected
+                ? BarChart.Config.solidOpacity
+                : BarChart.Config.transparentOpacity;
+
+            d3Select(this)
+                .style("fill-opacity", opacity)
+                .style("stroke-opacity", opacity);
+        });*/
+    }
+
 
     private updateGeocoder() {
         if (this.settings.geocoder.show && !this.geocoder) {
@@ -523,6 +619,31 @@ export class MapboxMap implements IVisual {
                 this.map.removeControl(this.autoZoomControl);
                 this.controlsPopulated = false;
             }
+        }
+    }
+
+    private handleContextMenu() {
+        console.log('-----  handleContextMenu  -----')
+        console.log('-----2.1-----')
+        try {
+            this.selection.on('contextmenu', () => {​​
+                console.log('-----2.2-----')
+                const mouseEvent: MouseEvent = getEvent();
+                console.log('-----2.3-----')
+                const eventTarget: EventTarget = mouseEvent.target;
+                console.log('-----2.4-----')
+                let dataPoint: any = d3Select(<d3.BaseType>eventTarget).datum();
+                console.log('-----2.5-----')
+                this.selectionManager.showContextMenu(dataPoint ? dataPoint.selectionId : {}, {
+                    x: mouseEvent.clientX,
+                    y: mouseEvent.clientY
+                });
+                console.log('-----2.6-----')
+                mouseEvent.preventDefault();
+                console.log('-----2.7-----')
+            });
+        } catch (error) {
+            console.log("ERROR: ", error)
         }
     }
 
