@@ -1,6 +1,3 @@
-<a href="https://www.mapbox.com">
-  <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b4/Mapbox_Logo.svg/1280px-Mapbox_Logo.svg.png" width="500"/>
-</a>
 
 # Mapbox Visual for Microsoft Power BI
 
@@ -21,20 +18,8 @@ Drop in the Mapbox Visual to your Power BI dashboard from the [Microsoft Office 
 - Check out the official Mapbox Visual for Power BI docs at: 
     * [Getting Started](https://www.mapbox.com/help/power-bi/)
     * [Creating a Choropleth](https://www.mapbox.com/help/power-bi-choropleth-map/)
-- Check out 3rd party documentation below:
-    * Sam Gehret's [July 2017 Mapbox Visual for Power BI webinar](https://www.youtube.com/watch?v=XtMqnls8dpE)
-    * Devin Knight's [Pragmatic Works March 2018 Mapbox Visual for Power BI video tutorial](https://www.youtube.com/watch?v=qDCOo3bm01o)
-    * David Eldersveld's[ BlueGranite `Exploring Maps in Power BI` webinar, March 2018](https://www.blue-granite.com/maps-in-power-bi-mar-2018?utm_campaign=Q1%202018%20Webinars&utm_content=68211202&utm_medium=referral&utm_source=dataveld)
 
 ### FAQ
-
-#### Supported Power BI Environments and Tools
-The Mapbox Visual for Power BI supports:
-
-| Mapbox Visual  Version | PBI Report Server | PBI Mobile (iOS/Android) | PBI Embedded | PBI Publish to Web | PBI Desktop | Chrome | Firefox | Safari | Edge | IE11 |
-|------------------------|-------------------|-------------------|--------------|--------------------|-------------|--------|---------|--------|------|------|
-| v 1.2.4                | Yes             | Yes  | Yes          | Yes                | Yes         | Yes    | Yes     | Yes    | Yes  | No  |
-
 
 #### Firewall rules - Domain names and ports to use with Power BI in a secure environment
 
@@ -51,19 +36,8 @@ The Mapbox Visual by default operates using API resources hosted on `api.mapbox.
 
 Mapbox supports up to the maximum allowed by Power BI, 30,000 rows, for all visualization types including Choropleth (fill), cluster, heatmap, and circle.  If your data is >30k rows, the Mapbox Visual will sample your data down to 30k rows and visualize the resultant sample.  If you need to visualize more than 30k rows for your use case, reach out to our sales team to connect you with a Mapbox Partner to setup a custom solution for your use case.
 
-
-### Roadmap
-- Current roadmap is managed by @samgehret.
-- Check out the [project board](https://github.com/mapbox/mapboxgl-powerbi/projects) on this github for an up to date roadmap.
-- v1.2 just released to the marketplace.  It will be follwed by v1.3 later in Q3 2018.
-- To request feature enhancements or to report bugs, please log an [issue](https://github.com/mapbox/mapboxgl-powerbi/issues).
-- Our release timeline will be discretionary based on new feature availability, but most likely every 2-3 months.
-
-### Beta Version
-- We will keep an up to date beta version in this section.
-- [v1.3 beta](https://github.com/mapbox/mapboxgl-powerbi/blob/v1.3_beta/dist/mapboxGLMap.pbiviz) is the lastest beta.
-
 ### Developing and Contributing.
+
 - This is an open source repo and we welcome contributions from the public.
 - Please see [contributing.md](CONTRIBUTING.md) for more information.
 
@@ -75,10 +49,13 @@ On Power BI Online or Desktop, click `add visual from marketplace` and search `M
 
 ## What is Mapbox?
 
-Mapbox is the location data platform for mobile and web applications. We provide [building blocks](https://www.mapbox.com/products/) to add location features like maps, search, and navigation into any experience you create. Use our simple and powerful APIs & SDKs and our open source libraries for interactivity and control.
+Mapbox is the location data platform for mobile and web applications. Mapbox provides [building blocks](https://www.mapbox.com/products/) to add location features like maps, search, and navigation into any experience you create. Use our simple and powerful APIs & SDKs and our open source libraries for interactivity and control.
 
 Not a Mapbox user yet? [Sign up for an account here](https://www.mapbox.com/signup/). Once you’re signed in, all you need to start building with Power BI is a Mapbox access token. 
 
+## Do you have questions?
+
+Don't hesitate to contact us on the following e-mail address: mapbox_custom_visual@starschema.com
 
 ## Screenshots and GIFs
 
