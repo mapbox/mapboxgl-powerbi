@@ -72,7 +72,6 @@ import {
 
 type Selection<T1, T2 = T1> = d3.Selection<any, T1, any, T2>;
 import ScaleLinear = d3.ScaleLinear;
-const getEvent = () => require("d3-selection").event;
 
 // tslint:disable-next-line: export-name
 export class MapboxMap implements IVisual {
@@ -105,9 +104,16 @@ export class MapboxMap implements IVisual {
         this.target = options.element;
         this.previousZoom = 0;
         if (document) {
-            this.mapDiv = document.createElement('div');
-            this.mapDiv.className = 'map';
-            this.target.appendChild(this.mapDiv);
+            //this.mapDiv = document.createElement('div');
+            //this.mapDiv.className = 'map';
+
+            this.selection = d3Select(options.element)
+            .append('div')
+            .classed('map', true)
+            .attr('id', 'map');
+
+            this.mapDiv = document.getElementById('map');
+            //this.target.className = "target";
 
             this.errorDiv = document.createElement('div');
             this.errorDiv.className = 'error';
@@ -123,8 +129,8 @@ export class MapboxMap implements IVisual {
         this.tooltipServiceWrapper = createTooltipServiceWrapper(options.host.tooltipService, options.element);
 
         this.selection = d3Select(options.element)
-            .append('selection')
-            .classed('barChart', true);
+            .append('svg')
+            .classed('target', true);
 
 
         console.log('-----1-----');
@@ -135,7 +141,7 @@ export class MapboxMap implements IVisual {
             this.syncSelectionState(this.mapSelection, <ISelectionId[]>this.selectionManager.getSelectionIds());
         });
         console.log('-----2-----');
-        this.handleContextMenu();
+
         console.log('-----3-----');
     }
 
@@ -248,7 +254,7 @@ export class MapboxMap implements IVisual {
 
         this.filter.manageHandlers();
         this.drawControl.manageHandlers(this);
-
+        this.handleContextMenu();
     }
 
     private removeMap() {
@@ -626,17 +632,16 @@ export class MapboxMap implements IVisual {
         console.log('-----  handleContextMenu  -----')
         console.log('-----2.1-----')
         try {
-            this.selection.on('contextmenu', () => {​​
+            this.map.on('contextmenu', (mouseEvent) => {​​
                 console.log('-----2.2-----')
-                const mouseEvent: MouseEvent = getEvent();
-                console.log('-----2.3-----')
+                console.log('-----2.3-----', mouseEvent)
                 const eventTarget: EventTarget = mouseEvent.target;
                 console.log('-----2.4-----')
                 let dataPoint: any = d3Select(<d3.BaseType>eventTarget).datum();
-                console.log('-----2.5-----')
-                this.selectionManager.showContextMenu(dataPoint ? dataPoint.selectionId : {}, {
-                    x: mouseEvent.clientX,
-                    y: mouseEvent.clientY
+                console.log('-----2.5-----',dataPoint)
+                this.selectionManager.showContextMenu(2, {
+                    x: mouseEvent.point.x,
+                    y: mouseEvent.point.y
                 });
                 console.log('-----2.6-----')
                 mouseEvent.preventDefault();
