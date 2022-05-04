@@ -425,6 +425,11 @@ export class MapboxMap implements IVisual {
             this.map.on('style.load', delayedUpdate);
             if (this.mapStyle != style) {
                 this.mapStyle = style;
+                this.map.on('error', (e) => {
+                    this.errorDiv.innerHTML = (e && e.error && e.error.message) ? e.error.message : Templates.MissingToken;
+                    this.errorDiv.style.display = 'block';
+                    this.removeMap();
+                })
                 this.map.setStyle(this.mapStyle);
             }
         } else {
