@@ -65,13 +65,8 @@ import { Heatmap } from "./layers/heatmap"
 import { Raster } from "./layers/raster"
 import { Choropleth } from "./layers/choropleth"
 
-import {
-    event as d3Event,
-    select as d3Select
-} from "d3-selection";
-
+import { select as d3Select } from "d3-selection";
 type Selection<T1, T2 = T1> = d3.Selection<any, T1, any, T2>;
-import ScaleLinear = d3.ScaleLinear;
 
 // tslint:disable-next-line: export-name
 export class MapboxMap implements IVisual {
@@ -98,22 +93,17 @@ export class MapboxMap implements IVisual {
     private tooltipServiceWrapper: ITooltipServiceWrapper;
     private selection: Selection<any>;
     private selectionManager: ISelectionManager;
-    private mapSelection: d3.Selection<d3.BaseType, any, d3.BaseType, any>;
 
     constructor(options: VisualConstructorOptions) {
         this.target = options.element;
         this.previousZoom = 0;
         if (document) {
-            //this.mapDiv = document.createElement('div');
-            //this.mapDiv.className = 'map';
-
             this.selection = d3Select(options.element)
             .append('div')
             .classed('map', true)
             .attr('id', 'map');
 
             this.mapDiv = document.getElementById('map');
-            //this.target.className = "target";
 
             this.errorDiv = document.createElement('div');
             this.errorDiv.className = 'error';
@@ -128,15 +118,8 @@ export class MapboxMap implements IVisual {
         this.drawControl = new DrawControl(this.filter)
         this.tooltipServiceWrapper = createTooltipServiceWrapper(options.host.tooltipService, options.element);
 
-        this.selection = d3Select(options.element)
-            .append('svg')
-            .classed('target', true);
-
         this.selectionManager = options.host.createSelectionManager();
 
-        this.selectionManager.registerOnSelectCallback(() => {
-            this.syncSelectionState(this.mapSelection, <ISelectionId[]>this.selectionManager.getSelectionIds());
-        });
     }
 
     onUpdate(map: mapboxgl.Map, settings, updatedHandler: Function) {
@@ -466,63 +449,7 @@ export class MapboxMap implements IVisual {
             this.updateLayers(dataView)
             return;
         }
-        const mapSelectionMerged = this.mapSelection
-            .enter()
-            .append('rect')
-            .merge(<any>this.mapSelection)
-        this.syncSelectionState(
-            mapSelectionMerged,
-            <ISelectionId[]>this.selectionManager.getSelectionIds()
-        );
-
-        mapSelectionMerged.on('click', (d) => {
-            // Allow selection only if the visual is rendered in a view that supports interactivity (e.g. Report)
-            if (this.host.hostCapabilities.allowInteractions) {
-                const isCtrlPressed: boolean = (<MouseEvent>d3Event).ctrlKey;
-                this.selectionManager
-                    .select(d.selectionId, isCtrlPressed)
-                    .then((ids: ISelectionId[]) => {
-                        this.syncSelectionState(mapSelectionMerged, ids);
-                    });
-                (<Event>d3Event).stopPropagation();
-            }
-        });
-//     this.mapSelection
-//          .exit()
-//          .remove();
-
-
     }
-
-    private syncSelectionState(
-        selection: Selection<MapboxMap>,
-        selectionIds: ISelectionId[]
-    ): void {
-        if (!selection || !selectionIds) {
-            return;
-        }
-        /*if (!selectionIds.length) {
-            const opacity: number = this.barChartSettings.generalView.opacity / 100;
-            selection
-                .style("fill-opacity", opacity)
-                .style("stroke-opacity", opacity);
-            return;
-        }*/
-        const self: this = this;
-
-       /* selection.each(function (barDataPoint: BarChartDataPoint) {
-            const isSelected: boolean = self.isSelectionIdInArray(selectionIds, barDataPoint.selectionId);
-
-            const opacity: number = isSelected
-                ? BarChart.Config.solidOpacity
-                : BarChart.Config.transparentOpacity;
-
-            d3Select(this)
-                .style("fill-opacity", opacity)
-                .style("stroke-opacity", opacity);
-        });*/
-    }
-
 
     private updateGeocoder() {
         if (this.settings.geocoder.show && !this.geocoder) {
@@ -621,8 +548,7 @@ export class MapboxMap implements IVisual {
         try {
             this.map.on('contextmenu', (mouseEvent) => {​​
                 const eventTarget: EventTarget = mouseEvent.target;
-                let dataPoint: any = d3Select(<d3.BaseType>eventTarget).datum();
-                this.selectionManager.showContextMenu(2, {
+                this.selectionManager.showContextMenu(null, {
                     x: mouseEvent.point.x,
                     y: mouseEvent.point.y
                 });
