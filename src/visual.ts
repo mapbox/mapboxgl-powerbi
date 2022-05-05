@@ -132,21 +132,14 @@ export class MapboxMap implements IVisual {
             .append('svg')
             .classed('target', true);
 
-
-        console.log('-----1-----');
         this.selectionManager = options.host.createSelectionManager();
 
         this.selectionManager.registerOnSelectCallback(() => {
-            console.log('----- registerOnSelectCallback  -----')
             this.syncSelectionState(this.mapSelection, <ISelectionId[]>this.selectionManager.getSelectionIds());
         });
-        console.log('-----2-----');
-
-        console.log('-----3-----');
     }
 
     onUpdate(map: mapboxgl.Map, settings, updatedHandler: Function) {
-        console.log('-----  onUpdate  -----')
         try {
             this.layers.map(layer => {
                 layer.applySettings(settings, this.roleMap);
@@ -207,7 +200,6 @@ export class MapboxMap implements IVisual {
     }
 
     private addMap() {
-        console.log('-----  addMap  -----')
         if (this.map) {
             return
         }
@@ -474,20 +466,16 @@ export class MapboxMap implements IVisual {
             this.updateLayers(dataView)
             return;
         }
-        console.log('a')
         const mapSelectionMerged = this.mapSelection
             .enter()
             .append('rect')
             .merge(<any>this.mapSelection)
-        console.log('b')
         this.syncSelectionState(
             mapSelectionMerged,
             <ISelectionId[]>this.selectionManager.getSelectionIds()
         );
 
-        console.log('c')
         mapSelectionMerged.on('click', (d) => {
-            console.log("---- mapSelectionMerged.on('click' ----")
             // Allow selection only if the visual is rendered in a view that supports interactivity (e.g. Report)
             if (this.host.hostCapabilities.allowInteractions) {
                 const isCtrlPressed: boolean = (<MouseEvent>d3Event).ctrlKey;
@@ -499,7 +487,6 @@ export class MapboxMap implements IVisual {
                 (<Event>d3Event).stopPropagation();
             }
         });
-        console.log('d')
 //     this.mapSelection
 //          .exit()
 //          .remove();
@@ -511,8 +498,6 @@ export class MapboxMap implements IVisual {
         selection: Selection<MapboxMap>,
         selectionIds: ISelectionId[]
     ): void {
-        console.log('e')        
-        console.log("---- SYNC SELECTION STATE ----")
         if (!selection || !selectionIds) {
             return;
         }
@@ -523,7 +508,6 @@ export class MapboxMap implements IVisual {
                 .style("stroke-opacity", opacity);
             return;
         }*/
-        console.log('f')
         const self: this = this;
 
        /* selection.each(function (barDataPoint: BarChartDataPoint) {
@@ -634,23 +618,15 @@ export class MapboxMap implements IVisual {
     }
 
     private handleContextMenu() {
-        console.log('-----  handleContextMenu  -----')
-        console.log('-----2.1-----')
         try {
             this.map.on('contextmenu', (mouseEvent) => {​​
-                console.log('-----2.2-----')
-                console.log('-----2.3-----', mouseEvent)
                 const eventTarget: EventTarget = mouseEvent.target;
-                console.log('-----2.4-----')
                 let dataPoint: any = d3Select(<d3.BaseType>eventTarget).datum();
-                console.log('-----2.5-----',dataPoint)
                 this.selectionManager.showContextMenu(2, {
                     x: mouseEvent.point.x,
                     y: mouseEvent.point.y
                 });
-                console.log('-----2.6-----')
                 mouseEvent.preventDefault();
-                console.log('-----2.7-----')
             });
         } catch (error) {
             console.log("ERROR: ", error)
