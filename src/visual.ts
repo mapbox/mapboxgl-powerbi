@@ -36,6 +36,8 @@ import EnumerateVisualObjectInstancesOptions = powerbiVisualsApi.EnumerateVisual
 import VisualObjectInstance = powerbiVisualsApi.VisualObjectInstance;
 import DataView = powerbiVisualsApi.DataView;
 import VisualObjectInstanceEnumerationObject = powerbiVisualsApi.VisualObjectInstanceEnumerationObject;
+import ISelectionManager = powerbiVisualsApi.extensibility.ISelectionManager;
+import ISelectionId =  powerbiVisualsApi.visuals.ISelectionId
 
 import { featureCollection } from "@turf/helpers"
 import bbox from "@turf/bbox"
@@ -63,6 +65,9 @@ import { Heatmap } from "./layers/heatmap"
 import { Raster } from "./layers/raster"
 import { Choropleth } from "./layers/choropleth"
 
+import { select as d3Select } from "d3-selection";
+type Selection<T1, T2 = T1> = d3.Selection<any, T1, any, T2>;
+
 // tslint:disable-next-line: export-name
 export class MapboxMap implements IVisual {
     private target: HTMLElement;
@@ -86,14 +91,19 @@ export class MapboxMap implements IVisual {
     private host: IVisualHost;
     private drawControl: DrawControl;
     private tooltipServiceWrapper: ITooltipServiceWrapper;
+    private selection: Selection<any>;
+    private selectionManager: ISelectionManager;
 
     constructor(options: VisualConstructorOptions) {
         this.target = options.element;
         this.previousZoom = 0;
         if (document) {
-            this.mapDiv = document.createElement('div');
-            this.mapDiv.className = 'map';
-            this.target.appendChild(this.mapDiv);
+            this.selection = d3Select(options.element)
+            .append('div')
+            .classed('map', true)
+            .attr('id', 'map');
+
+            this.mapDiv = document.getElementById('map');
 
             this.errorDiv = document.createElement('div');
             this.errorDiv.className = 'error';
@@ -107,6 +117,9 @@ export class MapboxMap implements IVisual {
         this.autoZoomControl = new AutoZoomControl(this.host);
         this.drawControl = new DrawControl(this.filter)
         this.tooltipServiceWrapper = createTooltipServiceWrapper(options.host.tooltipService, options.element);
+
+        this.selectionManager = options.host.createSelectionManager();
+
     }
 
     onUpdate(map: mapboxgl.Map, settings, updatedHandler: Function) {
@@ -216,7 +229,7 @@ export class MapboxMap implements IVisual {
 
         this.filter.manageHandlers();
         this.drawControl.manageHandlers(this);
-
+        this.handleContextMenu();
     }
 
     private removeMap() {
@@ -528,6 +541,21 @@ export class MapboxMap implements IVisual {
                 this.map.removeControl(this.autoZoomControl);
                 this.controlsPopulated = false;
             }
+        }
+    }
+
+    private handleContextMenu() {
+        try {
+            this.map.on('contextmenu', (mouseEvent) => {​​
+                const eventTarget: EventTarget = mouseEvent.target;
+                this.selectionManager.showContextMenu(null, {
+                    x: mouseEvent.point.x,
+                    y: mouseEvent.point.y
+                });
+                mouseEvent.preventDefault();
+            });
+        } catch (error) {
+            console.log("ERROR: ", error)
         }
     }
 
