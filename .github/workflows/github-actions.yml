@@ -37,10 +37,17 @@ jobs:
           ls ${{ github.workspace }}/dist
       - run: |
           cat pbiviz.json
+      - name: Tag and prepare release
+        id: tag_and_prepare_release
+        uses: K-Phoen/semver-release-action@master
+        with:
+          release_branch: master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: ${{ github.run_id}}.${{ github.run_number }}
+          tag_name: ${{ steps.tag_and_prepare_release.outputs.tag }}
           files: |
             dist/PBI*.pbiviz
       - run: echo "🍏 This job's status is ${{ job.status }}."
