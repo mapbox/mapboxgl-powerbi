@@ -37,5 +37,10 @@ jobs:
           ls ${{ github.workspace }}/dist
       - run: |
           cat pbiviz.json
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            dist/PBI*.pbiviz
       - run: echo "🍏 This job's status is ${{ job.status }}."
 
