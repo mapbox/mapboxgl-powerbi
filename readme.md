@@ -7,10 +7,8 @@ Drop in the Mapbox Visual to your Power BI dashboard from the [Microsoft Office 
 
 ![](https://dl.dropbox.com/s/kymonz28oanehje/PowerBI-2.gif)
 
-### Examples
+### Example
 
-* [Example Dashboard - NYC Cycling Incidents](https://www.mapbox.com/bites/00369)
-* [Example Dashboard - 2017 USGS Earthquakes](https://app.powerbi.com/view?r=eyJrIjoiNTlkMzA5N2MtNGU0ZS00MDY5LTg1NTktNTZkODkyMmJjOThmIiwidCI6IjYyOWE3MGIyLTMyYjktNDEyNi05NTFlLTE3NjA0Y2Y0NTZlYyIsImMiOjF9)
 * [Example Dashboard - 2017 FCC Broadband Speeds in New Jersey](https://app.powerbi.com/view?r=eyJrIjoiMTk4ZDk3OWYtNzc2Ny00NDE0LWE2ZWYtZDk5NjAwZTA3YTljIiwidCI6IjYyOWE3MGIyLTMyYjktNDEyNi05NTFlLTE3NjA0Y2Y0NTZlYyIsImMiOjF9)
     
 ### Documentation
