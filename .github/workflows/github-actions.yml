@@ -18,13 +18,13 @@ jobs:
         uses: jacobtomlinson/gha-find-replace@v2
         with:
           find: "{GITHUB_RUN_ID}"
-          replace: "${{ GITHUB_RUN_ID }}"
+          replace: "${{ github.run_id }}"
           include: "pbiviz.json" # Will match all README.md files in any nested directory
       - name: Find and Replace
         uses: jacobtomlinson/gha-find-replace@v2
         with:
           find: "{GITHUB_RUN_NUMBER}"
-          replace: "${{ GITHUB_RUN_NUMBER }}"
+          replace: "${{ github.run_number }}"
           include: "pbiviz.json" # Will match all README.md files in any nested directory
       - uses: actions/setup-node@v2
         with:
