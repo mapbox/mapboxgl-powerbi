@@ -24,6 +24,7 @@
     "d3": "5.12.0",
     "mapbox-gl": "^1.9.1",
     "powerbi-visuals-api": "^4.0.0",
+    "powerbi-visuals-tools": "^4.0.5",
     "powerbi-visuals-utils-testutils": "^2.2.1"
   },
   "devDependencies": {
