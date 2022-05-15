@@ -41,7 +41,7 @@ Mapbox supports up to the maximum allowed by Power BI, 30,000 rows, for all visu
 
 ### Adding MapboxGL Viz to a Power BI Dashboard
 
-On Power BI Online or Desktop, click `add visual from marketplace` and search `Mapbox`.  Check out the visual on the Microsoft Office Store at https://appsource.microsoft.com/en-us/product/power-bi-visuals/WA104381472?tab=Overview.
+On Power BI Online or Desktop, click `add visual from marketplace` and search `Mapbox`.  Check out the visual on the Microsoft Office Store at https://appsource.microsoft.com/en-us/product/power-bi-visuals/olgaltatokorlatoltfelelossegutarsasag1643647545884.mapbox_pbi_custom_visual?tab=Overview.
 
 ![](https://dl.dropbox.com/s/m0rgaypm9d7o0ee/mapbox_marketplace_visual.png)
 
