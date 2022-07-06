@@ -5,7 +5,8 @@
 # Mapbox Visual for Microsoft Power BI
 [![No Maintenance Intended](http://unmaintained.tech/badge.svg)](http://unmaintained.tech/)
 
-**DEPRECATED**
+:no_entry: **DEPRECATED**
+
 This version of Mapbox Visual for Microsoft Power BI is no longer maintained. You can find the live and maintained version of the plugin at: https://github.com/starschema/mapboxgl-powerbi
 
 ---
