@@ -1,13 +1,17 @@
 <a href="https://www.mapbox.com">
-  <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b4/Mapbox_Logo.svg/1280px-Mapbox_Logo.svg.png" width="500"/>
+  <img src="https://static-assets.mapbox.com/www/logos/mapbox-logo-black.png" width="150"/>
 </a>
 
 # Mapbox Visual for Microsoft Power BI
+[![No Maintenance Intended](http://unmaintained.tech/badge.svg)](http://unmaintained.tech/)
 
+**DEPRECATED**
+This version of Mapbox Visual for Microsoft Power BI is no longer maintained. You can find the live and maintained version of the plugin at: https://github.com/starschema/mapboxgl-powerbi
+
+---
 Make sense of your big & dynamic location data with the Mapbox Visual for Power BI.  Quickly design high-performance map visuals using graduated circles, clusters, and interactive heatmaps.  Even customize your Mapbox visual with custom shapes, imagery, and design using [Mapbox Studio](www.mapbox.com/studio).  Check out the [Mapbox Gallery](https://www.mapbox.com/gallery/) to get a sense of what's possible with Studio.
 
 Drop in the Mapbox Visual to your Power BI dashboard from the [Microsoft Office Store](https://appsource.microsoft.com/en-us/product/power-bi-visuals/WA104381472?tab=Overview).
-
 ![](https://dl.dropbox.com/s/kymonz28oanehje/PowerBI-2.gif)
 
 ### Examples
