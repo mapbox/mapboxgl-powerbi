@@ -68,6 +68,7 @@ export class APISettings {
     public startLat: number = 0;
     public autozoom: boolean = true;
     public mapboxControls: boolean = true;
+    public showLayerControl: boolean = false;
     public apiUrl: string = "https://api.mapbox.com"
     public labelPosition: string = "above";
 

@@ -283,6 +283,14 @@
               },
               "suppressFormatPainterCopy": true
             },
+        "showLayerControl": {
+          "displayName": "Show layer control",
+          "displayNameKey": "showLayerControl",
+          "description": "Toggle layer control on/off",
+          "type": {
+            "bool": true
+          }
+        },
             "zoom": {
               "displayName": "Zoom",
               "displayNameKey": "zoom",
