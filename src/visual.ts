@@ -132,7 +132,7 @@ export class MapboxMap implements IVisual {
             });
 
             this.updateLegend(settings)
-            this.layerControl.update(this.roleMap, settings.choropleth)
+            this.layerControl.update(this.roleMap)
 
             if (settings.api.autozoom) {
                 const bounds = this.layers.map(layer => {
