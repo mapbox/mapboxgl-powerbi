@@ -1,12 +1,10 @@
 import { RoleMap } from "./roleMap";
-import { CircleSettings } from "./settings";
 
 export class LayerControl implements mapboxgl.IControl {
     private container: HTMLElement;
     private helper: HTMLElement;
     private added: boolean;
     private map: mapboxgl.Map;
-
 
     constructor() {
         this.added = false;
@@ -42,7 +40,18 @@ export class LayerControl implements mapboxgl.IControl {
                 this.container.removeChild(this.helper);
             }
             this.helper = this.createControl(roleMap);
+            this.manageControlPanel()
         }
+    }
+
+    private manageControlPanel() {
+        const drawControl = document.getElementById("drawControl")
+        const drawControlHeight = drawControl ? drawControl.offsetHeight : 0
+
+        this.container.style.top = null;
+        this.container.style.left = null;
+        this.container.style.setProperty("--drawControlHeight", drawControlHeight + 20 + "px");
+        this.container.style.position = "absolute";
     }
 
     private createControl(roleMap: RoleMap): HTMLElement {
@@ -51,7 +60,10 @@ export class LayerControl implements mapboxgl.IControl {
         const layerSources: { [key: string]: string[] } = {}
 
         this.map.getStyle().layers.forEach(layer => {
-            if (layer["source-layer"] !== undefined) {
+            if (!layer.id.includes("choropleth")) {
+                if (layer["source-layer"] === undefined) {
+                    layer["source-layer"] = "land"
+                }
                 if (!layerSources[layer["source-layer"]]) {
                     layerSources[layer["source-layer"]] = []
                 }
@@ -59,12 +71,12 @@ export class LayerControl implements mapboxgl.IControl {
             }
         })
 
-        Object.entries(layerSources).forEach(entry => {
+        Object.entries(layerSources).sort((a, b) => a[0].localeCompare(b[0])).forEach(entry => {
             const [sourceName, layers] = entry
             const item = d.createElement('div');
+            item.className = "layer-source"
 
-            const checkboxContainer = this.createElement('div', "checkbox-container", this.container);
-            const checkbox = this.createElement('input', "default-style-checkbox", checkboxContainer);
+            const checkbox = this.createElement('input', "default-style-checkbox", item);
             checkbox.setAttribute('type', "checkbox");
             checkbox.setAttribute('id', "checkbox");
             checkbox.setAttribute('checked', true)
@@ -74,7 +86,8 @@ export class LayerControl implements mapboxgl.IControl {
             });
             item.appendChild(checkbox);
 
-            const valueText = d.createTextNode(sourceName);
+            const formattedSourceName = sourceName.replace(/[_-]/g, " ")
+            const valueText = d.createTextNode(formattedSourceName);
             item.appendChild(valueText);
 
             helper.appendChild(item);

@@ -224,4 +224,15 @@
 
     #mapbox-layer-control-container {
         padding: 10px;
+        overflow-y: auto;
+        pointer-events: all;
+        max-height: 50vh;
+        top: var(--drawControlHeight);
+        width: max-content;
+
+        .layer-source {
+            text-transform: capitalize;
+            display: flex;
+            align-items: center;
+        }
     }

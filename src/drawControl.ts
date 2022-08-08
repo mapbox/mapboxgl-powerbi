@@ -104,6 +104,7 @@ export class DrawControl implements mapboxgl.IControl {
 
     onAdd(map: mapboxgl.Map): HTMLElement {
         const drawControlHTML: HTMLElement = this.draw.onAdd(map)
+        drawControlHTML.setAttribute("id", "drawControl");
 
         // Replace the line string draw icon to the lasso icon
         const drawLineGroup = drawControlHTML.getElementsByClassName(MapboxDrawConstants.classes.CONTROL_BUTTON_LINE);
