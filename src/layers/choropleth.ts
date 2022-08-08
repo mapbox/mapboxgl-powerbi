@@ -226,8 +226,10 @@ export class Choropleth extends Layer {
                 if (this.settings &&
                     this.settings.vectorTileUrl1 &&
                     this.settings.sourceLayer1 &&
-                    this.settings.vectorProperty1) {
-                        this.removeLayer();
+                    this.settings.vectorProperty1 &&
+                    this.layerExists()
+                ) {
+                    this.removeLayer();
                 }
                 this.settings = choroSettings;
             }
