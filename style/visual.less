@@ -223,16 +223,29 @@
     }
 
     #mapbox-layer-control-container {
-        padding: 10px;
-        overflow-y: auto;
         pointer-events: all;
-        max-height: 50vh;
         top: var(--drawControlHeight);
-        width: max-content;
+        width: 150px;
 
         .layer-source {
             text-transform: capitalize;
             display: flex;
             align-items: center;
+        }
+
+        .select-box select {
+          width: 100%;
+          font-weight: bold;
+          pointer-events: none;
+        }
+
+        #checkboxes {
+            display: none;
+            border: 1px grey solid;
+            background: white;
+            max-height: 50vh;
+            overflow-y: auto;
+            padding: 5px;
+            margin-top: -2px;
         }
     }

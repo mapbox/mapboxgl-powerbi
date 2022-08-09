@@ -5,6 +5,7 @@ export class LayerControl implements mapboxgl.IControl {
     private helper: HTMLElement;
     private added: boolean;
     private map: mapboxgl.Map;
+    private expanded = false;
 
     constructor() {
         this.added = false;
@@ -12,10 +13,10 @@ export class LayerControl implements mapboxgl.IControl {
 
     public onAdd(map): HTMLElement {
         this.added = true;
-        this.map = map
+        this.map = map;
         this.container = document.createElement('div');
-        this.container.className = 'mapboxgl-ctrl mapboxgl-ctrl-group mapbox-helper'
-        this.container.id = "mapbox-layer-control-container"
+        this.container.className = 'mapboxgl-ctrl mapbox-helper';
+        this.container.id = "mapbox-layer-control-container";
         return this.container;
     }
 
@@ -31,7 +32,7 @@ export class LayerControl implements mapboxgl.IControl {
     }
 
     public isAdded(): boolean {
-        return this.added
+        return this.added;
     }
 
     public update(roleMap: RoleMap) {
@@ -40,13 +41,13 @@ export class LayerControl implements mapboxgl.IControl {
                 this.container.removeChild(this.helper);
             }
             this.helper = this.createControl(roleMap);
-            this.manageControlPanel()
+            this.manageControlPanel();
         }
     }
 
     private manageControlPanel() {
-        const drawControl = document.getElementById("drawControl")
-        const drawControlHeight = drawControl ? drawControl.offsetHeight : 0
+        const drawControl = document.getElementById("drawControl");
+        const drawControlHeight = drawControl ? drawControl.offsetHeight : 0;
 
         this.container.style.top = null;
         this.container.style.left = null;
@@ -55,45 +56,96 @@ export class LayerControl implements mapboxgl.IControl {
     }
 
     private createControl(roleMap: RoleMap): HTMLElement {
-        const d = document;
+        const layerSources = this.getLayerSources();
+        const selectBox = this.createDropdown();
+        const checkboxes = this.createDropdownOptions(layerSources);
         const helper = this.createElement('div', '', this.container);
-        const layerSources: { [key: string]: string[] } = {}
+
+        helper.appendChild(selectBox);
+        helper.appendChild(checkboxes);
+
+        return helper;
+    }
+
+    private createDropdown = () => {
+        const d = document;
+        const title = d.createTextNode("Select layers");
+        const option = d.createElement('option');
+        option.appendChild(title);
+
+        const select = d.createElement('select');
+        select.appendChild(option);
+
+        const selectBox = d.createElement('div');
+        selectBox.className = "select-box";
+        selectBox.addEventListener("click", () => this.showDropdown());
+        selectBox.appendChild(select);
+
+        return selectBox;
+    }
+
+    private createDropdownOptions = (layerSources: { [key: string]: string[] }) => {
+        const d = document;
+        const checkboxes = d.createElement('div');
+        checkboxes.id = "checkboxes"
+
+        Object.entries(layerSources).sort((a, b) => a[0].localeCompare(b[0])).forEach(entry => {
+            const [sourceName, layers] = entry;
+            const item = d.createElement('div');
+            item.className = "layer-source";
+
+            const checkbox = this.createCheckBox(item);
+            checkbox.addEventListener('change', () => {
+                let visibility = (checkbox.checked === true) ? 'visible' : 'none';
+                layers.forEach(layer => this.map.setLayoutProperty(layer, 'visibility', visibility));
+            });
+            item.appendChild(checkbox);
+
+            const formattedSourceName = sourceName.replace(/[_-]/g, " ");
+            const valueText = d.createTextNode(formattedSourceName);
+            item.appendChild(valueText);
+            checkboxes.appendChild(item);
+        })
+
+        return checkboxes;
+    }
+
+    private showDropdown = () => {
+        var checkboxes = document.getElementById("checkboxes");
+        if (!this.expanded) {
+            checkboxes.style.display = "block";
+            this.expanded = true;
+        } else {
+            checkboxes.style.display = "none";
+            this.expanded = false;
+        }
+    }
+
+    private getLayerSources = () => {
+        const layerSources: { [key: string]: string[] } = {};
 
         this.map.getStyle().layers.forEach(layer => {
             if (!layer.id.includes("choropleth")) {
                 if (layer["source-layer"] === undefined) {
-                    layer["source-layer"] = "land"
+                    layer["source-layer"] = "land";
                 }
                 if (!layerSources[layer["source-layer"]]) {
-                    layerSources[layer["source-layer"]] = []
+                    layerSources[layer["source-layer"]] = [];
                 }
-                layerSources[layer["source-layer"]].push(layer.id)
+                layerSources[layer["source-layer"]].push(layer.id);
             }
         })
 
-        Object.entries(layerSources).sort((a, b) => a[0].localeCompare(b[0])).forEach(entry => {
-            const [sourceName, layers] = entry
-            const item = d.createElement('div');
-            item.className = "layer-source"
+        return layerSources;
+    }
 
-            const checkbox = this.createElement('input', "default-style-checkbox", item);
-            checkbox.setAttribute('type', "checkbox");
-            checkbox.setAttribute('id', "checkbox");
-            checkbox.setAttribute('checked', true)
-            checkbox.addEventListener('change', () => {
-                let visibility = (checkbox.checked === true) ? 'visible' : 'none';
-                layers.forEach(layer => this.map.setLayoutProperty(layer, 'visibility', visibility))
-            });
-            item.appendChild(checkbox);
+    private createCheckBox = (container: HTMLElement) => {
+        const checkbox = this.createElement('input', "default-style-checkbox", container);
+        checkbox.setAttribute('type', "checkbox");
+        checkbox.setAttribute('id', "checkbox");
+        checkbox.setAttribute('checked', true);
 
-            const formattedSourceName = sourceName.replace(/[_-]/g, " ")
-            const valueText = d.createTextNode(formattedSourceName);
-            item.appendChild(valueText);
-
-            helper.appendChild(item);
-        })
-
-        return helper
+        return checkbox;
     }
 
     private createElement = function (tagName: any, className?: string, container?: HTMLElement) {
