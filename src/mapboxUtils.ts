@@ -196,3 +196,37 @@ export function getCategoricalObjectValue<T>(category: powerbiVisualsApi.DataVie
     return defaultValue;
 }
 
+
+export function dragElement(el) {
+    let diffX = 0, diffY = 0, startX = 0, startY = 0;
+    el.addEventListener('mousedown', dragMouseDown);
+
+    function dragMouseDown(e) {
+        e = e || window.event;
+        // get the mouse cursor position at startup:
+        startX = e.clientX;
+        startY = e.clientY;
+        document.addEventListener('mouseup', closeDragElement);
+        document.addEventListener('mousemove', elementDrag);
+    }
+
+    function elementDrag(e) {
+        e = e || window.event;
+        e.preventDefault();
+        // calculate the new cursor position:
+        diffX = e.clientX - startX;
+        diffY = e.clientY - startY;
+        startX = e.clientX;
+        startY = e.clientY;
+
+        el.style.top = (el.offsetTop + diffY) + "px";
+        el.style.left = (el.offsetLeft + diffX) + "px";
+        el.style.cursor = "grab";
+    }
+
+    function closeDragElement() {
+        document.removeEventListener('mouseup', closeDragElement);
+        document.removeEventListener('mousemove', elementDrag);
+        el.style.cursor = "default";
+    }
+}

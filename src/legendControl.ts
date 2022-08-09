@@ -1,4 +1,5 @@
 import * as formatting from "powerbi-visuals-utils-formattingutils"
+import { dragElement } from "./mapboxUtils";
 const valueFormatter = formatting.valueFormatter;
 
 export type ColorStops = {colorStop: number | string, color: string}[];
@@ -21,18 +22,35 @@ export class LegendControl implements mapboxgl.IControl {
         this.legends = {}
     }
 
-    addLegend(key: string, title: string, data: ColorStops, format: string) {
-        if (this.legends[key]) {
-            if (this.legendContainer) {
-                this.legendContainer.removeChild(this.legends[key])
+   addLegend(key: string, title: string, data: ColorStops, format: string) {
+        if (data) {
+            if (this.legends[key]) {
+                while (this.legends[key].firstChild) {
+                    this.legends[key].firstChild.remove()
+                }
+                this.addValuesToLegend(title, data, format, this.legends[key])
+            } else {
+                this.legends[key] = this.createLegendElement(title, data, format)
+                if (this.legendContainer) {
+                    this.legendContainer.prepend(this.legends[key])
+                    const containerWidth = this.legendContainer.offsetWidth
+                    this.legends[key].style.setProperty("--left", containerWidth + "px");
+                }
             }
         }
+    }
 
-        if (data) {
-            this.legends[key] = this.createLegendElement(title, data, format)
-            if (this.legendContainer) {
-                this.legendContainer.appendChild(this.legends[key])
-            }
+    // After everything is on its place horizontally, we can set the same height for every element and change the position to absolute
+    calculatePosition() {
+        if (this.legendContainer) {
+            const containerHeight = this.legendContainer.offsetHeight
+            Object.keys(this.legends).forEach(key => {
+                if (this.legends[key]) {
+                    this.legends[key].style.setProperty("--top", -containerHeight + "px");
+                    this.legends[key].style.height = `${containerHeight - 20}px` // height minus padding
+                    this.legends[key].style.position = "absolute"
+                }
+            })
         }
     }
 
@@ -71,7 +89,14 @@ export class LegendControl implements mapboxgl.IControl {
         const d = document;
         const legend = d.createElement('div');
         legend.setAttribute("class", "mapbox-legend mapboxgl-ctrl-group");
+        dragElement(legend)
+        this.addValuesToLegend(title, data, format, legend)
 
+        return legend
+    }
+
+    addValuesToLegend(title: string, data: ColorStops, format: string, legend: HTMLElement) {
+        const d = document
         const titleElement = d.createElement('div');
         const titleText = d.createTextNode(title);
         titleElement.className = 'mapbox-legend-title';
@@ -103,7 +128,5 @@ export class LegendControl implements mapboxgl.IControl {
             // Add line item to legend
             legend.appendChild(item)
         })
-
-        return legend
     }
 }
