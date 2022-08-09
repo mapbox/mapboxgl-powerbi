@@ -31,6 +31,11 @@ export class DrawControl implements mapboxgl.IControl {
 
     }
 
+    updateDrawTools(isLassoTurnedOn, isPolygonTurnedOn) {
+        this.draw.options.controls.line_string = isLassoTurnedOn
+        this.draw.options.controls.polygon = isPolygonTurnedOn
+    }
+
     manageHandlers(mapVisual: MapboxMap) {
         const map: mapboxgl.Map = mapVisual.getMap()
 

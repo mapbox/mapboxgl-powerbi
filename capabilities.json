@@ -323,6 +323,22 @@
                 "bool": true
               }
             },
+            "lasso": {
+              "displayName": "Lasso",
+              "displayNameKey": "lasso",
+              "description": "Show lasso button",
+              "type": {
+                "bool": true
+              }
+            },
+            "polygon": {
+              "displayName": "Polygon",
+              "displayNameKey": "polygon",
+              "description": "Show polygon button",
+              "type": {
+                "bool": true
+              }
+            },
             "apiUrl": {
               "displayName": "Mapbox API URL",
               "displayNameKey": "apiUrl",

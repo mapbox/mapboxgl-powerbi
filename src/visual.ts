@@ -228,6 +228,7 @@ export class MapboxMap implements IVisual {
 
 
         this.filter.manageHandlers();
+        this.drawControl.updateDrawTools(this.settings.api.lasso, this.settings.api.polygon);
         this.drawControl.manageHandlers(this);
         this.handleContextMenu();
     }
@@ -242,7 +243,7 @@ export class MapboxMap implements IVisual {
     }
 
     private validateOptions(options: VisualUpdateOptions) {
-        
+
         // Hide div and remove any child elements
         this.errorDiv.setAttribute("style", "display: none;");
         while (this.errorDiv.hasChildNodes()) {
@@ -446,9 +447,18 @@ export class MapboxMap implements IVisual {
                 this.map.setStyle(this.mapStyle);
             }
         } else {
+            if (this.settings.api.mapboxControls) {
+                this.manageDrawControlElements()
+            }
             this.updateLayers(dataView)
             return;
         }
+    }
+
+    private manageDrawControlElements() {
+        this.drawControl.updateDrawTools(this.settings.api.lasso, this.settings.api.polygon);
+        this.map.removeControl(this.drawControl);
+        this.map.addControl(this.drawControl)
     }
 
     private updateGeocoder() {

@@ -68,13 +68,19 @@ export class APISettings {
     public startLat: number = 0;
     public autozoom: boolean = true;
     public mapboxControls: boolean = true;
+    public lasso: boolean = true;
+    public polygon: boolean = true;
     public apiUrl: string = "https://api.mapbox.com"
     public labelPosition: string = "above";
 
     public enumerateObjectInstances(objectEnumeration) {
         let instances = objectEnumeration.instances;
         let properties = instances[0].properties;
-
+        
+        if (!properties.mapboxControls) {
+            delete properties.lasso
+            delete properties.polygon
+        }
         // Hide / show custom map style URL control
         if (properties.style != 'custom') {
             properties.styleUrl = "";
