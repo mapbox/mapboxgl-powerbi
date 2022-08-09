@@ -66,6 +66,7 @@ export class APISettings {
     public zoom: number = 0;
     public startLong: number = 0;
     public startLat: number = 0;
+    public showLayerControl: boolean = false;
     public autozoom: boolean = true;
     public mapboxControls: boolean = true;
     public apiUrl: string = "https://api.mapbox.com"

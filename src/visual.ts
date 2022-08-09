@@ -50,6 +50,7 @@ import { DrawControl } from "./drawControl"
 import { LegendControl } from "./legendControl"
 import { AutoZoomControl } from "./autoZoomControl"
 import { MapboxGeocoderControl } from "./mapboxGeocoderControl"
+import { LayerControl } from "./layerControl"
 
 import * as mapboxgl from "mapbox-gl"
 import { MapboxSettings, ChoroplethSettings } from "./settings";
@@ -78,6 +79,7 @@ export class MapboxMap implements IVisual {
     private map: any;
     private geocoder: MapboxGeocoderControl;
     private autoZoomControl: AutoZoomControl;
+    private layerControl: LayerControl;
     private navigationControl: mapboxgl.NavigationControl;
     private controlsPopulated: boolean;
     private roleMap: any;
@@ -115,6 +117,7 @@ export class MapboxMap implements IVisual {
         this.controlsPopulated = false;
         this.navigationControl = new mapboxgl.NavigationControl();
         this.autoZoomControl = new AutoZoomControl(this.host);
+        this.layerControl = new LayerControl();
         this.drawControl = new DrawControl(this.filter)
         this.tooltipServiceWrapper = createTooltipServiceWrapper(options.host.tooltipService, options.element);
 
@@ -129,6 +132,7 @@ export class MapboxMap implements IVisual {
             });
 
             this.updateLegend(settings)
+            this.layerControl.update(this.roleMap)
 
             if (settings.api.autozoom) {
                 const bounds = this.layers.map(layer => {
@@ -242,7 +246,7 @@ export class MapboxMap implements IVisual {
     }
 
     private validateOptions(options: VisualUpdateOptions) {
-        
+
         // Hide div and remove any child elements
         this.errorDiv.setAttribute("style", "display: none;");
         while (this.errorDiv.hasChildNodes()) {
@@ -541,6 +545,12 @@ export class MapboxMap implements IVisual {
                 this.map.removeControl(this.autoZoomControl);
                 this.controlsPopulated = false;
             }
+        }
+        if (this.settings.api.showLayerControl && !this.layerControl.isAdded()) {
+            this.map.addControl(this.layerControl);
+        }
+        if (!this.settings.api.showLayerControl && this.layerControl.isAdded()) {
+            this.map.removeControl(this.layerControl);
         }
     }
 
