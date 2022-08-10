@@ -222,11 +222,13 @@ export function dragElement(el) {
         el.style.top = (el.offsetTop + diffY) + "px";
         el.style.left = (el.offsetLeft + diffX) + "px";
         el.style.cursor = "grab";
+        el.style.pointerEvents = "none"
     }
 
     function closeDragElement() {
         document.removeEventListener('mouseup', closeDragElement);
         document.removeEventListener('mousemove', elementDrag);
         el.style.cursor = "default";
+        el.style.pointerEvents = "all"
     }
 }

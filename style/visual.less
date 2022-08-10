@@ -229,7 +229,6 @@
     #mapbox-layer-control-container {
         pointer-events: all;
         top: var(--drawControlHeight);
-        width: 150px;
 
         .layer-source {
             text-transform: capitalize;
@@ -237,10 +236,14 @@
             align-items: center;
         }
 
-        .select-box select {
-          width: 100%;
-          font-weight: bold;
-          pointer-events: none;
+        .select-box {
+            width: 150px;
+
+            select {
+              width: 100%;
+              font-weight: bold;
+              pointer-events: none;
+            }
         }
 
         #checkboxes {
