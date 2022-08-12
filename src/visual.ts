@@ -54,7 +54,7 @@ import { LayerControl } from "./layerControl"
 
 import * as mapboxgl from "mapbox-gl"
 import { MapboxSettings, ChoroplethSettings } from "./settings";
-import { zoomToData } from "./mapboxUtils";
+import { dragElement, zoomToData } from "./mapboxUtils";
 import { ITooltipServiceWrapper, createTooltipServiceWrapper, TooltipEventArgs } from "./tooltipServiceWrapper"
 import { mapboxConverter } from "./mapboxConverter";
 import { Templates } from "./templates";
@@ -338,8 +338,11 @@ export class MapboxMap implements IVisual {
                         if (layer.handleZoom(this.settings)) {
                             layer.applySettings(this.settings, this.roleMap);
                         }
+                        if (!layer.showLegend(this.settings, this.roleMap)) {
+                            return
+                        }
+                        layer.addLegend(this.legend, this.roleMap, this.settings);
                     });
-                    this.updateLegend(this.settings);
                 }
             } catch (e) {
                 console.error("Error in zoom handler: ", e)
@@ -512,6 +515,8 @@ export class MapboxMap implements IVisual {
             // Legend is added to legendControl
             removeLegend = false
         });
+
+        this.legend.calculatePosition()
 
         if (removeLegend && this.legend) {
             this.map.removeControl(this.legend)

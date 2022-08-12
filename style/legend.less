@@ -28,6 +28,14 @@
 .mapbox-legend-title {
     font-weight: bold;
 }
+
 .mapbox-legend .middle {
   vertical-align: middle;
+}
+
+.mapboxgl-ctrl-bottom-right {
+  .mapbox-legend {
+    top: var(--top);
+    left: calc(var(--left) * -1);
+  }
 }

@@ -1,3 +1,4 @@
+import { dragElement } from "./mapboxUtils";
 import { RoleMap } from "./roleMap";
 
 export class LayerControl implements mapboxgl.IControl {
@@ -17,6 +18,7 @@ export class LayerControl implements mapboxgl.IControl {
         this.container = document.createElement('div');
         this.container.className = 'mapboxgl-ctrl mapbox-helper';
         this.container.id = "mapbox-layer-control-container";
+
         return this.container;
     }
 
@@ -41,6 +43,7 @@ export class LayerControl implements mapboxgl.IControl {
                 this.container.removeChild(this.helper);
             }
             this.helper = this.createControl(roleMap);
+            dragElement(this.helper)
             this.manageControlPanel();
         }
     }
@@ -60,6 +63,7 @@ export class LayerControl implements mapboxgl.IControl {
         const selectBox = this.createDropdown();
         const checkboxes = this.createDropdownOptions(layerSources);
         const helper = this.createElement('div', '', this.container);
+        helper.style.position = "absolute";
 
         helper.appendChild(selectBox);
         helper.appendChild(checkboxes);
