@@ -38,6 +38,7 @@ export class MapboxSettings extends DataViewObjectsParser {
         public circle: CircleSettings = new CircleSettings();
         public choropleth: ChoroplethSettings = new ChoroplethSettings();
         public raster: RasterSettings = new RasterSettings();
+        public legends: LegendSettings = new LegendSettings();
 
         public static enumerateObjectInstances(
             dataViewObjectParser: DataViewObjectsParser,
@@ -455,4 +456,8 @@ export class RasterSettings {
     public opacity: number = 80;
     public minZoom: number = 0;
     public maxZoom: number = 22;
+}
+
+export class LegendSettings {
+    public opacity: number = 80;
 }

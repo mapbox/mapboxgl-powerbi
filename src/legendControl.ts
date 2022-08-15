@@ -19,11 +19,12 @@ export class LegendControl {
         this.map = map;
     }
 
-    addControl() {
+    addControl(opacity: number) {
         this.positions.forEach(legendPosition => {
             this.legendContainer[legendPosition] = new LegendContainer(legendPosition)
             this.map.addControl(this.legendContainer[legendPosition], legendPosition)
         })
+        this.setOpacity(opacity)
     }
 
     removeControl() {

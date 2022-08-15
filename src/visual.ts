@@ -501,11 +501,11 @@ export class MapboxMap implements IVisual {
 
         if (!this.legend) {
             this.legend = new LegendControl(this.map)
-            this.legend.addControl()
+            this.legend.addControl(settings.legends.opacity)
         } else {
             this.legend.removeLegends()
             this.legend.removeControl();
-            this.legend.addControl();
+            this.legend.addControl(settings.legends.opacity);
         }
 
         this.layers.forEach(layer => {

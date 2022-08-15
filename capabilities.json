@@ -1742,6 +1742,19 @@
             }
           }
         },
+        "legends": {
+          "displayName": "Legend Customization",
+          "properties": {
+            "opacity": {
+              "displayName": "Opacity of legends",
+              "displayNameKey": "opacity",
+              "description": "Set opacity for the legend elements",
+              "type": {
+                "numeric": true
+              }
+            }
+          }
+        },
         "colorSelector": {
           "displayName": "Data Colors",
           "properties": {
