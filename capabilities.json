@@ -558,6 +558,35 @@
               "type": {
                 "bool": true
               }
+            },
+            "legendPosition": {
+              "displayName": "Legend Position",
+              "displayNameKey": "legendPosition",
+              "description": "Position of the legend.",
+              "type": {
+                "enumeration": [
+                  {
+                    "value": "top-left",
+                    "displayName": "Top Left",
+                    "displayNameKey": "top_left"
+                  },
+                  {
+                    "value": "top-right",
+                    "displayName": "Top Right",
+                    "displayNameKey": "top_right"
+                  },
+                  {
+                    "value": "bottom-right",
+                    "displayName": "Bottom Right",
+                    "displayNameKey": "bottom_right"
+                  },
+                  {
+                    "value": "bottom-left",
+                    "displayName": "Bottom Left",
+                    "displayNameKey": "bottom_left"
+                  }
+                ]
+              }
             }
           }
         },
@@ -800,6 +829,35 @@
               "description": "Enable legend",
               "type": {
                 "bool": true
+              }
+            },
+            "legendPosition": {
+              "displayName": "Legend Position",
+              "displayNameKey": "legendPosition",
+              "description": "Position of the legend.",
+              "type": {
+                "enumeration": [
+                  {
+                    "value": "top-left",
+                    "displayName": "Top Left",
+                    "displayNameKey": "top_left"
+                  },
+                  {
+                    "value": "top-right",
+                    "displayName": "Top Right",
+                    "displayNameKey": "top_right"
+                  },
+                  {
+                    "value": "bottom-right",
+                    "displayName": "Bottom Right",
+                    "displayNameKey": "bottom_right"
+                  },
+                  {
+                    "value": "bottom-left",
+                    "displayName": "Bottom Left",
+                    "displayNameKey": "bottom_left"
+                  }
+                ]
               }
             }
           }
@@ -1598,6 +1656,35 @@
               "description": "Enable legend",
               "type": {
                 "bool": true
+              }
+            },
+            "legendPosition": {
+              "displayName": "Legend Position",
+              "displayNameKey": "legendPosition",
+              "description": "Position of the legend.",
+              "type": {
+                "enumeration": [
+                  {
+                    "value": "top-left",
+                    "displayName": "Top Left",
+                    "displayNameKey": "top_left"
+                  },
+                  {
+                    "value": "top-right",
+                    "displayName": "Top Right",
+                    "displayNameKey": "top_right"
+                  },
+                  {
+                    "value": "bottom-right",
+                    "displayName": "Bottom Right",
+                    "displayNameKey": "bottom_right"
+                  },
+                  {
+                    "value": "bottom-left",
+                    "displayName": "Bottom Left",
+                    "displayNameKey": "bottom_left"
+                  }
+                ]
               }
             }
           }

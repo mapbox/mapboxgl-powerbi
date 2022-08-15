@@ -77,7 +77,7 @@ export class APISettings {
     public enumerateObjectInstances(objectEnumeration) {
         let instances = objectEnumeration.instances;
         let properties = instances[0].properties;
-        
+
         if (!properties.mapboxControls) {
             delete properties.lasso
             delete properties.polygon
@@ -128,6 +128,7 @@ export class CircleSettings {
     public minZoom: number = 0;
     public maxZoom: number = 22;
     public legend: boolean = true;
+    public legendPosition: string = "bottom-right";
 
     public enumerateObjectInstances(objectEnumeration) {
         let instances = objectEnumeration.instances;
@@ -139,6 +140,11 @@ export class CircleSettings {
             delete properties.midValue;
             delete properties.maxValue;
         }
+
+        if (!properties.legend) {
+            delete properties.legendPosition
+        }
+
         return { instances }
     }
 }
@@ -170,6 +176,18 @@ export class ClusterSettings {
     public minZoom: number = 0;
     public maxZoom: number = 22;
     public legend: boolean = true;
+    public legendPosition: string = "bottom-right";
+
+    public enumerateObjectInstances(objectEnumeration) {
+        let instances = objectEnumeration.instances;
+        let properties = instances[0].properties;
+
+        if (!properties.legend) {
+            delete properties.legendPosition
+        }
+
+        return { instances };
+    }
 }
 
 export class ChoroplethSettings {
@@ -262,6 +280,7 @@ export class ChoroplethSettings {
     public outlineOpacity: number = 50;
 
     public legend: boolean = true;
+    public legendPosition: string = "bottom-right";
 
     public getCurrentSourceLayer(): string {
         return this[`sourceLayer${this.currentLevel}`]
@@ -378,6 +397,10 @@ export class ChoroplethSettings {
             delete properties.minValue;
             delete properties.midValue;
             delete properties.maxValue;
+        }
+
+        if (!properties.legend) {
+            delete properties.legendPosition
         }
 
         return { instances };
