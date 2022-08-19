@@ -54,7 +54,7 @@ import { LayerControl } from "./layerControl"
 
 import * as mapboxgl from "mapbox-gl"
 import { MapboxSettings, ChoroplethSettings } from "./settings";
-import { dragElement, zoomToData } from "./mapboxUtils";
+import { calculateLabelPosition, zoomToData } from "./mapboxUtils";
 import { ITooltipServiceWrapper, createTooltipServiceWrapper, TooltipEventArgs } from "./tooltipServiceWrapper"
 import { mapboxConverter } from "./mapboxConverter";
 import { Templates } from "./templates";
@@ -125,16 +125,8 @@ export class MapboxMap implements IVisual {
 
     }
 
-    onUpdate(map: mapboxgl.Map, settings, updatedHandler: Function) {
-        try {
-            this.layers.map(layer => {
-                layer.applySettings(settings, this.roleMap);
-            });
-
-            this.updateLegend(settings)
-            this.layerControl.update(this.roleMap)
-
-            if (settings.api.autozoom) {
+    updateZoom(settings: MapboxSettings) {
+        if (settings.api.autozoom && (this.roleMap.getAll('location').length == 1)) {
                 const bounds = this.layers.map(layer => {
                     return layer.getBounds(settings);
                 }).reduce((acc, bounds) => {
@@ -150,25 +142,21 @@ export class MapboxMap implements IVisual {
                     ]);
                     return bbox(combined)
                 });
-                zoomToData(map, bounds);
-            } else {
-                // maps lat/long change must be processed before zoom changes
-                if (this.previousCoordinates.lat != this.settings.api.startLat ||
-                    this.previousCoordinates.lng != this.settings.api.startLong) {
-                    let lnglat = new mapboxgl.LngLat(this.settings.api.startLong, this.settings.api.startLat)
-
-                    this.map.setCenter(lnglat)
-                    this.map.zoomTo(this.settings.api.zoom)
-                    this.previousCoordinates = lnglat
-                } else if (this.previousZoom != this.settings.api.zoom) {
-                    const newZoom = Math.floor(this.settings.api.zoom)
-                    if (this.previousZoom != newZoom) {
-
-                        this.updateLegend(this.settings);
-                    }
-                    this.map.zoomTo(this.settings.api.zoom)
+            zoomToData(this.map, bounds);
                 }
             }
+
+    onUpdate(map: mapboxgl.Map, settings, updatedHandler: Function) {
+        try {
+            let prevId = calculateLabelPosition(settings, map)
+            this.layers.sort((a, b) => b.layerIndex() - a.layerIndex())
+                .map(layer => {
+                    prevId = layer.applySettings(settings, this.roleMap, prevId);
+                });
+
+            this.updateLegend(settings)
+            this.layerControl.update(this.roleMap)
+            this.updateZoom(settings)
         }
         catch (error) {
             console.error("OnUpdate failed:", error)
@@ -334,9 +322,10 @@ export class MapboxMap implements IVisual {
                 const newZoom = Math.floor(this.map.getZoom())
                 if (this.previousZoom != newZoom) {
                     this.previousZoom = newZoom;
+                    let firstSymbolId = calculateLabelPosition(this.settings, this.map)
                     this.layers.map(layer => {
                         if (layer.handleZoom(this.settings)) {
-                            layer.applySettings(this.settings, this.roleMap);
+                            layer.applySettings(this.settings, this.roleMap, firstSymbolId);
                         }
                         if (!layer.showLegend(this.settings, this.roleMap)) {
                             return

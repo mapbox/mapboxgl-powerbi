@@ -3,6 +3,8 @@ import { decorateLayer  } from "../mapboxUtils"
 import { Layer } from "./layer"
 import { Sources } from "../datasources/sources"
 import { MapboxMap } from "../visual"
+import { MapboxSettings } from "../settings";
+import { RoleMap } from "../roleMap";
 
 export class Raster extends Layer {
     private static readonly ID = 'raster';
@@ -12,6 +14,8 @@ export class Raster extends Layer {
         super(map, Raster.ID)
         this.source = Sources.Raster
     }
+
+    layerIndex() { return 0 }
 
     getLayerIDs() {
         return [Raster.ID];
@@ -37,13 +41,15 @@ export class Raster extends Layer {
         this.source.removeFromMap(map, 'raster');
     }
 
-    applySettings(settings, roleMap) {
-        super.applySettings(settings, roleMap);
+    applySettings(settings: MapboxSettings, roleMap: RoleMap, prevId: string): string {
+        const lastId = super.applySettings(settings, roleMap, prevId);
         const map = this.parent.getMap();
         if (settings.raster.show) {
             map.setPaintProperty(Raster.ID, 'raster-opacity', settings.raster.opacity / 100);
             map.setLayerZoomRange(Raster.ID, settings.raster.minZoom, settings.raster.maxZoom);
         }
+
+        return lastId
     }
 
 }

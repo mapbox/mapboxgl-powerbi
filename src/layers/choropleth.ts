@@ -47,6 +47,9 @@ export class Choropleth extends Layer {
         }
         return Choropleth.ID
     }
+
+    layerIndex() { return 0 }
+
     getLayerIDs() {
         return [Choropleth.ID, Choropleth.OutlineID, Choropleth.ExtrusionID];
     }
@@ -349,8 +352,8 @@ export class Choropleth extends Layer {
         return ClassificationMethod.Equidistant
     }
 
-    applySettings(settings:MapboxSettings, roleMap: RoleMap) {
-        super.applySettings(settings, roleMap);
+    applySettings(settings: MapboxSettings, roleMap: RoleMap, prevId: string): string {
+        const lastId = super.applySettings(settings, roleMap, prevId);
         const map = this.parent.getMap();
         this.settings = settings.choropleth
         const choroSettings = settings.choropleth;
@@ -401,6 +404,8 @@ export class Choropleth extends Layer {
             this.setFillProps(map, choroSettings)
             this.setZoom(map, choroSettings)
         }
+
+        return lastId;
     }
 
     showLegend(settings: MapboxSettings, roleMap: RoleMap) {
