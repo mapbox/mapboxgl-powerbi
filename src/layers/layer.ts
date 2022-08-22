@@ -299,6 +299,4 @@ export abstract class Layer {
         const format = roleMap.getColumn('color', this.getId()).format;
         legend.addLegend(id, title, colorStops, format);
     }
-
-    layerIndex(): number { return -1 }
 }

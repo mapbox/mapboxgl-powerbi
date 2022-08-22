@@ -15,8 +15,6 @@ export class Raster extends Layer {
         this.source = Sources.Raster
     }
 
-    layerIndex() { return 0 }
-
     getLayerIDs() {
         return [Raster.ID];
     }

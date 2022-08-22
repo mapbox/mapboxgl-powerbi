@@ -48,8 +48,6 @@ export class Choropleth extends Layer {
         return Choropleth.ID
     }
 
-    layerIndex() { return 0 }
-
     getLayerIDs() {
         return [Choropleth.ID, Choropleth.OutlineID, Choropleth.ExtrusionID];
     }

@@ -15,8 +15,6 @@ export class Heatmap extends Layer {
         this.source = Sources.Point
     }
 
-    layerIndex() { return 1 }
-
     getLayerIDs() {
         return [ Heatmap.ID ];
     }

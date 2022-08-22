@@ -27,8 +27,6 @@ export class Circle extends Layer {
         this.source = Sources.Point
     }
 
-    layerIndex() { return 3 }
-
     getLayerIDs() {
         return [ Circle.ID ];
     }

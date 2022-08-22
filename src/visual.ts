@@ -127,33 +127,31 @@ export class MapboxMap implements IVisual {
 
     updateZoom(settings: MapboxSettings) {
         if (settings.api.autozoom && (this.roleMap.getAll('location').length == 1)) {
-                const bounds = this.layers.map(layer => {
-                    return layer.getBounds(settings);
-                }).reduce((acc, bounds) => {
-                    if (!bounds) {
-                        return acc;
-                    }
-                    if (!acc) {
-                        return bounds
-                    }
-                    const combined = featureCollection([
-                        bboxPolygon(bbox(acc)),
-                        bboxPolygon(bbox(bounds))
-                    ]);
-                    return bbox(combined)
-                });
-            zoomToData(this.map, bounds);
+            const bounds = this.layers.map(layer => {
+                return layer.getBounds(settings);
+            }).reduce((acc, bounds) => {
+                if (!bounds) {
+                    return acc;
                 }
-            }
+                if (!acc) {
+                    return bounds
+                }
+                const combined = featureCollection([
+                    bboxPolygon(bbox(acc)),
+                    bboxPolygon(bbox(bounds))
+                ]);
+                return bbox(combined)
+            });
+            zoomToData(this.map, bounds);
+        }
+    }
 
     onUpdate(map: mapboxgl.Map, settings, updatedHandler: Function) {
         try {
             let prevId = calculateLabelPosition(settings, map)
-            this.layers.sort((a, b) => b.layerIndex() - a.layerIndex())
-                .map(layer => {
-                    prevId = layer.applySettings(settings, this.roleMap, prevId);
-                });
-
+            this.layers.map(layer => {
+                layer.applySettings(settings, this.roleMap, prevId);
+            });
             this.updateLegend(settings)
             this.layerControl.update(this.roleMap)
             this.updateZoom(settings)

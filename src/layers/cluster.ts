@@ -23,8 +23,6 @@ export class Cluster extends Layer {
         this.source = Sources.Cluster.withGetter(getClusterField)
     }
 
-    layerIndex() { return 2 }
-
     getLayerIDs() {
         return [ Cluster.ID, Cluster.LabelID, Cluster.UnclusterID ];
     }
