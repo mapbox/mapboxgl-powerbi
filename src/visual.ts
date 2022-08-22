@@ -206,12 +206,12 @@ export class MapboxMap implements IVisual {
 
         this.layers = [];
         this.layers.push(new Raster(this));
+        this.layers.push(new Choropleth(this, this.filter, this.palette));
+        this.layers.push(new Circle(this, this.filter, this.palette));
         this.layers.push(new Heatmap(this));
         this.layers.push(new Cluster(this, () => {
             return this.roleMap.cluster()
         }))
-        this.layers.push(new Choropleth(this, this.filter, this.palette));
-        this.layers.push(new Circle(this, this.filter, this.palette));
 
         // @ts-ignore
         mapboxgl.config.API_URL = this.settings.api.apiUrl;
