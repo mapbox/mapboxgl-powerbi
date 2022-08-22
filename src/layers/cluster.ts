@@ -86,8 +86,8 @@ export class Cluster extends Layer {
         return ClassificationMethod.Equidistant
     }
 
-    applySettings(settings, roleMap) {
-        super.applySettings(settings, roleMap);
+    applySettings(settings: MapboxSettings, roleMap: RoleMap, prevId: string): string {
+        const lastId = super.applySettings(settings, roleMap, prevId);
         const map = this.parent.getMap();
         this.colorStops = []
         if (settings.cluster.show) {
@@ -121,6 +121,8 @@ export class Cluster extends Layer {
                 map.setLayoutProperty(Cluster.LabelID, 'text-field', `{${settings.cluster.aggregation}}`);
             }
         }
+
+        return lastId;
     }
 
     showLegend(settings: MapboxSettings, roleMap: RoleMap) {

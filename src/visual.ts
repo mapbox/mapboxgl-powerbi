@@ -54,7 +54,7 @@ import { LayerControl } from "./layerControl"
 
 import * as mapboxgl from "mapbox-gl"
 import { MapboxSettings, ChoroplethSettings } from "./settings";
-import { dragElement, zoomToData } from "./mapboxUtils";
+import { calculateLabelPosition, zoomToData } from "./mapboxUtils";
 import { ITooltipServiceWrapper, createTooltipServiceWrapper, TooltipEventArgs } from "./tooltipServiceWrapper"
 import { mapboxConverter } from "./mapboxConverter";
 import { Templates } from "./templates";
@@ -127,31 +127,31 @@ export class MapboxMap implements IVisual {
 
     updateZoom(settings: MapboxSettings) {
         if (settings.api.autozoom && (this.roleMap.getAll('location').length == 1)) {
-                const bounds = this.layers.map(layer => {
-                    return layer.getBounds(settings);
-                }).reduce((acc, bounds) => {
-                    if (!bounds) {
-                        return acc;
-                    }
-                    if (!acc) {
-                        return bounds
-                    }
-                    const combined = featureCollection([
-                        bboxPolygon(bbox(acc)),
-                        bboxPolygon(bbox(bounds))
-                    ]);
-                    return bbox(combined)
-                });
-                zoomToData(this.map, bounds);
+            const bounds = this.layers.map(layer => {
+                return layer.getBounds(settings);
+            }).reduce((acc, bounds) => {
+                if (!bounds) {
+                    return acc;
                 }
-            }
+                if (!acc) {
+                    return bounds
+                }
+                const combined = featureCollection([
+                    bboxPolygon(bbox(acc)),
+                    bboxPolygon(bbox(bounds))
+                ]);
+                return bbox(combined)
+            });
+            zoomToData(this.map, bounds);
+        }
+    }
 
     onUpdate(map: mapboxgl.Map, settings, updatedHandler: Function) {
         try {
+            let prevId = calculateLabelPosition(settings, map)
             this.layers.map(layer => {
-                layer.applySettings(settings, this.roleMap);
+                layer.applySettings(settings, this.roleMap, prevId);
             });
-
             this.updateLegend(settings)
             this.layerControl.update(this.roleMap)
             this.updateZoom(settings)
@@ -206,12 +206,12 @@ export class MapboxMap implements IVisual {
 
         this.layers = [];
         this.layers.push(new Raster(this));
+        this.layers.push(new Choropleth(this, this.filter, this.palette));
+        this.layers.push(new Circle(this, this.filter, this.palette));
         this.layers.push(new Heatmap(this));
         this.layers.push(new Cluster(this, () => {
             return this.roleMap.cluster()
         }))
-        this.layers.push(new Choropleth(this, this.filter, this.palette));
-        this.layers.push(new Circle(this, this.filter, this.palette));
 
         // @ts-ignore
         mapboxgl.config.API_URL = this.settings.api.apiUrl;
@@ -320,9 +320,10 @@ export class MapboxMap implements IVisual {
                 const newZoom = Math.floor(this.map.getZoom())
                 if (this.previousZoom != newZoom) {
                     this.previousZoom = newZoom;
+                    let firstSymbolId = calculateLabelPosition(this.settings, this.map)
                     this.layers.map(layer => {
                         if (layer.handleZoom(this.settings)) {
-                            layer.applySettings(this.settings, this.roleMap);
+                            layer.applySettings(this.settings, this.roleMap, firstSymbolId);
                         }
                         if (!layer.showLegend(this.settings, this.roleMap)) {
                             return

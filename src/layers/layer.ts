@@ -151,17 +151,25 @@ export abstract class Layer {
         return ClassificationMethod.Quantile
     }
 
-    applySettings(settings: MapboxSettings, roleMap) {
+    applySettings(settings: MapboxSettings, roleMap: RoleMap, prevId: string): string {
         const map = this.parent.getMap();
+        map.on('mouseenter', this.id, () => {
+            map.getCanvas().style.cursor = 'pointer'
+        })
+        map.on('mouseleave', this.id, () => {
+            map.getCanvas().style.cursor = ''
+        })
+
+        let lastId = prevId
         if (settings[this.id].show) {
-            if (this.prevLabelPositionSetting === settings.api.labelPosition) {
-                if (!this.layerExists()) {
-                    let firstSymbolId = this.calculateLabelPosition(settings, map)
-                    this.addLayer(settings, firstSymbolId, roleMap);
-                }
+            if (!this.layerExists()) {
+                this.addLayer(settings, prevId, roleMap);
             } else {
-                const firstSymbolId = this.calculateLabelPosition(settings, map)
-                this.moveLayer(firstSymbolId)
+                this.moveLayer(prevId)
+            }
+            let ids = this.getLayerIDs()
+            if (ids && ids.length > 0) {
+                lastId = ids[ids.length - 1]
             }
         } else {
             if (this.layerExists()) {
@@ -171,6 +179,8 @@ export abstract class Layer {
         if (this.prevLabelPositionSetting !== settings.api.labelPosition) {
             this.prevLabelPositionSetting = settings.api.labelPosition;
         }
+
+        return lastId
     }
 
     addLayer(settings, beforeLayerId: string, roleMap) {}
