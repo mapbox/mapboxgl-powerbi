@@ -50,7 +50,8 @@ export class MapboxSettings extends DataViewObjectsParser {
             switch (options.objectName) {
                 case 'api':
                 case 'circle':
-                case 'choropleth': {
+                case 'choropleth':
+                case 'legends': {
                     return settings[options.objectName].enumerateObjectInstances(instanceEnumeration);
                 }
                 default: {
@@ -460,4 +461,27 @@ export class RasterSettings {
 
 export class LegendSettings {
     public opacity: number = 80;
+    public fontSize: number = 12;
+
+    public enumerateObjectInstances(objectEnumeration) {
+        let instances = objectEnumeration.instances;
+        let properties = instances[0].properties;
+
+        instances[0].validValues = {
+            opacity: {
+                numberRange: {
+                    min: 0,
+                    max: 100,
+                }
+            },
+            fontSize: {
+                numberRange: {
+                    min: 10,
+                    max: 16,
+                }
+            },
+        }
+
+        return { instances };
+    }
 }

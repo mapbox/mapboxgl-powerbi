@@ -1,12 +1,14 @@
 import * as formatting from "powerbi-visuals-utils-formattingutils"
 import { dragElement } from "./mapboxUtils"
 import { LegendContainer } from "./legendContainer"
+import { LegendSettings } from "./settings";
 const valueFormatter = formatting.valueFormatter;
 
 export type ColorStops = { colorStop: number | string, color: string }[];
 
 export class LegendControl {
     private map: mapboxgl.Map;
+    private settings: LegendSettings;
     private legendContainer: { [legendPosition: string]: LegendContainer } = {};
     private legends: { [legendPosition: string]: { [key: string]: HTMLElement } } = {};
     private opacity: number;
@@ -19,12 +21,12 @@ export class LegendControl {
         this.map = map;
     }
 
-    addControl(opacity: number) {
+    addControl(settings: LegendSettings) {
         this.positions.forEach(legendPosition => {
             this.legendContainer[legendPosition] = new LegendContainer(legendPosition)
             this.map.addControl(this.legendContainer[legendPosition], legendPosition)
         })
-        this.setOpacity(opacity)
+        this.settings = settings
     }
 
     removeControl() {
@@ -84,7 +86,7 @@ export class LegendControl {
         const d = document;
         const legend = d.createElement('div');
         legend.setAttribute("class", "mapbox-legend mapboxgl-ctrl-group");
-        legend.setAttribute("style", `opacity: ${this.opacity};`);
+        legend.setAttribute("style", `opacity: ${this.settings.opacity / 100}; font-size: ${this.settings.fontSize}px;`);
         dragElement(legend)
         this.addValuesToLegend(title, data, format, legend)
 

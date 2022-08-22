@@ -1752,6 +1752,14 @@
               "type": {
                 "numeric": true
               }
+            },
+            "fontSize": {
+              "displayName": "Text size of legends",
+              "displayNameKey": "fontSize",
+              "description": "Set text size for the legend elements",
+              "type": {
+                "numeric": true
+              }
             }
           }
         },
