@@ -41,8 +41,8 @@ export class Heatmap extends Layer {
         Heatmap.LayerOrder.forEach((layerId) => map.moveLayer(layerId, beforeLayerId));
     }
 
-    applySettings(settings: MapboxSettings, roleMap) {
-        super.applySettings(settings, roleMap);
+    applySettings(settings: MapboxSettings, roleMap: RoleMap, prevId: string): string {
+        const lastId = super.applySettings(settings, roleMap, prevId);
         const map = this.parent.getMap();
         if (settings.heatmap.show) {
             map.setLayerZoomRange(Heatmap.ID, settings.heatmap.minZoom, settings.heatmap.maxZoom);
@@ -57,6 +57,8 @@ export class Heatmap extends Layer {
                 0.5, settings.heatmap.midColor,
                 1, settings.heatmap.maxColor]);
         }
+
+        return lastId;
     }
 
     showLegend(settings: MapboxSettings, roleMap: RoleMap) {

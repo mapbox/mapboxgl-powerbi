@@ -129,8 +129,8 @@ export class Circle extends Layer {
         this.source.removeFromMap(map, Circle.ID);
     }
 
-    applySettings(settings: MapboxSettings, roleMap) {
-        super.applySettings(settings, roleMap);
+    applySettings(settings: MapboxSettings, roleMap: RoleMap, prevId: string): string {
+        const lastId = super.applySettings(settings, roleMap, prevId);
         const map = this.parent.getMap();
         if (settings.circle.show) {
             const isGradient = shouldUseGradient(roleMap.getColumn('color', Circle.ID));
@@ -151,6 +151,8 @@ export class Circle extends Layer {
             map.setPaintProperty(Circle.ID, 'circle-stroke-opacity', settings.circle.strokeOpacity / 100);
             map.setPaintProperty(Circle.ID, 'circle-stroke-color', settings.circle.strokeColor);
         }
+
+        return lastId;
     }
 
     handleTooltip(tooltipEvent, roleMap, settings: MapboxSettings) {
