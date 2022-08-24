@@ -1746,7 +1746,7 @@
           "displayName": "Legend Customization",
           "properties": {
             "opacity": {
-              "displayName": "Opacity of legends",
+              "displayName": "Opacity",
               "displayNameKey": "opacity",
               "description": "Set opacity for the legend elements",
               "type": {
@@ -1754,9 +1754,9 @@
               }
             },
             "fontSize": {
-              "displayName": "Text size of legends",
+              "displayName": "Font size",
               "displayNameKey": "fontSize",
-              "description": "Set text size for the legend elements",
+              "description": "Set font size for the legend elements",
               "type": {
                 "numeric": true
               }
