@@ -330,6 +330,7 @@ export class MapboxMap implements IVisual {
                         }
                         layer.addLegend(this.legend, this.roleMap, this.settings);
                     });
+                    this.legend.setLegends();
                 }
             } catch (e) {
                 console.error("Error in zoom handler: ", e)
@@ -472,10 +473,6 @@ export class MapboxMap implements IVisual {
 
 
     private updateLegend(settings: MapboxSettings) {
-        if (this.legend) {
-            this.legend.removeLegends()
-        }
-
         if (!this.roleMap) {
             if (this.legend) {
                 this.map.removeControl(this.legend)
@@ -488,25 +485,31 @@ export class MapboxMap implements IVisual {
         // If no legend is added to legendControl remove
         // legendControl at the end of the update
         let removeLegend = true;
+
+        if (!this.legend) {
+            this.legend = new LegendControl(this.map)
+            this.legend.addControl(settings.legends)
+        } else {
+            this.legend.removeLegends()
+            this.legend.removeControl();
+            this.legend.addControl(settings.legends);
+        }
+
         this.layers.forEach(layer => {
             if (!layer.showLegend(settings, this.roleMap)) {
                 return
             }
 
-            if (!this.legend) {
-                this.legend = new LegendControl()
-                this.map.addControl(this.legend)
-            }
             layer.addLegend(this.legend, this.roleMap, settings);
 
             // Legend is added to legendControl
             removeLegend = false
         });
 
-        this.legend.calculatePosition()
+        this.legend.setLegends()
 
         if (removeLegend && this.legend) {
-            this.map.removeControl(this.legend)
+            this.legend.removeControl();
             this.legend = null
         }
     }

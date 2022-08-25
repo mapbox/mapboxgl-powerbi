@@ -38,6 +38,7 @@ export class MapboxSettings extends DataViewObjectsParser {
         public circle: CircleSettings = new CircleSettings();
         public choropleth: ChoroplethSettings = new ChoroplethSettings();
         public raster: RasterSettings = new RasterSettings();
+        public legends: LegendSettings = new LegendSettings();
 
         public static enumerateObjectInstances(
             dataViewObjectParser: DataViewObjectsParser,
@@ -49,7 +50,8 @@ export class MapboxSettings extends DataViewObjectsParser {
             switch (options.objectName) {
                 case 'api':
                 case 'circle':
-                case 'choropleth': {
+                case 'choropleth':
+                case 'legends': {
                     return settings[options.objectName].enumerateObjectInstances(instanceEnumeration);
                 }
                 default: {
@@ -77,7 +79,7 @@ export class APISettings {
     public enumerateObjectInstances(objectEnumeration) {
         let instances = objectEnumeration.instances;
         let properties = instances[0].properties;
-        
+
         if (!properties.mapboxControls) {
             delete properties.lasso
             delete properties.polygon
@@ -128,6 +130,7 @@ export class CircleSettings {
     public minZoom: number = 0;
     public maxZoom: number = 22;
     public legend: boolean = true;
+    public legendPosition: string = "bottom-right";
 
     public enumerateObjectInstances(objectEnumeration) {
         let instances = objectEnumeration.instances;
@@ -139,6 +142,11 @@ export class CircleSettings {
             delete properties.midValue;
             delete properties.maxValue;
         }
+
+        if (!properties.legend) {
+            delete properties.legendPosition
+        }
+
         return { instances }
     }
 }
@@ -170,6 +178,18 @@ export class ClusterSettings {
     public minZoom: number = 0;
     public maxZoom: number = 22;
     public legend: boolean = true;
+    public legendPosition: string = "bottom-right";
+
+    public enumerateObjectInstances(objectEnumeration) {
+        let instances = objectEnumeration.instances;
+        let properties = instances[0].properties;
+
+        if (!properties.legend) {
+            delete properties.legendPosition
+        }
+
+        return { instances };
+    }
 }
 
 export class ChoroplethSettings {
@@ -262,6 +282,7 @@ export class ChoroplethSettings {
     public outlineOpacity: number = 50;
 
     public legend: boolean = true;
+    public legendPosition: string = "bottom-right";
 
     public getCurrentSourceLayer(): string {
         return this[`sourceLayer${this.currentLevel}`]
@@ -380,6 +401,10 @@ export class ChoroplethSettings {
             delete properties.maxValue;
         }
 
+        if (!properties.legend) {
+            delete properties.legendPosition
+        }
+
         return { instances };
     }
 
@@ -432,4 +457,31 @@ export class RasterSettings {
     public opacity: number = 80;
     public minZoom: number = 0;
     public maxZoom: number = 22;
+}
+
+export class LegendSettings {
+    public opacity: number = 80;
+    public fontSize: number = 12;
+
+    public enumerateObjectInstances(objectEnumeration) {
+        let instances = objectEnumeration.instances;
+        let properties = instances[0].properties;
+
+        instances[0].validValues = {
+            opacity: {
+                numberRange: {
+                    min: 0,
+                    max: 100,
+                }
+            },
+            fontSize: {
+                numberRange: {
+                    min: 10,
+                    max: 16,
+                }
+            },
+        }
+
+        return { instances };
+    }
 }

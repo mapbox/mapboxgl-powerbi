@@ -1,94 +1,92 @@
 import * as formatting from "powerbi-visuals-utils-formattingutils"
-import { dragElement } from "./mapboxUtils";
+import { dragElement } from "./mapboxUtils"
+import { LegendContainer } from "./legendContainer"
+import { LegendSettings } from "./settings";
 const valueFormatter = formatting.valueFormatter;
 
-export type ColorStops = {colorStop: number | string, color: string}[];
+export type ColorStops = { colorStop: number | string, color: string }[];
 
-export class LegendControl implements mapboxgl.IControl {
+export class LegendControl {
     private map: mapboxgl.Map;
-    private legendContainer: HTMLElement;
-    private legends: { [key: string] : HTMLElement } = {};
+    private settings: LegendSettings;
+    private legendContainer: { [legendPosition: string]: LegendContainer } = {};
+    private legends: { [legendPosition: string]: { [key: string]: HTMLElement } } = {};
+    private opacity: number;
+    private isNewLegendCreated: boolean;
+    private positions: any[] = ["bottom-right", "bottom-left", "top-right", "top-left"];
 
     public static readonly DEFAULT_NUMBER_FORMAT = "0.##"
 
+    constructor(map) {
+        this.map = map;
+    }
+
+    addControl(settings: LegendSettings) {
+        this.positions.forEach(legendPosition => {
+            this.legendContainer[legendPosition] = new LegendContainer(legendPosition)
+            this.map.addControl(this.legendContainer[legendPosition], legendPosition)
+        })
+        this.settings = settings
+    }
+
+    removeControl() {
+        this.positions.forEach(legendPosition => {
+            if (this.legendContainer[legendPosition]) {
+                this.map.removeControl(this.legendContainer[legendPosition])
+            }
+        })
+    }
+
     removeLegends() {
-        if (this.legendContainer) {
-            Object.keys(this.legends).forEach(key => {
-                if (this.legends[key]) {
-                    this.legendContainer.removeChild(this.legends[key])
-                }
-            })
-        }
+        this.positions.forEach(legendPosition => {
+            if (this.legends[legendPosition]) {
+                Object.keys(this.legends[legendPosition]).forEach(key => {
+                    if (this.legends[legendPosition][key]) {
+                        this.legendContainer[legendPosition].removeChild(this.legends[legendPosition][key])
+                    }
+                })
+            }
+        })
         this.legends = {}
     }
 
-   addLegend(key: string, title: string, data: ColorStops, format: string) {
+    addLegend(key: string, title: string, data: ColorStops, format: string, legendPosition: string) {
         if (data) {
-            if (this.legends[key]) {
-                while (this.legends[key].firstChild) {
-                    this.legends[key].firstChild.remove()
+            if (!this.legends[legendPosition]) {
+                this.legends[legendPosition] = {}
+            }
+            if (this.legends[legendPosition][key]) {
+                while (this.legends[legendPosition][key].firstChild) {
+                    this.legends[legendPosition][key].firstChild.remove()
                 }
-                this.addValuesToLegend(title, data, format, this.legends[key])
+                this.isNewLegendCreated = false
+                this.addValuesToLegend(title, data, format, this.legends[legendPosition][key])
             } else {
-                this.legends[key] = this.createLegendElement(title, data, format)
-                if (this.legendContainer) {
-                    this.legendContainer.prepend(this.legends[key])
-                    const containerWidth = this.legendContainer.offsetWidth
-                    this.legends[key].style.setProperty("--left", containerWidth + "px");
-                }
+                this.isNewLegendCreated = true
+                this.legends[legendPosition][key] = this.createLegendElement(title, data, format)
             }
         }
     }
 
-    // After everything is on its place horizontally, we can set the same height for every element and change the position to absolute
-    calculatePosition() {
-        if (this.legendContainer) {
-            const containerHeight = this.legendContainer.offsetHeight
-            Object.keys(this.legends).forEach(key => {
-                if (this.legends[key]) {
-                    this.legends[key].style.setProperty("--top", -containerHeight + "px");
-                    this.legends[key].style.height = `${containerHeight - 20}px` // height minus padding
-                    this.legends[key].style.position = "absolute"
-                }
-            })
-        }
-    }
-
-    onAdd(map: mapboxgl.Map): HTMLElement {
-        this.map = map;
-        if (!this.legendContainer) {
-            this.legendContainer = document.createElement('div')
-            this.legendContainer.className = 'mapboxgl-ctrl'
-            this.legendContainer.id="mapbox-legend-container"
-        }
-
-        Object.keys(this.legends).forEach(key => {
-            if (this.legends[key]) {
-                this.legendContainer.appendChild(this.legends[key])
-            }
+    setLegends() {
+        this.positions.forEach(legendPosition => {
+            this.legendContainer[legendPosition].setLegends(this.legends[legendPosition], this.isNewLegendCreated)
         })
-
-        return this.legendContainer;
     }
 
-    onRemove(map: mapboxgl.Map) {
-        this.removeLegends()
-        if (this.legendContainer) {
-            this.legendContainer.parentNode.removeChild(this.legendContainer);
-        }
-
-        this.map = undefined;
-        this.legendContainer = undefined;
+    getDefaultOpacity(): number {
+        return this.opacity
     }
 
-    getDefaultPosition(): string {
-        return 'bottom-right'; // TODO why not from settings?
+    setOpacity(opacity: number) {
+        this.opacity = opacity / 100
     }
 
     createLegendElement(title: string, data: ColorStops, format: string): HTMLElement {
         const d = document;
         const legend = d.createElement('div');
         legend.setAttribute("class", "mapbox-legend mapboxgl-ctrl-group");
+        legend.setAttribute("style", `opacity: ${this.settings.opacity / 100}; font-size: ${this.settings.fontSize}px;`);
         dragElement(legend)
         this.addValuesToLegend(title, data, format, legend)
 

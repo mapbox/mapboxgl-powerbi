@@ -558,6 +558,35 @@
               "type": {
                 "bool": true
               }
+            },
+            "legendPosition": {
+              "displayName": "Legend Position",
+              "displayNameKey": "legendPosition",
+              "description": "Position of the legend.",
+              "type": {
+                "enumeration": [
+                  {
+                    "value": "top-left",
+                    "displayName": "Top Left",
+                    "displayNameKey": "top_left"
+                  },
+                  {
+                    "value": "top-right",
+                    "displayName": "Top Right",
+                    "displayNameKey": "top_right"
+                  },
+                  {
+                    "value": "bottom-right",
+                    "displayName": "Bottom Right",
+                    "displayNameKey": "bottom_right"
+                  },
+                  {
+                    "value": "bottom-left",
+                    "displayName": "Bottom Left",
+                    "displayNameKey": "bottom_left"
+                  }
+                ]
+              }
             }
           }
         },
@@ -800,6 +829,35 @@
               "description": "Enable legend",
               "type": {
                 "bool": true
+              }
+            },
+            "legendPosition": {
+              "displayName": "Legend Position",
+              "displayNameKey": "legendPosition",
+              "description": "Position of the legend.",
+              "type": {
+                "enumeration": [
+                  {
+                    "value": "top-left",
+                    "displayName": "Top Left",
+                    "displayNameKey": "top_left"
+                  },
+                  {
+                    "value": "top-right",
+                    "displayName": "Top Right",
+                    "displayNameKey": "top_right"
+                  },
+                  {
+                    "value": "bottom-right",
+                    "displayName": "Bottom Right",
+                    "displayNameKey": "bottom_right"
+                  },
+                  {
+                    "value": "bottom-left",
+                    "displayName": "Bottom Left",
+                    "displayNameKey": "bottom_left"
+                  }
+                ]
               }
             }
           }
@@ -1599,6 +1657,35 @@
               "type": {
                 "bool": true
               }
+            },
+            "legendPosition": {
+              "displayName": "Legend Position",
+              "displayNameKey": "legendPosition",
+              "description": "Position of the legend.",
+              "type": {
+                "enumeration": [
+                  {
+                    "value": "top-left",
+                    "displayName": "Top Left",
+                    "displayNameKey": "top_left"
+                  },
+                  {
+                    "value": "top-right",
+                    "displayName": "Top Right",
+                    "displayNameKey": "top_right"
+                  },
+                  {
+                    "value": "bottom-right",
+                    "displayName": "Bottom Right",
+                    "displayNameKey": "bottom_right"
+                  },
+                  {
+                    "value": "bottom-left",
+                    "displayName": "Bottom Left",
+                    "displayNameKey": "bottom_left"
+                  }
+                ]
+              }
             }
           }
         },
@@ -1649,6 +1736,27 @@
               "displayName": "Max Zoom",
               "displayNameKey": "maxZoom",
               "description": "Maximum zoom level layer is visibile at.",
+              "type": {
+                "numeric": true
+              }
+            }
+          }
+        },
+        "legends": {
+          "displayName": "Legend Customization",
+          "properties": {
+            "opacity": {
+              "displayName": "Opacity",
+              "displayNameKey": "opacity",
+              "description": "Set opacity for the legend elements",
+              "type": {
+                "numeric": true
+              }
+            },
+            "fontSize": {
+              "displayName": "Font size",
+              "displayNameKey": "fontSize",
+              "description": "Set font size for the legend elements",
               "type": {
                 "numeric": true
               }
