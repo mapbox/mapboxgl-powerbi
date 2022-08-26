@@ -26,16 +26,7 @@ export class AutoZoomControl implements mapboxgl.IControl {
                 this.toggled = !this.toggled;
                 this.zoomPinButton.className = this.getButtonClass();
                 this.zoomPinButton.title = this.getButtonTitle();
-                // Persist autozoom state into 'api' settings
-                this.host.persistProperties(<VisualObjectInstancesToPersist>{
-                    merge: [{
-                        objectName: "api",
-                        selector: null,
-                        properties: {
-                            autozoom: !this.toggled,
-                        }
-                    }]
-                })
+                this.persistCurrentZoomInfo()
             });
         return this.container;
     }
@@ -55,8 +46,26 @@ export class AutoZoomControl implements mapboxgl.IControl {
 
     public setPin(state) {
         this.toggled = state;
+        this.persistCurrentZoomInfo()
         this.zoomPinButton.className = this.getButtonClass();
         this.zoomPinButton.title = this.getButtonTitle();
+    }
+
+    private persistCurrentZoomInfo() {
+        // Persist autozoom state into 'api' settings
+        const coordinates = this.map.getCenter()
+        this.host.persistProperties(<VisualObjectInstancesToPersist>{
+            merge: [{
+                objectName: "api",
+                selector: null,
+                properties: {
+                    autozoom: !this.toggled,
+                    zoom: this.toggled ? Math.floor(this.map.getZoom()) : 0,
+                    startLong: this.toggled ? coordinates.lng : 0,
+                    startLat: this.toggled ? coordinates.lat : 0,
+                }
+            }]
+        })
     }
 
     private createButton(className: string, ariaLabel: string, fn: () => any) {
