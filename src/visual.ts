@@ -583,6 +583,7 @@ export class MapboxMap implements IVisual {
         if (options.objectName == 'colorSelector') {
             return this.palette.enumerateObjectInstances(options);
         } else {
+            MapboxSettings.roleMap = this.roleMap;
             return MapboxSettings.enumerateObjectInstances(this.settings || MapboxSettings.getDefault(), options);
         }
     }

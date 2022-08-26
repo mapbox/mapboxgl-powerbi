@@ -20,7 +20,7 @@ export class Palette {
     }
 
     public getColor(id: string | number): string {
-        const idStr = id.toString()
+        const idStr = id?.toString()
         if (!this.colorMap[idStr]) {
             this.colorMap[idStr] = this.colorPalette.getColor(idStr).value
         }

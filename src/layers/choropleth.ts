@@ -294,7 +294,7 @@ export class Choropleth extends Layer {
     }
 
     getFunctionForColorOfLocation(isGradient: boolean, colorStops: ColorStops): any {
-        if (isGradient) {
+        if (colorStops && isGradient) {
             if (colorStops.length == 1) {
                 // chroma.scale fails to return any value with one color
                 return (() => colorStops[0].color)
@@ -309,18 +309,16 @@ export class Choropleth extends Layer {
         return (value => this.palette.getColor(value))
     }
 
-    preprocessData(roleMap : RoleMap, choroplethData, getColorOfLocation ): {location: string, color: string, size: number}[] {
+    preprocessData(roleMap: RoleMap, settings: MapboxSettings, choroplethData, getColorOfLocation ): {location: string, color: string, size: number}[] {
         const existingStops = {};
         const result = [];
 
         const locationCol = roleMap.location()
-        const colorCol = roleMap.color(this)
+        const colorCol = roleMap.get('color', settings.choropleth.colorField - 1)
         const sizeCol = roleMap.size()
         for (let row of choroplethData) {
-
             const location = row[locationCol]
-            const color = getColorOfLocation(row[colorCol])
-
+            const color = colorCol != null ? getColorOfLocation(row[colorCol.displayName]) : null
             if (!location || !color) {
                 // Stop value cannot be undefined or null; don't add this row to the stops
                 continue;
@@ -363,14 +361,16 @@ export class Choropleth extends Layer {
 
         if (choroSettings.display()) {
             ChoroplethSettings.fillPredefinedProperties(choroSettings);
+            ChoroplethSettings.validateProperties(choroSettings, roleMap);
 
             const choroplethData = this.source.getData(map, settings);
-            const isGradient = shouldUseGradient(roleMap.getColumn('color', Choropleth.ID));
-            const limits = this.source.getLimits();
+            const colorField = roleMap.get('color', choroSettings.colorField - 1)
+            const isGradient = shouldUseGradient(colorField);
+            const limits = this.source.getLimits(choroSettings.colorField - 1);
             this.colorStops = this.generateColorStops(choroSettings, isGradient, limits.color, this.palette)
 
             const getColorOfLocation = this.getFunctionForColorOfLocation(isGradient, this.colorStops)
-            const preprocessedData = this.preprocessData(roleMap, choroplethData, getColorOfLocation)
+            const preprocessedData = this.preprocessData(roleMap, settings, choroplethData, getColorOfLocation)
 
             if (preprocessedData) {
                 // We use the old property function syntax here because the data-join technique is faster to parse still than expressions with this method

@@ -29,8 +29,10 @@
 import { dataViewObjectsParser } from "powerbi-visuals-utils-dataviewutils";
 import DataViewObjectsParser = dataViewObjectsParser.DataViewObjectsParser;
 import powerbiVisualsApi from "powerbi-visuals-api";
+import { RoleMap } from "./roleMap"
 
 export class MapboxSettings extends DataViewObjectsParser {
+        public static roleMap: RoleMap;
         public api: APISettings = new APISettings();
         public geocoder: GeocoderSettings = new GeocoderSettings();
         public cluster: ClusterSettings = new ClusterSettings();
@@ -111,7 +113,7 @@ export class APISettings {
 
 
 export class CircleSettings {
-    public show: boolean = true;
+    public show: boolean = false;
     public radius: number = 3;
     public scaleFactor: number = 5;
     public diverging: boolean = false;
@@ -206,6 +208,7 @@ export class ChoroplethSettings {
     static readonly PREDEFINED_VECTOR_PROPERTY = "name";
 
     public show: boolean = false;
+    public colorField: number = 1;
     public aggregation: string = "Count";
     public diverging: boolean = false;
     public minColor: string = "#edf8b1";
@@ -368,7 +371,8 @@ export class ChoroplethSettings {
                     max: 10,
                 }
             },
-            selectedLevel: []
+            selectedLevel: [],
+            colorField: [],
         }
 
         for (let i = 0; i < properties.maxLevel; i++) {
@@ -393,6 +397,11 @@ export class ChoroplethSettings {
                 }
             }
         }
+
+        const colorFields = MapboxSettings.roleMap.getAll("color");
+        colorFields.map((field, index) => {
+            instances[0].validValues.colorField.push(`${index + 1}`)
+        });
 
         if (!properties.diverging) {
             delete properties.midColor;
@@ -446,6 +455,16 @@ export class ChoroplethSettings {
                 choroSettings[`vectorTileUrl${i + 1}`] = choroSettings[`data${i + 1}`];
                 choroSettings[`vectorProperty${i + 1}`] = ChoroplethSettings.PREDEFINED_VECTOR_PROPERTY;
             }
+        }
+    }
+
+    public static validateProperties(choroSettings, roleMap) {
+        const numberOfColors = roleMap.getAll('color').length
+        if (choroSettings.colorField <= 0) {
+            choroSettings.colorField = 1
+        }
+        if (choroSettings.colorField > numberOfColors) {
+            choroSettings.colorField = numberOfColors
         }
     }
 }

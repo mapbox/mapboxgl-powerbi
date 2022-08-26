@@ -6,7 +6,7 @@ import { RoleMap } from "../roleMap"
 
 export class Choropleth extends Datasource {
     private choroplethData: any[];
-    private fillColorLimits: Limits;
+    private fillColorLimits: Limits[];
     private fillSizeLimits: Limits;
     private bboxCache: BBoxCache;
 
@@ -38,9 +38,17 @@ export class Choropleth extends Datasource {
         }
     }
 
-    getLimits() {
+    private getLimitsAtIndex(limits: Limits[], index: number): Limits {
+        if (index >= 0 && index < limits.length) {
+            return limits[index]
+        }
+
+        return { min: null, max: null, values: [] }
+    }
+
+    getLimits(index: number) {
         return {
-            color: this.fillColorLimits,
+            color: this.getLimitsAtIndex(this.fillColorLimits, index),
             size: this.fillSizeLimits
         }
     }
@@ -112,7 +120,10 @@ export class Choropleth extends Datasource {
         });
 
         this.choroplethData = Object.keys(dataByLocation).map( location => dataByLocation[location]);
-        this.fillColorLimits = getLimits(this.choroplethData, roleMap.getColumn('color', 'choropleth').displayName) // TODO
+        const colors = roleMap.getAll('color')
+        this.fillColorLimits = colors.map(color => {
+            return getLimits(this.choroplethData, color.displayName)
+        })
         this.fillSizeLimits = getLimits(this.choroplethData, roleMap.size())
         //const featureNames = this.choroplethData.map(f => f[roleMap.location.displayName])
         const apiSettings = settings.api
