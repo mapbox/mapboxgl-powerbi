@@ -49,11 +49,31 @@ export class Choropleth extends Datasource {
         return this.choroplethData;
     }
 
+    aggregateData(aggregation: string, values: number[]): number | null {
+        if (!values.length) {
+            return null;
+        }
+
+        switch (aggregation) {
+            case "Count":
+                return values.length;
+            case "Sum":
+                return values.reduce((a, b) => a + b);
+            case "Average":
+                return values.reduce((a, b) => a + b) / values.length;
+            case "Minimum":
+                return Math.min(...values);
+            case "Maximum":
+                return Math.max(...values);
+            default:
+                return values[0];
+        }
+    }
+
     update(map, features, roleMap: RoleMap, settings: MapboxSettings) {
         super.update(map, features, roleMap, settings)
         let featureNames = {}
 
-        let featuresByLocation = [];
         const f = features.map(f => f.properties);
         const aggregation = settings.choropleth.aggregation;
         let dataByLocation = {}
@@ -68,7 +88,7 @@ export class Choropleth extends Datasource {
                 acc[location].push(curr[column.displayName])
                 return acc;
             }, {})
-            
+
             // based on func aggregate those values for each of these locations
             Object.keys(rawValues).map( location => {
                 if (dataByLocation[location] === undefined) {
@@ -76,48 +96,22 @@ export class Choropleth extends Datasource {
                 }
 
                 // For the categories don't do aggregation, take the first value. Also for non-numeric fields
-                if (column.roles.location || 
-                    column.roles.latitude || 
+                if (column.roles.location ||
+                    column.roles.latitude ||
                     column.roles.longitude ||
                     !column.type.numeric
                 ) {
-                    dataByLocation[location][column.displayName] = rawValues[location].length ? rawValues[location][0] : 0
+                    dataByLocation[location][column.displayName] = rawValues[location].length ? rawValues[location][0] : null;
                     return;
                 }
 
                 // Aggreagate the values
-                const values = rawValues[location]
-                switch (aggregation) {
-                    case "Count": {
-                        dataByLocation[location][column.displayName] = values.length;
-                        break;
-                    }
-                    case "Sum": {
-                        dataByLocation[location][column.displayName] = values.reduce( (a,b) => a + b, 0)
-                        break;
-                    }
-                    case "Average": {
-                        dataByLocation[location][column.displayName] = values.length ? values.reduce( (a,b) => a + b, 0) / values.length : 0
-                        break;
-                    }
-                    case "Minimum": {
-                        dataByLocation[location][column.displayName] = values.reduce( (a, b) => a && (a < b || !b) ? a : b, null);
-                        break;
-                    }
-                    case "Maximum": {
-                        dataByLocation[location][column.displayName] = values.reduce( (a, b) => a && (a > b || !b) ? a : b, null);
-                        break;
-                    }
-                    default: {
-                        dataByLocation[location][column.displayName] = rawValues[location].length ? rawValues[location][0] : 0
-                        break;
-                    }
-                }
+                const values = rawValues[location].filter(value => value != null);
+                dataByLocation[location][column.displayName] = this.aggregateData(aggregation, values);
             })
         });
 
         this.choroplethData = Object.keys(dataByLocation).map( location => dataByLocation[location]);
-
         this.fillColorLimits = getLimits(this.choroplethData, roleMap.getColumn('color', 'choropleth').displayName) // TODO
         this.fillSizeLimits = getLimits(this.choroplethData, roleMap.size())
         //const featureNames = this.choroplethData.map(f => f[roleMap.location.displayName])

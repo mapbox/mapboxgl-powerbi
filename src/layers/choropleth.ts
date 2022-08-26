@@ -442,7 +442,7 @@ export class Choropleth extends Layer {
                 displayName: `${prefix} ${key}`,
                 value: "null",
             }
-            if (dataUnderLocation[key]) {
+            if (dataUnderLocation[key] != null) {
                 data.value = dataUnderLocation[key];
                 data.value = this.getFormattedTooltipValue(roleMap, data).toString()
             }
