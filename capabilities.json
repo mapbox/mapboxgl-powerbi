@@ -393,6 +393,14 @@
                 "bool": true
               }
             },
+            "colorField": {
+                "displayName": "Color Field",
+                "displayNameKey": "colorField",
+                "description": "Which field in the Role Color to use in this layer",
+                "type": {
+                  "numeric": true
+                }
+            },
             "diverging": {
               "displayName": "Diverging",
               "description": "Diverge colors by value",

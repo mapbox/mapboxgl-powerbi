@@ -4,13 +4,13 @@ import { featureCollection } from "@turf/helpers"
 import bbox from "@turf/bbox"
 
 export class Point extends Datasource {
-    protected colorLimits: Limits;
+    protected colorLimits: Limits[];
     protected sizeLimits: Limits;
 
     constructor() {
         super('point')
 
-        this.colorLimits = { min: null, max: null, values: [] }
+        this.colorLimits = []
         this.sizeLimits = { min: null, max: null, values: [] }
     }
 
@@ -27,11 +27,19 @@ export class Point extends Datasource {
         map.removeSource('data');
     }
 
-    getLimits() {
+    private getLimitsAtIndex(limits: Limits[], index: number): Limits {
+        if (index >= 0 && index < limits.length) {
+            return limits[index]
+        }
+
+        return { min: null, max: null, values: [] }
+    }
+
+    getLimits(index: number) {
         return {
-            color: this.colorLimits,
+            color: this.getLimitsAtIndex(this.colorLimits, index),
             size: this.sizeLimits,
-        };
+        }
     }
 
     ensure(map, layerId, settings): void {
@@ -47,10 +55,10 @@ export class Point extends Datasource {
         const fCollection = featureCollection(features);
         const source: any = map.getSource('data');
         source.setData(fCollection);
-        const colorCol = roleMap.getColumn('color', 'circle')
-        if (colorCol) {
-            this.colorLimits = getLimits(features, colorCol.displayName); // TODO
-        }
+        const colors = roleMap.getAll('color');
+        this.colorLimits = colors.map(color => {
+            return getLimits(features, color.displayName)
+        });
         this.sizeLimits = getLimits(features, roleMap.size());
         this.bounds = bbox(fCollection);
     }

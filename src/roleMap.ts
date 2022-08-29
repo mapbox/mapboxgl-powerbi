@@ -72,7 +72,7 @@ export class RoleMap {
         return this.map[role]
     }
 
-    getColumn(role: string, layerID: string) : Column {
+    getColumn(role: string, layerID: string, index: number = 0) : Column {
         if (!this.map[role] || this.map[role].length <= 0) {
             return null;
         }
@@ -81,7 +81,7 @@ export class RoleMap {
             return this.map[role][1];
         }
 
-        return this.map[role][0];
+        return this.map[role][index];
     }
 }
 

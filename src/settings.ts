@@ -114,6 +114,7 @@ export class APISettings {
 
 export class CircleSettings {
     public show: boolean = false;
+    public colorField: number = 1;
     public radius: number = 3;
     public scaleFactor: number = 5;
     public diverging: boolean = false;
@@ -137,6 +138,16 @@ export class CircleSettings {
     public enumerateObjectInstances(objectEnumeration) {
         let instances = objectEnumeration.instances;
         let properties = instances[0].properties;
+
+        instances[0].validValues = {
+            colorField: []
+        }
+
+        const colorFields = MapboxSettings.roleMap.getAll("color");
+            colorFields.map((field, index) => {
+                instances[0].validValues.colorField.push(`${index + 1}`)
+        });
+
         // Hide / show center color according to diverging property
         if (!properties.diverging) {
             delete properties.midColor;
@@ -150,6 +161,16 @@ export class CircleSettings {
         }
 
         return { instances }
+    }
+
+    public static validateProperties(choroSettings, roleMap) {
+        const numberOfColors = roleMap.getAll('color').length
+        if (choroSettings.colorField <= 0) {
+            choroSettings.colorField = 1
+        }
+        if (choroSettings.colorField > numberOfColors) {
+            choroSettings.colorField = numberOfColors
+        }
     }
 }
 
