@@ -126,7 +126,7 @@ export class MapboxMap implements IVisual {
     }
 
     updateZoom(settings: MapboxSettings) {
-        if (settings.api.autozoom && (this.roleMap.getAll('location').length == 1)) {
+        if (settings.api.autozoom) {
             const bounds = this.layers.map(layer => {
                 return layer.getBounds(settings);
             }).reduce((acc, bounds) => {
