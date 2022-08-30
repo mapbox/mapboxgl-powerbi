@@ -121,7 +121,7 @@ export class Choropleth extends Datasource {
 
         this.choroplethData = Object.keys(dataByLocation).map( location => dataByLocation[location]);
         const colors = roleMap.getAll('color')
-        this.fillColorLimits = colors.map(color => {
+        this.fillColorLimits = (colors || []).map(color => {
             return getLimits(this.choroplethData, color.displayName)
         })
         this.fillSizeLimits = getLimits(this.choroplethData, roleMap.size())

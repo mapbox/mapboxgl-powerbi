@@ -66,7 +66,7 @@ export class RoleMap {
 
     getAll(role: string) : Column[] {
         if (!this.map[role] || this.map[role].length <= 0) {
-            return [];
+            return null;
         }
 
         return this.map[role]

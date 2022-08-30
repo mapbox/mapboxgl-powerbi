@@ -330,7 +330,7 @@ export class MapboxMap implements IVisual {
                         }
                         layer.addLegend(this.legend, this.roleMap, this.settings);
                     });
-                    this.legend.setLegends();
+                    this.legend?.setLegends();
                 }
             } catch (e) {
                 console.error("Error in zoom handler: ", e)

@@ -56,7 +56,7 @@ export class Point extends Datasource {
         const source: any = map.getSource('data');
         source.setData(fCollection);
         const colors = roleMap.getAll('color');
-        this.colorLimits = colors.map(color => {
+        this.colorLimits = (colors || []).map(color => {
             return getLimits(features, color.displayName)
         });
         this.sizeLimits = getLimits(features, roleMap.size());
