@@ -140,13 +140,18 @@ export class CircleSettings {
         let properties = instances[0].properties;
 
         instances[0].validValues = {
-            colorField: []
+            colorField: {
+                numberRange: {
+                    min: 1,
+                    max: 1
+                }
+            }
         }
 
         const colorFields = MapboxSettings.roleMap.getAll("color");
-            colorFields.map((field, index) => {
-                instances[0].validValues.colorField.push(`${index + 1}`)
-        });
+        if (colorFields) {
+            instances[0].validValues.colorField.numberRange.max = colorFields.length
+        }
 
         // Hide / show center color according to diverging property
         if (!properties.diverging) {
@@ -161,16 +166,6 @@ export class CircleSettings {
         }
 
         return { instances }
-    }
-
-    public static validateProperties(choroSettings, roleMap) {
-        const numberOfColors = roleMap.getAll('color').length
-        if (choroSettings.colorField <= 0) {
-            choroSettings.colorField = 1
-        }
-        if (choroSettings.colorField > numberOfColors) {
-            choroSettings.colorField = numberOfColors
-        }
     }
 }
 
@@ -393,7 +388,12 @@ export class ChoroplethSettings {
                 }
             },
             selectedLevel: [],
-            colorField: [],
+            colorField: {
+                numberRange: {
+                    min: 1,
+                    max: 1,
+                }
+            },
         }
 
         for (let i = 0; i < properties.maxLevel; i++) {
@@ -420,9 +420,9 @@ export class ChoroplethSettings {
         }
 
         const colorFields = MapboxSettings.roleMap.getAll("color");
-        colorFields.map((field, index) => {
-            instances[0].validValues.colorField.push(`${index + 1}`)
-        });
+        if (colorFields) {
+            instances[0].validValues.colorField.numberRange.max = colorFields.length
+        }
 
         if (!properties.diverging) {
             delete properties.midColor;
@@ -476,16 +476,6 @@ export class ChoroplethSettings {
                 choroSettings[`vectorTileUrl${i + 1}`] = choroSettings[`data${i + 1}`];
                 choroSettings[`vectorProperty${i + 1}`] = ChoroplethSettings.PREDEFINED_VECTOR_PROPERTY;
             }
-        }
-    }
-
-    public static validateProperties(choroSettings, roleMap) {
-        const numberOfColors = roleMap.getAll('color').length
-        if (choroSettings.colorField <= 0) {
-            choroSettings.colorField = 1
-        }
-        if (choroSettings.colorField > numberOfColors) {
-            choroSettings.colorField = numberOfColors
         }
     }
 }

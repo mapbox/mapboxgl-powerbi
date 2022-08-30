@@ -361,8 +361,6 @@ export class Choropleth extends Layer {
 
         if (choroSettings.display()) {
             ChoroplethSettings.fillPredefinedProperties(choroSettings);
-            ChoroplethSettings.validateProperties(choroSettings, roleMap);
-
             const choroplethData = this.source.getData(map, settings);
             const colorField = roleMap.get('color', choroSettings.colorField - 1)
             const isGradient = shouldUseGradient(colorField);

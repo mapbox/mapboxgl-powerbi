@@ -133,7 +133,6 @@ export class Circle extends Layer {
         const lastId = super.applySettings(settings, roleMap, prevId);
         const map = this.parent.getMap();
         if (settings.circle.show) {
-            CircleSettings.validateProperties(settings.circle, roleMap);
             const colorField = roleMap.get('color', settings.circle.colorField - 1)
             const colorFieldName = colorField ? colorField.displayName : ""
             const isGradient = shouldUseGradient(colorField);
