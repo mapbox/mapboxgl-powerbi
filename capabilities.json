@@ -538,7 +538,7 @@
             "minZoom": {
               "displayName": "Min Zoom",
               "displayNameKey": "minZoom",
-              "description": "Minimum zoom level layer is visibile at.",
+              "description": "Minimum zoom level layer is visible at.",
               "type": {
                 "numeric": true
               }
@@ -546,7 +546,7 @@
             "maxZoom": {
               "displayName": "Max Zoom",
               "displayNameKey": "maxZoom",
-              "description": "Maximum zoom level layer is visibile at.",
+              "description": "Maximum zoom level layer is visible at.",
               "type": {
                 "numeric": true
               }
@@ -664,7 +664,7 @@
             "minZoom": {
               "displayName": "Min Zoom",
               "displayNameKey": "minZoom",
-              "description": "Minimum zoom level layer is visibile at.",
+              "description": "Minimum zoom level layer is visible at.",
               "type": {
                 "numeric": true
               }
@@ -672,7 +672,7 @@
             "maxZoom": {
               "displayName": "Max Zoom",
               "displayNameKey": "maxZoom",
-              "description": "Maximum zoom level layer is visibile at.",
+              "description": "Maximum zoom level layer is visible at.",
               "type": {
                 "numeric": true
               }
@@ -810,7 +810,7 @@
             "minZoom": {
               "displayName": "Min Zoom",
               "displayNameKey": "minZoom",
-              "description": "Minimum zoom level layer is visibile at.",
+              "description": "Minimum zoom level layer is visible at.",
               "type": {
                 "numeric": true
               }
@@ -818,7 +818,7 @@
             "maxZoom": {
               "displayName": "Max Zoom",
               "displayNameKey": "maxZoom",
-              "description": "Maximum zoom level layer is visibile at.",
+              "description": "Maximum zoom level layer is visible at.",
               "type": {
                 "numeric": true
               }
@@ -1004,7 +1004,7 @@
             "minZoom": {
               "displayName": "Min Zoom",
               "displayNameKey": "minZoom",
-              "description": "Minimum zoom level layer is visibile at.",
+              "description": "Minimum zoom level layer is visible at.",
               "type": {
                 "integer": true
               }
@@ -1012,7 +1012,7 @@
             "maxZoom": {
               "displayName": "Max Zoom",
               "displayNameKey": "maxZoom",
-              "description": "Maximum zoom level layer is visibile at.",
+              "description": "Maximum zoom level layer is visible at.",
               "type": {
                 "integer": true
               }
@@ -1727,7 +1727,7 @@
             "minZoom": {
               "displayName": "Min Zoom",
               "displayNameKey": "minZoom",
-              "description": "Minimum zoom level layer is visibile at.",
+              "description": "Minimum zoom level layer is visible at.",
               "type": {
                 "numeric": true
               }
@@ -1735,7 +1735,7 @@
             "maxZoom": {
               "displayName": "Max Zoom",
               "displayNameKey": "maxZoom",
-              "description": "Maximum zoom level layer is visibile at.",
+              "description": "Maximum zoom level layer is visible at.",
               "type": {
                 "numeric": true
               }
