@@ -137,7 +137,8 @@ export class Cluster extends Layer {
     ): void
     {
         const id = this.getId();
-        const title = settings.cluster.aggregation;
+        const clusterField = roleMap.cluster()
+        const title = `${settings.cluster.aggregation} of ${clusterField}`;
         const colorStops = this.getColorStops();
         const format = LegendControl.DEFAULT_NUMBER_FORMAT;
         const legendPosition = settings[this.id].legendPosition
