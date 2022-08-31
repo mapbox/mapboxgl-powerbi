@@ -277,6 +277,7 @@ export class Choropleth extends Layer {
 
     setFillProps(map: any, settings: ChoroplethSettings) {
         map.setPaintProperty(Choropleth.ID, 'fill-outline-color', 'rgba(0,0,0,0.05)');
+        map.setPaintProperty(Choropleth.ID, 'fill-opacity', settings.opacity / 100);
         map.setPaintProperty(Choropleth.HighlightID, "fill-color", settings.highlightColor)
         map.setPaintProperty(Choropleth.ExtrusionHighlightID, "fill-extrusion-color", settings.highlightColor)
         map.setPaintProperty(Choropleth.ExtrusionHighlightID, 'fill-extrusion-base', settings.baseHeight);
