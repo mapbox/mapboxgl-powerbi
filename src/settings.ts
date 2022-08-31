@@ -462,10 +462,22 @@ export class RasterSettings {
 export class LegendSettings {
     public opacity: number = 80;
     public fontSize: number = 12;
+    public font: string = "Helvetica Neue";
+    public customFont: string = "";
+    public fontWeight: string = "normal";
+    public fontColor: string = "#000000";
+    public backgroundColor: string = "#FFFFFF";
 
     public enumerateObjectInstances(objectEnumeration) {
         let instances = objectEnumeration.instances;
         let properties = instances[0].properties;
+
+        if (properties.font != "other") {
+            properties.customFont = "";
+            delete properties.customFont
+        } else if (!properties.customFont) {
+            properties.customFont = "";
+        }
 
         instances[0].validValues = {
             opacity: {
