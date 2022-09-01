@@ -531,7 +531,7 @@
             "highlightColor": {
               "displayName": "Highlight Color",
               "displayNameKey": "highlightColor",
-              "description": "Defines the color a polyon will take when highlighted.",
+              "description": "Defines the color a circle will take when highlighted.",
               "type": {
                 "fill": {
                   "solid": {
@@ -989,13 +989,49 @@
             "highlightColor": {
               "displayName": "Highlight Color",
               "displayNameKey": "highlightColor",
-              "description": "Defines the color a polyon will take when highlighted.",
+              "description": "Defines the color a polygon will take when highlighted.",
               "type": {
                 "fill": {
                   "solid": {
                     "color": true
                   }
                 }
+              }
+            },
+            "highlightOpacity": {
+              "displayName": "Highlight Opacity",
+              "displayNameKey": "highlightOpacity",
+              "description": "Defines the highlight opacity of a polygon.",
+              "type": {
+                "numeric": true
+              }
+            },
+            "highlightOutlineColor": {
+              "displayName": "Highlight Outline Color",
+              "displayNameKey": "highlightOutlineColor",
+              "description": "Defines the color of the highlight outline of a polygon.",
+              "type": {
+                "fill": {
+                  "solid": {
+                    "color": true
+                  }
+                }
+              }
+            },
+            "highlightOutlineOpacity": {
+              "displayName": "Highlight Outline Opacity",
+              "displayNameKey": "highlightOutlineOpacity",
+              "description": "Defines the highlight outline opacity of a polygon.",
+              "type": {
+                "numeric": true
+              }
+            },
+            "highlightOutlineWidth": {
+              "displayName": "Highlight Outline Width",
+              "displayNameKey": "highlightOutlineWidth",
+              "description": "Defines the highlight outline width of a polygon.",
+              "type": {
+                "numeric": true
               }
             },
             "height": {
