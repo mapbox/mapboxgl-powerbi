@@ -86,7 +86,15 @@ export class LegendControl {
         const d = document;
         const legend = d.createElement('div');
         legend.setAttribute("class", "mapbox-legend mapboxgl-ctrl-group");
-        legend.setAttribute("style", `opacity: ${this.settings.opacity / 100}; font-size: ${this.settings.fontSize}px;`);
+        legend.setAttribute("style", `
+            opacity: ${this.settings.opacity / 100};
+            font-size: ${this.settings.fontSize}px;
+            font-family: ${this.settings.font == "other" ? this.settings.customFont : this.settings.font};
+            font-weight: ${this.settings.fontWeight};
+            color: ${this.settings.fontColor};
+            background-color: ${this.settings.backgroundColor};
+            border-color: ${this.settings.backgroundColor};
+        `);
         dragElement(legend)
         this.addValuesToLegend(title, data, format, legend)
 

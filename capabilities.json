@@ -1767,11 +1767,116 @@
               }
             },
             "fontSize": {
-              "displayName": "Font size",
+              "displayName": "Font Size",
               "displayNameKey": "fontSize",
               "description": "Set font size for the legend elements",
               "type": {
                 "numeric": true
+              }
+            },
+            "font": {
+              "displayName": "Font",
+              "displayNameKey": "font",
+              "description": "Set font for the legend elements",
+              "type": {
+                "enumeration": [
+                  {
+                    "value": "Arial Black",
+                    "displayName": "Arial Black",
+                    "displayNameKey": "Arial Black"
+                  },
+                  {
+                    "value": "Gill Sans",
+                    "displayName": "Gill Sans",
+                    "displayNameKey": "Gill Sans"
+                  },
+                  {
+                    "value": "Helvetica Neue",
+                    "displayName": "Helvetica Neue",
+                    "displayNameKey": "Helvetica Neue"
+                  },
+                  {
+                    "value": "Roboto",
+                    "displayName": "Roboto",
+                    "displayNameKey": "Roboto"
+                  },
+                  {
+                    "value": "Tahoma",
+                    "displayName": "Tahoma",
+                    "displayNameKey": "Tahoma"
+                  },
+                  {
+                    "value": "Times New Roman",
+                    "displayName": "Times New Roman",
+                    "displayNameKey": "Times New Roman"
+                  },
+                  {
+                    "value": "Verdana",
+                    "displayName": "Verdana",
+                    "displayNameKey": "Verdana"
+                  },
+                  {
+                    "value": "other",
+                    "displayName": "Other...",
+                    "displayNameKey": "other"
+                  }
+                ]
+              }
+            },
+            "customFont": {
+              "displayName": "Other Font",
+              "displayNameKey": "customFont",
+              "description": "Name of a different font",
+              "type": {
+                "text": true
+              }
+            },
+            "fontWeight": {
+              "displayName": "Font Weight",
+              "displayNameKey": "fontWeight",
+              "description": "Set font weight for the legend elements",
+              "type": {
+                "enumeration": [
+                  {
+                    "value": "lighter",
+                    "displayName": "Light",
+                    "displayNameKey": "lighter"
+                  },
+                  {
+                    "value": "normal",
+                    "displayName": "Normal",
+                    "displayNameKey": "normal"
+                  },
+                  {
+                    "value": "bold",
+                    "displayName": "Bold",
+                    "displayNameKey": "bold"
+                  }
+                ]
+              }
+            },
+            "fontColor": {
+              "displayName": "Font Color",
+              "displayNameKey": "fontColor",
+              "description": "Set font color for the legend elements",
+              "type": {
+                "fill": {
+                  "solid": {
+                    "color": true
+                  }
+                }
+              }
+            },
+            "backgroundColor": {
+              "displayName": "Background Color",
+              "displayNameKey": "backgroundColor",
+              "description": "Set background color for the legend elements",
+              "type": {
+                "fill": {
+                  "solid": {
+                    "color": true
+                  }
+                }
               }
             }
           }
