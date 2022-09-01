@@ -126,7 +126,7 @@ export class MapboxMap implements IVisual {
     }
 
     updateZoom(settings: MapboxSettings) {
-        if (settings.api.autozoom && (this.roleMap.getAll('location').length == 1)) {
+        if (settings.api.autozoom) {
             const bounds = this.layers.map(layer => {
                 return layer.getBounds(settings);
             }).reduce((acc, bounds) => {
@@ -330,7 +330,7 @@ export class MapboxMap implements IVisual {
                         }
                         layer.addLegend(this.legend, this.roleMap, this.settings);
                     });
-                    this.legend.setLegends();
+                    this.legend?.setLegends();
                 }
             } catch (e) {
                 console.error("Error in zoom handler: ", e)
@@ -583,6 +583,7 @@ export class MapboxMap implements IVisual {
         if (options.objectName == 'colorSelector') {
             return this.palette.enumerateObjectInstances(options);
         } else {
+            MapboxSettings.roleMap = this.roleMap;
             return MapboxSettings.enumerateObjectInstances(this.settings || MapboxSettings.getDefault(), options);
         }
     }

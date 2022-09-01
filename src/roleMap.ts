@@ -27,6 +27,11 @@ export class RoleMap {
         return col ? col.displayName : "";
     }
 
+    colorByColorField(i: number) : string {
+        const cols = this.getAll('color');
+        return (cols.length > i) ? cols[i].displayName : "";
+    }
+
     location() : string {
         const col = this.getColumn('location', Choropleth.ID);
         return col ? col.displayName : "";
@@ -51,6 +56,14 @@ export class RoleMap {
         return this.map['tooltips'];
     }
 
+    get(role: string, index: number) {
+        if (this.map[role] && this.map[role].length > index) {
+            return this.map[role][index];
+        }
+
+        return null
+    }
+
     getAll(role: string) : Column[] {
         if (!this.map[role] || this.map[role].length <= 0) {
             return null;
@@ -59,7 +72,7 @@ export class RoleMap {
         return this.map[role]
     }
 
-    getColumn(role: string, layerID: string) : Column {
+    getColumn(role: string, layerID: string, index: number = 0) : Column {
         if (!this.map[role] || this.map[role].length <= 0) {
             return null;
         }
@@ -68,7 +81,7 @@ export class RoleMap {
             return this.map[role][1];
         }
 
-        return this.map[role][0];
+        return this.map[role][index];
     }
 }
 

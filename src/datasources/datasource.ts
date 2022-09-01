@@ -30,7 +30,7 @@ export abstract class Datasource {
 
     update(map, features, roleMap, settings) {}
     getBounds() : any[] { return this.bounds }
-    getLimits() : any { return null }
+    getLimits(index: number) : any { return null }
     handleZoom(map, settings) : boolean {
         return false;
     }

@@ -103,7 +103,7 @@ export class Cluster extends Layer {
             map.setPaintProperty(Cluster.UnclusterID, 'circle-stroke-color', settings.cluster.strokeColor);
             map.setPaintProperty(Cluster.UnclusterID, 'circle-color', settings.cluster.minColor);
             map.setPaintProperty(Cluster.UnclusterID, 'circle-radius', settings.cluster.radius/2);
-            const limits = this.source.getLimits()
+            const limits = this.source.getLimits(0)
             if (limits && limits.min && limits.max) {
                 this.colorStops = this.generateColorStops(settings.cluster, true, limits, null)
                 map.setPaintProperty(Cluster.ID, 'circle-color', [

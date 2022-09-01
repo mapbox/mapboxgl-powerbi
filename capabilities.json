@@ -119,9 +119,6 @@
           "longitude": {
             "max": 1
           },
-          "color": {
-            "max": 2
-          },
           "size": {
             "max": 1
           },
@@ -395,6 +392,14 @@
               "type": {
                 "bool": true
               }
+            },
+            "colorField": {
+                "displayName": "Color Field",
+                "displayNameKey": "colorField",
+                "description": "Which field in the Role Color to use in this layer",
+                "type": {
+                  "numeric": true
+                }
             },
             "diverging": {
               "displayName": "Diverging",
@@ -872,6 +877,14 @@
               "type": {
                 "bool": true
               }
+            },
+            "colorField": {
+                "displayName": "Color Field",
+                "displayNameKey": "colorField",
+                "description": "Which field in the Role Color to use in this layer",
+                "type": {
+                  "numeric": true
+                }
             },
             "aggregation": {
               "type": {

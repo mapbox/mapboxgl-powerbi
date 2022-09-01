@@ -29,8 +29,10 @@
 import { dataViewObjectsParser } from "powerbi-visuals-utils-dataviewutils";
 import DataViewObjectsParser = dataViewObjectsParser.DataViewObjectsParser;
 import powerbiVisualsApi from "powerbi-visuals-api";
+import { RoleMap } from "./roleMap"
 
 export class MapboxSettings extends DataViewObjectsParser {
+        public static roleMap: RoleMap;
         public api: APISettings = new APISettings();
         public geocoder: GeocoderSettings = new GeocoderSettings();
         public cluster: ClusterSettings = new ClusterSettings();
@@ -111,7 +113,8 @@ export class APISettings {
 
 
 export class CircleSettings {
-    public show: boolean = true;
+    public show: boolean = false;
+    public colorField: number = 1;
     public radius: number = 3;
     public scaleFactor: number = 5;
     public diverging: boolean = false;
@@ -135,6 +138,21 @@ export class CircleSettings {
     public enumerateObjectInstances(objectEnumeration) {
         let instances = objectEnumeration.instances;
         let properties = instances[0].properties;
+
+        instances[0].validValues = {
+            colorField: {
+                numberRange: {
+                    min: 1,
+                    max: 1
+                }
+            }
+        }
+
+        const colorFields = MapboxSettings.roleMap.getAll("color");
+        if (colorFields) {
+            instances[0].validValues.colorField.numberRange.max = colorFields.length
+        }
+
         // Hide / show center color according to diverging property
         if (!properties.diverging) {
             delete properties.midColor;
@@ -206,6 +224,7 @@ export class ChoroplethSettings {
     static readonly PREDEFINED_VECTOR_PROPERTY = "name";
 
     public show: boolean = false;
+    public colorField: number = 1;
     public aggregation: string = "Count";
     public diverging: boolean = false;
     public minColor: string = "#edf8b1";
@@ -368,7 +387,13 @@ export class ChoroplethSettings {
                     max: 10,
                 }
             },
-            selectedLevel: []
+            selectedLevel: [],
+            colorField: {
+                numberRange: {
+                    min: 1,
+                    max: 1,
+                }
+            },
         }
 
         for (let i = 0; i < properties.maxLevel; i++) {
@@ -392,6 +417,11 @@ export class ChoroplethSettings {
                     this.removeCustom(properties, i + 1)
                 }
             }
+        }
+
+        const colorFields = MapboxSettings.roleMap.getAll("color");
+        if (colorFields) {
+            instances[0].validValues.colorField.numberRange.max = colorFields.length
         }
 
         if (!properties.diverging) {

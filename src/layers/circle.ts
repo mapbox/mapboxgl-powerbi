@@ -133,12 +133,13 @@ export class Circle extends Layer {
         const lastId = super.applySettings(settings, roleMap, prevId);
         const map = this.parent.getMap();
         if (settings.circle.show) {
-            const isGradient = shouldUseGradient(roleMap.getColumn('color', Circle.ID));
-            const limits = this.source.getLimits()
+            const colorField = roleMap.get('color', settings.circle.colorField - 1)
+            const colorFieldName = colorField ? colorField.displayName : ""
+            const isGradient = shouldUseGradient(colorField);
+            const limits = this.source.getLimits(settings.circle.colorField - 1)
             const sizes = Circle.getSizes(limits.size, map, settings, roleMap.size());
-
             this.colorStops = this.generateColorStops(settings.circle, isGradient, limits.color, this.palette)
-            let colorStyle = Circle.getColorStyle(isGradient, settings, roleMap.color(this), this.colorStops);
+            let colorStyle = Circle.getColorStyle(isGradient, settings, colorFieldName, this.colorStops);
 
             map.setPaintProperty(Circle.ID, 'circle-radius', sizes);
             map.setPaintProperty(Circle.HighlightID, 'circle-radius', sizes);
