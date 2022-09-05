@@ -229,6 +229,9 @@ export class MapboxMap implements IVisual {
             this.map = null;
             this.mapStyle = "";
             this.layers = []
+            this.controlsPopulated = false;
+            this.geocoder = null
+            this.legend = null
         }
     }
 
