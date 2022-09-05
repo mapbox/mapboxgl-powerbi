@@ -94,7 +94,7 @@ export class Choropleth extends Layer {
             source: 'choropleth-source',
             paint: {
                 "fill-color": choroSettings.highlightColor,
-                "fill-opacity": 1
+                "fill-opacity": choroSettings.highlightOpacity / 100
             },
             "source-layer": sourceLayer,
             filter: zeroFilter
@@ -106,8 +106,8 @@ export class Choropleth extends Layer {
                 "line-join": "round"
             },
             paint: {
-                "line-width": 1,
-                "line-color": 'black',
+                "line-width": choroSettings.highlightOutlineWidth,
+                "line-color": choroSettings.highlightOutlineColor,
             },
             source: 'choropleth-source',
             "source-layer": sourceLayer,
@@ -279,6 +279,7 @@ export class Choropleth extends Layer {
         map.setPaintProperty(Choropleth.ID, 'fill-outline-color', 'rgba(0,0,0,0.05)');
         map.setPaintProperty(Choropleth.ID, 'fill-opacity', settings.opacity / 100);
         map.setPaintProperty(Choropleth.HighlightID, "fill-color", settings.highlightColor)
+        map.setPaintProperty(Choropleth.HighlightID, "fill-opacity", settings.highlightOpacity / 100)
         map.setPaintProperty(Choropleth.ExtrusionHighlightID, "fill-extrusion-color", settings.highlightColor)
         map.setPaintProperty(Choropleth.ExtrusionHighlightID, 'fill-extrusion-base', settings.baseHeight);
         map.setPaintProperty(Choropleth.ExtrusionID, 'fill-extrusion-base', settings.baseHeight);
@@ -288,6 +289,9 @@ export class Choropleth extends Layer {
         map.setPaintProperty(Choropleth.OutlineID, 'line-color', settings.outlineColor);
         map.setPaintProperty(Choropleth.OutlineID, 'line-width', settings.outlineWidth);
         map.setPaintProperty(Choropleth.OutlineID, 'line-opacity', settings.outlineOpacity / 100);
+        map.setPaintProperty(Choropleth.HighlightOutlineID, 'line-color', settings.highlightOutlineColor);
+        map.setPaintProperty(Choropleth.HighlightOutlineID, 'line-opacity', settings.highlightOutlineOpacity / 100);
+        map.setPaintProperty(Choropleth.HighlightOutlineID, 'line-width', settings.highlightOutlineWidth);
     }
 
     setZoom(map: any, settings: ChoroplethSettings) {

@@ -234,6 +234,10 @@ export class ChoroplethSettings {
     public midValue: number = null;
     public maxValue: number = null;
     public highlightColor: string = "#2c7fb8";
+    public highlightOpacity: number = 100;
+    public highlightOutlineColor: string = "#000000";
+    public highlightOutlineOpacity: number = 100;
+    public highlightOutlineWidth: number = 1;
     public minZoom: number = 0;
     public maxZoom: number = 22;
     public height: number = 500;
@@ -363,6 +367,18 @@ export class ChoroplethSettings {
                     max: 60
                 }
             },
+            highlightOpacity: {
+                numberRange: {
+                    min: 0,
+                    max: 100,
+                }
+            },
+            highlightOutlineWidth: {
+                numberRange: {
+                    min: 0,
+                    max: 10,
+                }
+            },
             opacity: {
                 numberRange: {
                     min: 0,
@@ -378,7 +394,7 @@ export class ChoroplethSettings {
             outlineWidth: {
                 numberRange: {
                     min: 0,
-                    max: 1000,
+                    max: 10,
                 }
             },
             maxLevel: {
