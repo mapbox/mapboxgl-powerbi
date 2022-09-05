@@ -127,9 +127,10 @@ export class LayerControl implements mapboxgl.IControl {
 
     private getLayerSources = () => {
         const layerSources: { [key: string]: string[] } = {};
+        const dataLayers = ["circle", "cluster", "choropleth", "heatmap", "raster"]
 
         this.map.getStyle().layers.forEach(layer => {
-            if (!layer.id.includes("choropleth")) {
+            if (!dataLayers.some(dataLayer => layer.id.includes(dataLayer))) {
                 if (layer["source-layer"] === undefined) {
                     layer["source-layer"] = "land";
                 }
