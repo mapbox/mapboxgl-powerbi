@@ -198,7 +198,7 @@ export class Circle extends Layer {
 
         // Add transparent as default so that we only see regions
         // for which we have data values
-        categoricalStyle.push('rgba(255,0,0,255)');
+        categoricalStyle = categoricalStyle.concat(Array(5 - categoricalStyle.length).fill('rgba(255,0,0,255)'));
 
         return categoricalStyle;
     }
@@ -217,7 +217,9 @@ export class Circle extends Layer {
             sizeStops.map((sizeStop, index) => {
                 const size = settings.circle.radius + index * sizeDelta
                 style.push(sizeStop);
-                style.push(size);
+                if(!isNaN(size) && isFinite(size)) {
+                    style.push(size);
+                }
             });
             return style;
         }
